@@ -1,0 +1,56 @@
+baseURL = "https://hodelweb.ch/"
+languageCode = "en"
+title = "Tobias Hodel"
+theme = "PaperMod"
+paginate = 20
+
+[params]
+  author = "Tobias Hodel"
+  description = "Prof. Dr. Tobias Hodel — Digital Humanities, University of Bern"
+  ShowReadingTime = false
+  ShowShareButtons = false
+  ShowPostNavLinks = true
+  ShowBreadCrumbs = true
+  ShowCodeCopyButtons = true
+  defaultTheme = "light"
+  [params.profileMode]
+    enabled = true
+    title = "Tobias Hodel"
+    subtitle = "Prof. Dr. — Assistant Professor of Digital Humanities, University of Bern"
+    imageUrl = ""
+    imageTitle = ""
+    [[params.profileMode.buttons]]
+      name = "CV"
+      url = "/cv/"
+    [[params.profileMode.buttons]]
+      name = "Publications"
+      url = "/publications/"
+    [[params.profileMode.buttons]]
+      name = "Projects"
+      url = "/projects/"
+  [[params.socialIcons]]
+    name = "orcid"
+    url = "https://orcid.org/0000-0002-2071-6407"
+  [[params.socialIcons]]
+    name = "github"
+    url = "https://github.com/thodel"
+  [[params.socialIcons]]
+    name = "email"
+    url = "mailto:tobias.hodel@unibe.ch"
+
+[[menu.main]]
+  name = "Home"
+  url = "/"
+  weight = 1
+[[menu.main]]
+  name = "CV"
+  url = "/cv/"
+  weight = 2
+[[menu.main]]
+  name = "Publications"
+  url = "/publications/"
+  weight = 3
+[[menu.main]]
+  name = "Projects"
+  url = "/projects/"
+  weight = 4
