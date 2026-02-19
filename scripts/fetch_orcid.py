@@ -6,7 +6,8 @@ import urllib.request
 from collections import defaultdict
 
 ORCID_ID = "0000-0002-2071-6407"
-OUTPUT = "content/publications/index.md"
+OUTPUT_DE = "content/publikationen/index.de.md"
+OUTPUT_EN = "content/publikationen/index.en.md"
 
 def fetch_works():
     """Fetch all works from ORCID API."""
@@ -60,24 +61,38 @@ def type_label(t):
     }
     return labels.get(t, t.replace("-", " ").title())
 
-def generate_markdown(works):
+def generate_markdown(works, lang="de"):
     """Generate a Hugo markdown page from parsed works."""
     by_year = defaultdict(list)
     for w in works:
         by_year[w["year"]].append(w)
 
-    lines = [
-        "---",
-        'title: "Publications"',
-        'layout: "single"',
-        'url: "/publications/"',
-        'summary: "Publications fetched from ORCID"',
-        "---",
-        "",
-        f"Publications fetched automatically from [ORCID](https://orcid.org/{ORCID_ID}). "
-        f"Total: **{len(works)}** entries.",
-        "",
-    ]
+    if lang == "de":
+        lines = [
+            "---",
+            'title: "Publikationen"',
+            'layout: "single"',
+            'url: "/publikationen/"',
+            'summary: "Publikationen"',
+            "---",
+            "",
+            f"Automatisch abgerufen von [ORCID](https://orcid.org/{ORCID_ID}). "
+            f"Total: **{len(works)}** Einträge.",
+            "",
+        ]
+    else:
+        lines = [
+            "---",
+            'title: "Publications"',
+            'layout: "single"',
+            'url: "/en/publications/"',
+            'summary: "Publications"',
+            "---",
+            "",
+            f"Fetched automatically from [ORCID](https://orcid.org/{ORCID_ID}). "
+            f"Total: **{len(works)}** entries.",
+            "",
+        ]
 
     for year in sorted(by_year.keys(), reverse=True):
         lines.append(f"## {year}")
@@ -99,11 +114,12 @@ def main():
     print(f"Found {len(groups)} work groups.")
 
     works = [parse_work(g) for g in groups]
-    md = generate_markdown(works)
 
-    with open(OUTPUT, "w") as f:
-        f.write(md)
-    print(f"Written {len(works)} publications to {OUTPUT}")
+    for lang, output in [("de", OUTPUT_DE), ("en", OUTPUT_EN)]:
+        md = generate_markdown(works, lang=lang)
+        with open(output, "w") as f:
+            f.write(md)
+        print(f"Written {len(works)} publications to {output}")
 
 if __name__ == "__main__":
     main()

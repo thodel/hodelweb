@@ -1,33 +1,102 @@
 baseURL = "https://hodelweb.ch/"
-languageCode = "en"
 title = "Tobias Hodel"
 theme = "PaperMod"
 paginate = 20
+defaultContentLanguage = "de"
+defaultContentLanguageInSubdir = false
+
+[languages]
+  [languages.de]
+    languageName = "Deutsch"
+    weight = 1
+    [languages.de.params]
+      description = "Prof. Dr. Tobias Hodel — Digital Humanities, Universität Bern"
+      [languages.de.params.profileMode]
+        enabled = true
+        title = "Tobias Hodel"
+        subtitle = "Prof. Dr. — Assistenzprofessur Digital Humanities, Universität Bern"
+        [[languages.de.params.profileMode.buttons]]
+          name = "CV"
+          url = "/cv/"
+        [[languages.de.params.profileMode.buttons]]
+          name = "Publikationen"
+          url = "/publikationen/"
+        [[languages.de.params.profileMode.buttons]]
+          name = "Projekte"
+          url = "/projekte/"
+        [[languages.de.params.profileMode.buttons]]
+          name = "Lehre"
+          url = "/lehre/"
+    [[languages.de.menu.main]]
+      name = "Start"
+      url = "/"
+      weight = 1
+    [[languages.de.menu.main]]
+      name = "CV"
+      url = "/cv/"
+      weight = 2
+    [[languages.de.menu.main]]
+      name = "Publikationen"
+      url = "/publikationen/"
+      weight = 3
+    [[languages.de.menu.main]]
+      name = "Projekte"
+      url = "/projekte/"
+      weight = 4
+    [[languages.de.menu.main]]
+      name = "Lehre"
+      url = "/lehre/"
+      weight = 5
+
+  [languages.en]
+    languageName = "English"
+    weight = 2
+    [languages.en.params]
+      description = "Prof. Dr. Tobias Hodel — Digital Humanities, University of Bern"
+      [languages.en.params.profileMode]
+        enabled = true
+        title = "Tobias Hodel"
+        subtitle = "Prof. Dr. — Assistant Professor of Digital Humanities, University of Bern"
+        [[languages.en.params.profileMode.buttons]]
+          name = "CV"
+          url = "/en/cv/"
+        [[languages.en.params.profileMode.buttons]]
+          name = "Publications"
+          url = "/en/publications/"
+        [[languages.en.params.profileMode.buttons]]
+          name = "Projects"
+          url = "/en/projects/"
+        [[languages.en.params.profileMode.buttons]]
+          name = "Teaching"
+          url = "/en/teaching/"
+    [[languages.en.menu.main]]
+      name = "Home"
+      url = "/en/"
+      weight = 1
+    [[languages.en.menu.main]]
+      name = "CV"
+      url = "/en/cv/"
+      weight = 2
+    [[languages.en.menu.main]]
+      name = "Publications"
+      url = "/en/publications/"
+      weight = 3
+    [[languages.en.menu.main]]
+      name = "Projects"
+      url = "/en/projects/"
+      weight = 4
+    [[languages.en.menu.main]]
+      name = "Teaching"
+      url = "/en/teaching/"
+      weight = 5
 
 [params]
   author = "Tobias Hodel"
-  description = "Prof. Dr. Tobias Hodel — Digital Humanities, University of Bern"
   ShowReadingTime = false
   ShowShareButtons = false
   ShowPostNavLinks = true
   ShowBreadCrumbs = true
-  ShowCodeCopyButtons = true
   defaultTheme = "light"
-  [params.profileMode]
-    enabled = true
-    title = "Tobias Hodel"
-    subtitle = "Prof. Dr. — Assistant Professor of Digital Humanities, University of Bern"
-    imageUrl = ""
-    imageTitle = ""
-    [[params.profileMode.buttons]]
-      name = "CV"
-      url = "/cv/"
-    [[params.profileMode.buttons]]
-      name = "Publications"
-      url = "/publications/"
-    [[params.profileMode.buttons]]
-      name = "Projects"
-      url = "/projects/"
   [[params.socialIcons]]
     name = "orcid"
     url = "https://orcid.org/0000-0002-2071-6407"
@@ -37,20 +106,3 @@ paginate = 20
   [[params.socialIcons]]
     name = "email"
     url = "mailto:tobias.hodel@unibe.ch"
-
-[[menu.main]]
-  name = "Home"
-  url = "/"
-  weight = 1
-[[menu.main]]
-  name = "CV"
-  url = "/cv/"
-  weight = 2
-[[menu.main]]
-  name = "Publications"
-  url = "/publications/"
-  weight = 3
-[[menu.main]]
-  name = "Projects"
-  url = "/projects/"
-  weight = 4

@@ -1,11 +1,11 @@
 ---
-title: "Publications"
+title: "Publikationen"
 layout: "single"
-url: "/publications/"
-summary: "Publications fetched from ORCID"
+url: "/publikationen/"
+summary: "Publikationen"
 ---
 
-Publications fetched automatically from [ORCID](https://orcid.org/0000-0002-2071-6407). Total: **80** entries.
+Automatisch abgerufen von [ORCID](https://orcid.org/0000-0002-2071-6407). Total: **80** Einträge.
 
 ## 2026
 
