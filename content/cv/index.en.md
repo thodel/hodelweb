@@ -43,7 +43,7 @@ Digital Humanities, application and theory of machine learning in the humanities
 - Board member, [Swiss Academy of Humanities and Social Sciences](https://sagw.ch/) (since 2022)
 - Scientific Advisory Board, [DaSCH](https://www.dasch.swiss/) (since 2022)
 - AI Research Expert Group, [The Guild](https://www.the-guild.eu/), Brussels (since 2024)
-- [OECD](https://www.oecd.org/) Global Science Forum, Research Infrastructure expert (2023–2025)
+- [OECD](https://www.oecd.org/) [Global Science Forum](https://www.oecd.org/en/networks/global-science-forum.html), Research Infrastructure expert (2023–2025)
 - Representative of the [University of Bern](https://www.unibe.ch/) in [DARIAH-CH](https://www.dariah.ch/); President of the consortium 2022–2024
 - Co-editor, book series [*Digital Humanities Research*](https://www.transcript-verlag.de/reihen/digital-humanities-research/), Bielefeld University Press/Transcript
 - Programme director, [MAS in Extended Intelligence](https://www.unibe.ch/weiterbildung/mas_extended_intelligence/) & [MAS in Archival, Library and Information Science](https://www.unibe.ch/weiterbildung/mas_archiv_bibliotheks_und_informationswissenschaft/) ([University of Bern](https://www.unibe.ch/))

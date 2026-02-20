@@ -7,10 +7,10 @@ summary: "Lehrveranstaltungen"
 
 ## Aktuelle Lehre (Universität Bern)
 
-- **Programmverantwortlicher** Digital Humanities Master Minor (30 ECTS; ab FS2026: 90 ECTS)
+- **Programmverantwortlicher** Digital Humanities Master Major und Minor (30 ECTS; ab FS2026: 90 ECTS)
 - **Programmleitung** MAS in Extended Intelligence (inkl. CAS in Applied Data Science, Advanced Machine Learning, Natural Language Processing)
 - **Programmleitung** MAS in Archiv-, Bibliotheks- und Informationswissenschaft
-- **Verantwortlicher** des interuniversitären Doktoratsprogramms Digital Humanities (Universitäten Bern & Basel)
+- **Verantwortlicher** des Doktoratsprogramms Digital Humanities
 
 ## Frühere Lehrtätigkeit
 

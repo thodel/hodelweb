@@ -49,7 +49,7 @@ Digitale Geisteswissenschaften, Anwendung und Theorie maschineller Lernverfahren
 
 **Seit 2024**
 - Editor-in-Chief [«Digital Medievalist Journal»](https://digitalmedievalist.github.io/)
-- Vertreter der phil.-hist. Fakultät im Steering Committee der Core Facilities der [Universität Bern](https://www.unibe.ch/)
+- Vertreter der phil.-hist. Fakultät im Steering Committee der [Core Facilities](https://www.unibe.ch/research/services/infrastructure_and_facilities/ucf/index_eng.html) der [Universität Bern](https://www.unibe.ch/)
 - Mitglied Kommission [Dodis – Diplomatische Dokumente der Schweiz](https://www.dodis.ch/)
 - Mitglied «AI Research Expert Group», [The Guild](https://www.the-guild.eu/), Brüssel
 
@@ -60,9 +60,9 @@ Digitale Geisteswissenschaften, Anwendung und Theorie maschineller Lernverfahren
 
 **Seit 2021**
 - Gründungsmitglied der [Bern Data Science Initiative (BeDSI)](https://www.bds.unibe.ch/)
-- Vertreter der phil.-hist. Fakultät in der universitären Digitalisierungskommission
-- Verantwortlicher des interuniversitären Doktoratsprogramms Digital Humanities und des Netzwerks [DH-CH](https://dh-ch.ch/) ([Universitäten Bern](https://www.unibe.ch/) & [Basel](https://www.unibas.ch/))
-- Programmverantwortlicher Digital Humanities Master Minor, 30 ECTS; ab FS2026 90 ECTS
+- Vertreter der phil.-hist. Fakultät in der universitären [Digitalisierungskommission](https://www.unibe.ch/universitaet/campus__und__infrastruktur/digitalisierung_an_der_universitaet_bern/beteiligte/digik/index_ger.html)
+- Verantwortlicher des interuniversitären [Doktoratsprogramms Digital Humanities](https://junioracademics.unibe.ch/doktorat/doktoratsausbildung/doktoratsprogramme/doktoratsprogramme_universitaet_bern_20252028/index_ger.html) und des Netzwerks [DH-CH](https://dh-ch.ch/) ([Universitäten Bern](https://www.unibe.ch/) & [Basel](https://www.unibas.ch/))
+- Programmverantwortlicher [Digital Humanities Master Minor](https://www.philhist.unibe.ch/studium/studienprogramme/master_minorstudienprogramm_digital_humanities/index_ger.html), 30 ECTS; ab FS2026 90 ECTS
 
 **Seit 2020**
 - Mitherausgeber der Reihe [«Digital Humanities Research»](https://www.transcript-verlag.de/reihen/digital-humanities-research/), University of Bielefeld Press/Transcript
@@ -71,11 +71,11 @@ Digitale Geisteswissenschaften, Anwendung und Theorie maschineller Lernverfahren
 
 **Seit 2019**
 - Vertreter der [Universität Bern](https://www.unibe.ch/) in [DARIAH-CH](https://www.dariah.ch/), 2022–2024 Präsident des Konsortiums
-- Ansprechperson Digitalisierung der Phil.-hist. Fakultät
+- Ansprechperson Digitalisierung der [Phil.-hist. Fakultät](https://www.philhist.unibe.ch/)
 - Herausgeber von [Ad fontes](https://www.adfontes.uzh.ch/) (zusammen mit Prof. Dr. Simon Teuscher, [Universität Zürich](https://www.uzh.ch/))
 
-**2023–2025** — Experte für «Research Infrastructure», [OECD](https://www.oecd.org/) Panel «Global Science Forum», Repräsentant der Schweizer Eidgenossenschaft (nominiert durch [SBFI](https://www.sbfi.admin.ch/)).
+**2023–2025** — Experte für «Research Infrastructure», [OECD](https://www.oecd.org/) Panel [«Global Science Forum»](https://www.oecd.org/en/networks/global-science-forum.html), Repräsentant der Schweizer Eidgenossenschaft (nominiert durch [SBFI](https://www.sbfi.admin.ch/)).
 
-**2024 & 2025** — Mitglied «Open Research Data Taskforce SSH», [swissuniversities](https://www.swissuniversities.ch/).
+**2024 & 2025** — Mitglied «Open Research Data Taskforce SSH», [swissuniversities Open Research Data](https://www.swissuniversities.ch/en/topics/open-science/open-research-data).
 
-**2023 & 2024** — Evaluationsgremium des [BMBF](https://www.bmbf.de/), Rahmenprogramm «Gesellschaft verstehen – Zukunft gestalten».
+**2023 & 2024** — Evaluationsgremium des [BMBF](https://www.bmbf.de/), Rahmenprogramm [«Gesellschaft verstehen – Zukunft gestalten»](https://www.geistes-und-sozialwissenschaften-bmbf.de/de/Uber-das-Programm.html).

@@ -7,10 +7,10 @@ summary: "Teaching"
 
 ## Current Teaching (University of Bern)
 
-- **Programme director**, Digital Humanities Master Minor (30 ECTS; from Spring 2026: 90 ECTS)
+- **Programme director**, Digital Humanities Master Major and Minor (30 ECTS; from Spring 2026: 90 ECTS)
 - **Programme director**, MAS in Extended Intelligence (incl. CAS in Applied Data Science, Advanced Machine Learning, Natural Language Processing)
 - **Programme director**, MAS in Archival, Library and Information Science
-- **Director**, inter-university doctoral programme in Digital Humanities (Universities of Bern & Basel)
+- **Director**, Doctoral Programme in Digital Humanities
 
 ## Previous Teaching
 
