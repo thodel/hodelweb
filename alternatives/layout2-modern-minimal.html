@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tobias Hodel — Layout 2: Modern Minimal</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+  :root {
+    --bg: #ffffff;
+    --bg-alt: #f7f7f8;
+    --text: #111111;
+    --text-muted: #6b7280;
+    --accent: #2563eb;
+    --accent-light: #eff6ff;
+    --border: #e5e7eb;
+    --card-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  }
+
+  [data-theme="dark"] {
+    --bg: #0f172a;
+    --bg-alt: #1e293b;
+    --text: #f1f5f9;
+    --text-muted: #94a3b8;
+    --accent: #60a5fa;
+    --accent-light: #1e293b;
+    --border: #334155;
+    --card-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    color: var(--text);
+    background: var(--bg);
+    line-height: 1.7;
+    transition: background 0.3s, color 0.3s;
+  }
+
+  /* Top bar */
+  .topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 1.2rem 2rem;
+  }
+  .topbar-left { font-weight: 600; font-size: 1rem; }
+  .topbar-right { display: flex; gap: 1rem; align-items: center; }
+  .topbar-right a {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: color 0.2s;
+  }
+  .topbar-right a:hover { color: var(--accent); }
+  .theme-toggle {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.3rem 0.6rem;
+    cursor: pointer;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    transition: all 0.2s;
+  }
+  .theme-toggle:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* Hero */
+  .hero {
+    background: linear-gradient(135deg, var(--bg-alt) 0%, var(--bg) 100%);
+    padding: 5rem 2rem 4rem;
+    text-align: center;
+  }
+  .hero h1 {
+    font-size: 3rem;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    margin-bottom: 0.8rem;
+  }
+  .hero .subtitle {
+    font-size: 1.15rem;
+    color: var(--text-muted);
+    font-weight: 400;
+    max-width: 600px;
+    margin: 0 auto 2rem;
+  }
+  .hero-links {
+    display: flex;
+    gap: 1.5rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .hero-links a {
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.95rem;
+    padding: 0.5rem 1.2rem;
+    border: 1px solid var(--accent);
+    border-radius: 8px;
+    transition: all 0.2s;
+  }
+  .hero-links a:hover {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  /* Sections */
+  .container {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 2rem;
+  }
+  section {
+    padding: 4rem 0;
+  }
+  section + section {
+    border-top: 1px solid var(--border);
+  }
+  section h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 2rem;
+  }
+  section p {
+    color: var(--text-muted);
+    font-size: 1rem;
+    max-width: 700px;
+  }
+
+  /* Cards grid */
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.2rem;
+  }
+  .card {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--card-shadow);
+  }
+  .card h3 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+  .card p {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-bottom: 0.8rem;
+  }
+  .card a {
+    font-size: 0.85rem;
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 500;
+  }
+  .card a:hover { text-decoration: underline; }
+
+  /* Publication list */
+  .pub-item {
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .pub-item:last-child { border-bottom: none; }
+  .pub-year {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .pub-title {
+    font-size: 0.95rem;
+    font-weight: 500;
+    margin-top: 0.2rem;
+  }
+  .pub-title a { color: var(--text); text-decoration: none; }
+  .pub-title a:hover { color: var(--accent); }
+
+  /* CV timeline */
+  .timeline-item {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: 1rem;
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .timeline-item:last-child { border-bottom: none; }
+  .timeline-date {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-muted);
+  }
+  .timeline-content h3 { font-size: 1rem; font-weight: 600; margin-bottom: 0.2rem; }
+  .timeline-content p { font-size: 0.9rem; }
+
+  /* Social icons row */
+  .social-row {
+    display: flex;
+    gap: 1.5rem;
+    margin-top: 1rem;
+  }
+  .social-row a {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: color 0.2s;
+  }
+  .social-row a:hover { color: var(--accent); }
+
+  /* Footer */
+  footer {
+    text-align: center;
+    padding: 3rem 2rem;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+  }
+
+  @media (max-width: 640px) {
+    .hero h1 { font-size: 2rem; }
+    .timeline-item { grid-template-columns: 1fr; gap: 0.3rem; }
+    .cards { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">TH</div>
+  <div class="topbar-right">
+    <a href="#">CV</a>
+    <a href="#">Publikationen</a>
+    <a href="#">Projekte</a>
+    <a href="#">Lehre</a>
+    <a href="#">DE</a> / <a href="#">EN</a>
+    <button class="theme-toggle" onclick="toggleTheme()">◑</button>
+  </div>
+</div>
+
+<div class="hero">
+  <h1>Tobias Hodel</h1>
+  <p class="subtitle">Prof. Dr. — Assistenzprofessur Digital Humanities an der Universität Bern. Forschung an der Schnittstelle von Geschichte, maschinellem Lernen und digitalen Methoden.</p>
+  <div class="hero-links">
+    <a href="#">CV</a>
+    <a href="#">Publikationen</a>
+    <a href="#">Projekte</a>
+    <a href="#">Lehre</a>
+  </div>
+  <div class="social-row" style="justify-content:center; margin-top:2rem;">
+    <a href="https://orcid.org/0000-0002-2071-6407">ORCID</a>
+    <a href="https://github.com/thodel">GitHub</a>
+    <a href="mailto:tobias.hodel@unibe.ch">Email</a>
+  </div>
+</div>
+
+<div class="container">
+  <section>
+    <h2>Projekte</h2>
+    <div class="cards">
+      <div class="card">
+        <h3>The Flow</h3>
+        <p>Historische Forschung profitiert zunehmend von Digitalisierung und Handschriftenerkennung.</p>
+        <a href="https://dhbern.github.io/content/projects/flow/index.html">Mehr erfahren →</a>
+      </div>
+      <div class="card">
+        <h3>Economies of Space</h3>
+        <p>Bewirtschaftung städtischer Liegenschaften und wirtschaftliche Diskurse am Beispiel Basels.</p>
+        <a href="https://dhbern.github.io/content/projects/economies-of-space/index.html">Mehr erfahren →</a>
+      </div>
+      <div class="card">
+        <h3>Confoederatio Ludens</h3>
+        <p>Game-Design und Entwicklungsszene im Vor-Internet-Zeitalter in der Schweiz.</p>
+        <a href="https://dhbern.github.io/content/projects/ch-ludens/index.html">Mehr erfahren →</a>
+      </div>
+      <div class="card">
+        <h3>Bullinger digital</h3>
+        <p>Handschriftenmodelle zur automatischen Erkennung der Briefe Heinrich Bullingers.</p>
+        <a href="https://dhbern.github.io/content/projects/bullinger-digital/index.html">Mehr erfahren →</a>
+      </div>
+      <div class="card">
+        <h3>Bundesratsprotokolle</h3>
+        <p>Aufbereitung der handschriftlichen Bundesratsprotokolle (1848–1903).</p>
+        <a href="https://dhbern.github.io/content/projects/aufbereitung-bundesratsprotokolle/index.html">Mehr erfahren →</a>
+      </div>
+      <div class="card">
+        <h3>GeWiS – Grounded Knowledge</h3>
+        <p>Kombination von relationalen Datenbanken und Linked-Data-Ansätzen.</p>
+        <a href="https://dhbern.github.io/content/projects/gewis/index.html">Mehr erfahren →</a>
+      </div>
+    </div>
+    <p style="margin-top:1.5rem;"><a href="https://dhbern.github.io/content/projects/" style="color:var(--accent); text-decoration:none; font-weight:500;">Alle Projekte →</a></p>
+  </section>
+
+  <section>
+    <h2>Ausgewählte Publikationen</h2>
+    <div class="pub-item">
+      <div class="pub-year">2026</div>
+      <div class="pub-title"><a href="#">α|D〉+β|H〉: Exploration of Quantum Deep Learning on Humanities Data</a></div>
+    </div>
+    <div class="pub-item">
+      <div class="pub-year">2024</div>
+      <div class="pub-title"><a href="#">Texterkennung und Textanalyse: Methodische Evolution durch maschinelle Lernverfahren</a></div>
+    </div>
+    <div class="pub-item">
+      <div class="pub-year">2020</div>
+      <div class="pub-title"><a href="#">Schriftordnungen im Wandel — Spätmittelalterstudien, Band 7</a></div>
+    </div>
+    <p style="margin-top:1.5rem;"><a href="#" style="color:var(--accent); text-decoration:none; font-weight:500;">Alle 80 Publikationen →</a></p>
+  </section>
+
+  <section>
+    <h2>Werdegang</h2>
+    <div class="timeline-item">
+      <div class="timeline-date">Seit 2019</div>
+      <div class="timeline-content">
+        <h3>Assistenzprofessur Digital Humanities</h3>
+        <p>Universität Bern (tenure track)</p>
+      </div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-date">2024</div>
+      <div class="timeline-content">
+        <h3>Habilitation</h3>
+        <p>Digital Humanities und historische Hilfswissenschaften, Universität Bern</p>
+      </div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-date">2016–2019</div>
+      <div class="timeline-content">
+        <h3>Wiss. Mitarbeiter, READ-Projekt</h3>
+        <p>Staatsarchiv Zürich — Recognition and Enrichment of Archival Documents</p>
+      </div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-date">2016</div>
+      <div class="timeline-content">
+        <h3>Dissertation (summa cum laude)</h3>
+        <p>Geschichte, Universität Zürich</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Lehre</h2>
+    <p>Programmverantwortlicher DH Master Minor (30/90 ECTS), MAS Extended Intelligence, MAS Archiv-, Bibliotheks- und Informationswissenschaft. Doktoratsprogramm DH (Bern & Basel).</p>
+    <p style="margin-top:1rem;"><a href="https://github.com/DHBern/einf_2026" style="color:var(--accent); text-decoration:none; font-weight:500;">Einführung DH FS2026 →</a></p>
+  </section>
+</div>
+
+<footer>
+  © 2026 Tobias Hodel · Universität Bern · Digital Humanities
+</footer>
+
+<script>
+function toggleTheme() {
+  const body = document.body;
+  if (body.getAttribute('data-theme') === 'dark') {
+    body.removeAttribute('data-theme');
+  } else {
+    body.setAttribute('data-theme', 'dark');
+  }
+}
+</script>
+
+</body>
+</html>

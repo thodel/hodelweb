@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tobias Hodel — Layout 3: Digital Humanities</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:wght@300;400;500&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    color: #1a1a2e;
+    background: #fafafa;
+    line-height: 1.7;
+  }
+
+  /* Accent bar */
+  .accent-bar {
+    height: 4px;
+    background: linear-gradient(90deg, #0d9488, #f97316, #8b5cf6);
+  }
+
+  /* Nav */
+  nav {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1.2rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  nav .logo {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 1.3rem;
+    color: #0d9488;
+  }
+  nav .links { display: flex; gap: 1.8rem; align-items: center; }
+  nav .links a {
+    color: #444;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: color 0.2s;
+  }
+  nav .links a:hover { color: #0d9488; }
+  .lang-pill {
+    background: #0d9488;
+    color: #fff;
+    padding: 0.25rem 0.7rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+
+  /* Hero */
+  .hero {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 4rem 2rem 3rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: center;
+  }
+  .hero-text h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 3.5rem;
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.03em;
+    margin-bottom: 1rem;
+  }
+  .hero-text h1 span { color: #0d9488; }
+  .hero-text .tagline {
+    font-size: 1.3rem;
+    color: #666;
+    font-weight: 300;
+    margin-bottom: 1.5rem;
+    font-style: italic;
+  }
+  .hero-text p {
+    font-size: 1rem;
+    color: #555;
+    max-width: 480px;
+    margin-bottom: 2rem;
+  }
+  .hero-buttons { display: flex; gap: 1rem; flex-wrap: wrap; }
+  .btn {
+    display: inline-block;
+    padding: 0.7rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+  .btn-primary { background: #0d9488; color: #fff; }
+  .btn-primary:hover { background: #0f766e; }
+  .btn-outline { background: transparent; color: #0d9488; border: 2px solid #0d9488; }
+  .btn-outline:hover { background: #0d9488; color: #fff; }
+
+  .hero-visual {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+  .stat-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    text-align: center;
+    transition: transform 0.2s;
+  }
+  .stat-card:hover { transform: translateY(-3px); }
+  .stat-card .number {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: #0d9488;
+  }
+  .stat-card .label {
+    font-size: 0.85rem;
+    color: #888;
+    margin-top: 0.3rem;
+  }
+  .stat-card:nth-child(2) .number { color: #f97316; }
+  .stat-card:nth-child(3) .number { color: #8b5cf6; }
+  .stat-card:nth-child(4) .number { color: #e11d48; }
+
+  /* Section */
+  .section {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 4rem 2rem;
+  }
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 2rem;
+  }
+  .section h2 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+  .section h2::after {
+    content: '';
+    display: block;
+    width: 60px;
+    height: 3px;
+    background: #0d9488;
+    margin-top: 0.5rem;
+    border-radius: 2px;
+  }
+  .section-link {
+    color: #0d9488;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+  .section-link:hover { text-decoration: underline; }
+  .section-alt { background: #f0fdfa; }
+
+  /* Project grid */
+  .project-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 1.2rem;
+  }
+  .project {
+    background: #fff;
+    border-radius: 12px;
+    padding: 1.5rem;
+    border-left: 4px solid #0d9488;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    transition: transform 0.2s, box-shadow 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .project:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(13,148,136,0.12);
+  }
+  .project:nth-child(2) { border-left-color: #f97316; }
+  .project:nth-child(3) { border-left-color: #8b5cf6; }
+  .project:nth-child(4) { border-left-color: #e11d48; }
+  .project:nth-child(5) { border-left-color: #2563eb; }
+  .project:nth-child(6) { border-left-color: #ca8a04; }
+  .project h3 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+  .project p { font-size: 0.9rem; color: #666; margin-bottom: 0.8rem; }
+  .project a {
+    color: #0d9488;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.85rem;
+  }
+  .project a:hover { text-decoration: underline; }
+
+  /* CV */
+  .cv-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+  }
+  .cv-block h3 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #e5e7eb;
+  }
+  .cv-entry {
+    display: flex;
+    gap: 1rem;
+    padding: 0.6rem 0;
+  }
+  .cv-year {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #0d9488;
+    min-width: 80px;
+    padding-top: 0.1rem;
+  }
+  .cv-desc { font-size: 0.9rem; color: #444; }
+  .cv-desc strong { color: #1a1a2e; }
+
+  /* Roles chips */
+  .roles {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: 1rem;
+  }
+  .role-chip {
+    background: #f0fdfa;
+    border: 1px solid #99f6e4;
+    color: #0f766e;
+    padding: 0.4rem 1rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+  }
+
+  /* Footer */
+  footer {
+    background: #1a1a2e;
+    color: #aaa;
+    padding: 2.5rem 2rem;
+    margin-top: 2rem;
+  }
+  footer .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  footer a { color: #0d9488; text-decoration: none; }
+  footer a:hover { text-decoration: underline; }
+  .footer-links { display: flex; gap: 1.5rem; }
+
+  @media (max-width: 768px) {
+    .hero { grid-template-columns: 1fr; gap: 2rem; }
+    .hero-text h1 { font-size: 2.5rem; }
+    .hero-visual { grid-template-columns: 1fr 1fr; }
+    .cv-grid { grid-template-columns: 1fr; }
+    .project-grid { grid-template-columns: 1fr; }
+    nav .links { gap: 1rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="accent-bar"></div>
+
+<nav>
+  <div class="logo">T.Hodel</div>
+  <div class="links">
+    <a href="#">CV</a>
+    <a href="#">Publikationen</a>
+    <a href="#">Projekte</a>
+    <a href="#">Lehre</a>
+    <span class="lang-pill">DE / EN</span>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="hero-text">
+    <h1>Tobias<br><span>Hodel</span></h1>
+    <div class="tagline">die digitale (r)evolution kritisch gestalten</div>
+    <p>Assistenzprofessor für Digital Humanities an der Universität Bern. Meine Arbeit verbindet historische Quellenkritik mit maschinellem Lernen — von der Handschriftenerkennung bis zur Epistemologie des Digitalen.</p>
+    <div class="hero-buttons">
+      <a href="#" class="btn btn-primary">Publikationen</a>
+      <a href="#" class="btn btn-outline">CV ansehen</a>
+    </div>
+  </div>
+  <div class="hero-visual">
+    <div class="stat-card">
+      <div class="number">80+</div>
+      <div class="label">Publikationen</div>
+    </div>
+    <div class="stat-card">
+      <div class="number">10</div>
+      <div class="label">Projekte</div>
+    </div>
+    <div class="stat-card">
+      <div class="number">15+</div>
+      <div class="label">Jahre Forschung</div>
+    </div>
+    <div class="stat-card">
+      <div class="number">7</div>
+      <div class="label">Partner</div>
+    </div>
+  </div>
+</div>
+
+<div class="section section-alt">
+  <div class="section-header">
+    <h2>Projekte</h2>
+    <a href="https://dhbern.github.io/content/projects/" class="section-link">Alle Projekte →</a>
+  </div>
+  <div class="project-grid">
+    <div class="project">
+      <h3>The Flow</h3>
+      <p>Historische Forschung profitiert von Digitalisierung, HTR und Natural Language Processing.</p>
+      <a href="https://dhbern.github.io/content/projects/flow/index.html">Mehr erfahren →</a>
+    </div>
+    <div class="project">
+      <h3>Economies of Space</h3>
+      <p>Bewirtschaftung städtischer Liegenschaften und wirtschaftliche Diskurse am Beispiel Basels.</p>
+      <a href="https://dhbern.github.io/content/projects/economies-of-space/index.html">Mehr erfahren →</a>
+    </div>
+    <div class="project">
+      <h3>Confoederatio Ludens</h3>
+      <p>Game-Design und Entwicklungsszene im Vor-Internet-Zeitalter in der Schweiz.</p>
+      <a href="https://dhbern.github.io/content/projects/ch-ludens/index.html">Mehr erfahren →</a>
+    </div>
+    <div class="project">
+      <h3>Bullinger digital</h3>
+      <p>Handschriftenmodelle zur automatischen Erkennung der Briefe Heinrich Bullingers.</p>
+      <a href="https://dhbern.github.io/content/projects/bullinger-digital/index.html">Mehr erfahren →</a>
+    </div>
+    <div class="project">
+      <h3>Bundesratsprotokolle</h3>
+      <p>Aufbereitung der handschriftlichen Bundesratsprotokolle (1848–1903).</p>
+      <a href="https://dhbern.github.io/content/projects/aufbereitung-bundesratsprotokolle/index.html">Mehr erfahren →</a>
+    </div>
+    <div class="project">
+      <h3>GeWiS – Grounded Knowledge</h3>
+      <p>Kombination von relationalen Datenbanken und Linked-Data-Ansätzen für die Geisteswissenschaften.</p>
+      <a href="https://dhbern.github.io/content/projects/gewis/index.html">Mehr erfahren →</a>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h2>Werdegang</h2>
+  <div class="cv-grid">
+    <div class="cv-block">
+      <h3>Positionen</h3>
+      <div class="cv-entry">
+        <div class="cv-year">Seit 2019</div>
+        <div class="cv-desc"><strong>Assistenzprofessur Digital Humanities</strong><br>Universität Bern (tenure track)</div>
+      </div>
+      <div class="cv-entry">
+        <div class="cv-year">2017–19</div>
+        <div class="cv-desc"><strong>Projektleiter Königsfelden-Edition</strong><br>Universität Zürich</div>
+      </div>
+      <div class="cv-entry">
+        <div class="cv-year">2016–19</div>
+        <div class="cv-desc"><strong>Wiss. Mitarbeiter READ</strong><br>Staatsarchiv Zürich</div>
+      </div>
+      <div class="cv-entry">
+        <div class="cv-year">2015–19</div>
+        <div class="cv-desc"><strong>Projektleiter Ad fontes</strong><br>Universität Zürich</div>
+      </div>
+    </div>
+    <div class="cv-block">
+      <h3>Ausbildung</h3>
+      <div class="cv-entry">
+        <div class="cv-year">2024</div>
+        <div class="cv-desc"><strong>Habilitation</strong><br>DH & historische Hilfswissenschaften, Universität Bern</div>
+      </div>
+      <div class="cv-entry">
+        <div class="cv-year">2016</div>
+        <div class="cv-desc"><strong>Dissertation</strong> (summa cum laude)<br>Geschichte, Universität Zürich</div>
+      </div>
+      <div class="cv-entry">
+        <div class="cv-year">2010</div>
+        <div class="cv-desc"><strong>Lic. phil.</strong><br>Geschichte & Germanistik, Universität Zürich</div>
+      </div>
+      <div class="cv-entry">
+        <div class="cv-year">2002–10</div>
+        <div class="cv-desc"><strong>Handballtorhüter</strong><br>Schweizer Nationalmannschaft 🇨🇭</div>
+      </div>
+    </div>
+  </div>
+  <div class="roles">
+    <span class="role-chip">Editor-in-Chief Digital Medievalist</span>
+    <span class="role-chip">Vorstand SAGW</span>
+    <span class="role-chip">DARIAH-CH</span>
+    <span class="role-chip">BeDSI</span>
+    <span class="role-chip">The Guild AI Expert</span>
+    <span class="role-chip">OECD Global Science Forum</span>
+    <span class="role-chip">DaSCH Beirat</span>
+  </div>
+</div>
+
+<div class="section section-alt">
+  <h2>Lehre</h2>
+  <p style="max-width:700px; color:#555; margin-bottom:1.5rem;">Programmverantwortlicher DH Master Minor (30/90 ECTS), MAS Extended Intelligence, MAS Archiv-, Bibliotheks- und Informationswissenschaft. Leitung Doktoratsprogramm DH (Bern & Basel).</p>
+  <a href="https://github.com/DHBern/einf_2026" class="btn btn-outline" style="font-size:0.85rem;">Einführung DH FS2026 →</a>
+</div>
+
+<footer>
+  <div class="container">
+    <div>© 2026 Tobias Hodel · Universität Bern</div>
+    <div class="footer-links">
+      <a href="https://orcid.org/0000-0002-2071-6407">ORCID</a>
+      <a href="https://github.com/thodel">GitHub</a>
+      <a href="mailto:tobias.hodel@unibe.ch">Email</a>
+      <a href="https://www.dh.unibe.ch/about_us/people/prof_dr_hodel_tobias/index_eng.html">Uni Bern</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

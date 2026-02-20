@@ -1,0 +1,464 @@
+<!doctype html>
+<html lang="{{ .Site.Language.Lang }}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ .Title }} | {{ .Site.Title }}</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    
+    :root {
+      --bg: #ffffff;
+      --bg-alt: #f7f7f8;
+      --text: #111111;
+      --text-muted: #6b7280;
+      --accent: #2563eb;
+      --accent-light: #eff6ff;
+      --border: #e5e7eb;
+      --card-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+    }
+    
+    [data-theme="dark"] {
+      --bg: #0f172a;
+      --bg-alt: #1e293b;
+      --text: #f1f5f9;
+      --text-muted: #94a3b8;
+      --accent: #60a5fa;
+      --accent-light: #1e293b;
+      --border: #334155;
+      --card-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      line-height: 1.7;
+      transition: background 0.3s, color 0.3s;
+    }
+    
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 1.2rem 2rem;
+    }
+    
+    .topbar-left {
+      font-weight: 600;
+      font-size: 1rem;
+    }
+    
+    .topbar-right {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+    
+    .topbar-right a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+    
+    .topbar-right a:hover {
+      color: var(--accent);
+    }
+    
+    .theme-toggle {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.3rem 0.6rem;
+      cursor: pointer;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      transition: all 0.2s;
+    }
+    
+    .theme-toggle:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+    
+    .page-header {
+      margin-bottom: 3rem;
+    }
+    
+    .page-header h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 1rem;
+    }
+    
+    .page-header p {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+    }
+    
+    .publication-filters {
+      margin-bottom: 2rem;
+      padding: 1.5rem;
+      background: var(--bg-alt);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+    
+    .filters-row {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    
+    .filters-row input, .filters-row select {
+      padding: 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.9rem;
+      background: var(--bg);
+      color: var(--text);
+      min-width: 200px;
+    }
+    
+    .filters-row input {
+      flex: 1;
+    }
+    
+    .filters-row input:focus, .filters-row select:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-light);
+    }
+    
+    .results-info {
+      margin-bottom: 2rem;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+    
+    .publications-grid {
+      display: grid;
+      gap: 1.5rem;
+    }
+    
+    .pub-item {
+      padding: 1.5rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    
+    .pub-item:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--card-shadow);
+    }
+    
+    .pub-year {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.5rem;
+    }
+    
+    .pub-title {
+      font-size: 1rem;
+      font-weight: 500;
+      line-height: 1.5;
+      margin-bottom: 0.75rem;
+    }
+    
+    .pub-title a {
+      color: var(--text);
+      text-decoration: none;
+    }
+    
+    .pub-title a:hover {
+      color: var(--accent);
+    }
+    
+    .pub-meta {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+    
+    .pub-type {
+      display: inline-block;
+      background: var(--accent-light);
+      color: var(--accent);
+      padding: 0.2rem 0.6rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      margin-top: 0.5rem;
+    }
+    
+    .loading {
+      text-align: center;
+      padding: 3rem;
+      color: var(--text-muted);
+    }
+    
+    .no-results {
+      text-align: center;
+      padding: 3rem;
+      color: var(--text-muted);
+    }
+    
+    @media (max-width: 768px) {
+      .filters-row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      
+      .filters-row input, .filters-row select {
+        min-width: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="topbar-left">
+      <a href="/" style="color: var(--text); text-decoration: none;">TH</a>
+    </div>
+    <div class="topbar-right">
+      <a href="/">{{ if eq .Site.Language.Lang "de" }}Startseite{{ else }}Home{{ end }}</a>
+      <a href="/#publications">{{ if eq .Site.Language.Lang "de" }}Publikationen{{ else }}Publications{{ end }}</a>
+      <a href="/#projects">{{ if eq .Site.Language.Lang "de" }}Projekte{{ else }}Projects{{ end }}</a>
+      <a href="/cv/">CV</a>
+      {{ if eq .Site.Language.Lang "de" }}
+      <a href="/en/publications/">EN</a>
+      {{ else }}
+      <a href="/publikationen/">DE</a>
+      {{ end }}
+      <button class="theme-toggle" onclick="toggleTheme()">◑</button>
+    </div>
+  </div>
+  
+  <div class="container">
+    <div class="page-header">
+      <h1>{{ if eq .Site.Language.Lang "de" }}Publikationen{{ else }}Publications{{ end }}</h1>
+      <p>{{ if eq .Site.Language.Lang "de" }}Vollständige Liste aller Publikationen von Tobias Hodel (ORCID: 0000-0002-2071-6407){{ else }}Complete list of publications by Tobias Hodel (ORCID: 0000-0002-2071-6407){{ end }}</p>
+    </div>
+    
+    <div class="publication-filters">
+      <div class="filters-row">
+        <input 
+          type="text" 
+          id="pub-search" 
+          placeholder="{{ if eq .Site.Language.Lang "de" }}Nach Titel, Autor oder Journal suchen...{{ else }}Search by title, author or journal...{{ end }}"
+        >
+        <select id="pub-year-filter">
+          <option value="">{{ if eq .Site.Language.Lang "de" }}Alle Jahre{{ else }}All years{{ end }}</option>
+        </select>
+        <select id="pub-type-filter">
+          <option value="">{{ if eq .Site.Language.Lang "de" }}Alle Typen{{ else }}All types{{ end }}</option>
+        </select>
+      </div>
+    </div>
+    
+    <div class="results-info" id="results-info"></div>
+    
+    <div id="publications-container">
+      <div class="loading">
+        {{ if eq .Site.Language.Lang "de" }}Lädt Publikationen von ORCID...{{ else }}Loading publications from ORCID...{{ end }}
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    let allPublications = [];
+    let filteredPublications = [];
+    
+    function toggleTheme() {
+      const body = document.body;
+      if (body.getAttribute('data-theme') === 'dark') {
+        body.removeAttribute('data-theme');
+        localStorage.setItem('theme', 'light');
+      } else {
+        body.setAttribute('data-theme', 'dark');
+        localStorage.setItem('theme', 'dark');
+      }
+    }
+    
+    // Load saved theme
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark') {
+      document.body.setAttribute('data-theme', 'dark');
+    }
+    
+    function formatAuthors(authors) {
+      if (!authors || authors.length === 0) return '';
+      
+      const sorted = authors.sort((a, b) => {
+        if (a.is_primary && !b.is_primary) return -1;
+        if (!a.is_primary && b.is_primary) return 1;
+        return 0;
+      });
+      
+      const names = sorted.map(a => a.name);
+      
+      if (names.length === 1) return names[0];
+      if (names.length === 2) return `${names[0]} & ${names[1]}`;
+      return `${names.slice(0, -1).join(', ')} & ${names[names.length - 1]}`;
+    }
+    
+    function formatTypeLabel(type) {
+      const labels = {
+        'journal-article': '{{ if eq .Site.Language.Lang "de" }}Zeitschriftenartikel{{ else }}Journal Articles{{ end }}',
+        'book': '{{ if eq .Site.Language.Lang "de" }}Bücher{{ else }}Books{{ end }}',
+        'book-chapter': '{{ if eq .Site.Language.Lang "de" }}Buchkapitel{{ else }}Book Chapters{{ end }}',
+        'conference-paper': '{{ if eq .Site.Language.Lang "de" }}Konferenzpaper{{ else }}Conference Papers{{ end }}',
+        'edited-book': '{{ if eq .Site.Language.Lang "de" }}Herausgegebene Bände{{ else }}Edited Volumes{{ end }}',
+        'other': '{{ if eq .Site.Language.Lang "de" }}Sonstiges{{ else }}Other{{ end }}',
+        'report': '{{ if eq .Site.Language.Lang "de" }}Berichte{{ else }}Reports{{ end }}',
+        'dissertation': '{{ if eq .Site.Language.Lang "de" }}Dissertationen{{ else }}Dissertations{{ end }}'
+      };
+      return labels[type] || type.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase());
+    }
+    
+    async function loadPublications() {
+      try {
+        const response = await fetch('/publications.json');
+        allPublications = await response.json();
+        filteredPublications = [...allPublications];
+        
+        populateFilters();
+        displayPublications();
+        updateResultsInfo();
+        
+        // Set up event listeners
+        document.getElementById('pub-search').addEventListener('input', filterPublications);
+        document.getElementById('pub-year-filter').addEventListener('change', filterPublications);
+        document.getElementById('pub-type-filter').addEventListener('change', filterPublications);
+        
+      } catch (error) {
+        console.error('Error loading publications:', error);
+        document.getElementById('publications-container').innerHTML = `
+          <div class="no-results">
+            {{ if eq .Site.Language.Lang "de" }}Fehler beim Laden der Publikationen. Bitte versuchen Sie es später erneut.{{ else }}Error loading publications. Please try again later.{{ end }}
+          </div>
+        `;
+      }
+    }
+    
+    function populateFilters() {
+      // Year filter
+      const years = [...new Set(allPublications.map(pub => pub.year).filter(year => year && year !== 'n.d.'))].sort((a, b) => b - a);
+      const yearFilter = document.getElementById('pub-year-filter');
+      years.forEach(year => {
+        const option = document.createElement('option');
+        option.value = year;
+        option.textContent = year;
+        yearFilter.appendChild(option);
+      });
+      
+      // Type filter
+      const types = [...new Set(allPublications.map(pub => pub.type).filter(type => type))].sort();
+      const typeFilter = document.getElementById('pub-type-filter');
+      types.forEach(type => {
+        const option = document.createElement('option');
+        option.value = type;
+        option.textContent = formatTypeLabel(type);
+        typeFilter.appendChild(option);
+      });
+    }
+    
+    function filterPublications() {
+      const searchTerm = document.getElementById('pub-search').value.toLowerCase();
+      const yearFilter = document.getElementById('pub-year-filter').value;
+      const typeFilter = document.getElementById('pub-type-filter').value;
+      
+      filteredPublications = allPublications.filter(pub => {
+        const matchesSearch = !searchTerm || 
+          pub.title.toLowerCase().includes(searchTerm) ||
+          (pub.authors && pub.authors.some(author => author.name.toLowerCase().includes(searchTerm))) ||
+          (pub.journal && pub.journal.toLowerCase().includes(searchTerm));
+        
+        const matchesYear = !yearFilter || pub.year == yearFilter;
+        const matchesType = !typeFilter || pub.type === typeFilter;
+        
+        return matchesSearch && matchesYear && matchesType;
+      });
+      
+      displayPublications();
+      updateResultsInfo();
+    }
+    
+    function displayPublications() {
+      const container = document.getElementById('publications-container');
+      
+      if (filteredPublications.length === 0) {
+        container.innerHTML = `
+          <div class="no-results">
+            {{ if eq .Site.Language.Lang "de" }}Keine Publikationen gefunden.{{ else }}No publications found.{{ end }}
+          </div>
+        `;
+        return;
+      }
+      
+      let html = '<div class="publications-grid">';
+      
+      filteredPublications.forEach(pub => {
+        const authors = formatAuthors(pub.authors);
+        const title = pub.doi ? `<a href="https://doi.org/${pub.doi}" target="_blank">${pub.title}</a>` : pub.title;
+        
+        let citation = title;
+        if (authors && pub.coauthored) {
+          citation = `<strong>${authors}</strong> (${pub.year || 'n.d.'}). ${title}`;
+        } else if (pub.year && pub.year !== 'n.d.') {
+          citation = `${title}`;
+        }
+        
+        html += `
+          <div class="pub-item">
+            <div class="pub-year">${pub.year || 'n.d.'}</div>
+            <div class="pub-title">${citation}</div>
+            ${pub.journal ? `<div class="pub-meta"><em>${pub.journal}</em></div>` : ''}
+            <div class="pub-type">${formatTypeLabel(pub.type)}</div>
+          </div>
+        `;
+      });
+      
+      html += '</div>';
+      container.innerHTML = html;
+    }
+    
+    function updateResultsInfo() {
+      const info = document.getElementById('results-info');
+      const total = allPublications.length;
+      const showing = filteredPublications.length;
+      
+      if (showing === total) {
+        info.textContent = `{{ if eq .Site.Language.Lang "de" }}${total} Publikationen insgesamt{{ else }}${total} publications total{{ end }}`;
+      } else {
+        info.textContent = `{{ if eq .Site.Language.Lang "de" }}${showing} von ${total} Publikationen{{ else }}${showing} of ${total} publications{{ end }}`;
+      }
+    }
+    
+    // Load publications when page loads
+    document.addEventListener('DOMContentLoaded', loadPublications);
+  </script>
+</body>
+</html>

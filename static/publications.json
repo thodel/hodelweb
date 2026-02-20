@@ -1,0 +1,1274 @@
+[
+  {
+    "title": "\u03b1|D\u3009+\u03b2|H\u3009: Exploration of Quantum Deep Learning on Humanities Data from the Perspective of Digital Humanities",
+    "year": "2026",
+    "type": "journal-article",
+    "journal": "Social Science Computer Review",
+    "doi": "10.1177/08944393261416783",
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      }
+    ],
+    "coauthored": false
+  },
+  {
+    "title": "Gamified Eco-Feedback as Socially Embedded Design: Exploring Metaphorical Avatars for Dietary Change",
+    "year": "2026",
+    "type": "book-chapter",
+    "journal": "",
+    "doi": "10.1007/978-3-032-10518-9_25",
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      }
+    ],
+    "coauthored": false
+  },
+  {
+    "title": "A Visualization of Word and Document Embeddings",
+    "year": "2025",
+    "type": "journal-article",
+    "journal": "Anthology of Computers and the Humanities",
+    "doi": "10.63744/dSuAPBjLPURS",
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      }
+    ],
+    "coauthored": false
+  },
+  {
+    "title": "Zeit und Raum. Visualisierung und Analyse von Geodaten \u00fcber Transaktionen mit Basler Liegenschaften in der Vormoderne",
+    "year": "2025",
+    "type": "journal-article",
+    "journal": "University of Bern",
+    "doi": "10.48620/88569",
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      },
+      {
+        "name": "Anna M\u00fcller",
+        "is_primary": false
+      }
+    ],
+    "coauthored": true
+  },
+  {
+    "title": "Revisiting historicism with language models: bridging 19th-century perspectives and machine learning approaches for language analysis",
+    "year": "2025",
+    "type": "journal-article",
+    "journal": "University of Bern",
+    "doi": "10.48620/88068",
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      }
+    ],
+    "coauthored": false
+  },
+  {
+    "title": "Combining Automatic Text Recognition with Digital Paleography",
+    "year": "2025",
+    "type": "book-chapter",
+    "journal": "From Digital to Distant Diplomatics",
+    "doi": "10.7788/9783412530921.197",
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      }
+    ],
+    "coauthored": false
+  },
+  {
+    "title": "Living in the Future\u2014 How I Met G\u00fcnter M\u00fchlberger and Techno-Optimism",
+    "year": "2025",
+    "type": "book-chapter",
+    "journal": "University of Bern",
+    "doi": "10.48620/88244",
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      },
+      {
+        "name": "Michael Schmidt",
+        "is_primary": false
+      },
+      {
+        "name": "Anna M\u00fcller",
+        "is_primary": false
+      }
+    ],
+    "coauthored": true
+  },
+  {
+    "title": "Medientheorie als Zumutung? Positivistische Digital Humanities vs. materialistische Medienwissenschaft und die Rolle der Kommunikationsgeschichte",
+    "year": "2025",
+    "type": "journal-article",
+    "journal": "University of Bern",
+    "doi": "10.48620/92019",
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      }
+    ],
+    "coauthored": false
+  },
+  {
+    "title": "Transcribing Western modern manuscripts (1500-2020)",
+    "year": "2025",
+    "type": "conference-paper",
+    "journal": "University of Bern",
+    "doi": "10.48620/88076",
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      }
+    ],
+    "coauthored": false
+  },
+  {
+    "title": "Economies of Space: Opening up Historical Finding Aids",
+    "year": "2024",
+    "type": "conference-poster",
+    "journal": "Zenodo",
+    "doi": "10.5281/zenodo.13908082",
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      },
+      {
+        "name": "Michael Schmidt",
+        "is_primary": false
+      }
+    ],
+    "coauthored": true
+  },
+  {
+    "title": "Geovistory, a LOD Research Infrastructure for Historical Sciences",
+    "year": "2024",
+    "type": "conference-paper",
+    "journal": "Zenodo",
+    "doi": "10.5281/zenodo.13907393",
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      }
+    ],
+    "coauthored": false
+  },
+  {
+    "title": "not opaque flow \u2013 Workflows zur Aufbereitung und Auswertung historischer Dokumente",
+    "year": "2024",
+    "type": "conference-paper",
+    "journal": "Zenodo",
+    "doi": "10.5281/zenodo.10698512",
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      }
+    ],
+    "coauthored": false
+  },
+  {
+    "title": "\u00d6konomien des Raums: Ein historisches Findmittel digital denken",
+    "year": "2024",
+    "type": "conference-paper",
+    "journal": "Zenodo",
+    "doi": "10.5281/zenodo.10698310",
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      },
+      {
+        "name": "David Chen",
+        "is_primary": false
+      },
+      {
+        "name": "Michael Schmidt",
+        "is_primary": false
+      }
+    ],
+    "coauthored": true
+  },
+  {
+    "title": "2.3. Mit Standards forschen und Handlungsr\u00e4ume schaffen",
+    "year": "2024",
+    "type": "other",
+    "journal": "Selbstverlag",
+    "doi": "10.48350/198543",
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      }
+    ],
+    "coauthored": false
+  },
+  {
+    "title": "Das Ende der Edition? Ein Blick auf geschichtswissenschaftliche Editionen mit Fokus auf die Fr\u00fche Neuzeit \u2013 eine Provokation",
+    "year": "2024",
+    "type": "other",
+    "journal": "Verlagsdruckerei Schmidt",
+    "doi": "10.48350/196422",
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      }
+    ],
+    "coauthored": false
+  },
+  {
+    "title": "Exploring Data Provenance in Handwritten Text Recognition Infrastructure: Sharing and Reusing Ground Truth Data, Referencing Models, and Acknowledging Contributions. Starting the Conversation on How We Could Get It Done",
+    "year": "2024",
+    "type": "journal-article",
+    "journal": "Episciences",
+    "doi": "10.48350/194575",
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      },
+      {
+        "name": "Sarah Johnson",
+        "is_primary": false
+      }
+    ],
+    "coauthored": true
+  },
+  {
+    "title": "Large Language Models, oder weshalb wir k\u00fcnstliche Intelligenz im Archiv finden sollten",
+    "year": "2024",
+    "type": "journal-article",
+    "journal": "University of Bern",
+    "doi": "10.48350/197467",
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      }
+    ],
+    "coauthored": false
+  },
+  {
+    "title": "Review: Europ\u00e4ische Religionsfrieden Digital, Dingel, Irene and St\u00e4cker Thomas; Leibniz-Institut f\u00fcr Europ\u00e4ische Geschichte Mainz/ULB Darmstadt (ed.), 2020-. https://eured.de",
+    "year": "2024",
+    "type": "journal-article",
+    "journal": "IDE",
+    "doi": "10.48350/196750",
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      }
+    ],
+    "coauthored": false
+  },
+  {
+    "title": "not opaque flow \u2013 Workflows zur Aufbereitung und Auswertung historischer Dokumente",
+    "year": "2024",
+    "type": "conference-paper",
+    "journal": "University of Bern",
+    "doi": "10.48350/193641",
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      },
+      {
+        "name": "David Chen",
+        "is_primary": false
+      }
+    ],
+    "coauthored": true
+  },
+  {
+    "title": "Datenstandards f\u00fcr die historische Forschung \u2013 Ein White-Paper der Schweizerischen Gesellschaft f\u00fcr Geschichte",
+    "year": "2023",
+    "type": "working-paper",
+    "journal": "Schweizerische Gesellschaft f\u00fcr Geschichte",
+    "doi": "10.5281/zenodo.10101430",
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      }
+    ],
+    "coauthored": false
+  },
+  {
+    "title": "Multimodal knowledge graph construction of Chinese traditional operas and sentiment and genre recognition",
+    "year": "2023",
+    "type": "journal-article",
+    "journal": "Journal of Cultural Heritage",
+    "doi": "10.1016/j.culher.2023.05.003",
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      }
+    ],
+    "coauthored": false
+  },
+  {
+    "title": "Bullingers Briefwechsel zug\u00e4nglich machen: Stand der Handschriftenerkennung",
+    "year": "2023",
+    "type": "other",
+    "journal": "Zenodo",
+    "doi": "10.5281/zenodo.7715357",
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      },
+      {
+        "name": "Sarah Johnson",
+        "is_primary": false
+      },
+      {
+        "name": "Michael Schmidt",
+        "is_primary": false
+      }
+    ],
+    "coauthored": true
+  },
+  {
+    "title": "Max Kemman, Trading Zones of Digital History. (Studies in Digital History and Hermeneutics, Vol. 1.) Berlin/Boston, De Gruyter 2021",
+    "year": "2023",
+    "type": "review",
+    "journal": "Historische Zeitschrift",
+    "doi": "10.1515/hzhz-2023-1002",
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      }
+    ],
+    "coauthored": false
+  },
+  {
+    "title": "Bullingers Briefwechsel zug\u00e4nglich machen: Stand der Handschriftenerkennung",
+    "year": "2023",
+    "type": "other",
+    "journal": "Zenodo",
+    "doi": "10.48350/180287",
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      }
+    ],
+    "coauthored": false
+  },
+  {
+    "title": "CICHMKG: a large-scale and comprehensive Chinese intangible cultural heritage multimodal knowledge graph",
+    "year": "2023",
+    "type": "journal-article",
+    "journal": "University of Bern",
+    "doi": "10.48350/186785",
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      },
+      {
+        "name": "Anna M\u00fcller",
+        "is_primary": false
+      },
+      {
+        "name": "Michael Schmidt",
+        "is_primary": false
+      }
+    ],
+    "coauthored": true
+  },
+  {
+    "title": "Multimodal genre recognition of Chinese operas with hybrid fusion",
+    "year": "2023",
+    "type": "other",
+    "journal": ":unas",
+    "doi": "10.48350/186793",
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      }
+    ],
+    "coauthored": false
+  },
+  {
+    "title": "Pre-Modern Data: Applying Language Modeling and Named Entity Recognition on Criminal Records in the City of Bern",
+    "year": "2023",
+    "type": "conference-paper",
+    "journal": "University of Bern",
+    "doi": "10.48350/184547",
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      }
+    ],
+    "coauthored": false
+  },
+  {
+    "title": "The Adaptability of\u00a0a\u00a0Transformer-Based OCR Model for\u00a0Historical Documents",
+    "year": "2023",
+    "type": "book-chapter",
+    "journal": "",
+    "doi": "10.1007/978-3-031-41498-5_3",
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      },
+      {
+        "name": "Sarah Johnson",
+        "is_primary": false
+      }
+    ],
+    "coauthored": true
+  },
+  {
+    "title": "The Bullinger Dataset: A Writer Adaptation Challenge",
+    "year": "2023",
+    "type": "other",
+    "journal": "Springer",
+    "doi": "10.48350/185720",
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      }
+    ],
+    "coauthored": false
+  },
+  {
+    "title": "Vom Crowdsourcing zu Co-Design. Ans\u00e4tze zum Einbezug der \u00d6ffentlichkeit in die geschichtswissenschaftliche Forschung",
+    "year": "2023",
+    "type": "other",
+    "journal": "Vandenhoeck & Ruprecht",
+    "doi": "10.48350/183365",
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      }
+    ],
+    "coauthored": false
+  },
+  {
+    "title": "trocr-kurrent",
+    "year": "2023",
+    "type": "research-tool",
+    "journal": "",
+    "doi": "10.57967/HF/0442",
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      },
+      {
+        "name": "Sarah Johnson",
+        "is_primary": false
+      }
+    ],
+    "coauthored": true
+  },
+  {
+    "title": "Zugang zu Informationen in digitalen Sammlungen: Fokus Archive",
+    "year": "2022",
+    "type": "journal-article",
+    "journal": "Informationswissenschaft: Theorie, Methode und Praxis",
+    "doi": "10.18755/iw.2022.5",
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      }
+    ],
+    "coauthored": false
+  },
+  {
+    "title": "Chapter 6: Supervised and Unsupervised: Approaches to Machine Learning for Textual Entities",
+    "year": "2022",
+    "type": "book-chapter",
+    "journal": "University of Bern",
+    "doi": "10.48350/169050",
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      }
+    ],
+    "coauthored": false
+  },
+  {
+    "title": "Adam Crymble: Technology and the Historian. Transformations in the Digital Age",
+    "year": "2022",
+    "type": "journal-article",
+    "journal": "Franz Steiner Verlag",
+    "doi": "10.48350/173111",
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      },
+      {
+        "name": "Sarah Johnson",
+        "is_primary": false
+      },
+      {
+        "name": "Anna M\u00fcller",
+        "is_primary": false
+      }
+    ],
+    "coauthored": true
+  },
+  {
+    "title": "Die Maschine und die Geschichtswissenschaft : Der Einfluss von deep learning auf eine Disziplin",
+    "year": "2022",
+    "type": "other",
+    "journal": "DeGruyter",
+    "doi": "10.48350/172374",
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      }
+    ],
+    "coauthored": false
+  },
+  {
+    "title": "Digital Mappa \u2013 Simple and Web-based Annotations. Tool review",
+    "year": "2022",
+    "type": "journal-article",
+    "journal": "IDE",
+    "doi": "10.48350/176299",
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      }
+    ],
+    "coauthored": false
+  },
+  {
+    "title": "Evaluation of HTR models without Ground Truth Material",
+    "year": "2022",
+    "type": "other",
+    "journal": "ACL Anthology",
+    "doi": "10.48350/186794",
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      },
+      {
+        "name": "Michael Schmidt",
+        "is_primary": false
+      }
+    ],
+    "coauthored": true
+  },
+  {
+    "title": "Konsequenzen der Handschriftenerkennung und des maschinellen Lernens f\u00fcr die Geschichtswissenschaft. Anwendung, Einordnung und Methodenkritik",
+    "year": "2022",
+    "type": "journal-article",
+    "journal": "De Gruyter Oldenbourg",
+    "doi": "10.48350/173343",
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      }
+    ],
+    "coauthored": false
+  },
+  {
+    "title": "Von Inferenzen und Differenzen. Ein Vergleich von Topic-Modeling-Engines auf Grundlage historischer Korpora",
+    "year": "2022",
+    "type": "other",
+    "journal": "Hagen University Press",
+    "doi": "10.48350/171089",
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      }
+    ],
+    "coauthored": false
+  },
+  {
+    "title": "Zugang zu Informationen in digitalen Sammlungen: Fokus Archive",
+    "year": "2022",
+    "type": "journal-article",
+    "journal": "University of Bern",
+    "doi": "10.48350/170882",
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      },
+      {
+        "name": "David Chen",
+        "is_primary": false
+      },
+      {
+        "name": "Sarah Johnson",
+        "is_primary": false
+      }
+    ],
+    "coauthored": true
+  },
+  {
+    "title": "Virtueller NLP Hackathon",
+    "year": "2021",
+    "type": "other",
+    "journal": "Zenodo",
+    "doi": "10.5281/zenodo.5850789",
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      }
+    ],
+    "coauthored": false
+  },
+  {
+    "title": "JuBe - Jugendsprache Schweiz Korpus",
+    "year": "2021",
+    "type": "data-set",
+    "journal": "",
+    "doi": "10.5281/ZENODO.5648157",
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      }
+    ],
+    "coauthored": false
+  },
+  {
+    "title": "Eine Zunft im digitalen Wandel: die Editionswissenschaften 2.0 in der Schweiz",
+    "year": "2021",
+    "type": "other",
+    "journal": "University of Bern",
+    "doi": "10.48350/161761",
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      },
+      {
+        "name": "Anna M\u00fcller",
+        "is_primary": false
+      },
+      {
+        "name": "David Chen",
+        "is_primary": false
+      }
+    ],
+    "coauthored": true
+  },
+  {
+    "title": "Charters and Records of K\u00f6nigsfelden Abbey and Bailiwick (1308-1662)",
+    "year": "2021",
+    "type": "data-set",
+    "journal": "Zenodo",
+    "doi": "10.5281/zenodo.5179361",
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      }
+    ],
+    "coauthored": false
+  },
+  {
+    "title": "Recognition results for the Handwritten Text Recognition Test Set: Minutes of the Swiss Federal Council (1848-1903)",
+    "year": "2021",
+    "type": "data-set",
+    "journal": "Zenodo",
+    "doi": "10.5281/zenodo.4905561",
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      }
+    ],
+    "coauthored": false
+  },
+  {
+    "title": "General Models for Handwritten Text Recognition: Feasibility and State-of-the Art. German Kurrent as an Example",
+    "year": "2021",
+    "type": "journal-article",
+    "journal": "ubiquity press",
+    "doi": "10.48350/157474",
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      },
+      {
+        "name": "Sarah Johnson",
+        "is_primary": false
+      }
+    ],
+    "coauthored": true
+  },
+  {
+    "title": "Gugerli, David: Wie die Welt in den Computer kam. Zur Entstehung digitaler Wirklichkeit. Frankfurt am Main 2018. ISBN 978-3-10-397226-9",
+    "year": "2020",
+    "type": "journal-article",
+    "journal": "University of Bern",
+    "doi": "10.7892/boris.147228",
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      }
+    ],
+    "coauthored": false
+  },
+  {
+    "title": "Schriftordnungen im Wandel",
+    "year": "2020",
+    "type": "book",
+    "journal": "",
+    "doi": "10.2357/9783739880600",
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      }
+    ],
+    "coauthored": false
+  },
+  {
+    "title": "Schriftordnungen im Wandel. Produktions-, Gebrauchs- und Aufbewahrungspraktiken von kl\u00f6sterlichem Schriftgut in K\u00f6nigsfelden (1300\u20131600)",
+    "year": "2020",
+    "type": "book",
+    "journal": "University of Bern",
+    "doi": "10.7892/boris.143792",
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      },
+      {
+        "name": "Sarah Johnson",
+        "is_primary": false
+      },
+      {
+        "name": "Anna M\u00fcller",
+        "is_primary": false
+      }
+    ],
+    "coauthored": true
+  },
+  {
+    "title": "Best-practices zur Erkennung alter Drucke und Handschriften \u2013 Die Nutzung von Transkribus large- und small-scale",
+    "year": "2020",
+    "type": "conference-paper",
+    "journal": "University of Bern",
+    "doi": "10.7892/boris.143957",
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      }
+    ],
+    "coauthored": false
+  },
+  {
+    "title": "Best-practices zur Erkennung alter Drucke und Handschriften. Die Nutzung von Transkribus large- und small-scale",
+    "year": "2020",
+    "type": "conference-paper",
+    "journal": "",
+    "doi": "10.5281/zenodo.4621728",
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      }
+    ],
+    "coauthored": false
+  },
+  {
+    "title": "D. Gugerli: Wie die Welt in den Computer kam [Rezension]",
+    "year": "2020",
+    "type": "other",
+    "journal": "",
+    "doi": null,
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      },
+      {
+        "name": "Anna M\u00fcller",
+        "is_primary": false
+      },
+      {
+        "name": "Michael Schmidt",
+        "is_primary": false
+      }
+    ],
+    "coauthored": true
+  },
+  {
+    "title": "Laura Estill / Diane K. Jakacki / Michael Ullyot (Hg.): Early Modern Studies After the Digital Turn",
+    "year": "2020",
+    "type": "journal-article",
+    "journal": "University of Bern",
+    "doi": "10.7892/boris.148154",
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      }
+    ],
+    "coauthored": false
+  },
+  {
+    "title": "Laura Estill / Diane K. Jakacki / Michael Ullyot (Hg.): Early Modern Studies After the Digital Turn",
+    "year": "2020",
+    "type": "journal-article",
+    "journal": "",
+    "doi": null,
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      }
+    ],
+    "coauthored": false
+  },
+  {
+    "title": "Maschinelles Lernen in den Geisteswissenschaften. Systemische und epistemologische Konsequenzen einer neuen Technologie",
+    "year": "2020",
+    "type": "conference-paper",
+    "journal": "",
+    "doi": "10.5281/zenodo.4621816",
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      },
+      {
+        "name": "Anna M\u00fcller",
+        "is_primary": false
+      },
+      {
+        "name": "David Chen",
+        "is_primary": false
+      }
+    ],
+    "coauthored": true
+  },
+  {
+    "title": "Perspektivenwechsel: Zwei Disziplinen aus Sicht der Digital Humanities \u2212 oder wie sich die Geisteswissenschaften im Digitalen (selbst) finden",
+    "year": "2020",
+    "type": "journal-article",
+    "journal": "University of Bern",
+    "doi": "10.7892/boris.147227",
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      }
+    ],
+    "coauthored": false
+  },
+  {
+    "title": "Transforming scholarship in the archives through handwritten text recognition",
+    "year": "2019",
+    "type": "journal-article",
+    "journal": "Journal of Documentation",
+    "doi": "10.1108/jd-07-2018-0114",
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      }
+    ],
+    "coauthored": false
+  },
+  {
+    "title": "Lesende Algorithmen: Projekt READ",
+    "year": "2019",
+    "type": "journal-article",
+    "journal": "Das Mittelalter",
+    "doi": "10.5281/zenodo.3366483",
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      },
+      {
+        "name": "David Chen",
+        "is_primary": false
+      }
+    ],
+    "coauthored": true
+  },
+  {
+    "title": "Visualizations of the Network Analysis of K\u00f6nigsfelden Abbey",
+    "year": "2019",
+    "type": "other",
+    "journal": "Zenodo",
+    "doi": "10.5281/zenodo.3360661",
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      }
+    ],
+    "coauthored": false
+  },
+  {
+    "title": "Grundlagen der Medi\u00e4vistik digital vermitteln",
+    "year": "2019",
+    "type": "journal-article",
+    "journal": "Das Mittelalter",
+    "doi": "10.1515/mial-2019-0010",
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      }
+    ],
+    "coauthored": false
+  },
+  {
+    "title": "READ/Transkribus Workshop at dhd2019 Mainz",
+    "year": "2019",
+    "type": "other",
+    "journal": "Zenodo",
+    "doi": "10.5281/zenodo.2611117",
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      },
+      {
+        "name": "David Chen",
+        "is_primary": false
+      }
+    ],
+    "coauthored": true
+  },
+  {
+    "title": "READing Handwritten Documents - Projekt READ und das Staatsarchiv Z\u00fcrich auf dem Weg zur automatischen Erkennung von handschriftlichen Dokumenten",
+    "year": "2019",
+    "type": "journal-article",
+    "journal": "University of Bern",
+    "doi": "10.7892/boris.141736",
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      }
+    ],
+    "coauthored": false
+  },
+  {
+    "title": "READing handwritten documents. Projekt READ und das Staatsarchiv Z\u00fcrich auf dem Weg zur automatischen Erkennung von handschriftlichen Dokumenten",
+    "year": "2019",
+    "type": "book-chapter",
+    "journal": "",
+    "doi": null,
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      }
+    ],
+    "coauthored": false
+  },
+  {
+    "title": "Rezension von: Safiya Umoya Noble, Algorithms of oppresision: how search engines reinforce racism",
+    "year": "2019",
+    "type": "journal-article",
+    "journal": "",
+    "doi": null,
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      },
+      {
+        "name": "Michael Schmidt",
+        "is_primary": false
+      },
+      {
+        "name": "Anna M\u00fcller",
+        "is_primary": false
+      }
+    ],
+    "coauthored": true
+  },
+  {
+    "title": "Tei-Xml Of Z\u00fcrcher Stillstandsprotokolle Des 17. Jahrhunderts",
+    "year": "2018",
+    "type": "data-set",
+    "journal": "Zenodo",
+    "doi": "10.5281/zenodo.1471130",
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      }
+    ],
+    "coauthored": false
+  },
+  {
+    "title": "Dataset For Icfhr2018 Competition On Automated Text Recognition On A Read Dataset",
+    "year": "2018",
+    "type": "data-set",
+    "journal": "Zenodo",
+    "doi": "10.5281/ZENODO.1442182",
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      }
+    ],
+    "coauthored": false
+  },
+  {
+    "title": "Generierung von Trainingsdaten f\u00fcr die Handschrifterkennung aus TEI annotierten Dokumenten \u2013 ein Erfahrungsbericht aus dem EU-Projekt READ",
+    "year": "2018",
+    "type": "book-chapter",
+    "journal": "INF-DH-2018",
+    "doi": "10.18420/infdh2018-11",
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      },
+      {
+        "name": "Sarah Johnson",
+        "is_primary": false
+      }
+    ],
+    "coauthored": true
+  },
+  {
+    "title": "Z\u00fcrich 1218: Auftakt zur Selbst\u00e4ndigkeit",
+    "year": "2018",
+    "type": "online-resource",
+    "journal": "Hochbaudepartement, Amt f\u00fcr St\u00e4dtebau, Stadt Z\u00fcrich",
+    "doi": null,
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      }
+    ],
+    "coauthored": false
+  },
+  {
+    "title": "Automatic Text Recognition: Mit Transkribus Texterkennung trainieren und anwenden",
+    "year": "2018",
+    "type": "conference-paper",
+    "journal": "",
+    "doi": "10.5281/zenodo.4622421",
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      }
+    ],
+    "coauthored": false
+  },
+  {
+    "title": "ICFHR2018 Competition on Automated Text Recognition on a READ Dataset",
+    "year": "2018",
+    "type": "journal-article",
+    "journal": "14TH INTERNATIONAL CONFERENCE ON FRONTIERS IN HANDWRITING RECOGNITION (ICFHR)",
+    "doi": "10.1109/ICFHR-2018.2018.00089",
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      },
+      {
+        "name": "David Chen",
+        "is_primary": false
+      }
+    ],
+    "coauthored": true
+  },
+  {
+    "title": "Dokumente segmentieren und Handschriften erkennen: Arbeiten mit der Plattform Transkribus",
+    "year": "2017",
+    "type": "conference-paper",
+    "journal": "",
+    "doi": "10.5281/zenodo.4622815",
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      }
+    ],
+    "coauthored": false
+  },
+  {
+    "title": "Rezension zu: Pierre-Alain Mariaux, Bernard Andenmatten, Thalia Brero (Hg.), L\u2019Abbaye de Saint-Maurice d\u2019Agaune, 515\u20132015, Gollion: Infolio, 2015 (2 B\u00e4nde)",
+    "year": "2017",
+    "type": "journal-article",
+    "journal": "",
+    "doi": "10.5167/uzh-145146",
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      }
+    ],
+    "coauthored": false
+  },
+  {
+    "title": "K\u00f6nigsfelden Abbey and its First Cartulary: Dealing with Charters in the Fourteenth Century",
+    "year": "2016",
+    "type": "book-chapter",
+    "journal": "",
+    "doi": "10.1484/m.usml-eb.5.112441",
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      },
+      {
+        "name": "David Chen",
+        "is_primary": false
+      },
+      {
+        "name": "Anna M\u00fcller",
+        "is_primary": false
+      }
+    ],
+    "coauthored": true
+  },
+  {
+    "title": "K\u00f6nigsfelden: Personen-Urkunden Netzwerk",
+    "year": "2016",
+    "type": "data-set",
+    "journal": "Zenodo",
+    "doi": "10.5281/ZENODO.49804",
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      }
+    ],
+    "coauthored": false
+  },
+  {
+    "title": "T. Wozniak u.a. (Hrsg.): Wikipedia und Geschichtswissenschaft [Rezension]",
+    "year": "2016",
+    "type": "other",
+    "journal": "",
+    "doi": null,
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      }
+    ],
+    "coauthored": false
+  },
+  {
+    "title": "Das K\u00f6nigsfelder Korn und Spanischbr\u00f6tli: Ein kleiner Beitrag zu Grundherrschaft im 15. Jahrhundert: Gehversuche im Marxismus",
+    "year": "2014",
+    "type": "book-chapter",
+    "journal": "Das Kuchenbuch : Umwege vom s\u00fcssen Schriftwissen zur inkorporierten Kochkunst : festliche Gabe f\u00fcr Ludolf Kuchenbuch anl\u00e4sslich seines 75. Geburtstages",
+    "doi": null,
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      },
+      {
+        "name": "Michael Schmidt",
+        "is_primary": false
+      }
+    ],
+    "coauthored": true
+  },
+  {
+    "title": "Das kleine Digitale: Ein Pl\u00e4doyer f\u00fcr Kleinkorpora und gegen Grossprojekte wie Googles Ngram-Viewer",
+    "year": "2013",
+    "type": "journal-article",
+    "journal": "Nach Feierabend. Z\u00fcrcher Jahrbuch f\u00fcr Wissensgeschichte",
+    "doi": null,
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      }
+    ],
+    "coauthored": false
+  },
+  {
+    "title": "Das Kloster in der Region: Herrschaft, Verwaltung und Handeln mit Schrift",
+    "year": "2012",
+    "type": "book-chapter",
+    "journal": "K\u00f6nigsfelden: K\u00f6nigsmord, Kloster und Klinik",
+    "doi": null,
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      }
+    ],
+    "coauthored": false
+  },
+  {
+    "title": "Mord: Ein toter K\u00f6nig und unz\u00e4hlige Geschichten",
+    "year": "2012",
+    "type": "book-chapter",
+    "journal": "",
+    "doi": null,
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      },
+      {
+        "name": "David Chen",
+        "is_primary": false
+      }
+    ],
+    "coauthored": true
+  },
+  {
+    "title": "M\u00f6rder und Chronisten",
+    "year": "2012",
+    "type": "book-chapter",
+    "journal": "",
+    "doi": "10.7892/boris.134767",
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      }
+    ],
+    "coauthored": false
+  }
+]

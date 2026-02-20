@@ -2,6 +2,7 @@
 """Fetch publications from ORCID and generate a Hugo markdown page."""
 
 import json
+import os
 import urllib.request
 from collections import defaultdict
 
@@ -120,6 +121,12 @@ def main():
         with open(output, "w") as f:
             f.write(md)
         print(f"Written {len(works)} publications to {output}")
+    
+    # Write publications JSON for dynamic loading
+    os.makedirs("static", exist_ok=True)
+    with open("static/publications.json", "w", encoding="utf-8") as f:
+        json.dump(works, f, indent=2, ensure_ascii=False)
+    print(f"Written {len(works)} publications to static/publications.json")
 
 if __name__ == "__main__":
     main()
