@@ -51,13 +51,9 @@
       {
         "name": "Tobias Hodel",
         "is_primary": true
-      },
-      {
-        "name": "Anna M\u00fcller",
-        "is_primary": false
       }
     ],
-    "coauthored": true
+    "coauthored": false
   },
   {
     "title": "Revisiting historicism with language models: bridging 19th-century perspectives and machine learning approaches for language analysis",
@@ -97,17 +93,9 @@
       {
         "name": "Tobias Hodel",
         "is_primary": true
-      },
-      {
-        "name": "Michael Schmidt",
-        "is_primary": false
-      },
-      {
-        "name": "Anna M\u00fcller",
-        "is_primary": false
       }
     ],
-    "coauthored": true
+    "coauthored": false
   },
   {
     "title": "Medientheorie als Zumutung? Positivistische Digital Humanities vs. materialistische Medienwissenschaft und die Rolle der Kommunikationsgeschichte",
@@ -147,13 +135,9 @@
       {
         "name": "Tobias Hodel",
         "is_primary": true
-      },
-      {
-        "name": "Michael Schmidt",
-        "is_primary": false
       }
     ],
-    "coauthored": true
+    "coauthored": false
   },
   {
     "title": "Geovistory, a LOD Research Infrastructure for Historical Sciences",
@@ -193,17 +177,9 @@
       {
         "name": "Tobias Hodel",
         "is_primary": true
-      },
-      {
-        "name": "David Chen",
-        "is_primary": false
-      },
-      {
-        "name": "Michael Schmidt",
-        "is_primary": false
       }
     ],
-    "coauthored": true
+    "coauthored": false
   },
   {
     "title": "2.3. Mit Standards forschen und Handlungsr\u00e4ume schaffen",
@@ -243,13 +219,9 @@
       {
         "name": "Tobias Hodel",
         "is_primary": true
-      },
-      {
-        "name": "Sarah Johnson",
-        "is_primary": false
       }
     ],
-    "coauthored": true
+    "coauthored": false
   },
   {
     "title": "Large Language Models, oder weshalb wir k\u00fcnstliche Intelligenz im Archiv finden sollten",
@@ -289,13 +261,9 @@
       {
         "name": "Tobias Hodel",
         "is_primary": true
-      },
-      {
-        "name": "David Chen",
-        "is_primary": false
       }
     ],
-    "coauthored": true
+    "coauthored": false
   },
   {
     "title": "Datenstandards f\u00fcr die historische Forschung \u2013 Ein White-Paper der Schweizerischen Gesellschaft f\u00fcr Geschichte",
@@ -335,17 +303,9 @@
       {
         "name": "Tobias Hodel",
         "is_primary": true
-      },
-      {
-        "name": "Sarah Johnson",
-        "is_primary": false
-      },
-      {
-        "name": "Michael Schmidt",
-        "is_primary": false
       }
     ],
-    "coauthored": true
+    "coauthored": false
   },
   {
     "title": "Max Kemman, Trading Zones of Digital History. (Studies in Digital History and Hermeneutics, Vol. 1.) Berlin/Boston, De Gruyter 2021",
@@ -385,17 +345,9 @@
       {
         "name": "Tobias Hodel",
         "is_primary": true
-      },
-      {
-        "name": "Anna M\u00fcller",
-        "is_primary": false
-      },
-      {
-        "name": "Michael Schmidt",
-        "is_primary": false
       }
     ],
-    "coauthored": true
+    "coauthored": false
   },
   {
     "title": "Multimodal genre recognition of Chinese operas with hybrid fusion",
@@ -435,13 +387,9 @@
       {
         "name": "Tobias Hodel",
         "is_primary": true
-      },
-      {
-        "name": "Sarah Johnson",
-        "is_primary": false
       }
     ],
-    "coauthored": true
+    "coauthored": false
   },
   {
     "title": "The Bullinger Dataset: A Writer Adaptation Challenge",
@@ -481,13 +429,9 @@
       {
         "name": "Tobias Hodel",
         "is_primary": true
-      },
-      {
-        "name": "Sarah Johnson",
-        "is_primary": false
       }
     ],
-    "coauthored": true
+    "coauthored": false
   },
   {
     "title": "Zugang zu Informationen in digitalen Sammlungen: Fokus Archive",
@@ -527,17 +471,9 @@
       {
         "name": "Tobias Hodel",
         "is_primary": true
-      },
-      {
-        "name": "Sarah Johnson",
-        "is_primary": false
-      },
-      {
-        "name": "Anna M\u00fcller",
-        "is_primary": false
       }
     ],
-    "coauthored": true
+    "coauthored": false
   },
   {
     "title": "Die Maschine und die Geschichtswissenschaft : Der Einfluss von deep learning auf eine Disziplin",
@@ -577,13 +513,9 @@
       {
         "name": "Tobias Hodel",
         "is_primary": true
-      },
-      {
-        "name": "Michael Schmidt",
-        "is_primary": false
       }
     ],
-    "coauthored": true
+    "coauthored": false
   },
   {
     "title": "Konsequenzen der Handschriftenerkennung und des maschinellen Lernens f\u00fcr die Geschichtswissenschaft. Anwendung, Einordnung und Methodenkritik",
@@ -623,17 +555,9 @@
       {
         "name": "Tobias Hodel",
         "is_primary": true
-      },
-      {
-        "name": "David Chen",
-        "is_primary": false
-      },
-      {
-        "name": "Sarah Johnson",
-        "is_primary": false
       }
     ],
-    "coauthored": true
+    "coauthored": false
   },
   {
     "title": "Virtueller NLP Hackathon",
@@ -673,17 +597,9 @@
       {
         "name": "Tobias Hodel",
         "is_primary": true
-      },
-      {
-        "name": "Anna M\u00fcller",
-        "is_primary": false
-      },
-      {
-        "name": "David Chen",
-        "is_primary": false
       }
     ],
-    "coauthored": true
+    "coauthored": false
   },
   {
     "title": "Charters and Records of K\u00f6nigsfelden Abbey and Bailiwick (1308-1662)",
@@ -723,13 +639,9 @@
       {
         "name": "Tobias Hodel",
         "is_primary": true
-      },
-      {
-        "name": "Sarah Johnson",
-        "is_primary": false
       }
     ],
-    "coauthored": true
+    "coauthored": false
   },
   {
     "title": "Gugerli, David: Wie die Welt in den Computer kam. Zur Entstehung digitaler Wirklichkeit. Frankfurt am Main 2018. ISBN 978-3-10-397226-9",
@@ -769,17 +681,9 @@
       {
         "name": "Tobias Hodel",
         "is_primary": true
-      },
-      {
-        "name": "Sarah Johnson",
-        "is_primary": false
-      },
-      {
-        "name": "Anna M\u00fcller",
-        "is_primary": false
       }
     ],
-    "coauthored": true
+    "coauthored": false
   },
   {
     "title": "Best-practices zur Erkennung alter Drucke und Handschriften \u2013 Die Nutzung von Transkribus large- und small-scale",
@@ -819,17 +723,9 @@
       {
         "name": "Tobias Hodel",
         "is_primary": true
-      },
-      {
-        "name": "Anna M\u00fcller",
-        "is_primary": false
-      },
-      {
-        "name": "Michael Schmidt",
-        "is_primary": false
       }
     ],
-    "coauthored": true
+    "coauthored": false
   },
   {
     "title": "Laura Estill / Diane K. Jakacki / Michael Ullyot (Hg.): Early Modern Studies After the Digital Turn",
@@ -869,17 +765,9 @@
       {
         "name": "Tobias Hodel",
         "is_primary": true
-      },
-      {
-        "name": "Anna M\u00fcller",
-        "is_primary": false
-      },
-      {
-        "name": "David Chen",
-        "is_primary": false
       }
     ],
-    "coauthored": true
+    "coauthored": false
   },
   {
     "title": "Perspektivenwechsel: Zwei Disziplinen aus Sicht der Digital Humanities \u2212 oder wie sich die Geisteswissenschaften im Digitalen (selbst) finden",
@@ -919,13 +807,9 @@
       {
         "name": "Tobias Hodel",
         "is_primary": true
-      },
-      {
-        "name": "David Chen",
-        "is_primary": false
       }
     ],
-    "coauthored": true
+    "coauthored": false
   },
   {
     "title": "Visualizations of the Network Analysis of K\u00f6nigsfelden Abbey",
@@ -965,13 +849,9 @@
       {
         "name": "Tobias Hodel",
         "is_primary": true
-      },
-      {
-        "name": "David Chen",
-        "is_primary": false
       }
     ],
-    "coauthored": true
+    "coauthored": false
   },
   {
     "title": "READing Handwritten Documents - Projekt READ und das Staatsarchiv Z\u00fcrich auf dem Weg zur automatischen Erkennung von handschriftlichen Dokumenten",
@@ -1011,17 +891,9 @@
       {
         "name": "Tobias Hodel",
         "is_primary": true
-      },
-      {
-        "name": "Michael Schmidt",
-        "is_primary": false
-      },
-      {
-        "name": "Anna M\u00fcller",
-        "is_primary": false
       }
     ],
-    "coauthored": true
+    "coauthored": false
   },
   {
     "title": "Tei-Xml Of Z\u00fcrcher Stillstandsprotokolle Des 17. Jahrhunderts",
@@ -1061,13 +933,9 @@
       {
         "name": "Tobias Hodel",
         "is_primary": true
-      },
-      {
-        "name": "Sarah Johnson",
-        "is_primary": false
       }
     ],
-    "coauthored": true
+    "coauthored": false
   },
   {
     "title": "Z\u00fcrich 1218: Auftakt zur Selbst\u00e4ndigkeit",
@@ -1107,13 +975,9 @@
       {
         "name": "Tobias Hodel",
         "is_primary": true
-      },
-      {
-        "name": "David Chen",
-        "is_primary": false
       }
     ],
-    "coauthored": true
+    "coauthored": false
   },
   {
     "title": "Dokumente segmentieren und Handschriften erkennen: Arbeiten mit der Plattform Transkribus",
@@ -1153,17 +1017,9 @@
       {
         "name": "Tobias Hodel",
         "is_primary": true
-      },
-      {
-        "name": "David Chen",
-        "is_primary": false
-      },
-      {
-        "name": "Anna M\u00fcller",
-        "is_primary": false
       }
     ],
-    "coauthored": true
+    "coauthored": false
   },
   {
     "title": "K\u00f6nigsfelden: Personen-Urkunden Netzwerk",
@@ -1203,13 +1059,9 @@
       {
         "name": "Tobias Hodel",
         "is_primary": true
-      },
-      {
-        "name": "Michael Schmidt",
-        "is_primary": false
       }
     ],
-    "coauthored": true
+    "coauthored": false
   },
   {
     "title": "Das kleine Digitale: Ein Pl\u00e4doyer f\u00fcr Kleinkorpora und gegen Grossprojekte wie Googles Ngram-Viewer",
@@ -1249,13 +1101,9 @@
       {
         "name": "Tobias Hodel",
         "is_primary": true
-      },
-      {
-        "name": "David Chen",
-        "is_primary": false
       }
     ],
-    "coauthored": true
+    "coauthored": false
   },
   {
     "title": "M\u00f6rder und Chronisten",
