@@ -59,9 +59,9 @@ Digitale Geisteswissenschaften, Anwendung und Theorie maschineller Lernverfahren
 - Programmleitung [MAS in Extended Intelligence](https://www.unibe.ch/weiterbildung/mas_extended_intelligence/) inkl. CAS in Applied Data Science, Advanced Machine Learning, Natural Language Processing ([Universität Bern](https://www.unibe.ch/))
 
 **Seit 2021**
-- Gründungsmitglied der [Bern Data Science Initiative (BeDSI)](https://www.bds.unibe.ch/)
+- Gründungsmitglied der [Bern Data Science Initiative (BeDSI)](https://www.bedsi.unibe.ch/)
 - Vertreter der phil.-hist. Fakultät in der universitären [Digitalisierungskommission](https://www.unibe.ch/universitaet/campus__und__infrastruktur/digitalisierung_an_der_universitaet_bern/beteiligte/digik/index_ger.html)
-- Verantwortlicher des interuniversitären [Doktoratsprogramms Digital Humanities](https://junioracademics.unibe.ch/doktorat/doktoratsausbildung/doktoratsprogramme/doktoratsprogramme_universitaet_bern_20252028/index_ger.html) und des Netzwerks [DH-CH](https://dh-ch.ch/) ([Universitäten Bern](https://www.unibe.ch/) & [Basel](https://www.unibas.ch/))
+- Verantwortlicher des [Doktoratsprogramms Digital Humanities](https://junioracademics.unibe.ch/doktorat/doktoratsausbildung/doktoratsprogramme/doktoratsprogramme_universitaet_bern_20252028/index_ger.html) und des Netzwerks [DH-CH](https://dh-ch.ch/) ([Universitäten Bern](https://www.unibe.ch/) & [Basel](https://www.unibas.ch/))
 - Programmverantwortlicher [Digital Humanities Master Minor](https://www.philhist.unibe.ch/studium/studienprogramme/master_minorstudienprogramm_digital_humanities/index_ger.html), 30 ECTS; ab FS2026 90 ECTS
 
 **Seit 2020**
@@ -72,7 +72,7 @@ Digitale Geisteswissenschaften, Anwendung und Theorie maschineller Lernverfahren
 **Seit 2019**
 - Vertreter der [Universität Bern](https://www.unibe.ch/) in [DARIAH-CH](https://www.dariah.ch/), 2022–2024 Präsident des Konsortiums
 - Ansprechperson Digitalisierung der [Phil.-hist. Fakultät](https://www.philhist.unibe.ch/)
-- Herausgeber von [Ad fontes](https://www.adfontes.uzh.ch/) (zusammen mit Prof. Dr. Simon Teuscher, [Universität Zürich](https://www.uzh.ch/))
+- Herausgeber von [Ad fontes](https://www.adfontes.uzh.ch/) (zusammen mit Prof. Dr. Simon Teuscher, [Universität Zürich](https://www.hist.uzh.ch/))
 
 **2023–2025** — Experte für «Research Infrastructure», [OECD](https://www.oecd.org/) Panel [«Global Science Forum»](https://www.oecd.org/en/networks/global-science-forum.html), Repräsentant der Schweizer Eidgenossenschaft (nominiert durch [SBFI](https://www.sbfi.admin.ch/)).
 

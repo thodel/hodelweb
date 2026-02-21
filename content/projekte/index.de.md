@@ -5,7 +5,7 @@ url: "/projekte/"
 summary: "Forschungsprojekte"
 ---
 
-Aktuelle und abgeschlossene Projekte der Abteilung Digital Humanities an der Universität Bern. Ausführliche Informationen auf der [Projektseite von DH Bern](https://dhbern.github.io/content/projects/).
+Aktuelle und abgeschlossene Projekte der Digital Humanities an der Universität Bern. Ausführliche Informationen auf der [Projektseite von DH Bern](https://dhbern.github.io/content/projects/).
 
 ---
 
@@ -29,17 +29,9 @@ Handschriftenmodelle zur automatischen Erkennung der Briefe Heinrich Bullingers,
 Ein Standard für Projekte, die mit Texten in vormodernem Deutsch arbeiten.
 → [Mehr erfahren](https://dhbern.github.io/content/projects/benasch/index.html)
 
-### Bit Philology
-Literarische Archive umfassen zunehmend born-digital Dokumente. Das Projekt untersucht, wie diese erschlossen werden können.
-→ [Mehr erfahren](https://dhbern.github.io/content/projects/bitphilology/index.html)
-
 ### Bundesratsprotokolle
 Aufbereitung der handschriftlichen Bundesratsprotokolle (1848–1903) für einen niederschwelligen Zugriff mittels eigener Suchoberfläche.
 → [Mehr erfahren](https://dhbern.github.io/content/projects/aufbereitung-bundesratsprotokolle/index.html)
-
-### Diskriminierungssensible Metadatenpraxis
-Praxisorientierte Anleitung für die diskriminierungssensible Beschreibung von Metadaten zu historischen Quellen.
-→ [Mehr erfahren](https://dhbern.github.io/content/projects/metadata-handbook/index.html)
 
 ### GeWiS – Grounded Knowledge
 Untersuchung der Kombination von relationalen Datenbanken und Linked-Data-Ansätzen zur Modellierung und Vernetzung geisteswissenschaftlichen Wissens.
