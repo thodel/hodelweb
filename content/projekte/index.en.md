@@ -29,17 +29,9 @@ Handwriting models for automatic recognition of Heinrich Bullinger's letters, in
 Establishing a standard for projects working with pre-modern German texts.
 → [Learn more](https://dhbern.github.io/content/projects/benasch/index.html)
 
-### Bit Philology
-Literary archives increasingly include born-digital documents. This project explores how to make them accessible.
-→ [Learn more](https://dhbern.github.io/content/projects/bitphilology/index.html)
-
 ### Bundesratsprotokolle
 Processing the handwritten Swiss Federal Council minutes (1848–1903) for accessible full-text search.
 → [Learn more](https://dhbern.github.io/content/projects/aufbereitung-bundesratsprotokolle/index.html)
-
-### Discrimination-Sensitive Metadata Practice
-A practical guide for discrimination-sensitive description of metadata for historical sources.
-→ [Learn more](https://dhbern.github.io/content/projects/metadata-handbook/index.html)
 
 ### GeWiS – Grounded Knowledge
 Investigating how relational databases and linked data approaches can be combined to model and interlink knowledge from the humanities.

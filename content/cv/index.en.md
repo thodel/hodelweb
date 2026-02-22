@@ -47,4 +47,4 @@ Digital Humanities, application and theory of machine learning in the humanities
 - Representative of the [University of Bern](https://www.unibe.ch/) in [DARIAH-CH](https://www.dariah.ch/); President of the consortium 2022–2024
 - Co-editor, book series [*Digital Humanities Research*](https://www.transcript-verlag.de/reihen/digital-humanities-research/), Bielefeld University Press/Transcript
 - Programme director, [MAS in Extended Intelligence](https://www.unibe.ch/weiterbildung/mas_extended_intelligence/) & [MAS in Archival, Library and Information Science](https://www.unibe.ch/weiterbildung/mas_archiv_bibliotheks_und_informationswissenschaft/) ([University of Bern](https://www.unibe.ch/))
-- Founding member, [Bern Data Science Initiative (BeDSI)](https://www.bds.unibe.ch/)
+- Founding member, [Bern Data Science Initiative (BeDSI)](https://www.bedsi.unibe.ch/)

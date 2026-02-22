@@ -14,7 +14,7 @@ summary: "Teaching"
 
 ## Previous Teaching
 
-- **Since 2011** — Lecturer, undergraduate and graduate History courses, University of Zurich
+- **2011–2019** — Lecturer, undergraduate and graduate History courses, University of Zurich
 - **Autumn 2019** — Lecturer, "Machine Learning in Digital History: Text Recognition and Document Analysis with Transkribus", University of Basel
 - **Since 2016** — Regular contribution to "Introduction to Cultural Studies" (block course: Introduction to Digital Humanities), University of Lucerne
 
