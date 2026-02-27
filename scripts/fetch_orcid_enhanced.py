@@ -3,6 +3,7 @@
 
 import json
 import os
+import time
 import urllib.request
 from collections import defaultdict
 
@@ -13,7 +14,13 @@ OUTPUT_EN = "content/publikationen/index.en.md"
 def fetch_works():
     """Fetch the list of works from ORCID."""
     url = f"https://pub.orcid.org/v3.0/{ORCID_ID}/works"
-    req = urllib.request.Request(url, headers={"Accept": "application/json"})
+    req = urllib.request.Request(
+        url,
+        headers={
+            "Accept": "application/json",
+            "User-Agent": "hodelweb/1.0 (ORCID fetch script)"
+        }
+    )
     with urllib.request.urlopen(req) as resp:
         return json.loads(resp.read())
 
@@ -21,7 +28,10 @@ def fetch_work_details(putcode):
     """Fetch detailed work information including contributors."""
     try:
         url = f"https://pub.orcid.org/v3.0/{ORCID_ID}/work/{putcode}"
-        headers = {"Accept": "application/json"}
+        headers = {
+            "Accept": "application/json",
+            "User-Agent": "hodelweb/1.0 (ORCID fetch script)"
+        }
         
         with urllib.request.urlopen(urllib.request.Request(url, headers=headers)) as response:
             return json.loads(response.read().decode())
@@ -64,20 +74,36 @@ def parse_work(group):
                 contrib_attrs = contrib.get("contributor-attributes")
                 if contrib_attrs:
                     role = contrib_attrs.get("contributor-role")
-                    if role in ["author", "co-author", "editor"]:
-                        name_data = contrib.get("contributor-name")
-                        if name_data:
-                            given_names = name_data.get("given-names", {}).get("value", "") if name_data.get("given-names") else ""
-                            family_name = name_data.get("family-name", {}).get("value", "") if name_data.get("family-name") else ""
-                            full_name = f"{given_names} {family_name}".strip()
-                            if full_name:
-                                # Check if it's Tobias Hodel to mark as primary author
-                                is_primary = "hodel" in full_name.lower() and "tobias" in full_name.lower()
-                                authors.append({
-                                    "name": full_name,
-                                    "role": role,
-                                    "is_primary": is_primary
-                                })
+                    if role in ["author", "co-author"]:
+                        name_data = contrib.get("contributor-name") or {}
+                        credit_name = ""
+                        if "credit-name" in name_data:
+                            credit_name = name_data.get("credit-name", {}).get("value", "") or ""
+                        if not credit_name and "credit-name" in contrib:
+                            credit_name = contrib.get("credit-name", {}).get("value", "") or ""
+
+                        given_names = name_data.get("given-names", {}).get("value", "") if name_data.get("given-names") else ""
+                        family_name = name_data.get("family-name", {}).get("value", "") if name_data.get("family-name") else ""
+                        full_name = credit_name or f"{given_names} {family_name}".strip()
+
+                        if full_name:
+                            # Check if it's Tobias Hodel to mark as primary author
+                            is_primary = False
+                            contrib_orcid = contrib.get("contributor-orcid", {})
+                            if isinstance(contrib_orcid, dict):
+                                orcid_path = contrib_orcid.get("path") or ""
+                                if orcid_path == ORCID_ID:
+                                    is_primary = True
+                            if not is_primary:
+                                lname = full_name.lower()
+                                is_primary = "hodel" in lname and "tobias" in lname
+
+                            authors.append({
+                                "name": full_name,
+                                "is_primary": is_primary
+                            })
+        # Small delay to avoid hitting ORCID rate limits
+        time.sleep(0.1)
 
     return {
         "title": title,
@@ -86,8 +112,7 @@ def parse_work(group):
         "journal": journal_name,
         "doi": doi,
         "authors": authors,
-        "coauthored": len(authors) > 1,
-        "putcode": putcode
+        "coauthored": len(authors) > 1
     }
 
 def type_label(t):
