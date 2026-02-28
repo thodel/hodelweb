@@ -87,11 +87,15 @@
     "doi": "10.7788/9783412530921.197",
     "authors": [
       {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      },
+      {
         "name": "Jonas Widmer",
         "is_primary": false
       }
     ],
-    "coauthored": false
+    "coauthored": true
   },
   {
     "title": "Living in the Future— How I Met Günter Mühlberger and Techno-Optimism",
@@ -180,8 +184,249 @@
     "type": "journal-article",
     "journal": "Episciences",
     "doi": "10.48350/194575",
-    "authors": [],
-    "coauthored": false
+    "authors": [
+      {
+        "name": "C. Annemieke Romein",
+        "is_primary": false
+      },
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      },
+      {
+        "name": "Femke Gordijn",
+        "is_primary": false
+      },
+      {
+        "name": "Joris J. van Zundert",
+        "is_primary": false
+      },
+      {
+        "name": "Alix Chagué",
+        "is_primary": false
+      },
+      {
+        "name": "Milan van Lange",
+        "is_primary": false
+      },
+      {
+        "name": "Helle Strandgaard Jensen",
+        "is_primary": false
+      },
+      {
+        "name": "Andy Stauder",
+        "is_primary": false
+      },
+      {
+        "name": "Jake Purcell",
+        "is_primary": false
+      },
+      {
+        "name": "Melissa M. Terras",
+        "is_primary": false
+      },
+      {
+        "name": "Pauline van den Heuvel",
+        "is_primary": false
+      },
+      {
+        "name": "Carlijn Keijzer",
+        "is_primary": false
+      },
+      {
+        "name": "Achim Rabus",
+        "is_primary": false
+      },
+      {
+        "name": "Chantal Sitaram",
+        "is_primary": false
+      },
+      {
+        "name": "Aakriti Bhatia",
+        "is_primary": false
+      },
+      {
+        "name": "Katrien Depuydt",
+        "is_primary": false
+      },
+      {
+        "name": "Mary Aderonke Afolabi-Adeolu",
+        "is_primary": false
+      },
+      {
+        "name": "Anastasiia Anikina",
+        "is_primary": false
+      },
+      {
+        "name": "Elisa Bastianello",
+        "is_primary": false
+      },
+      {
+        "name": "Lukas Vincent Benzinger",
+        "is_primary": false
+      },
+      {
+        "name": "Arno Bosse",
+        "is_primary": false
+      },
+      {
+        "name": "David Brown",
+        "is_primary": false
+      },
+      {
+        "name": "Ash Charlton",
+        "is_primary": false
+      },
+      {
+        "name": "André Nilsson Dannevig",
+        "is_primary": false
+      },
+      {
+        "name": "Klaas van Gelder",
+        "is_primary": false
+      },
+      {
+        "name": "Sabine C.P.J. Go",
+        "is_primary": false
+      },
+      {
+        "name": "Marcus J.C. Goh",
+        "is_primary": false
+      },
+      {
+        "name": "Silvia Gstrein",
+        "is_primary": false
+      },
+      {
+        "name": "Sewa Hasan",
+        "is_primary": false
+      },
+      {
+        "name": "Stefan von der Heide",
+        "is_primary": false
+      },
+      {
+        "name": "Maximilian Hindermann",
+        "is_primary": false
+      },
+      {
+        "name": "Dorothee Huff",
+        "is_primary": false
+      },
+      {
+        "name": "Ineke Huysman",
+        "is_primary": false
+      },
+      {
+        "name": "Ali Idris",
+        "is_primary": false
+      },
+      {
+        "name": "Liesbeth Keijzer",
+        "is_primary": false
+      },
+      {
+        "name": "Simon Kemper",
+        "is_primary": false
+      },
+      {
+        "name": "Sanne Koenders",
+        "is_primary": false
+      },
+      {
+        "name": "Erika Kuijpers",
+        "is_primary": false
+      },
+      {
+        "name": "Lisette Rønsig Larsen",
+        "is_primary": false
+      },
+      {
+        "name": "Sven Lepa",
+        "is_primary": false
+      },
+      {
+        "name": "Tommy O. Link",
+        "is_primary": false
+      },
+      {
+        "name": "Annelies van Nispen",
+        "is_primary": false
+      },
+      {
+        "name": "Joe Nockels",
+        "is_primary": false
+      },
+      {
+        "name": "Laura M. van Noort",
+        "is_primary": false
+      },
+      {
+        "name": "Joost Johannes Oosterhuis",
+        "is_primary": false
+      },
+      {
+        "name": "Vivien Popken",
+        "is_primary": false
+      },
+      {
+        "name": "María Estrella Puertollano",
+        "is_primary": false
+      },
+      {
+        "name": "Joosep J. Puusaag",
+        "is_primary": false
+      },
+      {
+        "name": "Ahmed Sheta",
+        "is_primary": false
+      },
+      {
+        "name": "Lex Stoop",
+        "is_primary": false
+      },
+      {
+        "name": "Ebba Strutzenbladh",
+        "is_primary": false
+      },
+      {
+        "name": "Nicoline van der Sijs",
+        "is_primary": false
+      },
+      {
+        "name": "Jan Paul van der Spek",
+        "is_primary": false
+      },
+      {
+        "name": "Barry Benaissa Trouw",
+        "is_primary": false
+      },
+      {
+        "name": "Geertrui Van Synghel",
+        "is_primary": false
+      },
+      {
+        "name": "Vladimir Vučković",
+        "is_primary": false
+      },
+      {
+        "name": "Heleen Wilbrink",
+        "is_primary": false
+      },
+      {
+        "name": "Sonia Weiss",
+        "is_primary": false
+      },
+      {
+        "name": "David Joseph Wrisley",
+        "is_primary": false
+      },
+      {
+        "name": "Riet Zweistra",
+        "is_primary": false
+      }
+    ],
+    "coauthored": true
   },
   {
     "title": "Large Language Models, oder weshalb wir künstliche Intelligenz im Archiv finden sollten",
@@ -189,7 +434,12 @@
     "type": "journal-article",
     "journal": "University of Bern",
     "doi": "10.48350/197467",
-    "authors": [],
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      }
+    ],
     "coauthored": false
   },
   {
@@ -247,8 +497,45 @@
     "type": "other",
     "journal": "Zenodo",
     "doi": "10.5281/zenodo.7715357",
-    "authors": [],
-    "coauthored": false
+    "authors": [
+      {
+        "name": "Phillip Ströbel",
+        "is_primary": false
+      },
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      },
+      {
+        "name": "Tim Fischer",
+        "is_primary": false
+      },
+      {
+        "name": "Anna Scius",
+        "is_primary": false
+      },
+      {
+        "name": "Beat Wolf",
+        "is_primary": false
+      },
+      {
+        "name": "Anna Janka",
+        "is_primary": false
+      },
+      {
+        "name": "Jonas Widmer",
+        "is_primary": false
+      },
+      {
+        "name": "Patricia Scheurer",
+        "is_primary": false
+      },
+      {
+        "name": "Martin Volk",
+        "is_primary": false
+      }
+    ],
+    "coauthored": true
   },
   {
     "title": "Max Kemman, Trading Zones of Digital History. (Studies in Digital History and Hermeneutics, Vol. 1.) Berlin/Boston, De Gruyter 2021",
@@ -256,7 +543,12 @@
     "type": "review",
     "journal": "Historische Zeitschrift",
     "doi": "10.1515/hzhz-2023-1002",
-    "authors": [],
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      }
+    ],
     "coauthored": false
   },
   {
@@ -265,8 +557,45 @@
     "type": "other",
     "journal": "Zenodo",
     "doi": "10.48350/180287",
-    "authors": [],
-    "coauthored": false
+    "authors": [
+      {
+        "name": "Phillip Ströbel",
+        "is_primary": false
+      },
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      },
+      {
+        "name": "Tim Fischer",
+        "is_primary": false
+      },
+      {
+        "name": "Anna Scius",
+        "is_primary": false
+      },
+      {
+        "name": "Beat Wolf",
+        "is_primary": false
+      },
+      {
+        "name": "Anna Janka",
+        "is_primary": false
+      },
+      {
+        "name": "Jonas Widmer",
+        "is_primary": false
+      },
+      {
+        "name": "Patricia Scheurer",
+        "is_primary": false
+      },
+      {
+        "name": "Martin Volk",
+        "is_primary": false
+      }
+    ],
+    "coauthored": true
   },
   {
     "title": "CICHMKG: a large-scale and comprehensive Chinese intangible cultural heritage multimodal knowledge graph",
@@ -274,8 +603,21 @@
     "type": "journal-article",
     "journal": "University of Bern",
     "doi": "10.48350/186785",
-    "authors": [],
-    "coauthored": false
+    "authors": [
+      {
+        "name": "Tao Fan",
+        "is_primary": false
+      },
+      {
+        "name": "Hao Wang",
+        "is_primary": false
+      },
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      }
+    ],
+    "coauthored": true
   },
   {
     "title": "Multimodal genre recognition of Chinese operas with hybrid fusion",
@@ -283,8 +625,21 @@
     "type": "other",
     "journal": ":unas",
     "doi": "10.48350/186793",
-    "authors": [],
-    "coauthored": false
+    "authors": [
+      {
+        "name": "Tao Fan",
+        "is_primary": false
+      },
+      {
+        "name": "Hao Wang",
+        "is_primary": false
+      },
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      }
+    ],
+    "coauthored": true
   },
   {
     "title": "Pre-Modern Data: Applying Language Modeling and Named Entity Recognition on Criminal Records in the City of Bern",
@@ -292,8 +647,21 @@
     "type": "conference-paper",
     "journal": "University of Bern",
     "doi": "10.48350/184547",
-    "authors": [],
-    "coauthored": false
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      },
+      {
+        "name": "Ismail Prada Ziegler",
+        "is_primary": false
+      },
+      {
+        "name": "Christa Schneider",
+        "is_primary": false
+      }
+    ],
+    "coauthored": true
   },
   {
     "title": "The Adaptability of a Transformer-Based OCR Model for Historical Documents",
@@ -327,8 +695,29 @@
     "type": "other",
     "journal": "Springer",
     "doi": "10.48350/185720",
-    "authors": [],
-    "coauthored": false
+    "authors": [
+      {
+        "name": "Anna Scius-Bertrand",
+        "is_primary": false
+      },
+      {
+        "name": "Phillip Ströbel",
+        "is_primary": false
+      },
+      {
+        "name": "Martin Volk",
+        "is_primary": false
+      },
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      },
+      {
+        "name": "Andreas Fischer",
+        "is_primary": false
+      }
+    ],
+    "coauthored": true
   },
   {
     "title": "Vom Crowdsourcing zu Co-Design. Ansätze zum Einbezug der Öffentlichkeit in die geschichtswissenschaftliche Forschung",
@@ -380,7 +769,12 @@
     "type": "book-chapter",
     "journal": "University of Bern",
     "doi": "10.48350/169050",
-    "authors": [],
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      }
+    ],
     "coauthored": false
   },
   {
@@ -389,7 +783,12 @@
     "type": "journal-article",
     "journal": "Franz Steiner Verlag",
     "doi": "10.48350/173111",
-    "authors": [],
+    "authors": [
+      {
+        "name": "Joel Zapata",
+        "is_primary": false
+      }
+    ],
     "coauthored": false
   },
   {
@@ -416,8 +815,33 @@
     "type": "other",
     "journal": "ACL Anthology",
     "doi": "10.48350/186794",
-    "authors": [],
-    "coauthored": false
+    "authors": [
+      {
+        "name": "Phillip Ströbel",
+        "is_primary": false
+      },
+      {
+        "name": "Simon Clematide",
+        "is_primary": false
+      },
+      {
+        "name": "Martin Volk",
+        "is_primary": false
+      },
+      {
+        "name": "Raphael Schwitter",
+        "is_primary": false
+      },
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      },
+      {
+        "name": "David Schoch",
+        "is_primary": false
+      }
+    ],
+    "coauthored": true
   },
   {
     "title": "Konsequenzen der Handschriftenerkennung und des maschinellen Lernens für die Geschichtswissenschaft. Anwendung, Einordnung und Methodenkritik",
@@ -443,8 +867,25 @@
     "type": "journal-article",
     "journal": "University of Bern",
     "doi": "10.48350/170882",
-    "authors": [],
-    "coauthored": false
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      },
+      {
+        "name": "Sonja Gasser",
+        "is_primary": false
+      },
+      {
+        "name": "Christa Schneider",
+        "is_primary": false
+      },
+      {
+        "name": "David Schoch",
+        "is_primary": false
+      }
+    ],
+    "coauthored": true
   },
   {
     "title": "Virtueller NLP Hackathon",
@@ -452,8 +893,29 @@
     "type": "other",
     "journal": "Zenodo",
     "doi": "10.5281/zenodo.5850789",
-    "authors": [],
-    "coauthored": false
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      },
+      {
+        "name": "Joel Niklaus",
+        "is_primary": false
+      },
+      {
+        "name": "Jasmin Nussbaumer",
+        "is_primary": false
+      },
+      {
+        "name": "Christa Schneider",
+        "is_primary": false
+      },
+      {
+        "name": "Matthias Stürmer",
+        "is_primary": false
+      }
+    ],
+    "coauthored": true
   },
   {
     "title": "JuBe - Jugendsprache Schweiz Korpus",
@@ -461,8 +923,29 @@
     "type": "data-set",
     "journal": "",
     "doi": "10.5281/ZENODO.5648157",
-    "authors": [],
-    "coauthored": false
+    "authors": [
+      {
+        "name": "Christa Schneider",
+        "is_primary": false
+      },
+      {
+        "name": "Dave Brittan",
+        "is_primary": false
+      },
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      },
+      {
+        "name": "Dominique Hess",
+        "is_primary": false
+      },
+      {
+        "name": "Anna Linder",
+        "is_primary": false
+      }
+    ],
+    "coauthored": true
   },
   {
     "title": "Eine Zunft im digitalen Wandel: die Editionswissenschaften 2.0 in der Schweiz",
@@ -470,7 +953,12 @@
     "type": "other",
     "journal": "University of Bern",
     "doi": "10.48350/161761",
-    "authors": [],
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      }
+    ],
     "coauthored": false
   },
   {
@@ -479,8 +967,49 @@
     "type": "data-set",
     "journal": "Zenodo",
     "doi": "10.5281/zenodo.5179361",
-    "authors": [],
-    "coauthored": false
+    "authors": [
+      {
+        "name": "Colette Halter-Pernet",
+        "is_primary": false
+      },
+      {
+        "name": "Simon Teuscher",
+        "is_primary": false
+      },
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      },
+      {
+        "name": "Lukas Barwitzki",
+        "is_primary": false
+      },
+      {
+        "name": "Salome Egloff",
+        "is_primary": false
+      },
+      {
+        "name": "Fabian Henggeler",
+        "is_primary": false
+      },
+      {
+        "name": "Michael Nadig",
+        "is_primary": false
+      },
+      {
+        "name": "Anina Steinmann",
+        "is_primary": false
+      },
+      {
+        "name": "Sabine Stettler",
+        "is_primary": false
+      },
+      {
+        "name": "Ismail Prada Ziegler",
+        "is_primary": false
+      }
+    ],
+    "coauthored": true
   },
   {
     "title": "Recognition results for the Handwritten Text Recognition Test Set: Minutes of the Swiss Federal Council (1848-1903)",
@@ -488,8 +1017,17 @@
     "type": "data-set",
     "journal": "Zenodo",
     "doi": "10.5281/zenodo.4905561",
-    "authors": [],
-    "coauthored": false
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      },
+      {
+        "name": "David Schoch",
+        "is_primary": false
+      }
+    ],
+    "coauthored": true
   },
   {
     "title": "General Models for Handwritten Text Recognition: Feasibility and State-of-the Art. German Kurrent as an Example",
@@ -497,8 +1035,25 @@
     "type": "journal-article",
     "journal": "ubiquity press",
     "doi": "10.48350/157474",
-    "authors": [],
-    "coauthored": false
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      },
+      {
+        "name": "David Schoch",
+        "is_primary": false
+      },
+      {
+        "name": "Christa Schneider",
+        "is_primary": false
+      },
+      {
+        "name": "Jake Purcell",
+        "is_primary": false
+      }
+    ],
+    "coauthored": true
   },
   {
     "title": "Gugerli, David: Wie die Welt in den Computer kam. Zur Entstehung digitaler Wirklichkeit. Frankfurt am Main 2018. ISBN 978-3-10-397226-9",
@@ -515,7 +1070,12 @@
     "type": "book",
     "journal": "",
     "doi": "10.2357/9783739880600",
-    "authors": [],
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      }
+    ],
     "coauthored": false
   },
   {
@@ -524,7 +1084,12 @@
     "type": "book",
     "journal": "University of Bern",
     "doi": "10.7892/boris.143792",
-    "authors": [],
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      }
+    ],
     "coauthored": false
   },
   {
@@ -533,7 +1098,12 @@
     "type": "conference-paper",
     "journal": "University of Bern",
     "doi": "10.7892/boris.143957",
-    "authors": [],
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      }
+    ],
     "coauthored": false
   },
   {
@@ -570,7 +1140,12 @@
     "type": "journal-article",
     "journal": "University of Bern",
     "doi": "10.7892/boris.148154",
-    "authors": [],
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      }
+    ],
     "coauthored": false
   },
   {
@@ -628,8 +1203,225 @@
     "type": "journal-article",
     "journal": "Journal of Documentation",
     "doi": "10.1108/jd-07-2018-0114",
-    "authors": [],
-    "coauthored": false
+    "authors": [
+      {
+        "name": "Guenter Muehlberger",
+        "is_primary": false
+      },
+      {
+        "name": "Louise Seaward",
+        "is_primary": false
+      },
+      {
+        "name": "Melissa Terras",
+        "is_primary": false
+      },
+      {
+        "name": "Sofia Ares Oliveira",
+        "is_primary": false
+      },
+      {
+        "name": "Vicente Bosch",
+        "is_primary": false
+      },
+      {
+        "name": "Maximilian Bryan",
+        "is_primary": false
+      },
+      {
+        "name": "Sebastian Colutto",
+        "is_primary": false
+      },
+      {
+        "name": "Hervé Déjean",
+        "is_primary": false
+      },
+      {
+        "name": "Markus Diem",
+        "is_primary": false
+      },
+      {
+        "name": "Stefan Fiel",
+        "is_primary": false
+      },
+      {
+        "name": "Basilis Gatos",
+        "is_primary": false
+      },
+      {
+        "name": "Albert Greinoecker",
+        "is_primary": false
+      },
+      {
+        "name": "Tobias Grüning",
+        "is_primary": false
+      },
+      {
+        "name": "Guenter Hackl",
+        "is_primary": false
+      },
+      {
+        "name": "Vili Haukkovaara",
+        "is_primary": false
+      },
+      {
+        "name": "Gerhard Heyer",
+        "is_primary": false
+      },
+      {
+        "name": "Lauri Hirvonen",
+        "is_primary": false
+      },
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      },
+      {
+        "name": "Matti Jokinen",
+        "is_primary": false
+      },
+      {
+        "name": "Philip Kahle",
+        "is_primary": false
+      },
+      {
+        "name": "Mario Kallio",
+        "is_primary": false
+      },
+      {
+        "name": "Frederic Kaplan",
+        "is_primary": false
+      },
+      {
+        "name": "Florian Kleber",
+        "is_primary": false
+      },
+      {
+        "name": "Roger Labahn",
+        "is_primary": false
+      },
+      {
+        "name": "Eva Maria Lang",
+        "is_primary": false
+      },
+      {
+        "name": "Sören Laube",
+        "is_primary": false
+      },
+      {
+        "name": "Gundram Leifert",
+        "is_primary": false
+      },
+      {
+        "name": "Georgios Louloudis",
+        "is_primary": false
+      },
+      {
+        "name": "Rory McNicholl",
+        "is_primary": false
+      },
+      {
+        "name": "Jean-Luc Meunier",
+        "is_primary": false
+      },
+      {
+        "name": "Johannes Michael",
+        "is_primary": false
+      },
+      {
+        "name": "Elena Mühlbauer",
+        "is_primary": false
+      },
+      {
+        "name": "Nathanael Philipp",
+        "is_primary": false
+      },
+      {
+        "name": "Ioannis Pratikakis",
+        "is_primary": false
+      },
+      {
+        "name": "Joan Puigcerver Pérez",
+        "is_primary": false
+      },
+      {
+        "name": "Hannelore Putz",
+        "is_primary": false
+      },
+      {
+        "name": "George Retsinas",
+        "is_primary": false
+      },
+      {
+        "name": "Verónica Romero",
+        "is_primary": false
+      },
+      {
+        "name": "Robert Sablatnig",
+        "is_primary": false
+      },
+      {
+        "name": "Joan Andreu Sánchez",
+        "is_primary": false
+      },
+      {
+        "name": "Philip Schofield",
+        "is_primary": false
+      },
+      {
+        "name": "Giorgos Sfikas",
+        "is_primary": false
+      },
+      {
+        "name": "Christian Sieber",
+        "is_primary": false
+      },
+      {
+        "name": "Nikolaos Stamatopoulos",
+        "is_primary": false
+      },
+      {
+        "name": "Tobias Strauß",
+        "is_primary": false
+      },
+      {
+        "name": "Tamara Terbul",
+        "is_primary": false
+      },
+      {
+        "name": "Alejandro Héctor Toselli",
+        "is_primary": false
+      },
+      {
+        "name": "Berthold Ulreich",
+        "is_primary": false
+      },
+      {
+        "name": "Mauricio Villegas",
+        "is_primary": false
+      },
+      {
+        "name": "Enrique Vidal",
+        "is_primary": false
+      },
+      {
+        "name": "Johanna Walcher",
+        "is_primary": false
+      },
+      {
+        "name": "Max Weidemann",
+        "is_primary": false
+      },
+      {
+        "name": "Herbert Wurster",
+        "is_primary": false
+      },
+      {
+        "name": "Konstantinos Zagoris",
+        "is_primary": false
+      }
+    ],
+    "coauthored": true
   },
   {
     "title": "Lesende Algorithmen: Projekt READ",
@@ -637,7 +1429,12 @@
     "type": "journal-article",
     "journal": "Das Mittelalter",
     "doi": "10.5281/zenodo.3366483",
-    "authors": [],
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      }
+    ],
     "coauthored": false
   },
   {
@@ -710,8 +1507,17 @@
     "type": "data-set",
     "journal": "Zenodo",
     "doi": "10.5281/zenodo.1471130",
-    "authors": [],
-    "coauthored": false
+    "authors": [
+      {
+        "name": "Rebekka Plüss",
+        "is_primary": false
+      },
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      }
+    ],
+    "coauthored": true
   },
   {
     "title": "Dataset For Icfhr2018 Competition On Automated Text Recognition On A Read Dataset",
@@ -719,8 +1525,29 @@
     "type": "data-set",
     "journal": "Zenodo",
     "doi": "10.5281/ZENODO.1442182",
-    "authors": [],
-    "coauthored": false
+    "authors": [
+      {
+        "name": "Tobias Strauss",
+        "is_primary": false
+      },
+      {
+        "name": "Gundram Leifert",
+        "is_primary": false
+      },
+      {
+        "name": "Roger Labahn",
+        "is_primary": false
+      },
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      },
+      {
+        "name": "Gunter Muhlberger",
+        "is_primary": false
+      }
+    ],
+    "coauthored": true
   },
   {
     "title": "Generierung von Trainingsdaten für die Handschrifterkennung aus TEI annotierten Dokumenten – ein Erfahrungsbericht aus dem EU-Projekt READ",
@@ -728,8 +1555,21 @@
     "type": "book-chapter",
     "journal": "INF-DH-2018",
     "doi": "10.18420/infdh2018-11",
-    "authors": [],
-    "coauthored": false
+    "authors": [
+      {
+        "name": "Maximilian Bryan",
+        "is_primary": false
+      },
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      },
+      {
+        "name": "J. Nathanael Philipp",
+        "is_primary": false
+      }
+    ],
+    "coauthored": true
   },
   {
     "title": "Zürich 1218: Auftakt zur Selbständigkeit",
@@ -737,8 +1577,25 @@
     "type": "online-resource",
     "journal": "Hochbaudepartement, Amt für Städtebau, Stadt Zürich",
     "doi": null,
-    "authors": [],
-    "coauthored": false
+    "authors": [
+      {
+        "name": "Andreas Motschi",
+        "is_primary": false
+      },
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      },
+      {
+        "name": "Claudia Moddelmog",
+        "is_primary": false
+      },
+      {
+        "name": "Benedikt Zäch",
+        "is_primary": false
+      }
+    ],
+    "coauthored": true
   },
   {
     "title": "Automatic Text Recognition: Mit Transkribus Texterkennung trainieren und anwenden",
@@ -768,8 +1625,29 @@
     "type": "journal-article",
     "journal": "14TH INTERNATIONAL CONFERENCE ON FRONTIERS IN HANDWRITING RECOGNITION (ICFHR)",
     "doi": "10.1109/ICFHR-2018.2018.00089",
-    "authors": [],
-    "coauthored": false
+    "authors": [
+      {
+        "name": "Tobias Strauss",
+        "is_primary": false
+      },
+      {
+        "name": "Gundram Leifert",
+        "is_primary": false
+      },
+      {
+        "name": "Roger Labahn",
+        "is_primary": false
+      },
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      },
+      {
+        "name": "Gunter Muhlberger",
+        "is_primary": false
+      }
+    ],
+    "coauthored": true
   },
   {
     "title": "Dokumente segmentieren und Handschriften erkennen: Arbeiten mit der Plattform Transkribus",
@@ -819,7 +1697,7 @@
     "doi": "10.1484/m.usml-eb.5.112441",
     "authors": [
       {
-        "name": "Hodel, Tobias",
+        "name": "Tobias Hodel",
         "is_primary": true
       }
     ],
@@ -831,8 +1709,17 @@
     "type": "data-set",
     "journal": "Zenodo",
     "doi": "10.5281/ZENODO.49804",
-    "authors": [],
-    "coauthored": false
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      },
+      {
+        "name": "Alena Blülle",
+        "is_primary": false
+      }
+    ],
+    "coauthored": true
   },
   {
     "title": "T. Wozniak u.a. (Hrsg.): Wikipedia und Geschichtswissenschaft [Rezension]",
@@ -854,8 +1741,33 @@
     "type": "book-chapter",
     "journal": "Das Kuchenbuch : Umwege vom süssen Schriftwissen zur inkorporierten Kochkunst : festliche Gabe für Ludolf Kuchenbuch anlässlich seines 75. Geburtstages",
     "doi": null,
-    "authors": [],
-    "coauthored": false
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      },
+      {
+        "name": "Janosch Faber",
+        "is_primary": false
+      },
+      {
+        "name": "Paul Predatsch",
+        "is_primary": false
+      },
+      {
+        "name": "Claudia Moddelmog",
+        "is_primary": false
+      },
+      {
+        "name": "Juliane Schiel",
+        "is_primary": false
+      },
+      {
+        "name": "Isabelle Schürch",
+        "is_primary": false
+      }
+    ],
+    "coauthored": true
   },
   {
     "title": "Das kleine Digitale: Ein Plädoyer für Kleinkorpora und gegen Grossprojekte wie Googles Ngram-Viewer",
@@ -863,7 +1775,12 @@
     "type": "journal-article",
     "journal": "Nach Feierabend. Zürcher Jahrbuch für Wissensgeschichte",
     "doi": null,
-    "authors": [],
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      }
+    ],
     "coauthored": false
   },
   {
@@ -872,8 +1789,21 @@
     "type": "book-chapter",
     "journal": "Königsfelden: Königsmord, Kloster und Klinik",
     "doi": null,
-    "authors": [],
-    "coauthored": false
+    "authors": [
+      {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      },
+      {
+        "name": "Simon Teuscher",
+        "is_primary": false
+      },
+      {
+        "name": "Claudia Moddelmog",
+        "is_primary": false
+      }
+    ],
+    "coauthored": true
   },
   {
     "title": "Mord: Ein toter König und unzählige Geschichten",
