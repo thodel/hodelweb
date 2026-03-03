@@ -7,9 +7,12 @@ import time
 import urllib.request
 from collections import defaultdict
 
+from enrich_publications_authors import enrich_publications
+
 ORCID_ID = "0000-0002-2071-6407"
 OUTPUT_DE = "content/publikationen/index.de.md"
 OUTPUT_EN = "content/publikationen/index.en.md"
+PUBLIC_JSON = "public/publications.json"
 
 def fetch_works():
     """Fetch the list of works from ORCID."""
@@ -128,13 +131,15 @@ def type_label(t):
     }
     return labels.get(t, t.replace("-", " ").title())
 
-def format_authors(authors):
+def format_authors(authors, exclude_primary=False):
     """Format author list for display."""
     if not authors:
         return ""
     
     # Sort to put primary author (Tobias) first
     sorted_authors = sorted(authors, key=lambda a: (not a.get("is_primary", False), a["name"]))
+    if exclude_primary:
+        sorted_authors = [a for a in sorted_authors if not a.get("is_primary", False)]
     
     if len(sorted_authors) == 1:
         return sorted_authors[0]["name"]
@@ -193,7 +198,7 @@ def generate_markdown(works, lang="de"):
             
             for work in by_type[work_type]:
                 title = work["title"]
-                authors_str = format_authors(work["authors"])
+                authors_str = format_authors(work["authors"], exclude_primary=work["coauthored"])
                 
                 if work["doi"]:
                     title = f"[{title}](https://doi.org/{work['doi']})"
@@ -224,7 +229,7 @@ def generate_markdown(works, lang="de"):
         
         for work in by_year["n.d."]:
             title = work["title"]
-            authors_str = format_authors(work["authors"])
+            authors_str = format_authors(work["authors"], exclude_primary=work["coauthored"])
             
             if work["doi"]:
                 title = f"[{title}](https://doi.org/{work['doi']})"
@@ -256,6 +261,11 @@ def main():
         if (i + 1) % 10 == 0:
             print(f"Processed {i + 1}/{len(groups)} works...")
 
+    print("Enriching authors from external sources (Crossref/OpenAlex) when missing...")
+    works, report = enrich_publications(works)
+    print("Enrichment report:")
+    print(json.dumps(report, ensure_ascii=False, indent=2))
+
     # Generate markdown files
     for lang, output in [("de", OUTPUT_DE), ("en", OUTPUT_EN)]:
         md = generate_markdown(works, lang=lang)
@@ -269,6 +279,13 @@ def main():
     with open("static/publications.json", "w", encoding="utf-8") as f:
         json.dump(works, f, indent=2, ensure_ascii=False)
     print(f"Written {len(works)} publications to static/publications.json")
+
+    # Keep public/ in sync for deployed/static builds
+    if os.path.exists("public"):
+        os.makedirs(os.path.dirname(PUBLIC_JSON), exist_ok=True)
+        with open(PUBLIC_JSON, "w", encoding="utf-8") as f:
+            json.dump(works, f, indent=2, ensure_ascii=False)
+        print(f"Written {len(works)} publications to {PUBLIC_JSON}")
 
 if __name__ == "__main__":
     main()

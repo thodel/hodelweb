@@ -170,7 +170,13 @@ def openalex_year(item: dict) -> int | None:
         return None
 
 
-def best_match_by_title(items: list[dict], pub_title: str, pub_year: str | None, title_getter) -> tuple[dict | None, float]:
+def best_match_by_title(
+    items: list[dict],
+    pub_title: str,
+    pub_year: str | None,
+    title_getter,
+    min_similarity: float,
+) -> tuple[dict | None, float]:
     best_item = None
     best_score = 0.0
     for item in items:
@@ -191,7 +197,7 @@ def best_match_by_title(items: list[dict], pub_title: str, pub_year: str | None,
     elif title_getter == openalex_title:
         year = openalex_year(best_item)
 
-    if best_score < TITLE_SIM_THRESHOLD:
+    if best_score < min_similarity:
         return None, best_score
     if not year_ok(pub_year, year):
         return None, best_score
@@ -220,18 +226,21 @@ def enrich_publications(publications: list[dict]) -> tuple[list[dict], dict]:
 
     crossref_cache = {}
 
+    unresolved = []
     for pub in publications:
         title = pub.get("title", "")
         year = pub.get("year")
         doi = pub.get("doi")
         existing_authors = pub.get("authors") or []
         had_authors = len(existing_authors) > 0
+        has_non_primary = any(not a.get("is_primary") for a in existing_authors)
+        allow_override = not has_non_primary  # only Tobias or empty
 
         new_authors = None
         source = None
 
         # 1) DOI-based Crossref lookup (authoritative for DOI records)
-        if doi:
+        if doi and allow_override:
             if doi not in crossref_cache:
                 crossref_cache[doi] = crossref_work_by_doi(doi)
                 time.sleep(REQUEST_DELAY_SEC)
@@ -246,10 +255,11 @@ def enrich_publications(publications: list[dict]) -> tuple[list[dict], dict]:
                         source = "crossref-doi"
 
         # 2) Title-based Crossref lookup (only when missing authors)
-        if new_authors is None and not had_authors:
+        if new_authors is None and allow_override:
+            min_sim = TITLE_SIM_STRICT if had_authors else TITLE_SIM_THRESHOLD
             items = crossref_search_by_title(title, rows=5)
             time.sleep(REQUEST_DELAY_SEC)
-            item, score = best_match_by_title(items, title, year, crossref_title)
+            item, score = best_match_by_title(items, title, year, crossref_title, min_sim)
             if item:
                 authors = extract_crossref_authors(item)
                 if authors:
@@ -257,10 +267,11 @@ def enrich_publications(publications: list[dict]) -> tuple[list[dict], dict]:
                     source = "crossref-title"
 
         # 3) Title-based OpenAlex lookup (only when missing authors)
-        if new_authors is None and not had_authors:
+        if new_authors is None and allow_override:
+            min_sim = TITLE_SIM_STRICT if had_authors else TITLE_SIM_THRESHOLD
             items = openalex_search_by_title(title, rows=5)
             time.sleep(REQUEST_DELAY_SEC)
-            item, score = best_match_by_title(items, title, year, openalex_title)
+            item, score = best_match_by_title(items, title, year, openalex_title, min_sim)
             if item:
                 authors = extract_openalex_authors(item)
                 if authors:
@@ -275,10 +286,11 @@ def enrich_publications(publications: list[dict]) -> tuple[list[dict], dict]:
                 report["filled_empty"] += 1
             report["source_counts"][source] += 1
         else:
-            if not had_authors:
+            if not had_authors or allow_override:
                 report["skipped_no_match"] += 1
-                report["unresolved"].append(title)
+                unresolved.append(title)
 
+    report["unresolved"] = sorted(set(unresolved))
     return publications, report
 
 
