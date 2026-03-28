@@ -21,7 +21,7 @@ Digitale Geisteswissenschaften, Anwendung und Theorie maschineller Lernverfahren
 
 ## Anstellungen und Projekte
 
-**Seit 2026** — Ausserordentliche Professur in Digital Humanities, [Universität Bern](https://www.unibe.ch/).
+**Seit 2025** — Ausserordentliche Professur in Digital Humanities, [Universität Bern](https://www.unibe.ch/).
 
 **2020** — Ruf auf die W2-Professur für Digitale Geschichtswissenschaften, abgelehnt. [Otto-Friedrich-Universität Bamberg](https://www.uni-bamberg.de/).
 
