@@ -21,7 +21,7 @@ Digital Humanities, application and theory of machine learning in the humanities
 
 ## Positions
 
-**Since 2026** — Associate Professor in Digital Humanities, [University of Bern](https://www.unibe.ch/).
+**Since 2025** — Associate Professor in Digital Humanities, [University of Bern](https://www.unibe.ch/).
 
 **2020** — Call for W2 Professorship in Digital History (declined). [University of Bamberg](https://www.uni-bamberg.de/).
 
