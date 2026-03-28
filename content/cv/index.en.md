@@ -21,11 +21,11 @@ Digital Humanities, application and theory of machine learning in the humanities
 
 ## Positions
 
-**2025** — Application for promotion to Associate Professor by the Faculty of Humanities.
+**Since 2026** — Associate Professor in Digital Humanities, [University of Bern](https://www.unibe.ch/).
 
 **2020** — Call for W2 Professorship in Digital History (declined). [University of Bamberg](https://www.uni-bamberg.de/).
 
-**Since 2019** — Assistant Professor (tenure track) in Digital Humanities, [University of Bern](https://www.unibe.ch/). Positive interim evaluations 2021 and 2023.
+**2019–2025** — Assistant Professor (tenure track) in Digital Humanities, [University of Bern](https://www.unibe.ch/). Positive interim evaluations 2021 and 2023.
 
 **2017–2019** — Project leader, digital edition of the Königsfelden monastery records (1300–1656), [University of Zurich](https://www.uzh.ch/).
 

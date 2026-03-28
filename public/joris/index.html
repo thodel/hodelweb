@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>1×1 üben</title>
+  <style>
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0f172a;
+      margin: 0; padding: 0; min-height: 100vh;
+      color: white;
+    }
+
+    /* ── Header ── */
+    .header {
+      background: linear-gradient(135deg, #1e40af 0%, #7c3aed 100%);
+      padding: 20px 20px 16px; text-align: center;
+    }
+    .header h1 { margin: 0; font-size: 26px; font-weight: 900; letter-spacing: -0.5px; }
+    .header p  { margin: 5px 0 0; font-size: 14px; opacity: 0.8; }
+
+    .container { max-width: 500px; margin: 0 auto; padding: 20px 16px 40px; }
+
+    /* ── Filter pills ── */
+    .filter-scroll {
+      display: flex; gap: 8px;
+      overflow-x: auto; padding-bottom: 4px;
+      margin-bottom: 20px;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .filter-scroll::-webkit-scrollbar { display: none; }
+    .pill {
+      flex-shrink: 0; padding: 9px 16px;
+      border: 2px solid #334155; background: #1e293b;
+      border-radius: 20px; font-size: 14px; font-weight: 700;
+      cursor: pointer; color: #94a3b8;
+      transition: all 0.18s; white-space: nowrap;
+    }
+    .pill.active {
+      background: #3b82f6; border-color: #3b82f6; color: white;
+    }
+
+    /* ── Card ── */
+    .card {
+      background: #1e293b; border-radius: 20px;
+      padding: 28px 24px 24px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+    }
+
+    /* ── Progress ── */
+    .meta-row {
+      display: flex; justify-content: space-between;
+      align-items: center; margin-bottom: 10px;
+    }
+    .progress-label { font-size: 13px; color: #64748b; font-weight: 600; }
+    .score-badge {
+      font-size: 14px; font-weight: 800;
+      background: #0f172a; padding: 5px 12px;
+      border-radius: 20px; color: #38bdf8;
+    }
+    .progress-bar { height: 6px; background: #0f172a; border-radius: 3px; margin-bottom: 28px; }
+    .progress-fill { height: 6px; background: linear-gradient(90deg, #3b82f6, #7c3aed); border-radius: 3px; transition: width 0.4s; }
+
+    /* ── Question ── */
+    .question-wrap {
+      text-align: center; margin-bottom: 24px;
+    }
+    .question {
+      font-size: 52px; font-weight: 900;
+      letter-spacing: -1px;
+      line-height: 1.1;
+    }
+    .question .op { color: #64748b; }
+    .question .ans-field {
+      display: inline-block;
+      min-width: 90px;
+      border-bottom: 4px solid #3b82f6;
+      padding: 0 8px;
+      color: #38bdf8;
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .question .ans-field.correct { color: #22c55e; border-color: #22c55e; }
+    .question .ans-field.wrong   { color: #ef4444; border-color: #ef4444; }
+
+    /* ── Numpad ── */
+    .numpad {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .numpad-btn {
+      height: 68px; border: none;
+      background: #0f172a; color: white;
+      font-size: 26px; font-weight: 700;
+      border-radius: 14px; cursor: pointer;
+      transition: background 0.12s, transform 0.1s;
+    }
+    .numpad-btn:active { background: #3b82f6; transform: scale(0.92); }
+    .numpad-btn.del { font-size: 22px; background: #1e3a5f; color: #94a3b8; }
+    .numpad-btn.del:active { background: #ef4444; color: white; }
+    .numpad-btn.zero { grid-column: span 2; }
+
+    /* ── Action button ── */
+    .check-btn {
+      width: 100%; padding: 18px;
+      background: linear-gradient(135deg, #2563eb, #7c3aed);
+      color: white; font-size: 20px; font-weight: 900;
+      border: none; border-radius: 14px; cursor: pointer;
+      transition: transform 0.1s, opacity 0.1s;
+      margin-bottom: 14px;
+      letter-spacing: 0.3px;
+    }
+    .check-btn:active { transform: scale(0.97); opacity: 0.88; }
+    .check-btn.next-btn { background: linear-gradient(135deg, #059669, #0284c7); }
+    .check-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+    /* ── Feedback ── */
+    .feedback {
+      display: none; text-align: center;
+      font-size: 18px; font-weight: 700;
+      padding: 14px; border-radius: 12px;
+      margin-bottom: 14px;
+    }
+    .feedback.show { display: block; }
+    .feedback.correct-fb { background: #14532d; color: #86efac; }
+    .feedback.wrong-fb   { background: #450a0a; color: #fca5a5; }
+
+    /* ── Summary ── */
+    .summary { display: none; text-align: center; padding: 10px 0; }
+    .summary.show { display: block; }
+    .summary .trophy { font-size: 72px; }
+    .summary .big   { font-size: 56px; font-weight: 900; color: #38bdf8; }
+    .summary .of    { font-size: 18px; color: #64748b; margin-bottom: 8px; }
+    .summary .rating { font-size: 20px; margin-bottom: 28px; }
+    .summary .restart-btn {
+      width: 100%; padding: 18px;
+      background: linear-gradient(135deg, #2563eb, #7c3aed);
+      color: white; font-size: 18px; font-weight: 900;
+      border: none; border-radius: 14px; cursor: pointer;
+    }
+
+    /* ── GIF Overlay ── */
+    .gif-overlay {
+      display: none; position: fixed; inset: 0; z-index: 200;
+      background: rgba(0,0,0,0.88);
+      flex-direction: column; align-items: center; justify-content: center;
+      gap: 14px; cursor: pointer;
+      animation: fade-in 0.35s ease;
+    }
+    .gif-overlay.show { display: flex; }
+    @keyframes fade-in { from{opacity:0;transform:scale(0.9)} to{opacity:1;transform:scale(1)} }
+    .gif-overlay .confetti { font-size: 36px; letter-spacing: 8px; }
+    .gif-overlay .gif-headline {
+      font-size: 28px; font-weight: 900; color: white;
+      text-align: center; padding: 0 20px;
+    }
+    .gif-overlay img {
+      max-width: min(90vw, 440px); max-height: 48vh;
+      border-radius: 16px; box-shadow: 0 8px 40px rgba(0,0,0,0.7);
+    }
+    .gif-overlay .gif-player { font-size: 20px; font-weight: 800; color: #fbbf24; }
+    .gif-overlay .gif-sub    { font-size: 13px; color: rgba(255,255,255,0.5); margin-top: 4px; }
+
+    @media (max-width: 400px) {
+      .question { font-size: 42px; }
+      .numpad-btn { height: 60px; font-size: 22px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🔢 Einmaleins üben</h1>
+  <p>Tippe das richtige Ergebnis!</p>
+  <p style="margin-top:8px"><a href="https://www.hodelweb.ch/extercises/" style="color:#93c5fd;font-size:13px;text-decoration:underline">← Kommaregeln üben</a></p>
+</div>
+
+<div class="container">
+
+  <!-- Filter pills -->
+  <div class="filter-scroll" id="filter-scroll">
+    <button class="pill active" onclick="setFilter('all',this)">Alle</button>
+    <button class="pill" onclick="setFilter(1,this)">1er</button>
+    <button class="pill" onclick="setFilter(2,this)">2er</button>
+    <button class="pill" onclick="setFilter(3,this)">3er</button>
+    <button class="pill" onclick="setFilter(4,this)">4er</button>
+    <button class="pill" onclick="setFilter(5,this)">5er</button>
+    <button class="pill" onclick="setFilter(6,this)">6er</button>
+    <button class="pill" onclick="setFilter(7,this)">7er</button>
+    <button class="pill" onclick="setFilter(8,this)">8er</button>
+    <button class="pill" onclick="setFilter(9,this)">9er</button>
+    <button class="pill" onclick="setFilter(10,this)">10er</button>
+    <button class="pill" onclick="setFilter(11,this)">11er</button>
+    <button class="pill" onclick="setFilter(12,this)">12er</button>
+    <button class="pill" onclick="setFilter(70,this)">70er</button>
+  </div>
+
+  <!-- Exercise card -->
+  <div class="card" id="exercise-card">
+    <div class="meta-row">
+      <span class="progress-label" id="progress-label">1 / 20</span>
+      <span class="score-badge">⭐ <span id="score-correct">0</span> / <span id="score-total">0</span></span>
+    </div>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+    </div>
+
+    <div class="question-wrap">
+      <div class="question" id="question">
+        <span id="q-a"></span>
+        <span class="op"> × </span>
+        <span id="q-b"></span>
+        <span class="op"> = </span>
+        <span class="ans-field" id="ans-display">?</span>
+      </div>
+    </div>
+
+    <!-- Numpad -->
+    <div class="numpad" id="numpad">
+      <button class="numpad-btn" onclick="pad(7)">7</button>
+      <button class="numpad-btn" onclick="pad(8)">8</button>
+      <button class="numpad-btn" onclick="pad(9)">9</button>
+      <button class="numpad-btn" onclick="pad(4)">4</button>
+      <button class="numpad-btn" onclick="pad(5)">5</button>
+      <button class="numpad-btn" onclick="pad(6)">6</button>
+      <button class="numpad-btn" onclick="pad(1)">1</button>
+      <button class="numpad-btn" onclick="pad(2)">2</button>
+      <button class="numpad-btn" onclick="pad(3)">3</button>
+      <button class="numpad-btn zero" onclick="pad(0)">0</button>
+      <button class="numpad-btn del" onclick="padDel()">⌫</button>
+    </div>
+
+    <div class="feedback" id="feedback"></div>
+
+    <button class="check-btn" id="action-btn" onclick="handleAction()">Prüfen ✓</button>
+  </div>
+
+  <!-- Summary -->
+  <div class="card summary" id="summary-card">
+    <div class="trophy" id="sum-trophy">🏆</div>
+    <div class="big" id="sum-score">0</div>
+    <div class="of" id="sum-of">von 0 richtig</div>
+    <div class="rating" id="sum-rating"></div>
+    <button class="restart-btn" onclick="restartSession()">Nochmal! 🔄</button>
+  </div>
+
+</div>
+
+<!-- GIF overlay -->
+<div class="gif-overlay" id="gif-overlay" onclick="dismissGif()">
+  <div class="confetti">🎉🏆🎉</div>
+  <div class="gif-headline" id="gif-headline">Perfekt! Alles richtig!</div>
+  <img id="gif-img" src="" alt="">
+  <div class="gif-player" id="gif-player"></div>
+  <div class="gif-sub">Tippen zum Schließen</div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════
+//  Generate all problems
+// ═══════════════════════════════════════════════════
+const EXCLUDED = new Set(['77x4','4x77']); // explicitly excluded
+
+function makeProblems() {
+  const problems = [];
+  // 1×1 to 12×12
+  for (let a = 1; a <= 12; a++) {
+    for (let b = 1; b <= 12; b++) {
+      const key = `${a}x${b}`;
+      if (!EXCLUDED.has(key)) {
+        problems.push({ a, b, result: a * b });
+      }
+    }
+  }
+  // Special: 70×5
+  problems.push({ a: 70, b: 5, result: 350 });
+  return problems;
+}
+
+const ALL_PROBLEMS = makeProblems();
+
+// Group problems by multiplicand (for filter)
+function problemsFor(filter) {
+  if (filter === 'all') return [...ALL_PROBLEMS];
+  if (filter === 70) return ALL_PROBLEMS.filter(p => p.a === 70 || p.b === 70);
+  return ALL_PROBLEMS.filter(p => p.a === filter || p.b === filter);
+}
+
+// ═══════════════════════════════════════════════════
+//  GIFs
+// ═══════════════════════════════════════════════════
+const CELEB_GIFS = [
+  { player: 'Cole Palmer',              id: 'zx8AL9JZnF3gHdfrq5' },
+  { player: 'Cole Palmer',              id: 'icIccOY0nhm7hOdcgr'  },
+  { player: 'SGA – Shai Gilgeous-Alexander', id: 'RhEGDuP7ANck4rVqXb' },
+  { player: 'SGA – Shai Gilgeous-Alexander', id: 'hYyILvwo6I1FLxXOFD' },
+  { player: 'SGA – Shai Gilgeous-Alexander', id: 'af0uzey4sNkxSypHdX' },
+  { player: 'Michael Jordan',           id: '3oKIPnAiaMCws8nOsE' },
+  { player: 'Michael Jordan',           id: 'l0MYt5jPR6QX5pnqM'  },
+  { player: 'Lamine Yamal',             id: 'gcIrqAurIFpVA1LF5Y' },
+  { player: 'Lamine Yamal',             id: 'xAZstBOH0AZCXNBhEh' },
+];
+let lastGifIdx = -1;
+
+function showCelebration(streak) {
+  let idx;
+  do { idx = Math.floor(Math.random() * CELEB_GIFS.length); }
+  while (idx === lastGifIdx && CELEB_GIFS.length > 1);
+  lastGifIdx = idx;
+
+  const gif = CELEB_GIFS[idx];
+  document.getElementById('gif-img').src = `https://media.giphy.com/media/${gif.id}/giphy.gif`;
+  document.getElementById('gif-player').textContent = gif.player;
+  if (streak === 'summary') {
+    document.getElementById('gif-headline').textContent = 'Perfekt! Alles richtig! 🌟';
+  } else {
+    document.getElementById('gif-headline').textContent = `${streak} in Folge — Mega! 🔥`;
+  }
+  document.getElementById('gif-overlay').classList.add('show');
+  setTimeout(dismissGif, 8000);
+}
+function dismissGif() {
+  document.getElementById('gif-overlay').classList.remove('show');
+}
+
+// ═══════════════════════════════════════════════════
+//  State
+// ═══════════════════════════════════════════════════
+let currentFilter   = 'all';
+let filteredList    = [];
+let currentIdx      = 0;
+let userInput      = '';
+let checked        = false;
+let scoreCorrect   = 0;
+let scoreTotal     = 0;
+let consecutiveCorrect = 0; // Track consecutive correct answers for GIF trigger
+
+// ═══════════════════════════════════════════════════
+//  Filter
+// ═══════════════════════════════════════════════════
+function setFilter(filter, el) {
+  currentFilter = filter;
+  document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  startSession();
+}
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function startSession() {
+  filteredList = shuffle(problemsFor(currentFilter));
+  currentIdx   = 0;
+  scoreCorrect = 0;
+  scoreTotal   = 0;
+  consecutiveCorrect = 0;
+  userInput    = '';
+  checked      = false;
+  updateScore();
+  document.getElementById('summary-card').classList.remove('show');
+  document.getElementById('exercise-card').style.display = '';
+  showProblem();
+}
+
+// ═══════════════════════════════════════════════════
+//  Show problem
+// ═══════════════════════════════════════════════════
+function showProblem() {
+  const p = filteredList[currentIdx];
+  userInput = '';
+  checked   = false;
+
+  document.getElementById('q-a').textContent = p.a;
+  document.getElementById('q-b').textContent = p.b;
+
+  const disp = document.getElementById('ans-display');
+  disp.textContent = '?';
+  disp.className = 'ans-field';
+
+  document.getElementById('feedback').className = 'feedback';
+  document.getElementById('feedback').textContent = '';
+
+  const btn = document.getElementById('action-btn');
+  btn.textContent = 'Prüfen ✓';
+  btn.className   = 'check-btn';
+  btn.disabled    = false;
+
+  document.getElementById('numpad').style.opacity = '1';
+  document.getElementById('numpad').style.pointerEvents = '';
+
+  updateProgress();
+}
+
+// ═══════════════════════════════════════════════════
+//  Numpad
+// ═══════════════════════════════════════════════════
+function pad(digit) {
+  if (checked) return;
+  if (userInput.length >= 4) return; // max 4 digits (products go up to 144)
+  userInput += String(digit);
+  document.getElementById('ans-display').textContent = userInput;
+}
+
+function padDel() {
+  if (checked) return;
+  userInput = userInput.slice(0, -1);
+  document.getElementById('ans-display').textContent = userInput || '?';
+}
+
+// ═══════════════════════════════════════════════════
+//  Check / next
+// ═══════════════════════════════════════════════════
+function handleAction() {
+  if (!checked) checkAnswer();
+  else          nextProblem();
+}
+
+function checkAnswer() {
+  if (!userInput) return; // nothing entered
+  const p = filteredList[currentIdx];
+  const guess = parseInt(userInput, 10);
+  checked = true;
+  scoreTotal++;
+
+  const disp = document.getElementById('ans-display');
+  const fb   = document.getElementById('feedback');
+  const btn  = document.getElementById('action-btn');
+
+  document.getElementById('numpad').style.opacity = '0.35';
+  document.getElementById('numpad').style.pointerEvents = 'none';
+
+  if (guess === p.result) {
+    scoreCorrect++;
+    consecutiveCorrect++;
+    disp.className = 'ans-field correct';
+    fb.className   = 'feedback correct-fb show';
+    fb.textContent = `✅ Richtig! ${p.a} × ${p.b} = ${p.result}`;
+    // Trigger GIF after 10 consecutive correct answers
+    if (consecutiveCorrect >= 10) {
+      setTimeout(() => showCelebration(10), 600);
+      consecutiveCorrect = 0; // Reset after triggering
+    }
+  } else {
+    consecutiveCorrect = 0; // Reset on wrong answer
+    disp.className = 'ans-field wrong';
+    fb.className   = 'feedback wrong-fb show';
+    fb.textContent = `❌ Falsch. ${p.a} × ${p.b} = ${p.result}`;
+    disp.textContent = p.result; // show correct answer
+  }
+
+  updateScore();
+  btn.textContent = currentIdx + 1 < filteredList.length ? 'Weiter →' : 'Auswertung 🏁';
+  btn.className   = 'check-btn next-btn';
+}
+
+function nextProblem() {
+  currentIdx++;
+  if (currentIdx >= filteredList.length) showSummary();
+  else showProblem();
+}
+
+// ═══════════════════════════════════════════════════
+//  Summary
+// ═══════════════════════════════════════════════════
+function showSummary() {
+  document.getElementById('exercise-card').style.display = 'none';
+  document.getElementById('progress-fill').style.width = '100%';
+
+  const pct = Math.round(scoreCorrect / scoreTotal * 100);
+  let trophy, rating;
+  if      (pct === 100) { trophy = '🏆'; rating = 'PERFEKT! Alle richtig! 🌟'; }
+  else if (pct >= 90)   { trophy = '🥇'; rating = 'Fast perfekt — super!'; }
+  else if (pct >= 75)   { trophy = '🥈'; rating = 'Sehr gut! Weiter so!'; }
+  else if (pct >= 50)   { trophy = '🥉'; rating = 'Gut — noch ein bisschen üben!'; }
+  else                  { trophy = '💪'; rating = 'Nicht aufgeben — nochmal!'; }
+
+  document.getElementById('sum-trophy').textContent = trophy;
+  document.getElementById('sum-score').textContent  = scoreCorrect;
+  document.getElementById('sum-of').textContent     = `von ${scoreTotal} richtig (${pct} %)`;
+  document.getElementById('sum-rating').textContent = rating;
+  document.getElementById('summary-card').classList.add('show');
+
+  if (pct === 100) setTimeout(() => showCelebration('summary'), 700);
+}
+
+function restartSession() {
+  document.getElementById('summary-card').classList.remove('show');
+  document.getElementById('exercise-card').style.display = '';
+  startSession();
+}
+
+// ═══════════════════════════════════════════════════
+//  Helpers
+// ═══════════════════════════════════════════════════
+function updateScore() {
+  document.getElementById('score-correct').textContent = scoreCorrect;
+  document.getElementById('score-total').textContent   = scoreTotal;
+}
+
+function updateProgress() {
+  const total = filteredList.length;
+  document.getElementById('progress-label').textContent = `${currentIdx + 1} / ${total}`;
+  document.getElementById('progress-fill').style.width  = (currentIdx / total * 100) + '%';
+}
+
+// ═══════════════════════════════════════════════════
+//  Keyboard support (for non-iPad testing)
+// ═══════════════════════════════════════════════════
+document.addEventListener('keydown', e => {
+  if (e.key >= '0' && e.key <= '9') pad(parseInt(e.key));
+  else if (e.key === 'Backspace') padDel();
+  else if (e.key === 'Enter') handleAction();
+});
+
+// ═══════════════════════════════════════════════════
+//  Boot
+// ═══════════════════════════════════════════════════
+startSession();
+</script>
+</body>
+</html>

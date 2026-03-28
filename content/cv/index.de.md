@@ -21,11 +21,11 @@ Digitale Geisteswissenschaften, Anwendung und Theorie maschineller Lernverfahren
 
 ## Anstellungen und Projekte
 
-**2025** — Antrag der phil.-hist. Fakultät auf Umwandlung der Stelle in eine ausserordentliche Professur.
+**Seit 2026** — Ausserordentliche Professur in Digital Humanities, [Universität Bern](https://www.unibe.ch/).
 
 **2020** — Ruf auf die W2-Professur für Digitale Geschichtswissenschaften, abgelehnt. [Otto-Friedrich-Universität Bamberg](https://www.uni-bamberg.de/).
 
-**Seit 2019** — Assistenzprofessur mit tenure track in Digital Humanities, [Universität Bern](https://www.unibe.ch/). Positive Zwischenevaluation mit Verlängerung ohne Auflagen 2021 und 2023.
+**2019–2025** — Assistenzprofessur mit tenure track in Digital Humanities, [Universität Bern](https://www.unibe.ch/). Positive Zwischenevaluation mit Verlängerung ohne Auflagen 2021 und 2023.
 
 **2017–2019** — Projektleiter, «Die Akten und Urkunden des Klosters und der Hofmeisterei Königsfelden (1300–1656)» (digitales Editionsprojekt), [Universität Zürich](https://www.uzh.ch/).
 

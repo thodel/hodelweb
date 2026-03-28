@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>Kommaregeln üben</title>
+  <style>
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, sans-serif;
+      background: #f0f4f8;
+      margin: 0; padding: 0; min-height: 100vh;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #1a3a6b 0%, #2d5aa0 100%);
+      color: white; padding: 22px 20px 18px; text-align: center;
+    }
+    .header h1 { margin: 0; font-size: 24px; font-weight: 800; }
+    .header p  { margin: 6px 0 0; font-size: 14px; opacity: 0.82; }
+
+    .container { max-width: 680px; margin: 0 auto; padding: 20px 16px 40px; }
+
+    /* ── Filter tabs ── */
+    .filter-wrap {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 7px;
+      margin-bottom: 20px;
+    }
+    @media (max-width: 500px) {
+      .filter-wrap { grid-template-columns: repeat(3, 1fr); }
+    }
+    .tab {
+      padding: 10px 4px;
+      border: 2px solid #d0dae8;
+      background: white; border-radius: 12px;
+      font-size: 12px; font-weight: 700;
+      cursor: pointer; text-align: center; color: #444;
+      transition: all 0.18s; line-height: 1.3;
+    }
+    .tab .tab-icon { font-size: 17px; display: block; margin-bottom: 3px; }
+    .tab.active { color: white; border-color: transparent; }
+    .tab.active.t-all        { background: #1a3a6b; }
+    .tab.active.t-aufzaehlung{ background: #217a3c; border-color: #217a3c; }
+    .tab.active.t-infinitiv  { background: #b45309; border-color: #b45309; }
+    .tab.active.t-gegensatz  { background: #9b2561; border-color: #9b2561; }
+    .tab.active.t-keinkomma  { background: #374151; border-color: #374151; }
+
+    /* ── Card ── */
+    .card {
+      background: white; border-radius: 18px;
+      padding: 24px 20px 20px;
+      box-shadow: 0 3px 16px rgba(0,0,0,0.09);
+    }
+
+    /* ── Meta row ── */
+    .meta-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .rule-badge {
+      font-size: 11px; font-weight: 800; padding: 5px 11px;
+      border-radius: 20px; letter-spacing: 0.2px;
+      display: none; /* Hide rule badge during exercise - don't give away the answer! */
+    }
+    .rule-badge.aufzaehlung { background: #d1fae5; color: #065f46; }
+    .rule-badge.infinitiv   { background: #fef3c7; color: #78350f; }
+    .rule-badge.gegensatz   { background: #fce7f3; color: #831843; }
+    .rule-badge.keinkomma   { background: #f3f4f6; color: #111827; }
+    .rule-badge.all         { background: #e0e7ff; color: #3730a3; }
+
+    .score-badge { font-size: 13px; font-weight: 700; color: #555; }
+    .score-badge span { color: #1a3a6b; }
+
+    .progress-bar { height: 5px; background: #e8edf3; border-radius: 3px; margin-bottom: 22px; overflow: hidden; }
+    .progress-fill { height: 5px; background: linear-gradient(90deg, #2d5aa0, #5b8dd9); border-radius: 3px; transition: width 0.4s ease; }
+
+    /* ── Instruction ── */
+    .instruction { font-size: 13px; color: #888; text-align: center; margin-bottom: 16px; font-style: italic; }
+
+    /* ── Sentence ── */
+    .sentence-wrap {
+      background: #f8fafd; border-radius: 12px;
+      padding: 20px 16px; margin-bottom: 20px;
+      text-align: center; min-height: 90px;
+      display: flex; flex-wrap: wrap;
+      align-items: center; justify-content: center;
+      font-size: 21px; line-height: 2.6;
+    }
+    .word { white-space: nowrap; }
+
+    /* ── Gap button ── */
+    .gap-btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-width: 38px; height: 46px;
+      margin: 0 1px; border: none; background: none;
+      cursor: pointer; font-size: 22px; font-weight: 900;
+      border-radius: 6px; padding: 0 4px;
+      transition: background 0.12s, color 0.12s, transform 0.1s;
+      color: #c5d0dd; position: relative; top: 2px;
+    }
+    /* underline indicator */
+    .gap-btn::after {
+      content: '';
+      position: absolute; bottom: 9px; left: 50%;
+      transform: translateX(-50%);
+      width: 20px; height: 2px;
+      background: #d8e2ec; border-radius: 2px;
+      transition: background 0.12s;
+    }
+    .gap-btn.filled           { color: #e67e22; }
+    .gap-btn.filled::after    { background: #e67e22; }
+    .gap-btn.ok               { color: #059669; pointer-events: none; }
+    .gap-btn.ok::after        { background: #059669; }
+    .gap-btn.miss             { color: #059669; pointer-events: none; animation: pulse-g 0.5s ease; }
+    .gap-btn.miss::after      { background: #059669; }
+    .gap-btn.wrong            { color: #dc2626; pointer-events: none; text-decoration: line-through; }
+    .gap-btn.wrong::after     { background: #dc2626; }
+    /* empty-and-correct (no comma expected, none placed) */
+    .gap-btn.ok-empty::after  { background: #d1fae5; }
+
+    @keyframes pulse-g {
+      0%{transform:scale(1)} 50%{transform:scale(1.4)} 100%{transform:scale(1)}
+    }
+    .gap-btn:active:not(.ok):not(.miss):not(.wrong) {
+      background: #eef2f7; transform: scale(0.86);
+    }
+
+    /* ── Feedback ── */
+    .feedback { display: none; border-radius: 12px; padding: 14px 16px; font-size: 15px; line-height: 1.55; margin-bottom: 18px; }
+    .feedback.show { display: block; }
+    .feedback .fb-head { font-weight: 800; font-size: 16px; margin-bottom: 5px; }
+    .feedback.correct-fb { background: #d1fae5; border: 1.5px solid #6ee7b7; color: #064e3b; }
+    .feedback.wrong-fb   { background: #fee2e2; border: 1.5px solid #fca5a5; color: #7f1d1d; }
+
+    /* ── Buttons ── */
+    .btn-row { display: flex; gap: 12px; }
+    .btn {
+      flex: 1; padding: 16px 10px; border: none; border-radius: 14px;
+      font-size: 16px; font-weight: 800; cursor: pointer;
+      transition: transform 0.1s, opacity 0.1s;
+    }
+    .btn:active { transform: scale(0.96); opacity: 0.88; }
+    .btn-primary   { background: #1a3a6b; color: white; }
+    .btn-secondary { background: #e8edf3; color: #555; font-size: 22px; flex: 0 0 56px; }
+    .btn-next      { background: #059669; color: white; }
+
+    /* ── Rule info ── */
+    .rule-info { margin-top: 20px; border-radius: 12px; overflow: hidden; border: 1.5px solid #e2e8f0; }
+    .rule-info summary {
+      padding: 13px 16px; font-size: 14px; font-weight: 700;
+      background: #f8fafd; cursor: pointer; color: #1a3a6b;
+      list-style: none; display: flex; align-items: center; gap: 8px;
+      user-select: none;
+    }
+    .rule-info summary::-webkit-details-marker { display: none; }
+    .rule-info summary::after { content: '▸'; margin-left: auto; }
+    .rule-info[open] summary::after { content: '▾'; }
+    .rule-info .rule-body { padding: 14px 16px; font-size: 14px; line-height: 1.7; color: #374151; background: white; }
+    .rule-body strong { color: #1a3a6b; }
+    .rule-body ul { margin: 8px 0; padding-left: 20px; }
+    .rule-body li { margin-bottom: 4px; }
+    .rule-body .ex {
+      background: #f0f4f8; border-radius: 8px;
+      padding: 8px 12px; margin-top: 8px;
+      font-size: 13.5px; font-style: italic;
+    }
+    .rule-body .ex b { color: #dc2626; font-style: normal; }
+    .rule-body .ex s { color: #dc2626; }
+    .rule-body .ex .ok2 { color: #059669; font-style: normal; font-weight: 700; }
+
+    /* ── Summary ── */
+    .summary { display: none; text-align: center; padding: 10px 0; }
+    .summary.show { display: block; }
+    .summary .trophy { font-size: 64px; margin-bottom: 8px; }
+    .summary .big-score { font-size: 52px; font-weight: 900; color: #1a3a6b; }
+    .summary .of { font-size: 18px; color: #888; margin-bottom: 6px; }
+    .summary .rating { font-size: 20px; margin-bottom: 24px; }
+
+    @media (max-width: 420px) {
+      .header h1 { font-size: 20px; }
+      .sentence-wrap { font-size: 18px; }
+      .tab { font-size: 11px; }
+    }
+
+    /* ── GIF Celebration overlay ── */
+    .gif-overlay {
+      display: none;
+      position: fixed; inset: 0; z-index: 100;
+      background: rgba(0,0,0,0.82);
+      flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 16px;
+      cursor: pointer;
+      animation: fade-in 0.3s ease;
+    }
+    .gif-overlay.show { display: flex; }
+    @keyframes fade-in { from{opacity:0} to{opacity:1} }
+
+    .gif-overlay .gif-title {
+      font-size: 26px; font-weight: 900; color: white;
+      text-align: center; text-shadow: 0 2px 8px rgba(0,0,0,0.6);
+      padding: 0 20px;
+    }
+    .gif-overlay .gif-stars {
+      font-size: 32px; letter-spacing: 6px;
+    }
+    .gif-overlay img {
+      max-width: min(92vw, 460px);
+      max-height: 50vh;
+      border-radius: 14px;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.6);
+      object-fit: cover;
+    }
+    .gif-overlay .gif-caption {
+      font-size: 15px; color: rgba(255,255,255,0.75);
+      font-style: italic;
+    }
+    .gif-overlay .gif-dismiss {
+      font-size: 13px; color: rgba(255,255,255,0.5);
+      margin-top: 4px;
+    }
+    .gif-overlay .player-name {
+      font-size: 20px; font-weight: 800; color: #fbbf24;
+    }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🏀 Kommaregeln üben</h1>
+  <p>Basketball-Sätze — Setze die Kommas richtig!</p>
+</div>
+
+<div class="container">
+
+  <div class="filter-wrap">
+    <button class="tab t-all active"         onclick="setFilter('all',this)">
+      <span class="tab-icon">📝</span>Alle
+    </button>
+    <button class="tab t-aufzaehlung"        onclick="setFilter('aufzaehlung',this)">
+      <span class="tab-icon">📋</span>Auf&shy;zählung
+    </button>
+    <button class="tab t-infinitiv"          onclick="setFilter('infinitiv',this)">
+      <span class="tab-icon">🔗</span>Infinitiv&shy;gruppe
+    </button>
+    <button class="tab t-gegensatz"          onclick="setFilter('gegensatz',this)">
+      <span class="tab-icon">↔️</span>Gegensatz
+    </button>
+    <button class="tab t-keinkomma"          onclick="setFilter('keinkomma',this)">
+      <span class="tab-icon">🚫</span>Kein Komma
+    </button>
+  </div>
+
+  <!-- Exercise card -->
+  <div class="card" id="exercise-card">
+    <div class="meta-row">
+      <span class="rule-badge all" id="rule-badge">Alle Regeln</span>
+      <span class="score-badge">✓ <span id="score-correct">0</span> / <span id="score-total">0</span></span>
+    </div>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+    </div>
+
+    <p class="instruction">Tippe zwischen die Wörter, um ein Komma zu setzen — oder zu lassen.</p>
+
+    <div class="sentence-wrap" id="sentence"></div>
+
+    <div class="feedback" id="feedback">
+      <div class="fb-head" id="fb-head"></div>
+      <div id="fb-body"></div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-secondary" id="btn-reset"  onclick="resetCommas()" title="Zurücksetzen">↺</button>
+      <button class="btn btn-primary"   id="btn-check"  onclick="checkAnswer()">Prüfen ✓</button>
+      <button class="btn btn-next"      id="btn-next"   onclick="nextExercise()" style="display:none">Weiter →</button>
+    </div>
+
+    <details class="rule-info" id="rule-details">
+      <summary id="rule-summary">📖 Regel nachlesen</summary>
+      <div class="rule-body" id="rule-body"></div>
+    </details>
+  </div>
+
+  <!-- Summary card -->
+  <div class="card summary" id="summary-card">
+    <div class="trophy" id="sum-trophy">🏆</div>
+    <div class="big-score" id="sum-score">0</div>
+    <div class="of" id="sum-of">von 0 richtig</div>
+    <div class="rating" id="sum-rating"></div>
+    <div class="btn-row" style="justify-content:center; margin-top:8px">
+      <button class="btn btn-primary" style="max-width:260px" onclick="restartSession()">Nochmal spielen 🔄</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- GIF Celebration Overlay -->
+<div class="gif-overlay" id="gif-overlay" onclick="dismissGif()">
+  <div class="gif-stars">🏆⭐🏆</div>
+  <div class="gif-title">12 von 12 — Perfekt!</div>
+  <img id="gif-img" src="" alt="Celebrierung" loading="lazy">
+  <div class="player-name" id="gif-player"></div>
+  <div class="gif-caption">feiert mit dir!</div>
+  <div class="gif-dismiss">Tippen zum Schließen</div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════
+//  Constants
+// ═══════════════════════════════════════════════════
+const RULE_NAMES = {
+  aufzaehlung: 'Aufzählung',
+  infinitiv:   'Infinitivgruppe',
+  gegensatz:   'Gegensatz (aber/doch)',
+  keinkomma:   'Kein Komma!',
+  all:         'Alle Regeln'
+};
+
+const RULE_INFO = {
+  aufzaehlung: `
+    <strong>Regel:</strong> Bei Aufzählungen steht nach jedem Glied ein Komma —
+    <em>außer</em> vor <em>und</em>, <em>oder</em> und <em>sowie</em>.<br>
+    Auch zwischen gleichrangigen Adjektiven steht ein Komma (wenn kein <em>und</em> da ist).
+    <div class="ex">Der Trainer erklärte Dribbling<b>,</b> Passen<b>,</b> Werfen und Verteidigen.</div>
+    <div class="ex">Im Team spielen große<b>,</b> schnelle und starke Spieler.</div>
+  `,
+  infinitiv: `
+    <strong>Regel:</strong> Erweiterte Infinitivgruppen (Infinitiv mit <em>zu</em> + weitere Elemente wie
+    Objekte, Adverbien, Ortsangaben) werden durch Komma vom Hauptsatz getrennt.<br>
+    Kein Komma dagegen zwischen <em>Subjekt</em> und <em>Verb</em>!
+    <div class="ex">Tom versucht<b>,</b> schneller zum Korb zu laufen.</div>
+    <div class="ex">Der Spieler <s>,</s> vergaß<b>,</b> den Ball zu fangen. &nbsp;← kein Komma nach <em>Spieler</em>!</div>
+  `,
+  gegensatz: `
+    <strong>Regel:</strong> Vor entgegensetzenden Konjunktionen wie <em>aber</em>, <em>doch</em>
+    und <em>trotzdem</em> steht ein Komma, wenn zwei vollständige Hauptsätze verbunden werden.<br>
+    Kein Komma dagegen direkt nach dem Subjekt!
+    <div class="ex">Wir wollten trainieren<b>,</b> aber die Halle war geschlossen.</div>
+    <div class="ex">Wir <s>,</s> wollten trainieren<b>,</b> aber… &nbsp;← kein Komma nach <em>Wir</em>!</div>
+  `,
+  keinkomma: `
+    <strong>Regel:</strong> Nicht überall, wo eine Pause entsteht, steht ein Komma!
+    <ul>
+      <li>Kein Komma vor <em>und</em> / <em>oder</em> bei <strong>zwei</strong> Gliedern</li>
+      <li>Kein Komma zwischen <strong>Subjekt</strong> und <strong>Verb</strong></li>
+      <li>Kein Komma bei kurzen, <strong>nicht erweiterten</strong> Infinitiven</li>
+      <li>Kein Komma zwischen Verb und direktem Objekt</li>
+    </ul>
+    <div class="ex">Er lief zum Korb <s>,</s> und warf. &nbsp;← falsch!</div>
+    <div class="ex"><span class="ok2">Er lief zum Korb und warf.</span> &nbsp;← richtig ✓</div>
+  `
+};
+
+// ═══════════════════════════════════════════════════
+//  Exercise data  (44 sentences)
+// ═══════════════════════════════════════════════════
+const ALL_EXERCISES = [
+
+  // ──────────────────────────── AUFZÄHLUNG ────────────────────────────
+  {
+    rule: 'aufzaehlung',
+    segments: ['Der Trainer erklärte Dribbling', 'Passen', 'Werfen', 'und Verteidigen.'],
+    commas:   [true, true, false],
+    explanation: 'Aufzählung: Komma nach jedem Glied — kein Komma vor <em>und</em>.'
+  },
+  {
+    rule: 'aufzaehlung',
+    segments: ['Im Team spielen große', 'schnelle', 'und sehr starke Spieler.'],
+    commas:   [true, false],
+    explanation: 'Adjektive in der Aufzählung: Komma zwischen <em>große</em> und <em>schnelle</em>, nicht vor <em>und</em>.'
+  },
+  {
+    rule: 'aufzaehlung',
+    segments: ['Auf dem Spielfeld standen ein Center', 'zwei Guards', 'und ein Forward.'],
+    commas:   [true, false],
+    explanation: 'Drei Glieder: Komma zwischen den ersten beiden — kein Komma vor <em>und</em>.'
+  },
+  {
+    rule: 'aufzaehlung',
+    segments: ['Die Zuschauer sahen Dunks', 'Dreipunktewürfe', 'Blocks', 'und Assists.'],
+    commas:   [true, true, false],
+    explanation: 'Vier Glieder: je ein Komma zwischen den ersten drei — kein Komma vor <em>und</em>.'
+  },
+  {
+    rule: 'aufzaehlung',
+    segments: ['Im Training übten wir Dribblings', 'Korbleger', 'Würfe', 'und Pässe.'],
+    commas:   [true, true, false],
+    explanation: 'Vier Tätigkeiten: Komma zwischen allen Gliedern außer vor <em>und</em>.'
+  },
+  {
+    rule: 'aufzaehlung',
+    segments: ['Wir brauchen einen Center', 'einen Guard', 'einen Forward', 'und einen guten Trainer.'],
+    commas:   [true, true, false],
+    explanation: 'Vier Personen: Komma zwischen den Gliedern, kein Komma vor <em>und</em>.'
+  },
+  {
+    rule: 'aufzaehlung',
+    segments: ['Die Kinder übten Dribbeln', 'Werfen', 'Passen', 'und Verteidigen.'],
+    commas:   [true, true, false],
+    explanation: 'Vier Verben als Aufzählung — das letzte <em>und</em> braucht kein Komma davor.'
+  },
+  {
+    rule: 'aufzaehlung',
+    segments: ['Das Basketballspiel hat vier Viertel', 'eine Halbzeit', 'und eine Verlängerung.'],
+    commas:   [true, false],
+    explanation: 'Drei Teile: Komma nach dem ersten Glied — kein Komma vor <em>und</em>.'
+  },
+  {
+    rule: 'aufzaehlung',
+    segments: ['Beim Basketball gibt es Dreier', 'Zweier', 'und Freiwürfe.'],
+    commas:   [true, false],
+    explanation: 'Drei Wurfarten: ein Komma — kein Komma vor <em>und</em>.'
+  },
+  {
+    rule: 'aufzaehlung',
+    segments: ['Der Schiedsrichter pfiff ein Foul', 'einen Einwurf', 'und eine Auszeit.'],
+    commas:   [true, false],
+    explanation: 'Drei Entscheidungen: Komma nach dem ersten Glied, kein Komma vor <em>und</em>.'
+  },
+  {
+    // trap: gap between subject and verb (wrong), then real list gap
+    rule: 'aufzaehlung',
+    segments: ['Der Trainer', 'erklärte Dribbling', 'Passen', 'und Werfen.'],
+    commas:   [false, true, false],
+    explanation: 'Kein Komma zwischen Subjekt (<em>Der Trainer</em>) und Verb! Die Aufzählung braucht ein Komma zwischen <em>Dribbling</em> und <em>Passen</em>, aber nicht vor <em>und</em>.'
+  },
+  {
+    rule: 'aufzaehlung',
+    segments: ['Er trug ein weißes', 'rotes', 'und blaues Trikot.'],
+    commas:   [true, false],
+    explanation: 'Drei Adjektive: Komma nach dem ersten — kein Komma vor <em>und</em>.'
+  },
+  {
+    rule: 'aufzaehlung',
+    segments: ['Das Team bestand aus schnellen', 'erfahrenen', 'und sehr motivierten Spielern.'],
+    commas:   [true, false],
+    explanation: 'Drei Adjektive: Komma zwischen den ersten beiden, kein Komma vor <em>und</em>.'
+  },
+
+  // ──────────────────────────── INFINITIVGRUPPE ────────────────────────────
+  {
+    // trap: gap after subject (wrong), gap before infinitive (correct)
+    rule: 'infinitiv',
+    segments: ['Tom', 'versucht', 'schneller zum Korb zu laufen.'],
+    commas:   [false, true],
+    explanation: 'Kein Komma nach <em>Tom</em> (Subjekt–Verb)! Komma vor der erweiterten Infinitivgruppe <em>schneller zum Korb zu laufen</em>.'
+  },
+  {
+    rule: 'infinitiv',
+    segments: ['Sie hofft', 'heute viele Punkte zu erzielen.'],
+    commas:   [true],
+    explanation: 'Infinitivgruppe mit Adverb und Objekt → erweitert → Komma.'
+  },
+  {
+    rule: 'infinitiv',
+    segments: ['Paul', 'plant', 'nächstes Jahr in einer Basketballmannschaft zu spielen.'],
+    commas:   [false, true],
+    explanation: 'Kein Komma nach <em>Paul</em>! Komma vor der langen Infinitivgruppe mit Zeitangabe und Ortsangabe.'
+  },
+  {
+    rule: 'infinitiv',
+    segments: ['Der Spieler versucht', 'ruhig zu bleiben', 'obwohl das Spiel sehr knapp ist.'],
+    commas:   [true, true],
+    explanation: 'Komma vor der Infinitivgruppe <em>ruhig zu bleiben</em> und vor dem Nebensatz mit <em>obwohl</em>.'
+  },
+  {
+    rule: 'infinitiv',
+    segments: ['Ich hoffe', 'im nächsten Spiel zu treffen.'],
+    commas:   [true],
+    explanation: 'Infinitivgruppe mit Ortsangabe und Objekt → erweitert → Komma.'
+  },
+  {
+    rule: 'infinitiv',
+    segments: ['Der Spieler', 'vergaß', 'den Ball zu fangen.'],
+    commas:   [false, true],
+    explanation: 'Kein Komma nach <em>Der Spieler</em>! Komma vor <em>den Ball zu fangen</em> (Infinitivgruppe mit Objekt).'
+  },
+  {
+    rule: 'infinitiv',
+    segments: ['Der Trainer fordert', 'konzentriert zu spielen.'],
+    commas:   [true],
+    explanation: '<em>Konzentriert zu spielen</em> ist eine erweiterte Infinitivgruppe (mit Adverb) → Komma.'
+  },
+  {
+    rule: 'infinitiv',
+    segments: ['Das Team beschloss', 'aggressiver in der Verteidigung zu spielen.'],
+    commas:   [true],
+    explanation: 'Lange Infinitivgruppe mit Adverb und Ortsangabe → Komma.'
+  },
+  {
+    rule: 'infinitiv',
+    segments: ['Der Guard', 'versucht', 'den Spielaufbau zu kontrollieren.'],
+    commas:   [false, true],
+    explanation: 'Kein Komma nach <em>Der Guard</em>! Komma vor der Infinitivgruppe <em>den Spielaufbau zu kontrollieren</em>.'
+  },
+  {
+    rule: 'infinitiv',
+    segments: ['Ich versuche', 'nach dem Foul ruhig zu bleiben.'],
+    commas:   [true],
+    explanation: 'Erweiterte Infinitivgruppe mit Präpositionalphrase → Komma.'
+  },
+  {
+    rule: 'infinitiv',
+    segments: ['Der Trainer', 'forderte die Spieler', 'intensiver zu trainieren.'],
+    commas:   [false, true],
+    explanation: 'Kein Komma nach <em>Der Trainer</em>! Komma vor der Infinitivgruppe <em>intensiver zu trainieren</em>.'
+  },
+  {
+    rule: 'infinitiv',
+    segments: ['Anna', 'versucht', 'den Freiwurf sicher zu verwandeln.'],
+    commas:   [false, true],
+    explanation: 'Kein Komma zwischen Subjekt und Verb! Komma vor der erweiterten Infinitivgruppe.'
+  },
+  {
+    rule: 'infinitiv',
+    segments: ['Er begann', 'regelmäßig in der Sporthalle zu trainieren.'],
+    commas:   [true],
+    explanation: 'Infinitivgruppe mit Adverb und Ortsangabe → erweitert → Komma.'
+  },
+
+  // ──────────────────────────── GEGENSATZ ────────────────────────────
+  {
+    rule: 'gegensatz',
+    segments: ['Wir', 'wollten trainieren', 'aber die Halle war geschlossen.'],
+    commas:   [false, true],
+    explanation: 'Kein Komma nach <em>Wir</em>! Komma vor <em>aber</em> — verbindet zwei Hauptsätze.'
+  },
+  {
+    rule: 'gegensatz',
+    segments: ['Ich wollte werfen', 'doch der Verteidiger blockte mich.'],
+    commas:   [true],
+    explanation: '<em>Doch</em> als adversative Konjunktion → Komma davor.'
+  },
+  {
+    rule: 'gegensatz',
+    segments: ['Wir spielten schnell', 'aber wir machten viele Fehler.'],
+    commas:   [true],
+    explanation: 'Zwei Hauptsätze mit Gegensatz durch <em>aber</em> → Komma.'
+  },
+  {
+    rule: 'gegensatz',
+    segments: ['Anna', 'wollte passen', 'aber der Ball wurde abgefangen.'],
+    commas:   [false, true],
+    explanation: 'Kein Komma nach <em>Anna</em>! Komma vor <em>aber</em> (Gegensatz zweier Hauptsätze).'
+  },
+  {
+    rule: 'gegensatz',
+    segments: ['Das Team spielte gut', 'trotzdem verloren sie das Spiel.'],
+    commas:   [true],
+    explanation: '<em>Trotzdem</em> leitet einen adversativen Satz ein → Komma davor.'
+  },
+  {
+    rule: 'gegensatz',
+    segments: ['Ich wollte einen Dreier werfen', 'aber ich wurde gefoult.'],
+    commas:   [true],
+    explanation: 'Zwei Hauptsätze mit <em>aber</em> → Komma.'
+  },
+  {
+    rule: 'gegensatz',
+    segments: ['Er ist ein guter Schütze', 'aber er trifft selten von außen.'],
+    commas:   [true],
+    explanation: '<em>Aber</em> verbindet zwei vollständige Hauptsätze mit Gegensatzbedeutung → Komma.'
+  },
+  {
+    rule: 'gegensatz',
+    segments: ['Der Ball war im Korb', 'doch der Schiedsrichter pfiff Foul.'],
+    commas:   [true],
+    explanation: '<em>Doch</em> verbindet zwei gegensätzliche Hauptsätze → Komma.'
+  },
+  {
+    rule: 'gegensatz',
+    segments: ['Die Mannschaft', 'kämpfte hart', 'trotzdem reichte es nicht für den Sieg.'],
+    commas:   [false, true],
+    explanation: 'Kein Komma nach <em>Die Mannschaft</em>! Komma vor <em>trotzdem</em>.'
+  },
+  {
+    rule: 'gegensatz',
+    segments: ['Er trainiert täglich', 'aber sein Wurf ist immer noch ungenau.'],
+    commas:   [true],
+    explanation: 'Zwei vollständige Hauptsätze mit <em>aber</em> → Komma.'
+  },
+  {
+    rule: 'gegensatz',
+    segments: ['Das Spiel war verloren', 'doch die Stimmung blieb gut.'],
+    commas:   [true],
+    explanation: '<em>Doch</em> als adversative Konjunktion zwischen zwei Hauptsätzen → Komma.'
+  },
+
+  // ──────────────────────────── KEIN KOMMA ────────────────────────────
+  {
+    rule: 'keinkomma',
+    segments: ['Er lief zum Korb', 'und warf den Ball.'],
+    commas:   [false],
+    explanation: 'Kein Komma vor <em>und</em>, wenn es zwei Verben desselben Subjekts verbindet.'
+  },
+  {
+    rule: 'keinkomma',
+    segments: ['Der Trainer', 'und der Co-Trainer beobachteten das Spiel.'],
+    commas:   [false],
+    explanation: 'Kein Komma vor <em>und</em>, wenn nur zwei Subjekte aufgezählt werden.'
+  },
+  {
+    rule: 'keinkomma',
+    segments: ['Sie spielten schnell', 'und effektiv.'],
+    commas:   [false],
+    explanation: 'Kein Komma vor <em>und</em>, wenn nur zwei Adjektive verbunden werden.'
+  },
+  {
+    rule: 'keinkomma',
+    segments: ['Er hofft', 'zu gewinnen.'],
+    commas:   [false],
+    explanation: 'Kurzer, nicht erweiterter Infinitiv (<em>zu gewinnen</em>) — kein Komma nötig.'
+  },
+  {
+    rule: 'keinkomma',
+    segments: ['Das ist eine schnelle', 'und dynamische Sportart.'],
+    commas:   [false],
+    explanation: 'Zwei Adjektive mit <em>und</em>: kein Komma.'
+  },
+  {
+    rule: 'keinkomma',
+    segments: ['Er sprang hoch', 'und warf den Ball in den Korb.'],
+    commas:   [false],
+    explanation: 'Zwei Prädikate desselben Subjekts, verbunden durch <em>und</em> → kein Komma.'
+  },
+  {
+    rule: 'keinkomma',
+    segments: ['Anna', 'und Paul spielten zusammen.'],
+    commas:   [false],
+    explanation: 'Zwei Subjekte mit <em>und</em>: kein Komma.'
+  },
+  {
+    rule: 'keinkomma',
+    segments: ['Er wollte gewinnen', 'und trainierte jeden Tag.'],
+    commas:   [false],
+    explanation: 'Zwei Hauptsätze mit <em>und</em> (ohne Gegensatz) → kein Komma.'
+  },
+  {
+    rule: 'keinkomma',
+    segments: ['Das Spiel war lang', 'und anstrengend.'],
+    commas:   [false],
+    explanation: 'Zwei Adjektive mit <em>und</em> → kein Komma.'
+  },
+  {
+    rule: 'keinkomma',
+    segments: ['Der Spieler', 'lief schnell zum Korb.'],
+    commas:   [false],
+    explanation: 'Kein Komma zwischen Subjekt (<em>Der Spieler</em>) und Verb.'
+  },
+  {
+    rule: 'keinkomma',
+    // three-element trap: two items + "und" → should be comma, but this is "nur" zwei items!
+    segments: ['Der Guard', 'und der Center stoppten den Angriff.'],
+    commas:   [false],
+    explanation: 'Zwei Subjekte mit <em>und</em>: kein Komma — erst ab drei Gliedern braucht eine Aufzählung Kommas.'
+  },
+  {
+    rule: 'keinkomma',
+    segments: ['Sie lief', 'und sprang.'],
+    commas:   [false],
+    explanation: 'Zwei Verben mit <em>und</em>: kein Komma (keine Aufzählung von 3+ Gliedern).'
+  },
+];
+
+// ═══════════════════════════════════════════════════
+//  State
+// ═══════════════════════════════════════════════════
+let currentFilter = 'all';
+let filteredList  = [];
+let currentIdx    = 0;
+let userCommas    = [];
+let checked       = false;
+let scoreCorrect  = 0;
+let scoreTotal    = 0;
+
+// ═══════════════════════════════════════════════════
+//  Filter + session
+// ═══════════════════════════════════════════════════
+function setFilter(filter, el) {
+  currentFilter = filter;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  startSession();
+}
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function startSession() {
+  const pool = currentFilter === 'all'
+    ? ALL_EXERCISES
+    : ALL_EXERCISES.filter(e => e.rule === currentFilter);
+  filteredList = shuffle(pool);
+  currentIdx   = 0;
+  scoreCorrect = 0;
+  scoreTotal   = 0;
+  updateScore();
+  document.getElementById('summary-card').classList.remove('show');
+  document.getElementById('exercise-card').style.display = '';
+  showExercise();
+}
+
+// ═══════════════════════════════════════════════════
+//  Show exercise
+// ═══════════════════════════════════════════════════
+function showExercise() {
+  const ex = filteredList[currentIdx];
+  userCommas = new Array(ex.commas.length).fill(false);
+  checked    = false;
+
+  // Progress
+  document.getElementById('progress-fill').style.width =
+    (currentIdx / filteredList.length * 100) + '%';
+
+  // Badge
+  const badge = document.getElementById('rule-badge');
+  badge.className = 'rule-badge ' + ex.rule;
+  badge.textContent = RULE_NAMES[ex.rule];
+
+  renderSentence(ex);
+
+  // Reset feedback
+  document.getElementById('feedback').className = 'feedback';
+
+  // Buttons
+  document.getElementById('btn-check').style.display = '';
+  document.getElementById('btn-next').style.display  = 'none';
+  document.getElementById('btn-reset').style.display = '';
+
+  updateRuleInfo(ex.rule);
+}
+
+// ═══════════════════════════════════════════════════
+//  Render sentence with gap buttons
+// ═══════════════════════════════════════════════════
+function renderSentence(ex) {
+  const wrap = document.getElementById('sentence');
+  wrap.innerHTML = '';
+
+  ex.segments.forEach((seg, i) => {
+    const w = document.createElement('span');
+    w.className = 'word';
+    w.textContent = (i === 0 ? '' : '\u00A0') + seg; // non-breaking space before each segment except first
+    wrap.appendChild(w);
+
+    if (i < ex.commas.length) {
+      const btn = document.createElement('button');
+      btn.className = 'gap-btn';
+      btn.id = 'gap-' + i;
+      btn.setAttribute('aria-label', 'Komma setzen oder entfernen');
+      btn.addEventListener('click', () => toggleGap(i));
+      wrap.appendChild(btn);
+    }
+  });
+}
+
+// ═══════════════════════════════════════════════════
+//  Toggle / reset
+// ═══════════════════════════════════════════════════
+function toggleGap(i) {
+  if (checked) return;
+  userCommas[i] = !userCommas[i];
+  const btn = document.getElementById('gap-' + i);
+  if (userCommas[i]) {
+    btn.classList.add('filled');
+    btn.textContent = ',';
+  } else {
+    btn.classList.remove('filled');
+    btn.textContent = '';
+  }
+}
+
+function resetCommas() {
+  if (checked) return;
+  userCommas.fill(false);
+  for (let i = 0; i < userCommas.length; i++) {
+    const btn = document.getElementById('gap-' + i);
+    if (btn) { btn.className = 'gap-btn'; btn.textContent = ''; }
+  }
+}
+
+// ═══════════════════════════════════════════════════
+//  Check
+// ═══════════════════════════════════════════════════
+function checkAnswer() {
+  const ex = filteredList[currentIdx];
+  checked  = true;
+  let allOk = true;
+
+  ex.commas.forEach((correct, i) => {
+    const btn  = document.getElementById('gap-' + i);
+    const user = userCommas[i];
+
+    if (correct && user) {
+      btn.className = 'gap-btn ok'; btn.textContent = ',';
+    } else if (!correct && !user) {
+      btn.className = 'gap-btn'; btn.textContent = '';
+    } else if (correct && !user) {
+      btn.className = 'gap-btn miss'; btn.textContent = ','; allOk = false;
+    } else {
+      btn.className = 'gap-btn wrong'; btn.textContent = ','; allOk = false;
+    }
+  });
+
+  scoreTotal++;
+  if (allOk) scoreCorrect++;
+  updateScore();
+
+  const fb   = document.getElementById('feedback');
+  const head = document.getElementById('fb-head');
+  const body = document.getElementById('fb-body');
+
+  if (allOk) {
+    fb.className = 'feedback correct-fb show';
+    head.textContent = ex.rule === 'keinkomma'
+      ? '✅ Richtig — kein Komma nötig!' : '✅ Richtig!';
+  } else {
+    fb.className = 'feedback wrong-fb show';
+    head.innerHTML = ex.rule === 'keinkomma'
+      ? '🚫 Achtung: Hier gehört <em>kein</em> Komma hin!'
+      : '❌ Nicht ganz — schau auf die grünen Kommas:';
+  }
+  body.innerHTML = ex.explanation;
+
+  document.getElementById('btn-check').style.display = 'none';
+  document.getElementById('btn-next').style.display  = '';
+  document.getElementById('btn-reset').style.display = 'none';
+}
+
+// ═══════════════════════════════════════════════════
+//  Next / summary
+// ═══════════════════════════════════════════════════
+function nextExercise() {
+  currentIdx++;
+  if (currentIdx >= filteredList.length) showSummary();
+  else showExercise();
+}
+
+function showSummary() {
+  document.getElementById('exercise-card').style.display = 'none';
+  document.getElementById('progress-fill').style.width = '100%';
+
+  const pct = Math.round((scoreCorrect / scoreTotal) * 100);
+  let trophy, rating;
+  if      (pct === 100) { trophy = '🏆'; rating = 'Perfekt! Alle Kommas stimmen!'; }
+  else if (pct >= 80)   { trophy = '🥇'; rating = 'Sehr gut! Fast fehlerfrei.'; }
+  else if (pct >= 60)   { trophy = '🥈'; rating = 'Gut — noch ein bisschen üben!'; }
+  else if (pct >= 40)   { trophy = '🥉'; rating = 'Weiter üben — du schaffst das!'; }
+  else                  { trophy = '💪'; rating = 'Nicht aufgeben — nochmal versuchen!'; }
+
+  document.getElementById('sum-trophy').textContent = trophy;
+  document.getElementById('sum-score').textContent  = scoreCorrect;
+  document.getElementById('sum-of').textContent     = `von ${scoreTotal} richtig (${pct}\u00a0%)`;
+  document.getElementById('sum-rating').textContent = rating;
+  document.getElementById('summary-card').classList.add('show');
+
+  // 🎉 Perfect score → GIF celebration!
+  if (pct === 100) {
+    setTimeout(() => showCelebration(scoreTotal), 600);
+  }
+}
+
+function restartSession() {
+  document.getElementById('summary-card').classList.remove('show');
+  document.getElementById('exercise-card').style.display = '';
+  startSession();
+}
+
+// ═══════════════════════════════════════════════════
+//  Helpers
+// ═══════════════════════════════════════════════════
+function updateScore() {
+  document.getElementById('score-correct').textContent = scoreCorrect;
+  document.getElementById('score-total').textContent   = scoreTotal;
+}
+
+function updateRuleInfo(rule) {
+  const info = RULE_INFO[rule] || RULE_INFO['aufzaehlung'];
+  document.getElementById('rule-body').innerHTML = info;
+  document.getElementById('rule-summary').innerHTML =
+    '📖 Regel: <strong>' + RULE_NAMES[rule] + '</strong>';
+}
+
+// ═══════════════════════════════════════════════════
+//  GIF Celebration
+// ═══════════════════════════════════════════════════
+const CELEB_GIFS = [
+  { player: 'LeBron James',    id: '3o85xlQBFRfqgqjQBO' },
+  { player: 'LeBron James',    id: '3LOr3AzE15z9lS83E4' },
+  { player: 'LeBron James',    id: 'FTF7hOZdMesIC6Wk5X' },
+  { player: 'Stephen Curry',   id: 'xT0xes1WIfLw0IfKqQ' },
+  { player: 'Stephen Curry',   id: 'vLxMq3BLj2VmZL9LEa' },
+  { player: 'Michael Jordan',  id: '3oKIPnAiaMCws8nOsE' },
+  { player: 'Michael Jordan',  id: 'l0MYt5jPR6QX5pnqM'  },
+  { player: 'Michael Jordan',  id: 'QvBoMEkGlnMic'       },
+  { player: 'Shaquille O\'Neal', id: '26BRuo6sLetdllPAQ' },
+  { player: 'Magic Johnson',   id: 'l4JySAWfMaY7w88sU'  },
+];
+
+let lastGifIdx = -1;
+
+function showCelebration(total) {
+  // Only fire on perfect score AND at least 12 exercises (or full filter set if smaller)
+  if (scoreCorrect !== total) return;
+
+  // Pick a random GIF (avoid repeating last one)
+  let idx;
+  do { idx = Math.floor(Math.random() * CELEB_GIFS.length); }
+  while (idx === lastGifIdx && CELEB_GIFS.length > 1);
+  lastGifIdx = idx;
+
+  const gif = CELEB_GIFS[idx];
+  document.getElementById('gif-img').src = `https://media.giphy.com/media/${gif.id}/giphy.gif`;
+  document.getElementById('gif-player').textContent = gif.player;
+
+  // Update title to show actual score
+  document.querySelector('.gif-overlay .gif-title').textContent =
+    `${total} von ${total} — Perfekt! 🎉`;
+
+  document.getElementById('gif-overlay').classList.add('show');
+
+  // Auto-dismiss after 8 seconds
+  setTimeout(dismissGif, 8000);
+}
+
+function dismissGif() {
+  document.getElementById('gif-overlay').classList.remove('show');
+}
+
+// ═══════════════════════════════════════════════════
+//  Boot
+// ═══════════════════════════════════════════════════
+startSession();
+</script>
+</body>
+</html>
