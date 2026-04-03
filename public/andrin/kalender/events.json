@@ -1,1 +1,323 @@
-[]
+[
+  {
+    "id": "3g7jk7g07e55n0e6241uq1u49i",
+    "summary": "Anzug kaufen",
+    "description": "",
+    "location": "",
+    "start": {
+      "date": "2026-03-28"
+    },
+    "end": {
+      "date": "2026-03-29"
+    },
+    "colorId": ""
+  },
+  {
+    "id": "5vep8f4s41rb040jtilvlbmnkm_20260329",
+    "summary": "Geburtstag Clari",
+    "description": "",
+    "location": "",
+    "start": {
+      "date": "2026-03-29"
+    },
+    "end": {
+      "date": "2026-03-30"
+    },
+    "colorId": ""
+  },
+  {
+    "id": "_85148c1n6kok4b9i6l134b9k74qjcba174p34ba66113ag9n6coj6e9m6c",
+    "summary": "matteo abholen ",
+    "description": "",
+    "location": "",
+    "start": {
+      "dateTime": "2026-03-29T07:45:00+02:00",
+      "timeZone": "Europe/Zurich"
+    },
+    "end": {
+      "dateTime": "2026-03-29T08:45:00+02:00",
+      "timeZone": "Europe/Zurich"
+    },
+    "colorId": ""
+  },
+  {
+    "id": "t1u192hds3q6cvcmr9d1pp7kdj_20260329T191500Z",
+    "summary": "Blutdruck messen",
+    "description": "",
+    "location": "",
+    "start": {
+      "dateTime": "2026-03-29T21:15:00+02:00",
+      "timeZone": "Europe/Zurich"
+    },
+    "end": {
+      "dateTime": "2026-03-29T21:30:00+02:00",
+      "timeZone": "Europe/Zurich"
+    },
+    "colorId": ""
+  },
+  {
+    "id": "4hgmb2hbmn6f82devamqqau1er",
+    "summary": "IKEA Bestellung",
+    "description": "<br><br><br><br><span>SANNIDAL Tü 40x180 blau</span>                                         <p><span><b>Gutschrift Details:</b></span>                      </p><p><span>Fallnummer:Bestelldatum:Bestellnummer:Rechnungsdatum:Gutschriftsnummer:Gutschrift zu Rechnung:</span></p>                        <p><span><b>MWST Angaben:</b></span></p><p><span><b>Zahlungsdetails:</b></span></p>                       <p><span>292-1092169701.03.2026<br>1586536965<br>02.03.2026CHCRD26000000009959CHINV26000000206413</span></p>",
+    "location": "",
+    "start": {
+      "date": "2026-04-02"
+    },
+    "end": {
+      "date": "2026-04-03"
+    },
+    "colorId": ""
+  },
+  {
+    "id": "7ilqm49k3md0cg4sfdo3mqn6b7",
+    "summary": "Spätestens Stornieren Konstanz",
+    "description": "",
+    "location": "",
+    "start": {
+      "date": "2026-04-05"
+    },
+    "end": {
+      "date": "2026-04-06"
+    },
+    "colorId": ""
+  },
+  {
+    "id": "t1u192hds3q6cvcmr9d1pp7kdj_20260405T191500Z",
+    "summary": "Blutdruck messen",
+    "description": "",
+    "location": "",
+    "start": {
+      "dateTime": "2026-04-05T21:15:00+02:00",
+      "timeZone": "Europe/Zurich"
+    },
+    "end": {
+      "dateTime": "2026-04-05T21:30:00+02:00",
+      "timeZone": "Europe/Zurich"
+    },
+    "colorId": ""
+  },
+  {
+    "id": "28qe2orvh134gms3i5a5bvk12o",
+    "summary": "Stay at Ibis Styles Konstanz",
+    "description": "Wenn Sie detaillierte Informationen zu automatisch erstellten Terminen wie diesem sehen möchten, nutzen Sie die offizielle Google Kalender-App. https://g.co/calendar\n\nDieser Termin wurde aus einer E-Mail erstellt, die Sie in Gmail erhalten haben. https://mail.google.com/mail?extsrc=cal&plid=ACUX6DO59T8jsfZVNEfGnH_Rlg1M-QkIeMQuTPs\n",
+    "location": "Oberlohnstrasse 5b, 78467 Konstanz, Deutschland",
+    "start": {
+      "date": "2026-04-06"
+    },
+    "end": {
+      "date": "2026-04-10"
+    },
+    "colorId": ""
+  },
+  {
+    "id": "4jinsu66i38ecq8ofqm0robs99",
+    "summary": "Buchung Konstanz",
+    "description": "",
+    "location": "",
+    "start": {
+      "date": "2026-04-06"
+    },
+    "end": {
+      "date": "2026-04-10"
+    },
+    "colorId": ""
+  },
+  {
+    "id": "71k7fbd32eb4e2gd1p28c3hd07",
+    "summary": "Containerreinigung",
+    "description": "",
+    "location": "",
+    "start": {
+      "date": "2026-04-07"
+    },
+    "end": {
+      "date": "2026-04-08"
+    },
+    "colorId": ""
+  },
+  {
+    "id": "t1u192hds3q6cvcmr9d1pp7kdj_20260412T191500Z",
+    "summary": "Blutdruck messen",
+    "description": "",
+    "location": "",
+    "start": {
+      "dateTime": "2026-04-12T21:15:00+02:00",
+      "timeZone": "Europe/Zurich"
+    },
+    "end": {
+      "dateTime": "2026-04-12T21:30:00+02:00",
+      "timeZone": "Europe/Zurich"
+    },
+    "colorId": ""
+  },
+  {
+    "id": "t1u192hds3q6cvcmr9d1pp7kdj_20260419T191500Z",
+    "summary": "Blutdruck messen",
+    "description": "",
+    "location": "",
+    "start": {
+      "dateTime": "2026-04-19T21:15:00+02:00",
+      "timeZone": "Europe/Zurich"
+    },
+    "end": {
+      "dateTime": "2026-04-19T21:30:00+02:00",
+      "timeZone": "Europe/Zurich"
+    },
+    "colorId": ""
+  },
+  {
+    "id": "_60q30c1g60o30e1i60o4ac1g60rj8gpl88rj2c1h84s34h9g60s30c1g60o30c1g70o3gdq5892jcd9k60pk6dpg64o30c1g60o30c1g60o30c1g60o32c1g60o30c1g84sj0d1k68o3cd2184s44h1k6ss34dhm60rjch9g84skcg9p850g_20260424",
+    "summary": "Geburtstag von Hodel Miriam",
+    "description": "",
+    "location": "",
+    "start": {
+      "date": "2026-04-24"
+    },
+    "end": {
+      "date": "2026-04-25"
+    },
+    "colorId": ""
+  },
+  {
+    "id": "uhujoeiklrl29oj02d207o6hhg_20260424",
+    "summary": "Miriam Hodel hat Geburtstag",
+    "description": "",
+    "location": "",
+    "start": {
+      "date": "2026-04-24"
+    },
+    "end": {
+      "date": "2026-04-25"
+    },
+    "colorId": ""
+  },
+  {
+    "id": "urv6fkl70isrogfo86qd71o4ps_20260424",
+    "summary": "Pascal Pauli hat Geburtstag",
+    "description": "",
+    "location": "",
+    "start": {
+      "date": "2026-04-24"
+    },
+    "end": {
+      "date": "2026-04-25"
+    },
+    "colorId": ""
+  },
+  {
+    "id": "t1u192hds3q6cvcmr9d1pp7kdj_20260426T191500Z",
+    "summary": "Blutdruck messen",
+    "description": "",
+    "location": "",
+    "start": {
+      "dateTime": "2026-04-26T21:15:00+02:00",
+      "timeZone": "Europe/Zurich"
+    },
+    "end": {
+      "dateTime": "2026-04-26T21:30:00+02:00",
+      "timeZone": "Europe/Zurich"
+    },
+    "colorId": ""
+  },
+  {
+    "id": "fer0u3j1hlkrbcoesng9t5aqa4_20260502",
+    "summary": "Gerold Ritter hat Geburtstag",
+    "description": "",
+    "location": "",
+    "start": {
+      "date": "2026-05-02"
+    },
+    "end": {
+      "date": "2026-05-03"
+    },
+    "colorId": ""
+  },
+  {
+    "id": "t1u192hds3q6cvcmr9d1pp7kdj_20260503T191500Z",
+    "summary": "Blutdruck messen",
+    "description": "",
+    "location": "",
+    "start": {
+      "dateTime": "2026-05-03T21:15:00+02:00",
+      "timeZone": "Europe/Zurich"
+    },
+    "end": {
+      "dateTime": "2026-05-03T21:30:00+02:00",
+      "timeZone": "Europe/Zurich"
+    },
+    "colorId": ""
+  },
+  {
+    "id": "t1u192hds3q6cvcmr9d1pp7kdj_20260510T191500Z",
+    "summary": "Blutdruck messen",
+    "description": "",
+    "location": "",
+    "start": {
+      "dateTime": "2026-05-10T21:15:00+02:00",
+      "timeZone": "Europe/Zurich"
+    },
+    "end": {
+      "dateTime": "2026-05-10T21:30:00+02:00",
+      "timeZone": "Europe/Zurich"
+    },
+    "colorId": ""
+  },
+  {
+    "id": "4lhf70r841t45rti65ni6uec08",
+    "summary": "evtl. K'zoo",
+    "description": "",
+    "location": "",
+    "start": {
+      "date": "2026-05-12"
+    },
+    "end": {
+      "date": "2026-05-17"
+    },
+    "colorId": ""
+  },
+  {
+    "id": "t1u192hds3q6cvcmr9d1pp7kdj_20260517T191500Z",
+    "summary": "Blutdruck messen",
+    "description": "",
+    "location": "",
+    "start": {
+      "dateTime": "2026-05-17T21:15:00+02:00",
+      "timeZone": "Europe/Zurich"
+    },
+    "end": {
+      "dateTime": "2026-05-17T21:30:00+02:00",
+      "timeZone": "Europe/Zurich"
+    },
+    "colorId": ""
+  },
+  {
+    "id": "t1u192hds3q6cvcmr9d1pp7kdj_20260524T191500Z",
+    "summary": "Blutdruck messen",
+    "description": "",
+    "location": "",
+    "start": {
+      "dateTime": "2026-05-24T21:15:00+02:00",
+      "timeZone": "Europe/Zurich"
+    },
+    "end": {
+      "dateTime": "2026-05-24T21:30:00+02:00",
+      "timeZone": "Europe/Zurich"
+    },
+    "colorId": ""
+  },
+  {
+    "id": "t1u192hds3q6cvcmr9d1pp7kdj_20260531T191500Z",
+    "summary": "Blutdruck messen",
+    "description": "",
+    "location": "",
+    "start": {
+      "dateTime": "2026-05-31T21:15:00+02:00",
+      "timeZone": "Europe/Zurich"
+    },
+    "end": {
+      "dateTime": "2026-05-31T21:30:00+02:00",
+      "timeZone": "Europe/Zurich"
+    },
+    "colorId": ""
+  }
+]
