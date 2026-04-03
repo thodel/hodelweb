@@ -14,58 +14,61 @@
     }
     .header {
       background: linear-gradient(135deg, #0369a1 0%, #059669 100%);
-      color: white;
-      border-radius: 20px;
-      padding: 28px 24px 22px;
-      text-align: center;
+      color: white; border-radius: 20px;
+      padding: 28px 24px 22px; text-align: center;
       margin-bottom: 28px;
       box-shadow: 0 4px 20px rgba(0,0,0,0.15);
     }
     .header h1 { font-size: 28px; font-weight: 800; margin-bottom: 6px; }
     .header p  { font-size: 15px; opacity: 0.88; }
     .container { max-width: 640px; margin: 0 auto; }
+
     .section-title {
-      font-size: 13px;
-      font-weight: 700;
-      color: #64748b;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
+      font-size: 13px; font-weight: 700; color: #64748b;
+      text-transform: uppercase; letter-spacing: 0.08em;
       margin: 24px 0 12px 4px;
+      display: flex; align-items: center; gap: 8px;
     }
+    .section-title::after {
+      content: ''; flex: 1; height: 1px; background: #e2e8f0;
+    }
+
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
       gap: 14px;
     }
     .card {
-      background: white;
-      border-radius: 16px;
-      padding: 20px 16px;
-      text-align: center;
-      text-decoration: none;
-      color: inherit;
+      background: white; border-radius: 16px; padding: 20px 16px;
+      text-align: center; text-decoration: none; color: inherit;
       box-shadow: 0 2px 12px rgba(0,0,0,0.08);
       transition: transform 0.15s, box-shadow 0.15s;
-      display: block;
-      cursor: pointer;
+      display: block; cursor: pointer;
     }
     .card:hover {
       transform: translateY(-3px);
       box-shadow: 0 6px 20px rgba(0,0,0,0.13);
     }
-    .card .icon { font-size: 36px; margin-bottom: 10px; display: block; }
+    .card .icon  { font-size: 36px; margin-bottom: 10px; display: block; }
     .card .label { font-size: 15px; font-weight: 700; color: #1e293b; margin-bottom: 4px; }
     .card .sub   { font-size: 12px; color: #64748b; }
-    .card.deutsch { border-top: 4px solid #2563eb; }
-    .card.mathe   { border-top: 4px solid #16a34a; }
-    .card.wissen  { border-top: 4px solid #d97706; }
-    .card.coming-soon { opacity: 0.45; cursor: default; }
+
+    .card.deutsch  { border-top: 4px solid #2563eb; }
+    .card.mathe    { border-top: 4px solid #16a34a; }
+    .card.wissen   { border-top: 4px solid #d97706; }
+    .card.freizeit { border-top: 4px solid #e11d48; }
+    .card.new-badge::after {
+      content: 'NEU'; background: #e11d48; color: white;
+      font-size: 10px; font-weight: 800; border-radius: 6px;
+      padding: 2px 6px; margin-left: 6px; vertical-align: middle;
+    }
+
+    .card.coming-soon { opacity: 0.42; cursor: default; }
     .card.coming-soon:hover { transform: none; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+
     .footer {
-      text-align: center;
-      margin-top: 40px;
-      font-size: 12px;
-      color: #94a3b8;
+      text-align: center; margin-top: 40px;
+      font-size: 12px; color: #94a3b8;
     }
   </style>
 </head>
@@ -73,16 +76,12 @@
   <div class="container">
     <div class="header">
       <h1>📚 Andrins Lernseite</h1>
-      <p>Hier kannst du üben und Neues entdecken!</p>
+      <p>Lernen, üben und Freizeit — alles an einem Ort!</p>
     </div>
 
+    <!-- Deutsch -->
     <div class="section-title">📝 Deutsch</div>
     <div class="grid">
-      <a href="geo-quiz/" class="card wissen">
-        <span class="icon">🌍</span>
-        <div class="label">Geo-Quiz</div>
-        <div class="sub">7 Fragen · Kahoot-Style</div>
-      </a>
       <a href="kommasetzung/" class="card deutsch">
         <span class="icon">✏️</span>
         <div class="label">Kommasetzung</div>
@@ -100,6 +99,7 @@
       </div>
     </div>
 
+    <!-- Mathematik -->
     <div class="section-title">🔢 Mathematik</div>
     <div class="grid">
       <div class="card mathe coming-soon">
@@ -114,21 +114,47 @@
       </div>
     </div>
 
-    <div class="section-title">🌍 Wissen</div>
+    <!-- Wissen -->
+    <div class="section-title">🌍 Wissen &amp; Quiz</div>
     <div class="grid">
+      <a href="geo-quiz/" class="card wissen new-badge">
+        <span class="icon">🌍</span>
+        <div class="label">Geo-Quiz</div>
+        <div class="sub">7 Fragen · Kahoot-Style</div>
+      </a>
       <div class="card wissen coming-soon">
-        <span class="icon">🌏</span>
-        <div class="label">Geografie</div>
+        <span class="icon">🔬</span>
+        <div class="label">Natur &amp; Technik</div>
         <div class="sub">Kommt bald...</div>
       </div>
       <div class="card wissen coming-soon">
-        <span class="icon">🔬</span>
-        <div class="label">Natur & Technik</div>
+        <span class="icon">🏛️</span>
+        <div class="label">Geschichte</div>
         <div class="sub">Kommt bald...</div>
       </div>
     </div>
 
-    <div class="footer">hodelweb.ch/andrin · Lernseite für Andrin</div>
+    <!-- Freizeit -->
+    <div class="section-title">🎮 Freizeit</div>
+    <div class="grid">
+      <a href="nba/" class="card freizeit new-badge">
+        <span class="icon">🏀</span>
+        <div class="label">NBA Resultate</div>
+        <div class="sub">Live Scores &amp; Ergebnisse</div>
+      </a>
+      <div class="card freizeit coming-soon">
+        <span class="icon">🎵</span>
+        <div class="label">Musik</div>
+        <div class="sub">Kommt bald...</div>
+      </div>
+      <div class="card freizeit coming-soon">
+        <span class="icon">🎬</span>
+        <div class="label">Filme &amp; Serien</div>
+        <div class="sub">Kommt bald...</div>
+      </div>
+    </div>
+
+    <div class="footer">hodelweb.ch/andrin · Andrins persönliche Seite</div>
   </div>
 </body>
 </html>
