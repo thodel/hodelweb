@@ -67,6 +67,7 @@
     stroke-linecap: round;
     stroke-dasharray: 188.5;
     stroke-dashoffset: 0;
+    stroke-dasharray: 188.5;
     transition: stroke-dashoffset 1s linear, stroke 0.3s;
   }
   .timer-num {
@@ -157,14 +158,14 @@
 <div id="start" class="screen active">
   <div class="logo">🌍</div>
   <h1>Geo-Quiz</h1>
-  <p>7 Fragen · 5. Klasse · 20 Sekunden pro Frage</p>
+  <p>10 Fragen · Mix aus 23 Fragen · 15 Sek. pro Frage</p>
   <button class="btn-start" onclick="startQuiz()">▶ Spielen!</button>
 </div>
 
 <!-- ── QUESTION ── -->
 <div id="question" class="screen">
   <div class="q-header">
-    <span class="q-counter" id="qCounter">Frage 1 / 7</span>
+    <span class="q-counter" id="qCounter">Frage 1 / 10</span>
     <span class="score-badge">⭐ <span id="scoreTop">0</span></span>
   </div>
 
@@ -196,56 +197,47 @@
 <script>
 const SHAPES = ['▲','◆','●','■'];
 
-const QUESTIONS = [
-  {
-    q: "Welches ist der höchste Berg der Schweiz?",
-    answers: ["Matterhorn","Monte Rosa","Dom","Piz Bernina"],
-    correct: 1,
-    fact: "Der Monte Rosa (4634 m) ist der höchste Gipfel der Schweiz!"
-  },
-  {
-    q: "Welches Meer liegt südlich von Europa?",
-    answers: ["Nordsee","Ostsee","Mittelmeer","Schwarzes Meer"],
-    correct: 2,
-    fact: "Das Mittelmeer trennt Europa von Afrika."
-  },
-  {
-    q: "Auf welchem Kontinent liegt die Schweiz?",
-    answers: ["Asien","Afrika","Amerika","Europa"],
-    correct: 3,
-    fact: "Die Schweiz liegt mitten in Europa!"
-  },
-  {
-    q: "Was ist die Hauptstadt von Deutschland?",
-    answers: ["München","Hamburg","Berlin","Frankfurt"],
-    correct: 2,
-    fact: "Berlin ist seit 1990 wieder Hauptstadt von Deutschland."
-  },
-  {
-    q: "Welches Land hat die meisten Einwohner der Welt?",
-    answers: ["USA","China","Indien","Russland"],
-    correct: 2,
-    fact: "Indien hat 2023 China überholt und hat über 1,4 Milliarden Menschen!"
-  },
-  {
-    q: "Wie heisst das längste Gebirge der Welt? (Es liegt in Südamerika!)",
-    answers: ["Alpen","Rocky Mountains","Anden","Himalaya"],
-    correct: 2,
-    fact: "Die Anden sind über 7000 km lang — das längste Gebirge der Welt!"
-  },
-  {
-    q: "An wie viele Länder grenzt die Schweiz?",
-    answers: ["3","4","5","6"],
-    correct: 2,
-    fact: "Die Schweiz grenzt an Deutschland, Österreich, Liechtenstein, Italien und Frankreich — das sind 5!"
-  }
+const QUESTION_POOL = [
+  // ── Schweiz ──
+  { q:"Welches ist der höchste Berg der Schweiz?", answers:["Matterhorn","Monte Rosa","Dom","Piz Bernina"], correct:1, fact:"Der Monte Rosa (4634 m) ist der höchste Gipfel der Schweiz — nicht das Matterhorn!" },
+  { q:"An wie viele Länder grenzt die Schweiz?", answers:["3","4","5","6"], correct:2, fact:"DE, AT, LI, IT, FR = 5 Länder!" },
+  { q:"Wie viele Kantone hat die Schweiz?", answers:["20","23","26","29"], correct:2, fact:"Die Schweiz hat genau 26 Kantone." },
+  { q:"Welches ist der grösste See der Schweiz (vollständig in der Schweiz)?", answers:["Zürichsee","Bodensee","Neuenburgersee","Vierwaldstättersee"], correct:2, fact:"Der Neuenburgersee ist der grösste vollständig auf Schweizer Gebiet liegende See." },
+  { q:"Welcher Fluss fliesst durch Bern?", answers:["Rhein","Reuss","Aare","Limmat"], correct:2, fact:"Die Aare umfliesst die Berner Altstadt fast vollständig!" },
+  // ── Europa ──
+  { q:"Was ist die Hauptstadt von Deutschland?", answers:["München","Hamburg","Berlin","Frankfurt"], correct:2, fact:"Berlin ist seit 1990 wieder Hauptstadt von Deutschland." },
+  { q:"Was ist die Hauptstadt von Australien? (Achtung, das ist eine Falle!)", answers:["Sydney","Melbourne","Brisbane","Canberra"], correct:3, fact:"Canberra! Nicht Sydney — das ist zwar grösser, aber nicht die Hauptstadt." },
+  { q:"In welchem Land liegt das Kolosseum?", answers:["Griechenland","Türkei","Italien","Spanien"], correct:2, fact:"Das Kolosseum steht in Rom, der Hauptstadt Italiens." },
+  { q:"Welches Land hat die längste Küstenlinie der Welt?", answers:["Russland","Australien","Kanada","USA"], correct:2, fact:"Kanada hat mit über 200'000 km die längste Küstenlinie der Welt!" },
+  { q:"Welches ist das grösste Land der Welt (nach Fläche)?", answers:["China","USA","Kanada","Russland"], correct:3, fact:"Russland ist mit 17 Mio. km² fast doppelt so gross wie Kanada auf Platz 2." },
+  // ── Welt ──
+  { q:"Welches Meer liegt südlich von Europa?", answers:["Nordsee","Ostsee","Mittelmeer","Schwarzes Meer"], correct:2, fact:"Das Mittelmeer trennt Europa von Afrika." },
+  { q:"Auf welchem Kontinent liegt die Schweiz?", answers:["Asien","Afrika","Amerika","Europa"], correct:3, fact:"Die Schweiz liegt mitten in Europa!" },
+  { q:"Welches Land hat die meisten Einwohner der Welt?", answers:["USA","China","Indien","Russland"], correct:2, fact:"Indien hat 2023 China überholt: über 1,4 Milliarden Menschen!" },
+  { q:"Wie heisst das längste Gebirge der Welt? (Tipp: Südamerika!)", answers:["Alpen","Rocky Mountains","Anden","Himalaya"], correct:2, fact:"Die Anden sind über 7000 km lang — das längste Gebirge der Welt!" },
+  { q:"Welches ist der längste Fluss der Welt?", answers:["Amazonas","Nil","Jangtse","Mississippi"], correct:1, fact:"Der Nil (ca. 6650 km) gilt als längster Fluss der Welt, knapp vor dem Amazonas." },
+  { q:"Auf welchem Kontinent liegt Ägypten?", answers:["Asien","Amerika","Afrika","Europa"], correct:2, fact:"Ägypten liegt in Nordafrika, obwohl der Sinai geografisch zu Asien gehört." },
+  { q:"Welches ist der grösste Ozean der Welt?", answers:["Atlantik","Pazifik","Indischer Ozean","Arktischer Ozean"], correct:1, fact:"Der Pazifik ist grösser als alle Landmassen der Erde zusammen!" },
+  { q:"Wie heisst der höchste Berg der Welt?", answers:["K2","Kangchendzönga","Mount Everest","Lhotse"], correct:2, fact:"Der Mount Everest (8849 m) im Himalaya ist der höchste Berg der Welt." },
+  { q:"Auf welchem Kontinent liegt Brasilien?", answers:["Nordamerika","Afrika","Ozeanien","Südamerika"], correct:3, fact:"Brasilien ist das grösste Land Südamerikas und macht fast die Hälfte des Kontinents aus." },
+  { q:"Wie viele Kontinente gibt es?", answers:["5","6","7","8"], correct:2, fact:"Die 7 Kontinente: Europa, Asien, Afrika, Nordamerika, Südamerika, Australien/Ozeanien, Antarktis." },
+  { q:"Was ist die Hauptstadt von Japan?", answers:["Osaka","Kyoto","Shanghai","Tokio"], correct:3, fact:"Tokio ist mit über 37 Mio. Einwohnern die grösste Stadtregion der Welt!" },
+  { q:"In welchem Land liegt der Amazonas-Regenwald hauptsächlich?", answers:["Peru","Kolumbien","Bolivien","Brasilien"], correct:3, fact:"Ca. 60% des Amazonas-Regenwaldes liegt in Brasilien." },
+  { q:"Was ist die Hauptstadt von Kanada?", answers:["Toronto","Vancouver","Ottawa","Montreal"], correct:2, fact:"Ottawa ist die Hauptstadt — nicht Toronto, das ist nur die grösste Stadt!" },
 ];
+
+// Pick 10 random questions per game
+function pickQuestions() {
+  const shuffled = [...QUESTION_POOL].sort(()=>Math.random()-0.5);
+  return shuffled.slice(0,10);
+}
+let QUESTIONS = pickQuestions();
 
 let currentQ = 0;
 let score = 0;
 let answered = false;
 let timerInterval = null;
-let timeLeft = 20;
+let timeLeft = 15;
 let userAnswers = [];
 
 const CIRCUMFERENCE = 2 * Math.PI * 30; // 188.5
@@ -256,6 +248,7 @@ function show(id) {
 }
 
 function startQuiz() {
+  QUESTIONS = pickQuestions();
   currentQ = 0; score = 0; userAnswers = [];
   show('question');
   loadQuestion();
@@ -263,10 +256,10 @@ function startQuiz() {
 
 function loadQuestion() {
   answered = false;
-  timeLeft = 20;
+  timeLeft = 15;
   const q = QUESTIONS[currentQ];
 
-  document.getElementById('qCounter').textContent = `Frage ${currentQ+1} / ${QUESTIONS.length}`;
+  document.getElementById("qCounter").textContent = `Frage ${currentQ+1} / ${QUESTIONS.length}`;
   document.getElementById('scoreTop').textContent = score;
   document.getElementById('qText').textContent = q.q;
   document.getElementById('feedback').style.visibility = 'hidden';
@@ -276,7 +269,7 @@ function loadQuestion() {
   const circle = document.getElementById('timerCircle');
   circle.style.strokeDashoffset = 0;
   circle.style.stroke = 'white';
-  document.getElementById('timerNum').textContent = 20;
+  document.getElementById("timerNum").textContent = 15;
 
   // Build answers
   const container = document.getElementById('answers');
@@ -294,7 +287,7 @@ function loadQuestion() {
   timerInterval = setInterval(() => {
     timeLeft--;
     document.getElementById('timerNum').textContent = timeLeft;
-    const offset = CIRCUMFERENCE * (1 - timeLeft/20);
+    const offset = CIRCUMFERENCE * (1 - timeLeft/15);
     circle.style.strokeDashoffset = offset;
     if (timeLeft <= 5) circle.style.stroke = '#f87171';
     if (timeLeft <= 0) {
@@ -369,7 +362,7 @@ function showResult() {
   });
 }
 
-function restart() { startQuiz(); }
+function restart() { QUESTIONS = pickQuestions(); currentQ=0; score=0; userAnswers=[]; show("question"); loadQuestion(); }
 </script>
 </body>
 </html>
