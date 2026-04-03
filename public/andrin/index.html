@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Andrins Lernseite</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #e0f2fe 0%, #f0fdf4 100%);
+      min-height: 100vh;
+      padding: 24px 16px 48px;
+    }
+    .header {
+      background: linear-gradient(135deg, #0369a1 0%, #059669 100%);
+      color: white;
+      border-radius: 20px;
+      padding: 28px 24px 22px;
+      text-align: center;
+      margin-bottom: 28px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    }
+    .header h1 { font-size: 28px; font-weight: 800; margin-bottom: 6px; }
+    .header p  { font-size: 15px; opacity: 0.88; }
+    .container { max-width: 640px; margin: 0 auto; }
+    .section-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin: 24px 0 12px 4px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 14px;
+    }
+    .card {
+      background: white;
+      border-radius: 16px;
+      padding: 20px 16px;
+      text-align: center;
+      text-decoration: none;
+      color: inherit;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      transition: transform 0.15s, box-shadow 0.15s;
+      display: block;
+      cursor: pointer;
+    }
+    .card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.13);
+    }
+    .card .icon { font-size: 36px; margin-bottom: 10px; display: block; }
+    .card .label { font-size: 15px; font-weight: 700; color: #1e293b; margin-bottom: 4px; }
+    .card .sub   { font-size: 12px; color: #64748b; }
+    .card.deutsch { border-top: 4px solid #2563eb; }
+    .card.mathe   { border-top: 4px solid #16a34a; }
+    .card.wissen  { border-top: 4px solid #d97706; }
+    .card.coming-soon { opacity: 0.45; cursor: default; }
+    .card.coming-soon:hover { transform: none; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+    .footer {
+      text-align: center;
+      margin-top: 40px;
+      font-size: 12px;
+      color: #94a3b8;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>📚 Andrins Lernseite</h1>
+      <p>Hier kannst du üben und Neues entdecken!</p>
+    </div>
+
+    <div class="section-title">📝 Deutsch</div>
+    <div class="grid">
+      <a href="geo-quiz/" class="card wissen">
+        <span class="icon">🌍</span>
+        <div class="label">Geo-Quiz</div>
+        <div class="sub">7 Fragen · Kahoot-Style</div>
+      </a>
+      <a href="kommasetzung/" class="card deutsch">
+        <span class="icon">✏️</span>
+        <div class="label">Kommasetzung</div>
+        <div class="sub">Aufzählung, Infinitiv &amp; mehr</div>
+      </a>
+      <div class="card deutsch coming-soon">
+        <span class="icon">🔤</span>
+        <div class="label">Rechtschreibung</div>
+        <div class="sub">Kommt bald...</div>
+      </div>
+      <div class="card deutsch coming-soon">
+        <span class="icon">📖</span>
+        <div class="label">Aufsatz</div>
+        <div class="sub">Kommt bald...</div>
+      </div>
+    </div>
+
+    <div class="section-title">🔢 Mathematik</div>
+    <div class="grid">
+      <div class="card mathe coming-soon">
+        <span class="icon">➗</span>
+        <div class="label">Rechnen</div>
+        <div class="sub">Kommt bald...</div>
+      </div>
+      <div class="card mathe coming-soon">
+        <span class="icon">📐</span>
+        <div class="label">Geometrie</div>
+        <div class="sub">Kommt bald...</div>
+      </div>
+    </div>
+
+    <div class="section-title">🌍 Wissen</div>
+    <div class="grid">
+      <div class="card wissen coming-soon">
+        <span class="icon">🌏</span>
+        <div class="label">Geografie</div>
+        <div class="sub">Kommt bald...</div>
+      </div>
+      <div class="card wissen coming-soon">
+        <span class="icon">🔬</span>
+        <div class="label">Natur & Technik</div>
+        <div class="sub">Kommt bald...</div>
+      </div>
+    </div>
+
+    <div class="footer">hodelweb.ch/andrin · Lernseite für Andrin</div>
+  </div>
+</body>
+</html>
