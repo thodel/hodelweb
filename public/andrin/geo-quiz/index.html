@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>🌍 Geo-Quiz</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  :root {
+    --red:    #e21b3c;
+    --blue:   #1368ce;
+    --yellow: #d89e00;
+    --green:  #26890c;
+    --bg:     #46178f;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    min-height: 100vh;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+  }
+
+  /* ── Screens ── */
+  .screen { display: none; width: 100%; max-width: 720px; text-align: center; }
+  .screen.active { display: flex; flex-direction: column; align-items: center; }
+
+  /* ── Start Screen ── */
+  #start .logo { font-size: 72px; margin-bottom: 12px; }
+  #start h1 { font-size: 36px; font-weight: 900; margin-bottom: 8px; }
+  #start p  { font-size: 18px; opacity: 0.85; margin-bottom: 32px; }
+  .btn-start {
+    background: white; color: var(--bg);
+    border: none; border-radius: 14px;
+    padding: 18px 56px; font-size: 22px; font-weight: 800;
+    cursor: pointer; transition: transform 0.12s, box-shadow 0.12s;
+    box-shadow: 0 6px 0 rgba(0,0,0,0.25);
+  }
+  .btn-start:hover  { transform: translateY(-2px); box-shadow: 0 8px 0 rgba(0,0,0,0.25); }
+  .btn-start:active { transform: translateY(2px);  box-shadow: 0 2px 0 rgba(0,0,0,0.25); }
+
+  /* ── Question Screen ── */
+  #question { gap: 12px; }
+
+  .q-header {
+    width: 100%; display: flex; justify-content: space-between;
+    align-items: center; margin-bottom: 4px;
+  }
+  .q-counter { font-size: 14px; font-weight: 700; opacity: 0.8; }
+  .score-badge {
+    background: rgba(255,255,255,0.15); border-radius: 20px;
+    padding: 4px 14px; font-size: 14px; font-weight: 700;
+  }
+
+  /* Timer */
+  .timer-wrap { position: relative; width: 72px; height: 72px; margin: 4px auto; }
+  .timer-svg { transform: rotate(-90deg); }
+  .timer-track { fill: none; stroke: rgba(255,255,255,0.2); stroke-width: 6; }
+  .timer-bar {
+    fill: none; stroke: white; stroke-width: 6;
+    stroke-linecap: round;
+    stroke-dasharray: 188.5;
+    stroke-dashoffset: 0;
+    transition: stroke-dashoffset 1s linear, stroke 0.3s;
+  }
+  .timer-num {
+    position: absolute; inset: 0; display: flex;
+    align-items: center; justify-content: center;
+    font-size: 26px; font-weight: 900;
+  }
+
+  /* Question text */
+  .q-text {
+    background: white; color: #1a1a2e;
+    border-radius: 16px; padding: 20px 24px;
+    font-size: clamp(16px, 4vw, 22px); font-weight: 700;
+    line-height: 1.35; width: 100%; min-height: 80px;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  /* Answer grid */
+  .answers {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 10px; width: 100%;
+  }
+  .ans-btn {
+    border: none; border-radius: 14px; padding: 16px 12px;
+    font-size: clamp(14px, 3.5vw, 17px); font-weight: 700;
+    color: white; cursor: pointer; min-height: 72px;
+    display: flex; align-items: center; gap: 12px;
+    transition: transform 0.1s, filter 0.1s;
+    box-shadow: 0 4px 0 rgba(0,0,0,0.25);
+    line-height: 1.2;
+  }
+  .ans-btn:nth-child(1) { background: var(--red); }
+  .ans-btn:nth-child(2) { background: var(--blue); }
+  .ans-btn:nth-child(3) { background: var(--yellow); }
+  .ans-btn:nth-child(4) { background: var(--green); }
+  .ans-btn .shape {
+    width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
+    background: rgba(255,255,255,0.25);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+  }
+  .ans-btn:hover  { transform: translateY(-2px); }
+  .ans-btn:active { transform: translateY(1px); }
+  .ans-btn:disabled { cursor: default; transform: none; }
+  .ans-btn.correct { filter: brightness(1.15); animation: pulse 0.4s; }
+  .ans-btn.wrong   { filter: brightness(0.45); }
+  .ans-btn.dim     { filter: brightness(0.45); }
+
+  /* Feedback */
+  .feedback {
+    background: rgba(255,255,255,0.12); border-radius: 14px;
+    padding: 14px 20px; font-size: 18px; font-weight: 700;
+    width: 100%; min-height: 56px; display: flex; align-items: center;
+    justify-content: center; gap: 8px;
+  }
+
+  /* ── Result Screen ── */
+  #result .trophy   { font-size: 80px; margin-bottom: 12px; }
+  #result h2        { font-size: 30px; font-weight: 900; margin-bottom: 8px; }
+  #result .score-big{ font-size: 56px; font-weight: 900; }
+  #result .score-sub{ font-size: 18px; opacity: 0.8; margin-bottom: 28px; }
+  .result-list      { width: 100%; text-align: left; margin-bottom: 24px; }
+  .result-item {
+    display: flex; align-items: center; gap: 12px;
+    background: rgba(255,255,255,0.1); border-radius: 12px;
+    padding: 10px 14px; margin-bottom: 8px; font-size: 14px;
+  }
+  .result-item .ri-icon { font-size: 20px; }
+  .result-item .ri-text { flex: 1; }
+  .result-item .ri-ans  { font-weight: 700; color: #a3e635; font-size: 13px; }
+  .result-item.wrong-ans .ri-ans { color: #f87171; }
+
+  @keyframes pulse {
+    0%   { transform: scale(1); }
+    50%  { transform: scale(1.04); }
+    100% { transform: scale(1); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .screen.active { animation: fadeIn 0.3s ease; }
+</style>
+</head>
+<body>
+
+<!-- ── START ── -->
+<div id="start" class="screen active">
+  <div class="logo">🌍</div>
+  <h1>Geo-Quiz</h1>
+  <p>7 Fragen · 5. Klasse · 20 Sekunden pro Frage</p>
+  <button class="btn-start" onclick="startQuiz()">▶ Spielen!</button>
+</div>
+
+<!-- ── QUESTION ── -->
+<div id="question" class="screen">
+  <div class="q-header">
+    <span class="q-counter" id="qCounter">Frage 1 / 7</span>
+    <span class="score-badge">⭐ <span id="scoreTop">0</span></span>
+  </div>
+
+  <div class="timer-wrap">
+    <svg class="timer-svg" width="72" height="72" viewBox="0 0 72 72">
+      <circle class="timer-track" cx="36" cy="36" r="30"/>
+      <circle class="timer-bar"   cx="36" cy="36" r="30" id="timerCircle"/>
+    </svg>
+    <div class="timer-num" id="timerNum">20</div>
+  </div>
+
+  <div class="q-text" id="qText"></div>
+
+  <div class="answers" id="answers"></div>
+
+  <div class="feedback" id="feedback" style="visibility:hidden"></div>
+</div>
+
+<!-- ── RESULT ── -->
+<div id="result" class="screen">
+  <div class="trophy" id="trophy">🏆</div>
+  <h2 id="resultTitle">Super gemacht!</h2>
+  <div class="score-big" id="scoreBig">0</div>
+  <div class="score-sub" id="scoreSub">von 7 Fragen richtig</div>
+  <div class="result-list" id="resultList"></div>
+  <button class="btn-start" onclick="restart()">🔄 Nochmal spielen</button>
+</div>
+
+<script>
+const SHAPES = ['▲','◆','●','■'];
+
+const QUESTIONS = [
+  {
+    q: "Welches ist der höchste Berg der Schweiz?",
+    answers: ["Matterhorn","Monte Rosa","Dom","Piz Bernina"],
+    correct: 1,
+    fact: "Der Monte Rosa (4634 m) ist der höchste Gipfel der Schweiz!"
+  },
+  {
+    q: "Welches Meer liegt südlich von Europa?",
+    answers: ["Nordsee","Ostsee","Mittelmeer","Schwarzes Meer"],
+    correct: 2,
+    fact: "Das Mittelmeer trennt Europa von Afrika."
+  },
+  {
+    q: "Auf welchem Kontinent liegt die Schweiz?",
+    answers: ["Asien","Afrika","Amerika","Europa"],
+    correct: 3,
+    fact: "Die Schweiz liegt mitten in Europa!"
+  },
+  {
+    q: "Was ist die Hauptstadt von Deutschland?",
+    answers: ["München","Hamburg","Berlin","Frankfurt"],
+    correct: 2,
+    fact: "Berlin ist seit 1990 wieder Hauptstadt von Deutschland."
+  },
+  {
+    q: "Welches Land hat die meisten Einwohner der Welt?",
+    answers: ["USA","China","Indien","Russland"],
+    correct: 2,
+    fact: "Indien hat 2023 China überholt und hat über 1,4 Milliarden Menschen!"
+  },
+  {
+    q: "Wie heisst das längste Gebirge der Welt? (Es liegt in Südamerika!)",
+    answers: ["Alpen","Rocky Mountains","Anden","Himalaya"],
+    correct: 2,
+    fact: "Die Anden sind über 7000 km lang — das längste Gebirge der Welt!"
+  },
+  {
+    q: "An wie viele Länder grenzt die Schweiz?",
+    answers: ["3","4","5","6"],
+    correct: 2,
+    fact: "Die Schweiz grenzt an Deutschland, Österreich, Liechtenstein, Italien und Frankreich — das sind 5!"
+  }
+];
+
+let currentQ = 0;
+let score = 0;
+let answered = false;
+let timerInterval = null;
+let timeLeft = 20;
+let userAnswers = [];
+
+const CIRCUMFERENCE = 2 * Math.PI * 30; // 188.5
+
+function show(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function startQuiz() {
+  currentQ = 0; score = 0; userAnswers = [];
+  show('question');
+  loadQuestion();
+}
+
+function loadQuestion() {
+  answered = false;
+  timeLeft = 20;
+  const q = QUESTIONS[currentQ];
+
+  document.getElementById('qCounter').textContent = `Frage ${currentQ+1} / ${QUESTIONS.length}`;
+  document.getElementById('scoreTop').textContent = score;
+  document.getElementById('qText').textContent = q.q;
+  document.getElementById('feedback').style.visibility = 'hidden';
+  document.getElementById('feedback').textContent = '';
+
+  // Timer reset
+  const circle = document.getElementById('timerCircle');
+  circle.style.strokeDashoffset = 0;
+  circle.style.stroke = 'white';
+  document.getElementById('timerNum').textContent = 20;
+
+  // Build answers
+  const container = document.getElementById('answers');
+  container.innerHTML = '';
+  q.answers.forEach((ans, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'ans-btn';
+    btn.innerHTML = `<span class="shape">${SHAPES[i]}</span>${ans}`;
+    btn.onclick = () => selectAnswer(i);
+    container.appendChild(btn);
+  });
+
+  // Start timer
+  clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    document.getElementById('timerNum').textContent = timeLeft;
+    const offset = CIRCUMFERENCE * (1 - timeLeft/20);
+    circle.style.strokeDashoffset = offset;
+    if (timeLeft <= 5) circle.style.stroke = '#f87171';
+    if (timeLeft <= 0) {
+      clearInterval(timerInterval);
+      if (!answered) selectAnswer(-1); // time out
+    }
+  }, 1000);
+}
+
+function selectAnswer(idx) {
+  if (answered) return;
+  answered = true;
+  clearInterval(timerInterval);
+
+  const q = QUESTIONS[currentQ];
+  const btns = document.querySelectorAll('.ans-btn');
+  const isCorrect = idx === q.correct;
+
+  if (isCorrect) {
+    score++;
+    btns[idx].classList.add('correct');
+    btns.forEach((b,i) => { if(i !== idx) b.classList.add('dim'); });
+    document.getElementById('feedback').innerHTML = `✅ Richtig! ${q.fact}`;
+  } else {
+    if (idx >= 0) btns[idx].classList.add('wrong');
+    btns[q.correct].classList.add('correct');
+    btns.forEach((b,i) => { if(i!==idx && i!==q.correct) b.classList.add('dim'); });
+    document.getElementById('feedback').innerHTML =
+      idx < 0 ? `⏰ Zeit um! ${q.fact}` : `❌ Nicht ganz. ${q.fact}`;
+  }
+
+  btns.forEach(b => b.disabled = true);
+  document.getElementById('feedback').style.visibility = 'visible';
+  document.getElementById('scoreTop').textContent = score;
+
+  userAnswers.push({ q: q.q, correct: isCorrect, right: q.answers[q.correct], given: idx>=0 ? q.answers[idx] : 'Zeit!' });
+
+  setTimeout(() => {
+    currentQ++;
+    if (currentQ < QUESTIONS.length) loadQuestion();
+    else showResult();
+  }, 2200);
+}
+
+function showResult() {
+  show('result');
+
+  const pct = score / QUESTIONS.length;
+  const trophy = document.getElementById('trophy');
+  const title  = document.getElementById('resultTitle');
+
+  if      (pct === 1)   { trophy.textContent = '🏆'; title.textContent = 'Perfekt! Alles richtig!'; }
+  else if (pct >= 0.71) { trophy.textContent = '🥇'; title.textContent = 'Sehr gut gemacht!'; }
+  else if (pct >= 0.43) { trophy.textContent = '🥈'; title.textContent = 'Gut, weiter üben!'; }
+  else                  { trophy.textContent = '💪'; title.textContent = 'Nochmal versuchen!'; }
+
+  document.getElementById('scoreBig').textContent = score;
+  document.getElementById('scoreSub').textContent = `von ${QUESTIONS.length} Fragen richtig`;
+
+  const list = document.getElementById('resultList');
+  list.innerHTML = '';
+  userAnswers.forEach((a, i) => {
+    const div = document.createElement('div');
+    div.className = 'result-item' + (a.correct ? '' : ' wrong-ans');
+    div.innerHTML = `
+      <span class="ri-icon">${a.correct ? '✅' : '❌'}</span>
+      <div class="ri-text">
+        <div style="font-weight:700;font-size:13px;margin-bottom:2px">F${i+1}: ${a.q.substring(0,45)}${a.q.length>45?'…':''}</div>
+        <div class="ri-ans">${a.correct ? a.right : `Richtig: ${a.right}`}</div>
+      </div>`;
+    list.appendChild(div);
+  });
+}
+
+function restart() { startQuiz(); }
+</script>
+</body>
+</html>
