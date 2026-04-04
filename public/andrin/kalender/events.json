@@ -13,14 +13,14 @@
   },
   {
     "start": {
-      "date": "2026-04-04"
+      "date": "2026-04-13"
     },
     "end": {
-      "date": "2026-04-20"
+      "date": "2026-04-18"
     },
-    "id": "4rv88c13mvokbphdflq3936arj@google.com",
+    "id": "2hnld0a55fvdoi8f4tlgljml0q@google.com",
     "status": "confirmed",
-    "summary": "Osterferien"
+    "summary": "Basket Frühlingscamp"
   },
   {
     "start": {
@@ -36,17 +36,6 @@
   },
   {
     "start": {
-      "date": "2026-04-13"
-    },
-    "end": {
-      "date": "2026-04-18"
-    },
-    "id": "2hnld0a55fvdoi8f4tlgljml0q@google.com",
-    "status": "confirmed",
-    "summary": "Basket Frühlingscamp"
-  },
-  {
-    "start": {
       "date": "2026-05-31"
     },
     "end": {
@@ -55,5 +44,16 @@
     "id": "5tot1i014m77tohuu5ae0v44nh@google.com",
     "status": "confirmed",
     "summary": "evtl. U12 Abschlussturnier"
+  },
+  {
+    "start": {
+      "date": "2026-04-04"
+    },
+    "end": {
+      "date": "2026-04-20"
+    },
+    "id": "4rv88c13mvokbphdflq3936arj@google.com",
+    "status": "confirmed",
+    "summary": "Osterferien"
   }
 ]
