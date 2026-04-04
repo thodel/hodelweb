@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <title>1×1 üben</title>
+  <title>Rechnen üben</title>
   <style>
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
@@ -23,7 +23,24 @@
     .header h1 { margin: 0; font-size: 26px; font-weight: 900; letter-spacing: -0.5px; }
     .header p  { margin: 5px 0 0; font-size: 14px; opacity: 0.8; }
 
-    .container { max-width: 500px; margin: 0 auto; padding: 20px 16px 40px; }
+    /* ── Mode toggle ── */
+    .mode-bar {
+      display: flex; justify-content: center; gap: 10px;
+      padding: 14px 16px 0;
+    }
+    .mode-btn {
+      flex: 1; max-width: 180px;
+      padding: 12px 0; font-size: 20px; font-weight: 900;
+      border: 3px solid #334155; background: #1e293b;
+      border-radius: 14px; color: #94a3b8; cursor: pointer;
+      transition: all 0.18s;
+    }
+    .mode-btn.active {
+      background: linear-gradient(135deg, #2563eb, #7c3aed);
+      border-color: #7c3aed; color: white;
+    }
+
+    .container { max-width: 500px; margin: 0 auto; padding: 16px 16px 40px; }
 
     /* ── Filter pills ── */
     .filter-scroll {
@@ -176,9 +193,15 @@
 <body>
 
 <div class="header">
-  <h1>🔢 Einmaleins üben</h1>
-  <p>Tippe das richtige Ergebnis!</p>
+  <h1 id="page-title">🔢 Rechnen üben</h1>
+  <p id="page-sub">Tippe das richtige Ergebnis!</p>
   <p style="margin-top:8px"><a href="https://www.hodelweb.ch/extercises/" style="color:#93c5fd;font-size:13px;text-decoration:underline">← Kommaregeln üben</a></p>
+</div>
+
+<!-- Mode toggle -->
+<div class="mode-bar">
+  <button class="mode-btn active" id="btn-mult" onclick="setMode('mult',this)">✖️ Malrechnen</button>
+  <button class="mode-btn"        id="btn-div"  onclick="setMode('div',this)">➗ Dividieren</button>
 </div>
 
 <div class="container">
@@ -214,7 +237,7 @@
     <div class="question-wrap">
       <div class="question" id="question">
         <span id="q-a"></span>
-        <span class="op"> × </span>
+        <span class="op" id="q-op"> × </span>
         <span id="q-b"></span>
         <span class="op"> = </span>
         <span class="ans-field" id="ans-display">?</span>
@@ -263,33 +286,62 @@
 
 <script>
 // ═══════════════════════════════════════════════════
-//  Generate all problems
+//  Problem generators
 // ═══════════════════════════════════════════════════
-const EXCLUDED = new Set(['77x4','4x77']); // explicitly excluded
+const EXCLUDED_MULT = new Set(['77x4','4x77']);
 
-function makeProblems() {
+function makeMultProblems() {
   const problems = [];
-  // 1×1 to 12×12
   for (let a = 1; a <= 12; a++) {
     for (let b = 1; b <= 12; b++) {
-      const key = `${a}x${b}`;
-      if (!EXCLUDED.has(key)) {
-        problems.push({ a, b, result: a * b });
+      if (!EXCLUDED_MULT.has(`${a}x${b}`)) {
+        problems.push({ a, b, result: a * b, op: '×' });
       }
     }
   }
-  // Special: 70×5
-  problems.push({ a: 70, b: 5, result: 350 });
+  problems.push({ a: 70, b: 5, result: 350, op: '×' });
   return problems;
 }
 
-const ALL_PROBLEMS = makeProblems();
+function makeDivProblems() {
+  // dividend ÷ divisor = quotient
+  // Derived from all a×b combinations (1–12)
+  const seen = new Set();
+  const problems = [];
+  for (let a = 1; a <= 12; a++) {
+    for (let b = 1; b <= 12; b++) {
+      const dividend = a * b;
+      // dividend ÷ b = a
+      const key1 = `${dividend}/${b}`;
+      if (!seen.has(key1)) {
+        seen.add(key1);
+        problems.push({ a: dividend, b, result: a, op: '÷', divisor: b });
+      }
+      // dividend ÷ a = b
+      const key2 = `${dividend}/${a}`;
+      if (!seen.has(key2)) {
+        seen.add(key2);
+        problems.push({ a: dividend, b: a, result: b, op: '÷', divisor: a });
+      }
+    }
+  }
+  // 350 ÷ 70 = 5
+  problems.push({ a: 350, b: 70, result: 5, op: '÷', divisor: 70 });
+  return problems;
+}
 
-// Group problems by multiplicand (for filter)
-function problemsFor(filter) {
-  if (filter === 'all') return [...ALL_PROBLEMS];
-  if (filter === 70) return ALL_PROBLEMS.filter(p => p.a === 70 || p.b === 70);
-  return ALL_PROBLEMS.filter(p => p.a === filter || p.b === filter);
+const ALL_MULT = makeMultProblems();
+const ALL_DIV  = makeDivProblems();
+
+function problemsFor(filter, mode) {
+  const pool = mode === 'div' ? ALL_DIV : ALL_MULT;
+  if (filter === 'all') return [...pool];
+  if (mode === 'div') {
+    return pool.filter(p => p.divisor === filter);
+  } else {
+    if (filter === 70) return pool.filter(p => p.a === 70 || p.b === 70);
+    return pool.filter(p => p.a === filter || p.b === filter);
+  }
 }
 
 // ═══════════════════════════════════════════════════
@@ -305,6 +357,19 @@ const CELEB_GIFS = [
   { player: 'Michael Jordan',           id: 'l0MYt5jPR6QX5pnqM'  },
   { player: 'Lamine Yamal',             id: 'gcIrqAurIFpVA1LF5Y' },
   { player: 'Lamine Yamal',             id: 'xAZstBOH0AZCXNBhEh' },
+  // New: Goal GIFs
+  { player: 'Lionel Messi ⚽',          id: 'KZgRn1pphoq9fdDRfB' },
+  { player: 'Lionel Messi ⚽',          id: 'h2NxCschQ81ltiL9HV' },
+  { player: 'Lionel Messi ⚽',          id: 'hqE8DBATFyIBAc1IVo' },
+  { player: 'Cristiano Ronaldo ⚽',     id: 'hryis7A55UXZNCUTNA' },
+  { player: 'Cristiano Ronaldo ⚽',     id: 'avaW8GP2Yu6ay4rRLQ' },
+  { player: 'Cristiano Ronaldo ⚽',     id: '0FZ3sTzHiigUBTkLvj' },
+  { player: 'Luis Díaz ⚽',             id: 'dDIkE5R20SFGNycBus' },
+  { player: 'Luis Díaz ⚽',             id: '8d88SW6wTpSJqZjttZ' },
+  { player: 'Luis Díaz ⚽',             id: '8rK8yhQet4ASrLJJdG' },
+  { player: 'Michael Olise ⚽',         id: '2ISSe4gkRlGWhcajCo' },
+  { player: 'Michael Olise ⚽',         id: 'IYpXQMAA2dI3WNZJfQ' },
+  { player: 'Michael Olise ⚽',         id: 'KIMq26m7qaBIyHZSzM' },
 ];
 let lastGifIdx = -1;
 
@@ -332,14 +397,32 @@ function dismissGif() {
 // ═══════════════════════════════════════════════════
 //  State
 // ═══════════════════════════════════════════════════
-let currentFilter   = 'all';
-let filteredList    = [];
-let currentIdx      = 0;
+let currentMode    = 'mult';
+let currentFilter  = 'all';
+let filteredList   = [];
+let currentIdx     = 0;
 let userInput      = '';
 let checked        = false;
 let scoreCorrect   = 0;
 let scoreTotal     = 0;
-let consecutiveCorrect = 0; // Track consecutive correct answers for GIF trigger
+let consecutiveCorrect = 0;
+
+// ═══════════════════════════════════════════════════
+//  Mode
+// ═══════════════════════════════════════════════════
+function setMode(mode, el) {
+  currentMode = mode;
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  if (mode === 'div') {
+    document.getElementById('page-title').textContent = '➗ Dividieren üben';
+    document.getElementById('page-sub').textContent = 'Was ist das Ergebnis der Division?';
+  } else {
+    document.getElementById('page-title').textContent = '🔢 Einmaleins üben';
+    document.getElementById('page-sub').textContent = 'Tippe das richtige Ergebnis!';
+  }
+  startSession();
+}
 
 // ═══════════════════════════════════════════════════
 //  Filter
@@ -361,7 +444,8 @@ function shuffle(arr) {
 }
 
 function startSession() {
-  filteredList = shuffle(problemsFor(currentFilter));
+  const pool = problemsFor(currentFilter, currentMode);
+  filteredList = shuffle(pool).slice(0, 20); // cap at 20 per session
   currentIdx   = 0;
   scoreCorrect = 0;
   scoreTotal   = 0;
@@ -382,8 +466,9 @@ function showProblem() {
   userInput = '';
   checked   = false;
 
-  document.getElementById('q-a').textContent = p.a;
-  document.getElementById('q-b').textContent = p.b;
+  document.getElementById('q-a').textContent  = p.a;
+  document.getElementById('q-op').textContent = ` ${p.op} `;
+  document.getElementById('q-b').textContent  = p.b;
 
   const disp = document.getElementById('ans-display');
   disp.textContent = '?';
@@ -408,7 +493,7 @@ function showProblem() {
 // ═══════════════════════════════════════════════════
 function pad(digit) {
   if (checked) return;
-  if (userInput.length >= 4) return; // max 4 digits (products go up to 144)
+  if (userInput.length >= 4) return;
   userInput += String(digit);
   document.getElementById('ans-display').textContent = userInput;
 }
@@ -428,7 +513,7 @@ function handleAction() {
 }
 
 function checkAnswer() {
-  if (!userInput) return; // nothing entered
+  if (!userInput) return;
   const p = filteredList[currentIdx];
   const guess = parseInt(userInput, 10);
   checked = true;
@@ -446,18 +531,23 @@ function checkAnswer() {
     consecutiveCorrect++;
     disp.className = 'ans-field correct';
     fb.className   = 'feedback correct-fb show';
-    fb.textContent = `✅ Richtig! ${p.a} × ${p.b} = ${p.result}`;
-    // Trigger GIF after 10 consecutive correct answers
+    const opText = p.op === '÷'
+      ? `${p.a} ÷ ${p.b} = ${p.result}`
+      : `${p.a} × ${p.b} = ${p.result}`;
+    fb.textContent = `✅ Richtig! ${opText}`;
     if (consecutiveCorrect >= 10) {
       setTimeout(() => showCelebration(10), 600);
-      consecutiveCorrect = 0; // Reset after triggering
+      consecutiveCorrect = 0;
     }
   } else {
-    consecutiveCorrect = 0; // Reset on wrong answer
+    consecutiveCorrect = 0;
     disp.className = 'ans-field wrong';
     fb.className   = 'feedback wrong-fb show';
-    fb.textContent = `❌ Falsch. ${p.a} × ${p.b} = ${p.result}`;
-    disp.textContent = p.result; // show correct answer
+    const opText = p.op === '÷'
+      ? `${p.a} ÷ ${p.b} = ${p.result}`
+      : `${p.a} × ${p.b} = ${p.result}`;
+    fb.textContent = `❌ Falsch. ${opText}`;
+    disp.textContent = p.result;
   }
 
   updateScore();
@@ -516,7 +606,7 @@ function updateProgress() {
 }
 
 // ═══════════════════════════════════════════════════
-//  Keyboard support (for non-iPad testing)
+//  Keyboard support
 // ═══════════════════════════════════════════════════
 document.addEventListener('keydown', e => {
   if (e.key >= '0' && e.key <= '9') pad(parseInt(e.key));
