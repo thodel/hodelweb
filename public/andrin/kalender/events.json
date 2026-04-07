@@ -1,17 +1,6 @@
 [
   {
     "start": {
-      "date": "2026-04-13"
-    },
-    "end": {
-      "date": "2026-04-18"
-    },
-    "id": "2hnld0a55fvdoi8f4tlgljml0q@google.com",
-    "status": "confirmed",
-    "summary": "Basket Frühlingscamp"
-  },
-  {
-    "start": {
       "dateTime": "2026-04-02T05:15:00+00:00"
     },
     "end": {
@@ -36,14 +25,25 @@
   },
   {
     "start": {
-      "date": "2026-07-06"
+      "date": "2026-04-04"
     },
     "end": {
-      "date": "2026-08-10"
+      "date": "2026-04-20"
     },
-    "id": "1hri16p81o9quhmfsmnttb5tps@google.com",
+    "id": "4rv88c13mvokbphdflq3936arj@google.com",
     "status": "confirmed",
-    "summary": "Sommerferien"
+    "summary": "Osterferien"
+  },
+  {
+    "start": {
+      "date": "2026-04-13"
+    },
+    "end": {
+      "date": "2026-04-18"
+    },
+    "id": "2hnld0a55fvdoi8f4tlgljml0q@google.com",
+    "status": "confirmed",
+    "summary": "Basket Frühlingscamp"
   },
   {
     "start": {
@@ -58,13 +58,13 @@
   },
   {
     "start": {
-      "date": "2026-04-04"
+      "date": "2026-07-06"
     },
     "end": {
-      "date": "2026-04-20"
+      "date": "2026-08-10"
     },
-    "id": "4rv88c13mvokbphdflq3936arj@google.com",
+    "id": "1hri16p81o9quhmfsmnttb5tps@google.com",
     "status": "confirmed",
-    "summary": "Osterferien"
+    "summary": "Sommerferien"
   }
 ]
