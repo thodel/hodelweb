@@ -1,26 +1,25 @@
 [
   {
     "start": {
-      "date": "2026-04-13"
+      "date": "2026-04-04"
     },
     "end": {
-      "date": "2026-04-18"
+      "date": "2026-04-20"
     },
-    "id": "2hnld0a55fvdoi8f4tlgljml0q@google.com",
+    "id": "4rv88c13mvokbphdflq3936arj@google.com",
     "status": "confirmed",
-    "summary": "Basket Frühlingscamp"
+    "summary": "Osterferien"
   },
   {
     "start": {
-      "dateTime": "2026-05-27T10:15:00+00:00"
+      "date": "2026-07-06"
     },
     "end": {
-      "dateTime": "2026-05-27T12:30:00+00:00"
+      "date": "2026-08-10"
     },
-    "id": "2qmgpcv9jjo4lkojt1v35lbk21@google.com",
-    "location": "Jugendraum ref. Kirche Rohr",
+    "id": "1hri16p81o9quhmfsmnttb5tps@google.com",
     "status": "confirmed",
-    "summary": "Religionsunterricht (Mittagessen mitnehmen)"
+    "summary": "Sommerferien"
   },
   {
     "start": {
@@ -36,17 +35,6 @@
   },
   {
     "start": {
-      "date": "2026-04-04"
-    },
-    "end": {
-      "date": "2026-04-20"
-    },
-    "id": "4rv88c13mvokbphdflq3936arj@google.com",
-    "status": "confirmed",
-    "summary": "Osterferien"
-  },
-  {
-    "start": {
       "date": "2026-05-31"
     },
     "end": {
@@ -58,13 +46,25 @@
   },
   {
     "start": {
-      "date": "2026-07-06"
+      "dateTime": "2026-05-27T10:15:00+00:00"
     },
     "end": {
-      "date": "2026-08-10"
+      "dateTime": "2026-05-27T12:30:00+00:00"
     },
-    "id": "1hri16p81o9quhmfsmnttb5tps@google.com",
+    "id": "2qmgpcv9jjo4lkojt1v35lbk21@google.com",
+    "location": "Jugendraum ref. Kirche Rohr",
     "status": "confirmed",
-    "summary": "Sommerferien"
+    "summary": "Religionsunterricht (Mittagessen mitnehmen)"
+  },
+  {
+    "start": {
+      "date": "2026-04-13"
+    },
+    "end": {
+      "date": "2026-04-18"
+    },
+    "id": "2hnld0a55fvdoi8f4tlgljml0q@google.com",
+    "status": "confirmed",
+    "summary": "Basket Frühlingscamp"
   }
 ]
