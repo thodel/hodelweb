@@ -13,28 +13,6 @@
   },
   {
     "start": {
-      "date": "2026-07-06"
-    },
-    "end": {
-      "date": "2026-08-10"
-    },
-    "id": "1hri16p81o9quhmfsmnttb5tps@google.com",
-    "status": "confirmed",
-    "summary": "Sommerferien"
-  },
-  {
-    "start": {
-      "date": "2026-04-04"
-    },
-    "end": {
-      "date": "2026-04-20"
-    },
-    "id": "4rv88c13mvokbphdflq3936arj@google.com",
-    "status": "confirmed",
-    "summary": "Osterferien"
-  },
-  {
-    "start": {
       "date": "2026-04-13"
     },
     "end": {
@@ -66,5 +44,27 @@
     "location": "Jugendraum ref. Kirche Rohr",
     "status": "confirmed",
     "summary": "Religionsunterricht (Mittagessen mitnehmen)"
+  },
+  {
+    "start": {
+      "date": "2026-07-06"
+    },
+    "end": {
+      "date": "2026-08-10"
+    },
+    "id": "1hri16p81o9quhmfsmnttb5tps@google.com",
+    "status": "confirmed",
+    "summary": "Sommerferien"
+  },
+  {
+    "start": {
+      "date": "2026-04-04"
+    },
+    "end": {
+      "date": "2026-04-20"
+    },
+    "id": "4rv88c13mvokbphdflq3936arj@google.com",
+    "status": "confirmed",
+    "summary": "Osterferien"
   }
 ]
