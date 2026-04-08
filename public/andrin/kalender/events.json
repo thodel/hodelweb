@@ -1,6 +1,28 @@
 [
   {
     "start": {
+      "date": "2026-05-31"
+    },
+    "end": {
+      "date": "2026-06-01"
+    },
+    "id": "5tot1i014m77tohuu5ae0v44nh@google.com",
+    "status": "confirmed",
+    "summary": "evtl. U12 Abschlussturnier"
+  },
+  {
+    "start": {
+      "date": "2026-04-13"
+    },
+    "end": {
+      "date": "2026-04-18"
+    },
+    "id": "2hnld0a55fvdoi8f4tlgljml0q@google.com",
+    "status": "confirmed",
+    "summary": "Basket Frühlingscamp"
+  },
+  {
+    "start": {
       "dateTime": "2026-04-02T05:15:00+00:00"
     },
     "end": {
@@ -10,6 +32,18 @@
     "description": "In der kommenden Themenwoche werden die Kinder mit mir die Stadt Aarau entdecken.\n\n-    Montagvormittags die Gruppe Violett\n-    Dienstagvormittags die Gruppe Blau\n-    Mittwochvormittags die Gruppe Gelb\n-    Donnerstagvormittags die Gruppe Grün\n\nEntgegen den Angaben auf dem Plan, den Sie bereits bekommen haben, ist also am Donnerstagvormittag die Gruppe Grün bei mir und nicht zweimal die Gruppe Gelb. Dem Anhang können Sie den korrigierten Stundenplan entnehmen.\n\nAnreise in die Stadt:\nWetterbedingt haben wir uns dafür entschieden, dass wir am Montag und am Dienstag mit dem Bus in die Stadt fahren werden. \nWenn es das Wetter zulässt, dann würden wir am Mittwoch und am Donnerstag jeweils mit dem Fahrrad in die Stadt fahren. Ich werde sie am Dienstagnachmittag weiter darüber informieren. \nEgal wie wir in die Stadt fahre, am Stundenplan ändert sich nichts.\n\nMitnehmen:\n-    Wenn wir mit dem Fahrrad in die Stadt fahren, muss Ihr Kind selbstverständlich mit einem fahrtüchtigen Fahrrad und einem Helm in die Schule kommen.\n-    Zudem darf Ihr Kind das Handy mitnehmen.\n-    Kleines Znüni und etwas zu trinken für die Stärkung zwischendurch.\n\nHerzliche Grüsse und ein schönes Wochenende\nD. Bergomi",
     "status": "confirmed",
     "summary": "Exkursion in die Stadt"
+  },
+  {
+    "start": {
+      "dateTime": "2026-05-27T10:15:00+00:00"
+    },
+    "end": {
+      "dateTime": "2026-05-27T12:30:00+00:00"
+    },
+    "id": "2qmgpcv9jjo4lkojt1v35lbk21@google.com",
+    "location": "Jugendraum ref. Kirche Rohr",
+    "status": "confirmed",
+    "summary": "Religionsunterricht (Mittagessen mitnehmen)"
   },
   {
     "start": {
@@ -32,39 +66,5 @@
     "id": "1hri16p81o9quhmfsmnttb5tps@google.com",
     "status": "confirmed",
     "summary": "Sommerferien"
-  },
-  {
-    "start": {
-      "dateTime": "2026-05-27T10:15:00+00:00"
-    },
-    "end": {
-      "dateTime": "2026-05-27T12:30:00+00:00"
-    },
-    "id": "2qmgpcv9jjo4lkojt1v35lbk21@google.com",
-    "location": "Jugendraum ref. Kirche Rohr",
-    "status": "confirmed",
-    "summary": "Religionsunterricht (Mittagessen mitnehmen)"
-  },
-  {
-    "start": {
-      "date": "2026-05-31"
-    },
-    "end": {
-      "date": "2026-06-01"
-    },
-    "id": "5tot1i014m77tohuu5ae0v44nh@google.com",
-    "status": "confirmed",
-    "summary": "evtl. U12 Abschlussturnier"
-  },
-  {
-    "start": {
-      "date": "2026-04-13"
-    },
-    "end": {
-      "date": "2026-04-18"
-    },
-    "id": "2hnld0a55fvdoi8f4tlgljml0q@google.com",
-    "status": "confirmed",
-    "summary": "Basket Frühlingscamp"
   }
 ]
