@@ -13,17 +13,6 @@
   },
   {
     "start": {
-      "date": "2026-04-04"
-    },
-    "end": {
-      "date": "2026-04-20"
-    },
-    "id": "4rv88c13mvokbphdflq3936arj@google.com",
-    "status": "confirmed",
-    "summary": "Osterferien"
-  },
-  {
-    "start": {
       "date": "2026-05-31"
     },
     "end": {
@@ -43,6 +32,17 @@
     "id": "2hnld0a55fvdoi8f4tlgljml0q@google.com",
     "status": "confirmed",
     "summary": "Basket Frühlingscamp"
+  },
+  {
+    "start": {
+      "date": "2026-04-04"
+    },
+    "end": {
+      "date": "2026-04-20"
+    },
+    "id": "4rv88c13mvokbphdflq3936arj@google.com",
+    "status": "confirmed",
+    "summary": "Osterferien"
   },
   {
     "start": {
