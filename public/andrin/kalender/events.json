@@ -24,17 +24,6 @@
   },
   {
     "start": {
-      "date": "2026-05-31"
-    },
-    "end": {
-      "date": "2026-06-01"
-    },
-    "id": "5tot1i014m77tohuu5ae0v44nh@google.com",
-    "status": "confirmed",
-    "summary": "evtl. U12 Abschlussturnier"
-  },
-  {
-    "start": {
       "date": "2026-07-06"
     },
     "end": {
@@ -54,5 +43,16 @@
     "id": "4rv88c13mvokbphdflq3936arj@google.com",
     "status": "confirmed",
     "summary": "Osterferien"
+  },
+  {
+    "start": {
+      "date": "2026-05-31"
+    },
+    "end": {
+      "date": "2026-06-01"
+    },
+    "id": "5tot1i014m77tohuu5ae0v44nh@google.com",
+    "status": "confirmed",
+    "summary": "evtl. U12 Abschlussturnier"
   }
 ]
