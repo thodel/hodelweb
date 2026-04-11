@@ -1,6 +1,17 @@
 [
   {
     "start": {
+      "date": "2026-05-31"
+    },
+    "end": {
+      "date": "2026-06-01"
+    },
+    "id": "5tot1i014m77tohuu5ae0v44nh@google.com",
+    "status": "confirmed",
+    "summary": "evtl. U12 Abschlussturnier"
+  },
+  {
+    "start": {
       "dateTime": "2026-05-27T10:15:00+00:00"
     },
     "end": {
@@ -10,17 +21,6 @@
     "location": "Jugendraum ref. Kirche Rohr",
     "status": "confirmed",
     "summary": "Religionsunterricht (Mittagessen mitnehmen)"
-  },
-  {
-    "start": {
-      "date": "2026-04-13"
-    },
-    "end": {
-      "date": "2026-04-18"
-    },
-    "id": "2hnld0a55fvdoi8f4tlgljml0q@google.com",
-    "status": "confirmed",
-    "summary": "Basket Frühlingscamp"
   },
   {
     "start": {
@@ -35,13 +35,13 @@
   },
   {
     "start": {
-      "date": "2026-05-31"
+      "date": "2026-04-13"
     },
     "end": {
-      "date": "2026-06-01"
+      "date": "2026-04-18"
     },
-    "id": "5tot1i014m77tohuu5ae0v44nh@google.com",
+    "id": "2hnld0a55fvdoi8f4tlgljml0q@google.com",
     "status": "confirmed",
-    "summary": "evtl. U12 Abschlussturnier"
+    "summary": "Basket Frühlingscamp"
   }
 ]
