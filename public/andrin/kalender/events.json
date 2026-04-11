@@ -12,6 +12,17 @@
   },
   {
     "start": {
+      "date": "2026-05-31"
+    },
+    "end": {
+      "date": "2026-06-01"
+    },
+    "id": "5tot1i014m77tohuu5ae0v44nh@google.com",
+    "status": "confirmed",
+    "summary": "evtl. U12 Abschlussturnier"
+  },
+  {
+    "start": {
       "date": "2026-07-06"
     },
     "end": {
@@ -32,16 +43,5 @@
     "location": "Jugendraum ref. Kirche Rohr",
     "status": "confirmed",
     "summary": "Religionsunterricht (Mittagessen mitnehmen)"
-  },
-  {
-    "start": {
-      "date": "2026-05-31"
-    },
-    "end": {
-      "date": "2026-06-01"
-    },
-    "id": "5tot1i014m77tohuu5ae0v44nh@google.com",
-    "status": "confirmed",
-    "summary": "evtl. U12 Abschlussturnier"
   }
 ]
