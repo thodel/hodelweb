@@ -12,6 +12,18 @@
   },
   {
     "start": {
+      "dateTime": "2026-05-27T10:15:00+00:00"
+    },
+    "end": {
+      "dateTime": "2026-05-27T12:30:00+00:00"
+    },
+    "id": "2qmgpcv9jjo4lkojt1v35lbk21@google.com",
+    "location": "Jugendraum ref. Kirche Rohr",
+    "status": "confirmed",
+    "summary": "Religionsunterricht (Mittagessen mitnehmen)"
+  },
+  {
+    "start": {
       "date": "2026-07-06"
     },
     "end": {
@@ -31,17 +43,5 @@
     "id": "2hnld0a55fvdoi8f4tlgljml0q@google.com",
     "status": "confirmed",
     "summary": "Basket Frühlingscamp"
-  },
-  {
-    "start": {
-      "dateTime": "2026-05-27T10:15:00+00:00"
-    },
-    "end": {
-      "dateTime": "2026-05-27T12:30:00+00:00"
-    },
-    "id": "2qmgpcv9jjo4lkojt1v35lbk21@google.com",
-    "location": "Jugendraum ref. Kirche Rohr",
-    "status": "confirmed",
-    "summary": "Religionsunterricht (Mittagessen mitnehmen)"
   }
 ]
