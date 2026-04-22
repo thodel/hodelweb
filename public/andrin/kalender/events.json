@@ -1,14 +1,14 @@
 [
   {
     "start": {
-      "dateTime": "2026-04-30T15:00:00+00:00"
+      "date": "2026-05-31"
     },
     "end": {
-      "dateTime": "2026-04-30T15:30:00+00:00"
+      "date": "2026-06-01"
     },
-    "id": "0s87cv4qstbacbit5h7r29vdna@google.com",
+    "id": "5tot1i014m77tohuu5ae0v44nh@google.com",
     "status": "confirmed",
-    "summary": "Gespräch mit Fr. Koller"
+    "summary": "evtl. U12 Abschlussturnier"
   },
   {
     "start": {
@@ -23,14 +23,14 @@
   },
   {
     "start": {
-      "date": "2026-05-31"
+      "dateTime": "2026-04-30T15:00:00+00:00"
     },
     "end": {
-      "date": "2026-06-01"
+      "dateTime": "2026-04-30T15:30:00+00:00"
     },
-    "id": "5tot1i014m77tohuu5ae0v44nh@google.com",
+    "id": "0s87cv4qstbacbit5h7r29vdna@google.com",
     "status": "confirmed",
-    "summary": "evtl. U12 Abschlussturnier"
+    "summary": "Gespräch mit Fr. Koller"
   },
   {
     "start": {
