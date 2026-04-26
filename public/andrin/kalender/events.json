@@ -12,17 +12,6 @@
   },
   {
     "start": {
-      "dateTime": "2026-04-30T15:00:00+00:00"
-    },
-    "end": {
-      "dateTime": "2026-04-30T15:30:00+00:00"
-    },
-    "id": "0s87cv4qstbacbit5h7r29vdna@google.com",
-    "status": "confirmed",
-    "summary": "Gespräch mit Fr. Koller"
-  },
-  {
-    "start": {
       "dateTime": "2026-05-27T10:15:00+00:00"
     },
     "end": {
@@ -43,5 +32,16 @@
     "id": "1hri16p81o9quhmfsmnttb5tps@google.com",
     "status": "confirmed",
     "summary": "Sommerferien"
+  },
+  {
+    "start": {
+      "dateTime": "2026-04-30T15:00:00+00:00"
+    },
+    "end": {
+      "dateTime": "2026-04-30T15:30:00+00:00"
+    },
+    "id": "0s87cv4qstbacbit5h7r29vdna@google.com",
+    "status": "confirmed",
+    "summary": "Gespräch mit Fr. Koller"
   }
 ]
