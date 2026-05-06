@@ -12,6 +12,17 @@
   },
   {
     "start": {
+      "dateTime": "2026-06-14T05:30:00+00:00"
+    },
+    "end": {
+      "dateTime": "2026-06-14T06:30:00+00:00"
+    },
+    "id": "7s1kbuu8s1t0vuqvohu6th7087@google.com",
+    "status": "confirmed",
+    "summary": "Treffpunkt Coop/Bhf. Aarau"
+  },
+  {
+    "start": {
       "dateTime": "2026-05-27T10:15:00+00:00"
     },
     "end": {
@@ -24,28 +35,6 @@
   },
   {
     "start": {
-      "date": "2026-05-31"
-    },
-    "end": {
-      "date": "2026-06-01"
-    },
-    "id": "5tot1i014m77tohuu5ae0v44nh@google.com",
-    "status": "confirmed",
-    "summary": "evtl. U12 Abschlussturnier"
-  },
-  {
-    "start": {
-      "dateTime": "2026-06-14T05:30:00+00:00"
-    },
-    "end": {
-      "dateTime": "2026-06-14T06:30:00+00:00"
-    },
-    "id": "7s1kbuu8s1t0vuqvohu6th7087@google.com",
-    "status": "confirmed",
-    "summary": "Treffpunkt Coop/Bhf. Aarau"
-  },
-  {
-    "start": {
       "dateTime": "2026-04-30T15:00:00+00:00"
     },
     "end": {
@@ -54,5 +43,16 @@
     "id": "0s87cv4qstbacbit5h7r29vdna@google.com",
     "status": "confirmed",
     "summary": "Gespräch mit Fr. Koller"
+  },
+  {
+    "start": {
+      "date": "2026-05-31"
+    },
+    "end": {
+      "date": "2026-06-01"
+    },
+    "id": "5tot1i014m77tohuu5ae0v44nh@google.com",
+    "status": "confirmed",
+    "summary": "evtl. U12 Abschlussturnier"
   }
 ]
