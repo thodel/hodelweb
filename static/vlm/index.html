@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VLM Text Recognition — Tobias Hodel</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, sans-serif;
+      margin: 0; padding: 0; background: #f0f4f8; color: #1a2a3a;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #1a3a6b 0%, #2d5aa0 100%);
+      color: white; padding: 24px 20px 20px; text-align: center;
+    }
+    .header h1 { margin: 0; font-size: 1.7rem; font-weight: 800; }
+    .header p  { margin: 6px 0 0; font-size: 0.95rem; opacity: 0.82; }
+
+    .container { max-width: 860px; margin: 0 auto; padding: 32px 20px; }
+
+    .card {
+      background: white; border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      padding: 28px; margin-bottom: 24px;
+    }
+    .card h2 { margin: 0 0 14px; color: #1a3a6b; font-size: 1.05rem; font-weight: 700; }
+
+    .models { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+    @media (max-width: 600px) { .models { grid-template-columns: 1fr; } }
+    .model-chip {
+      border-radius: 10px; padding: 16px;
+      border: 1.5px solid #e0e8f0;
+    }
+    .model-chip .dot { font-size: 1.3rem; margin-bottom: 6px; }
+    .model-chip strong { display: block; font-size: 0.95rem; color: #1a3a6b; }
+    .model-chip span { font-size: 0.82rem; color: #556; }
+
+    ol { padding-left: 22px; margin: 0; }
+    ol li { margin-bottom: 10px; line-height: 1.6; }
+
+    pre {
+      background: #f0f4f8; border-radius: 8px;
+      padding: 14px 16px; overflow-x: auto;
+      font-size: 0.875rem; line-height: 1.55; margin: 12px 0 0;
+    }
+    code {
+      background: #f0f4f8; padding: 2px 6px;
+      border-radius: 4px; font-size: 0.875rem;
+    }
+    pre code { background: none; padding: 0; }
+
+    footer { text-align: center; padding: 24px; color: #778; font-size: 0.85rem; }
+    footer a { color: #2d5aa0; text-decoration: none; }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <h1>VLM Text Recognition</h1>
+  <p>Parallel transcription of historical document scans across three vision-language models</p>
+</div>
+
+<div class="container">
+
+  <div class="card">
+    <h2>Models</h2>
+    <div class="models">
+      <div class="model-chip">
+        <div class="dot">🔵</div>
+        <strong>Gemini 2.5 Pro</strong>
+        <span>Google AI</span>
+      </div>
+      <div class="model-chip">
+        <div class="dot">🟠</div>
+        <strong>Qwen-VL-Max</strong>
+        <span>Alibaba DashScope</span>
+      </div>
+      <div class="model-chip">
+        <div class="dot">🟣</div>
+        <strong>Pixtral Large</strong>
+        <span>Mistral</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Setup</h2>
+    <ol>
+      <li>Install dependencies:
+        <pre><code>pip install -r requirements.txt</code></pre>
+      </li>
+      <li>Copy <code>.env.example</code> to <code>.env</code> and add your three API keys:
+        <pre><code>GEMINI_API_KEY="..."
+QWEN_API_KEY="..."
+MISTRAL_API_KEY="..."</code></pre>
+      </li>
+      <li>Run on an image — all three models are queried in parallel:
+        <pre><code>python src/vlm.py data/raw/geneve_1917_p1.jpg</code></pre>
+      </li>
+      <li>Custom prompt:
+        <pre><code>python src/vlm.py image.jpg --prompt "Extract all numbers from this form."</code></pre>
+      </li>
+    </ol>
+  </div>
+
+  <div class="card">
+    <h2>Output</h2>
+    <p style="margin:0 0 10px;font-size:0.92rem;color:#445;">Each model's transcription is printed to stdout, separated by headers:</p>
+    <pre><code>────────────────────────────────────────────────────────────
+  GEMINI
+────────────────────────────────────────────────────────────
+[transcribed text]
+
+────────────────────────────────────────────────────────────
+  QWEN
+────────────────────────────────────────────────────────────
+[transcribed text]
+
+────────────────────────────────────────────────────────────
+  MISTRAL
+────────────────────────────────────────────────────────────
+[transcribed text]</code></pre>
+  </div>
+
+</div>
+
+<footer>
+  <p>Part of the <a href="https://hodelweb.ch">Digital Humanities / PTT Postal Data</a> project —
+  <a href="https://github.com/thodel">github.com/thodel</a></p>
+</footer>
+
+</body>
+</html>
