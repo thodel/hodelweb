@@ -12,6 +12,17 @@
   },
   {
     "start": {
+      "dateTime": "2026-06-14T05:30:00+00:00"
+    },
+    "end": {
+      "dateTime": "2026-06-14T06:30:00+00:00"
+    },
+    "id": "7s1kbuu8s1t0vuqvohu6th7087@google.com",
+    "status": "confirmed",
+    "summary": "Treffpunkt Coop/Bhf. Aarau"
+  },
+  {
+    "start": {
       "dateTime": "2026-05-27T10:15:00+00:00"
     },
     "end": {
@@ -32,16 +43,5 @@
     "id": "5tot1i014m77tohuu5ae0v44nh@google.com",
     "status": "confirmed",
     "summary": "evtl. U12 Abschlussturnier"
-  },
-  {
-    "start": {
-      "dateTime": "2026-06-14T05:30:00+00:00"
-    },
-    "end": {
-      "dateTime": "2026-06-14T06:30:00+00:00"
-    },
-    "id": "7s1kbuu8s1t0vuqvohu6th7087@google.com",
-    "status": "confirmed",
-    "summary": "Treffpunkt Coop/Bhf. Aarau"
   }
 ]
