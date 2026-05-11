@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>🏀 NBA Resultate</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg:     #17408b;
+    --card:   rgba(255,255,255,0.08);
+    --border: rgba(255,255,255,0.12);
+    --accent: #c9082a;
+    --gold:   #f5a623;
+    --green:  #22c55e;
+  }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: linear-gradient(160deg, #17408b 0%, #1d1160 100%);
+    min-height: 100vh; color: white; padding: 0 0 48px;
+  }
+
+  /* Header */
+  .header {
+    background: rgba(0,0,0,0.3); padding: 18px 16px 14px;
+    text-align: center; border-bottom: 2px solid rgba(255,255,255,0.1);
+  }
+  .header h1 { font-size: 26px; font-weight: 900; letter-spacing: -0.5px; }
+  .header p  { font-size: 13px; opacity: 0.7; margin-top: 3px; }
+  .back-link {
+    display: block; color: rgba(255,255,255,0.6); text-decoration: none;
+    font-size: 13px; padding: 12px 14px 0; max-width: 760px; margin: 0 auto;
+  }
+  .container { max-width: 760px; margin: 0 auto; padding: 12px; }
+
+  /* Page tabs */
+  .page-tabs {
+    display: flex; gap: 0; margin-bottom: 14px;
+    background: rgba(0,0,0,0.25); border-radius: 12px; padding: 4px;
+  }
+  .ptab {
+    flex: 1; padding: 9px 8px; border-radius: 9px; border: none;
+    background: transparent; color: rgba(255,255,255,0.6);
+    font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.15s;
+  }
+  .ptab.active { background: white; color: #17408b; }
+
+  /* Date tabs */
+  .date-tabs {
+    display: flex; gap: 8px; padding: 0 0 12px;
+    overflow-x: auto; scrollbar-width: none;
+  }
+  .date-tabs::-webkit-scrollbar { display: none; }
+  .tab {
+    flex-shrink: 0; padding: 7px 16px;
+    border-radius: 20px; border: 2px solid rgba(255,255,255,0.2);
+    background: transparent; color: white; cursor: pointer;
+    font-size: 13px; font-weight: 700; transition: all 0.15s;
+  }
+  .tab.active { background: white; color: #17408b; border-color: white; }
+
+  /* Loading */
+  .loading { text-align: center; padding: 40px; opacity: 0.7; }
+  .spinner {
+    display: inline-block; width: 32px; height: 32px;
+    border: 3px solid rgba(255,255,255,0.3);
+    border-top-color: white; border-radius: 50%;
+    animation: spin 0.8s linear infinite; margin-bottom: 12px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Section title */
+  .section-title {
+    font-size: 11px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.1em; opacity: 0.55; margin: 16px 0 8px 2px;
+  }
+
+  /* Game card */
+  .game-card {
+    background: var(--card); border-radius: 16px;
+    padding: 14px 16px; margin-bottom: 10px;
+    border: 1px solid var(--border); transition: transform 0.1s;
+  }
+  .game-card:hover { transform: translateY(-1px); }
+  .game-meta {
+    font-size: 11px; opacity: 0.6; text-transform: uppercase;
+    letter-spacing: 0.05em; margin-bottom: 8px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .live-badge {
+    background: var(--accent); color: white;
+    border-radius: 6px; padding: 2px 7px;
+    font-size: 11px; font-weight: 800; animation: blink 1.5s infinite;
+  }
+  @keyframes blink { 50% { opacity: 0.6; } }
+  .game-teams { display: flex; align-items: center; gap: 8px; }
+  .team { flex: 1; text-align: center; }
+  .team-name  { font-size: clamp(13px,3.5vw,16px); font-weight: 800; line-height: 1.1; }
+  .team-city  { font-size: 11px; opacity: 0.55; margin-bottom: 6px; }
+  .team-score { font-size: clamp(28px,8vw,42px); font-weight: 900; line-height: 1; }
+  .team.winner .team-score { color: var(--gold); }
+  .team.winner .team-name  { color: var(--gold); }
+  .team.winner::after { content: '🏆'; display: block; font-size: 16px; margin-top: 2px; }
+  .vs-sep { font-size: 18px; font-weight: 900; opacity: 0.4; flex-shrink: 0; min-width: 28px; text-align: center; }
+  .no-games { text-align: center; padding: 32px; opacity: 0.6; font-size: 16px; }
+
+  /* Standings */
+  .standings-wrap { display: flex; flex-direction: column; gap: 14px; }
+  @media (min-width: 600px) {
+    .standings-wrap { flex-direction: row; }
+    .standings-card { flex: 1; }
+  }
+  .standings-card {
+    background: var(--card); border-radius: 16px; overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .standings-header {
+    background: rgba(0,0,0,0.3); padding: 10px 14px;
+    font-size: 13px; font-weight: 800; letter-spacing: 0.04em;
+    display: flex; justify-content: space-between;
+  }
+  .standings-header span { opacity: 0.5; font-weight: 400; font-size: 11px; }
+  .standings-row {
+    display: flex; align-items: center; padding: 8px 14px;
+    border-top: 1px solid rgba(255,255,255,0.06); font-size: 13px;
+    transition: background 0.1s;
+  }
+  .standings-row:hover { background: rgba(255,255,255,0.05); }
+  .standings-row.playoff { border-left: 3px solid var(--green); }
+  .standings-row.play-in { border-left: 3px solid var(--gold); }
+  .s-rank { width: 22px; font-weight: 700; opacity: 0.5; font-size: 12px; }
+  .s-rank.top { opacity: 1; color: var(--gold); }
+  .s-team { flex: 1; font-weight: 600; }
+  .s-record { font-size: 12px; opacity: 0.7; min-width: 42px; text-align: right; }
+  .s-pct    { font-size: 12px; opacity: 0.5; min-width: 38px; text-align: right; }
+  .s-gb     { font-size: 12px; opacity: 0.45; min-width: 30px; text-align: right; }
+  .legend { display: flex; gap: 14px; font-size: 11px; opacity: 0.6; margin-top: 8px; }
+  .legend span { display: flex; align-items: center; gap: 4px; }
+  .dot { width: 10px; height: 10px; border-radius: 2px; }
+  .dot.green { background: var(--green); }
+  .dot.gold  { background: var(--gold); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🏀 NBA</h1>
+  <p id="lastUpdate">Wird geladen...</p>
+</div>
+<a href="../" class="back-link">← Zurück</a>
+
+<div class="container">
+
+  <!-- Page tabs -->
+  <div class="page-tabs">
+    <button class="ptab active" onclick="showPage('scores',this)">📊 Resultate</button>
+    <button class="ptab" onclick="showPage('standings',this)">🏆 Rangliste</button>
+  </div>
+
+  <!-- Scores -->
+  <div id="scoresPage">
+    <div class="date-tabs" id="dateTabs"></div>
+    <div class="loading" id="loading"><div class="spinner"></div><br>Lade...</div>
+    <div id="scoresContent" style="display:none"></div>
+  </div>
+
+  <!-- Standings -->
+  <div id="standingsPage" style="display:none">
+    <div class="loading" id="loadingS"><div class="spinner"></div><br>Lade Rangliste...</div>
+    <div id="standingsContent" style="display:none"></div>
+  </div>
+
+</div>
+
+<script>
+const ESPN = 'https://site.api.espn.com/apis/site/v2/sports/basketball/nba';
+const ESPN2 = 'https://site.api.espn.com/apis/v2/sports/basketball/nba';
+
+let currentPage = 'scores';
+let activeIdx = 2;
+let standingsLoaded = false;
+
+// Dates
+const DATES = [];
+const LABELS = ['Vorgestern','Gestern','Heute','Morgen'];
+for (let i=-2; i<=1; i++) {
+  const d = new Date(); d.setDate(d.getDate()+i);
+  DATES.push({
+    iso: d.toISOString().slice(0,10).replace(/-/g,''),
+    label: LABELS[i+2],
+    offset: i
+  });
+}
+
+function toLocal(utcStr) {
+  return new Date(utcStr).toLocaleTimeString('de-CH',
+    {hour:'2-digit',minute:'2-digit',timeZone:'Europe/Zurich'});
+}
+
+// ── Page switching ───────────────────────────────────────────────────
+function showPage(page, btn) {
+  currentPage = page;
+  document.querySelectorAll('.ptab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('scoresPage').style.display    = page==='scores'    ? '' : 'none';
+  document.getElementById('standingsPage').style.display = page==='standings' ? '' : 'none';
+  if (page==='standings' && !standingsLoaded) loadStandings();
+}
+
+// ── Scores ───────────────────────────────────────────────────────────
+function renderTabs() {
+  const tabs = document.getElementById('dateTabs');
+  tabs.innerHTML = '';
+  DATES.forEach((d,i) => {
+    const btn = document.createElement('button');
+    btn.className = 'tab'+(i===activeIdx?' active':'');
+    btn.textContent = d.label;
+    btn.onclick = () => { activeIdx=i; renderTabs(); loadGames(); };
+    tabs.appendChild(btn);
+  });
+}
+
+async function loadGames() {
+  document.getElementById('loading').style.display='block';
+  document.getElementById('scoresContent').style.display='none';
+  try {
+    const r = await fetch(`${ESPN}/scoreboard?dates=${DATES[activeIdx].iso}`);
+    const d = await r.json();
+    renderGames(d.events||[]);
+    document.getElementById('lastUpdate').textContent =
+      'Stand: '+new Date().toLocaleTimeString('de-CH',{hour:'2-digit',minute:'2-digit'});
+  } catch(e) {
+    document.getElementById('scoresContent').innerHTML='<div class="no-games">⚠️ Fehler beim Laden</div>';
+    document.getElementById('scoresContent').style.display='block';
+    document.getElementById('loading').style.display='none';
+  }
+}
+
+function renderGames(events) {
+  const cont = document.getElementById('scoresContent');
+  cont.innerHTML='';
+  if (!events.length) {
+    cont.innerHTML='<div class="no-games">🏖️ Keine Spiele</div>';
+  } else {
+    const live     = events.filter(e=>e.status?.type?.state==='in');
+    const upcoming = events.filter(e=>e.status?.type?.state==='pre');
+    const finished = events.filter(e=>e.status?.type?.completed);
+    if (live.length)     { cont.innerHTML+=`<div class="section-title">🔴 Live (${live.length})</div>`; live.forEach(e=>cont.appendChild(buildCard(e,'live'))); }
+    if (upcoming.length) { cont.innerHTML+=`<div class="section-title">🕐 Heute noch (${upcoming.length})</div>`; upcoming.forEach(e=>cont.appendChild(buildCard(e,'upcoming'))); }
+    if (finished.length) { cont.innerHTML+=`<div class="section-title">✅ Abgeschlossen (${finished.length})</div>`; finished.forEach(e=>cont.appendChild(buildCard(e,'finished'))); }
+  }
+  document.getElementById('loading').style.display='none';
+  cont.style.display='block';
+}
+
+function buildCard(event, state) {
+  const card = document.createElement('div');
+  card.className='game-card';
+  const comp  = event.competitions?.[0]||{};
+  const teams = comp.competitors||[];
+  const home  = teams.find(t=>t.homeAway==='home')||teams[0]||{};
+  const away  = teams.find(t=>t.homeAway==='away')||teams[1]||{};
+  const hS = parseInt(home.score||0), aS = parseInt(away.score||0);
+  const hW = state==='finished' && hS>aS, aW = state==='finished' && aS>hS;
+  const statusTxt = state==='live'
+    ? `${event.status?.displayClock||''} · Q${event.status?.period||''}`
+    : state==='upcoming' ? toLocal(event.date) : 'Abgeschlossen';
+  card.innerHTML=`
+    <div class="game-meta">
+      <span>${comp.venue?.shortName||comp.venue?.fullName||'NBA'}</span>
+      ${state==='live'?'<span class="live-badge">● LIVE</span>':`<span>${statusTxt}</span>`}
+    </div>
+    <div class="game-teams">
+      <div class="team ${aW?'winner':''}">
+        <div class="team-city">${away.team?.location||''}</div>
+        <div class="team-name">${away.team?.shortDisplayName||'?'}</div>
+        ${state!=='upcoming'?`<div class="team-score">${away.score||'–'}</div>`:''}
+      </div>
+      <div class="vs-sep">${state==='upcoming'?toLocal(event.date):'–'}</div>
+      <div class="team ${hW?'winner':''}">
+        <div class="team-city">${home.team?.location||''}</div>
+        <div class="team-name">${home.team?.shortDisplayName||'?'}</div>
+        ${state!=='upcoming'?`<div class="team-score">${home.score||'–'}</div>`:''}
+      </div>
+    </div>`;
+  return card;
+}
+
+// ── Standings ────────────────────────────────────────────────────────
+async function loadStandings() {
+  try {
+    const r = await fetch(`${ESPN2}/standings`);
+    const d = await r.json();
+    renderStandings(d.children||[]);
+    standingsLoaded = true;
+  } catch(e) {
+    document.getElementById('standingsContent').innerHTML='<div class="no-games">⚠️ Fehler</div>';
+    document.getElementById('standingsContent').style.display='block';
+    document.getElementById('loadingS').style.display='none';
+  }
+}
+
+function renderStandings(conferences) {
+  const cont = document.getElementById('standingsContent');
+  cont.innerHTML='';
+  const wrap = document.createElement('div');
+  wrap.className='standings-wrap';
+
+  conferences.forEach(conf => {
+    const card = document.createElement('div');
+    card.className='standings-card';
+    card.innerHTML=`<div class="standings-header">${conf.name||conf.abbreviation} <span>S – N</span></div>`;
+
+    const entries = conf.standings?.entries||[];
+    entries.forEach((entry, i) => {
+      const tm = entry.team||{};
+      const stats = entry.stats||[];
+      const wins  = stats.find(s=>s.name==='wins')?.value||0;
+      const losses= stats.find(s=>s.name==='losses')?.value||0;
+      const pct   = stats.find(s=>s.name==='winPercent')?.displayValue||'-';
+      const gb    = stats.find(s=>s.name==='gamesBehind')?.displayValue||'-';
+
+      const row = document.createElement('div');
+      row.className = 'standings-row' +
+        (i<6?' playoff':i<10?' play-in':'');
+      row.innerHTML=`
+        <div class="s-rank ${i<3?'top':''}">${i+1}</div>
+        <div class="s-team">${tm.shortDisplayName||tm.name||'?'}</div>
+        <div class="s-record">${wins}–${losses}</div>
+        <div class="s-pct">${pct}</div>
+        <div class="s-gb">${gb==='0'||gb==='-'?'—':'-'+gb}</div>`;
+      card.appendChild(row);
+    });
+    wrap.appendChild(card);
+  });
+
+  cont.appendChild(wrap);
+
+  // Legend
+  const leg = document.createElement('div');
+  leg.className='legend';
+  leg.innerHTML=`
+    <span><div class="dot green"></div> Playoffs (1–6)</span>
+    <span><div class="dot gold"></div> Play-In (7–10)</span>`;
+  cont.appendChild(leg);
+
+  document.getElementById('loadingS').style.display='none';
+  cont.style.display='block';
+}
+
+// Init
+renderTabs();
+loadGames();
+setInterval(()=>{ if(currentPage==='scores' && activeIdx===2) loadGames(); }, 60000);
+setInterval(()=>{ if(currentPage==='standings') { standingsLoaded=false; loadStandings(); } }, 5*60000);
+</script>
+</body>
+</html>
