@@ -91,37 +91,16 @@
       <li>Install dependencies:
         <pre><code>pip install -r requirements.txt</code></pre>
       </li>
-      <li>Copy <code>.env.example</code> to <code>.env</code> and add your three API keys:
+      <li>Copy <code>.env.example</code> to <code>.env</code> in the repo root and add your three API keys:
         <pre><code>GEMINI_API_KEY="..."
 QWEN_API_KEY="..."
 MISTRAL_API_KEY="..."</code></pre>
       </li>
-      <li>Run on an image — all three models are queried in parallel:
-        <pre><code>python src/vlm.py data/raw/geneve_1917_p1.jpg</code></pre>
+      <li>Start the server:
+        <pre><code>uvicorn scripts.vlm_server:app --host 0.0.0.0 --port 8000</code></pre>
       </li>
-      <li>Custom prompt:
-        <pre><code>python src/vlm.py image.jpg --prompt "Extract all numbers from this form."</code></pre>
-      </li>
+      <li>Open <code>http://localhost:8000</code> — upload an image and all three models respond in parallel.</li>
     </ol>
-  </div>
-
-  <div class="card">
-    <h2>Output</h2>
-    <p style="margin:0 0 10px;font-size:0.92rem;color:#445;">Each model's transcription is printed to stdout, separated by headers:</p>
-    <pre><code>────────────────────────────────────────────────────────────
-  GEMINI
-────────────────────────────────────────────────────────────
-[transcribed text]
-
-────────────────────────────────────────────────────────────
-  QWEN
-────────────────────────────────────────────────────────────
-[transcribed text]
-
-────────────────────────────────────────────────────────────
-  MISTRAL
-────────────────────────────────────────────────────────────
-[transcribed text]</code></pre>
   </div>
 
 </div>
