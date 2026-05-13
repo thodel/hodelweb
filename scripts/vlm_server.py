@@ -50,11 +50,11 @@ def to_b64(img: Image.Image) -> str:
 def _call_gemini(img: Image.Image, prompt: str) -> str:
     if not GEMINI_KEY:
         raise RuntimeError("GEMINI_API_KEY not set in .env")
-    import google.generativeai as genai
+    import google.genai as genai
     genai.configure(api_key=GEMINI_KEY)
-    model = genai.GenerativeModel("gemini-2.5-pro")
+    model = genai.GenerativeModel("gemini-1.5-pro-latest")
     response = model.generate_content([prompt, img])
-    return response.candidates[0].content.parts[0].text
+    return response.text
 
 
 def _call_qwen(img: Image.Image, prompt: str) -> str:
@@ -80,13 +80,16 @@ def _call_qwen(img: Image.Image, prompt: str) -> str:
 def _call_mistral(img: Image.Image, prompt: str) -> str:
     if not MISTRAL_KEY:
         raise RuntimeError("MISTRAL_API_KEY not set in .env")
-    from mistralai import Mistral
-    client = Mistral(api_key=MISTRAL_KEY)
+    from openai import OpenAI
+    client = OpenAI(
+        api_key=MISTRAL_KEY,
+        base_url="https://api.mistral.ai/v1",
+    )
     b64 = to_b64(img)
-    resp = client.chat.complete(
+    resp = client.chat.completions.create(
         model="pixtral-large-latest",
         messages=[{"role": "user", "content": [
-            {"type": "image_url", "image_url": f"data:image/jpeg;base64,{b64}"},
+            {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{b64}"}},
             {"type": "text", "text": prompt},
         ]}],
     )
@@ -330,7 +333,7 @@ HTML = f"""<!DOCTYPE html>
     form.append('prompt', document.getElementById('prompt').value);
 
     try {{
-      const resp = await fetch('/transcribe', {{ method: 'POST', body: form }});
+      const resp = await fetch('transcribe', {{ method: 'POST', body: form }});
       if (!resp.ok) throw new Error('Server error ' + resp.status);
 
       const reader  = resp.body.getReader();
