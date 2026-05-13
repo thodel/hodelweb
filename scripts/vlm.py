@@ -47,12 +47,13 @@ def to_b64(img: Image.Image) -> str:
 def _call_gemini(img: Image.Image, prompt: str) -> str:
     if not GEMINI_KEY:
         return "ERROR: GEMINI_API_KEY not set in .env"
-    import google.generativeai as genai
-    genai.configure(api_key=GEMINI_KEY)
-    model = genai.GenerativeModel("gemini-2.5-pro")
-    response = model.generate_content([prompt, img])
-    # .text raises if the response was blocked; go via candidates instead
-    return response.candidates[0].content.parts[0].text
+    from google import genai
+    client = genai.Client(api_key=GEMINI_KEY)
+    response = client.models.generate_content(
+        model="gemini-3.1-pro-preview",
+        contents=[prompt, img],
+    )
+    return response.text
 
 
 def _call_qwen(img: Image.Image, prompt: str) -> str:
