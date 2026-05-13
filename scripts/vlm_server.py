@@ -50,10 +50,12 @@ def to_b64(img: Image.Image) -> str:
 def _call_gemini(img: Image.Image, prompt: str) -> str:
     if not GEMINI_KEY:
         raise RuntimeError("GEMINI_API_KEY not set in .env")
-    import google.genai as genai
-    genai.configure(api_key=GEMINI_KEY)
-    model = genai.GenerativeModel("gemini-1.5-pro-latest")
-    response = model.generate_content([prompt, img])
+    from google import genai
+    client = genai.Client(api_key=GEMINI_KEY)
+    response = client.models.generate_content(
+        model="gemini-3.1-pro-preview",
+        contents=[prompt, img],
+    )
     return response.text
 
 
@@ -237,7 +239,7 @@ HTML = f"""<!DOCTYPE html>
 
 <header>
   <h1>VLM Text Recognition</h1>
-  <p>Gemini 2.5 Pro · Qwen-VL-Max · Pixtral Large — queried in parallel</p>
+  <p>Gemini 3.1 Pro · Qwen-VL-Max · Pixtral Large — queried in parallel</p>
 </header>
 
 <div class="container">
@@ -263,7 +265,7 @@ HTML = f"""<!DOCTYPE html>
 
   <div class="results">
     <div class="model-card">
-      <div class="model-header gemini">🔵 Gemini 2.5 Pro</div>
+      <div class="model-header gemini">🔵 Gemini 3.1 Pro</div>
       <div class="model-body" id="out-gemini"></div>
       <div class="model-footer"><button class="copy-btn" onclick="copy('gemini')">Copy</button></div>
     </div>
