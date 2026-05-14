@@ -12,6 +12,17 @@
   },
   {
     "start": {
+      "dateTime": "2026-06-14T05:30:00+00:00"
+    },
+    "end": {
+      "dateTime": "2026-06-14T06:30:00+00:00"
+    },
+    "id": "7s1kbuu8s1t0vuqvohu6th7087@google.com",
+    "status": "confirmed",
+    "summary": "Treffpunkt Coop/Bhf. Aarau"
+  },
+  {
+    "start": {
       "date": "2026-07-06"
     },
     "end": {
@@ -23,14 +34,14 @@
   },
   {
     "start": {
-      "dateTime": "2026-06-14T05:30:00+00:00"
+      "date": "2026-08-10"
     },
     "end": {
-      "dateTime": "2026-06-14T06:30:00+00:00"
+      "date": "2026-08-11"
     },
-    "id": "7s1kbuu8s1t0vuqvohu6th7087@google.com",
+    "id": "7nh17l43gu7lvlcvlm11dolgjd@google.com",
     "status": "confirmed",
-    "summary": "Treffpunkt Coop/Bhf. Aarau"
+    "summary": "Schulanfang"
   },
   {
     "start": {
@@ -43,16 +54,5 @@
     "location": "Jugendraum ref. Kirche Rohr",
     "status": "confirmed",
     "summary": "Religionsunterricht (Mittagessen mitnehmen)"
-  },
-  {
-    "start": {
-      "date": "2026-08-10"
-    },
-    "end": {
-      "date": "2026-08-11"
-    },
-    "id": "7nh17l43gu7lvlcvlm11dolgjd@google.com",
-    "status": "confirmed",
-    "summary": "Schulanfang"
   }
 ]
