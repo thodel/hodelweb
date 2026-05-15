@@ -1,17 +1,6 @@
 [
   {
     "start": {
-      "dateTime": "2026-06-14T05:30:00+00:00"
-    },
-    "end": {
-      "dateTime": "2026-06-14T06:30:00+00:00"
-    },
-    "id": "7s1kbuu8s1t0vuqvohu6th7087@google.com",
-    "status": "confirmed",
-    "summary": "Treffpunkt Coop/Bhf. Aarau"
-  },
-  {
-    "start": {
       "date": "2026-07-06"
     },
     "end": {
@@ -23,14 +12,14 @@
   },
   {
     "start": {
-      "date": "2026-08-10"
+      "date": "2026-05-31"
     },
     "end": {
-      "date": "2026-08-11"
+      "date": "2026-06-01"
     },
-    "id": "7nh17l43gu7lvlcvlm11dolgjd@google.com",
+    "id": "5tot1i014m77tohuu5ae0v44nh@google.com",
     "status": "confirmed",
-    "summary": "Schulanfang"
+    "summary": "evtl. U12 Abschlussturnier"
   },
   {
     "start": {
@@ -46,13 +35,24 @@
   },
   {
     "start": {
-      "date": "2026-05-31"
+      "date": "2026-08-10"
     },
     "end": {
-      "date": "2026-06-01"
+      "date": "2026-08-11"
     },
-    "id": "5tot1i014m77tohuu5ae0v44nh@google.com",
+    "id": "7nh17l43gu7lvlcvlm11dolgjd@google.com",
     "status": "confirmed",
-    "summary": "evtl. U12 Abschlussturnier"
+    "summary": "Schulanfang"
+  },
+  {
+    "start": {
+      "dateTime": "2026-06-14T05:30:00+00:00"
+    },
+    "end": {
+      "dateTime": "2026-06-14T06:30:00+00:00"
+    },
+    "id": "7s1kbuu8s1t0vuqvohu6th7087@google.com",
+    "status": "confirmed",
+    "summary": "Treffpunkt Coop/Bhf. Aarau"
   }
 ]
