@@ -1,17 +1,6 @@
 [
   {
     "start": {
-      "dateTime": "2026-06-14T05:30:00+00:00"
-    },
-    "end": {
-      "dateTime": "2026-06-14T06:30:00+00:00"
-    },
-    "id": "7s1kbuu8s1t0vuqvohu6th7087@google.com",
-    "status": "confirmed",
-    "summary": "Treffpunkt Coop/Bhf. Aarau"
-  },
-  {
-    "start": {
       "date": "2026-07-06"
     },
     "end": {
@@ -23,15 +12,14 @@
   },
   {
     "start": {
-      "dateTime": "2026-05-27T10:15:00+00:00"
+      "date": "2026-05-31"
     },
     "end": {
-      "dateTime": "2026-05-27T12:30:00+00:00"
+      "date": "2026-06-01"
     },
-    "id": "2qmgpcv9jjo4lkojt1v35lbk21@google.com",
-    "location": "Jugendraum ref. Kirche Rohr",
+    "id": "5tot1i014m77tohuu5ae0v44nh@google.com",
     "status": "confirmed",
-    "summary": "Religionsunterricht (Mittagessen mitnehmen)"
+    "summary": "evtl. U12 Abschlussturnier"
   },
   {
     "start": {
@@ -46,13 +34,25 @@
   },
   {
     "start": {
-      "date": "2026-05-31"
+      "dateTime": "2026-06-14T05:30:00+00:00"
     },
     "end": {
-      "date": "2026-06-01"
+      "dateTime": "2026-06-14T06:30:00+00:00"
     },
-    "id": "5tot1i014m77tohuu5ae0v44nh@google.com",
+    "id": "7s1kbuu8s1t0vuqvohu6th7087@google.com",
     "status": "confirmed",
-    "summary": "evtl. U12 Abschlussturnier"
+    "summary": "Treffpunkt Coop/Bhf. Aarau"
+  },
+  {
+    "start": {
+      "dateTime": "2026-05-27T10:15:00+00:00"
+    },
+    "end": {
+      "dateTime": "2026-05-27T12:30:00+00:00"
+    },
+    "id": "2qmgpcv9jjo4lkojt1v35lbk21@google.com",
+    "location": "Jugendraum ref. Kirche Rohr",
+    "status": "confirmed",
+    "summary": "Religionsunterricht (Mittagessen mitnehmen)"
   }
 ]
