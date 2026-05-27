@@ -12,14 +12,15 @@
   },
   {
     "start": {
-      "date": "2026-08-10"
+      "dateTime": "2026-05-27T10:15:00+00:00"
     },
     "end": {
-      "date": "2026-08-11"
+      "dateTime": "2026-05-27T12:30:00+00:00"
     },
-    "id": "7nh17l43gu7lvlcvlm11dolgjd@google.com",
+    "id": "2qmgpcv9jjo4lkojt1v35lbk21@google.com",
+    "location": "Jugendraum ref. Kirche Rohr",
     "status": "confirmed",
-    "summary": "Schulanfang"
+    "summary": "Religionsunterricht (Mittagessen mitnehmen)"
   },
   {
     "start": {
@@ -34,15 +35,14 @@
   },
   {
     "start": {
-      "dateTime": "2026-05-27T10:15:00+00:00"
+      "date": "2026-08-10"
     },
     "end": {
-      "dateTime": "2026-05-27T12:30:00+00:00"
+      "date": "2026-08-11"
     },
-    "id": "2qmgpcv9jjo4lkojt1v35lbk21@google.com",
-    "location": "Jugendraum ref. Kirche Rohr",
+    "id": "7nh17l43gu7lvlcvlm11dolgjd@google.com",
     "status": "confirmed",
-    "summary": "Religionsunterricht (Mittagessen mitnehmen)"
+    "summary": "Schulanfang"
   },
   {
     "start": {
