@@ -1,6 +1,17 @@
 [
   {
     "start": {
+      "date": "2026-07-06"
+    },
+    "end": {
+      "date": "2026-08-10"
+    },
+    "id": "1hri16p81o9quhmfsmnttb5tps@google.com",
+    "status": "confirmed",
+    "summary": "Sommerferien"
+  },
+  {
+    "start": {
       "dateTime": "2026-05-27T10:15:00+00:00"
     },
     "end": {
@@ -10,28 +21,6 @@
     "location": "Jugendraum ref. Kirche Rohr",
     "status": "confirmed",
     "summary": "Religionsunterricht (Mittagessen mitnehmen)"
-  },
-  {
-    "start": {
-      "date": "2026-05-31"
-    },
-    "end": {
-      "date": "2026-06-01"
-    },
-    "id": "5tot1i014m77tohuu5ae0v44nh@google.com",
-    "status": "confirmed",
-    "summary": "evtl. U12 Abschlussturnier"
-  },
-  {
-    "start": {
-      "date": "2026-08-10"
-    },
-    "end": {
-      "date": "2026-08-11"
-    },
-    "id": "7nh17l43gu7lvlcvlm11dolgjd@google.com",
-    "status": "confirmed",
-    "summary": "Schulanfang"
   },
   {
     "start": {
@@ -46,13 +35,24 @@
   },
   {
     "start": {
-      "date": "2026-07-06"
-    },
-    "end": {
       "date": "2026-08-10"
     },
-    "id": "1hri16p81o9quhmfsmnttb5tps@google.com",
+    "end": {
+      "date": "2026-08-11"
+    },
+    "id": "7nh17l43gu7lvlcvlm11dolgjd@google.com",
     "status": "confirmed",
-    "summary": "Sommerferien"
+    "summary": "Schulanfang"
+  },
+  {
+    "start": {
+      "date": "2026-05-31"
+    },
+    "end": {
+      "date": "2026-06-01"
+    },
+    "id": "5tot1i014m77tohuu5ae0v44nh@google.com",
+    "status": "confirmed",
+    "summary": "evtl. U12 Abschlussturnier"
   }
 ]
