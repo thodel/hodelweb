@@ -1,17 +1,6 @@
 [
   {
     "start": {
-      "date": "2026-07-06"
-    },
-    "end": {
-      "date": "2026-08-10"
-    },
-    "id": "1hri16p81o9quhmfsmnttb5tps@google.com",
-    "status": "confirmed",
-    "summary": "Sommerferien"
-  },
-  {
-    "start": {
       "date": "2026-08-10"
     },
     "end": {
@@ -20,6 +9,17 @@
     "id": "7nh17l43gu7lvlcvlm11dolgjd@google.com",
     "status": "confirmed",
     "summary": "Schulanfang"
+  },
+  {
+    "start": {
+      "date": "2026-07-06"
+    },
+    "end": {
+      "date": "2026-08-10"
+    },
+    "id": "1hri16p81o9quhmfsmnttb5tps@google.com",
+    "status": "confirmed",
+    "summary": "Sommerferien"
   },
   {
     "start": {
