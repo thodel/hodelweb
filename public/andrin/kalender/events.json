@@ -1,28 +1,6 @@
 [
   {
     "start": {
-      "date": "2026-08-10"
-    },
-    "end": {
-      "date": "2026-08-11"
-    },
-    "id": "7nh17l43gu7lvlcvlm11dolgjd@google.com",
-    "status": "confirmed",
-    "summary": "Schulanfang"
-  },
-  {
-    "start": {
-      "date": "2026-06-25"
-    },
-    "end": {
-      "date": "2026-06-26"
-    },
-    "id": "34f26823a331psf989h9q3ccgu@google.com",
-    "status": "confirmed",
-    "summary": "evtl. Badi-Tag"
-  },
-  {
-    "start": {
       "date": "2026-07-06"
     },
     "end": {
@@ -42,5 +20,27 @@
     "id": "7s1kbuu8s1t0vuqvohu6th7087@google.com",
     "status": "confirmed",
     "summary": "Treffpunkt Coop/Bhf. Aarau"
+  },
+  {
+    "start": {
+      "date": "2026-06-25"
+    },
+    "end": {
+      "date": "2026-06-26"
+    },
+    "id": "34f26823a331psf989h9q3ccgu@google.com",
+    "status": "confirmed",
+    "summary": "evtl. Badi-Tag"
+  },
+  {
+    "start": {
+      "date": "2026-08-10"
+    },
+    "end": {
+      "date": "2026-08-11"
+    },
+    "id": "7nh17l43gu7lvlcvlm11dolgjd@google.com",
+    "status": "confirmed",
+    "summary": "Schulanfang"
   }
 ]
