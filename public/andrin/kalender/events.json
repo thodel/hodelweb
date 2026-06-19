@@ -1,6 +1,17 @@
 [
   {
     "start": {
+      "date": "2026-06-25"
+    },
+    "end": {
+      "date": "2026-06-26"
+    },
+    "id": "34f26823a331psf989h9q3ccgu@google.com",
+    "status": "confirmed",
+    "summary": "evtl. Badi-Tag"
+  },
+  {
+    "start": {
       "date": "2026-07-06"
     },
     "end": {
@@ -9,17 +20,6 @@
     "id": "1hri16p81o9quhmfsmnttb5tps@google.com",
     "status": "confirmed",
     "summary": "Sommerferien"
-  },
-  {
-    "start": {
-      "dateTime": "2026-06-14T05:30:00+00:00"
-    },
-    "end": {
-      "dateTime": "2026-06-14T06:30:00+00:00"
-    },
-    "id": "7s1kbuu8s1t0vuqvohu6th7087@google.com",
-    "status": "confirmed",
-    "summary": "Treffpunkt Coop/Bhf. Aarau"
   },
   {
     "start": {
@@ -34,13 +34,13 @@
   },
   {
     "start": {
-      "date": "2026-06-25"
+      "dateTime": "2026-06-14T05:30:00+00:00"
     },
     "end": {
-      "date": "2026-06-26"
+      "dateTime": "2026-06-14T06:30:00+00:00"
     },
-    "id": "34f26823a331psf989h9q3ccgu@google.com",
+    "id": "7s1kbuu8s1t0vuqvohu6th7087@google.com",
     "status": "confirmed",
-    "summary": "evtl. Badi-Tag"
+    "summary": "Treffpunkt Coop/Bhf. Aarau"
   }
 ]
