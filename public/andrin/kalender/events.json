@@ -1,17 +1,6 @@
 [
   {
     "start": {
-      "date": "2026-06-25"
-    },
-    "end": {
-      "date": "2026-06-26"
-    },
-    "id": "34f26823a331psf989h9q3ccgu@google.com",
-    "status": "confirmed",
-    "summary": "evtl. Badi-Tag"
-  },
-  {
-    "start": {
       "date": "2026-08-10"
     },
     "end": {
@@ -31,6 +20,17 @@
     "id": "1hri16p81o9quhmfsmnttb5tps@google.com",
     "status": "confirmed",
     "summary": "Sommerferien"
+  },
+  {
+    "start": {
+      "date": "2026-06-25"
+    },
+    "end": {
+      "date": "2026-06-26"
+    },
+    "id": "34f26823a331psf989h9q3ccgu@google.com",
+    "status": "confirmed",
+    "summary": "evtl. Badi-Tag"
   },
   {
     "start": {
