@@ -1,28 +1,6 @@
 [
   {
     "start": {
-      "date": "2026-09-26"
-    },
-    "end": {
-      "date": "2026-10-12"
-    },
-    "id": "5jmq0k1tgviobf8qrit0ak6hou@google.com",
-    "status": "confirmed",
-    "summary": "Herbstferien"
-  },
-  {
-    "start": {
-      "date": "2026-06-25"
-    },
-    "end": {
-      "date": "2026-06-26"
-    },
-    "id": "34f26823a331psf989h9q3ccgu@google.com",
-    "status": "confirmed",
-    "summary": "evtl. Badi-Tag"
-  },
-  {
-    "start": {
       "date": "2026-08-10"
     },
     "end": {
@@ -42,5 +20,27 @@
     "id": "1hri16p81o9quhmfsmnttb5tps@google.com",
     "status": "confirmed",
     "summary": "Sommerferien"
+  },
+  {
+    "start": {
+      "date": "2026-09-26"
+    },
+    "end": {
+      "date": "2026-10-12"
+    },
+    "id": "5jmq0k1tgviobf8qrit0ak6hou@google.com",
+    "status": "confirmed",
+    "summary": "Herbstferien"
+  },
+  {
+    "start": {
+      "date": "2026-06-25"
+    },
+    "end": {
+      "date": "2026-06-26"
+    },
+    "id": "34f26823a331psf989h9q3ccgu@google.com",
+    "status": "confirmed",
+    "summary": "evtl. Badi-Tag"
   }
 ]
