@@ -23,17 +23,6 @@
   },
   {
     "start": {
-      "date": "2026-09-26"
-    },
-    "end": {
-      "date": "2026-10-12"
-    },
-    "id": "5jmq0k1tgviobf8qrit0ak6hou@google.com",
-    "status": "confirmed",
-    "summary": "Herbstferien"
-  },
-  {
-    "start": {
       "date": "2026-06-25"
     },
     "end": {
@@ -42,5 +31,16 @@
     "id": "34f26823a331psf989h9q3ccgu@google.com",
     "status": "confirmed",
     "summary": "evtl. Badi-Tag"
+  },
+  {
+    "start": {
+      "date": "2026-09-26"
+    },
+    "end": {
+      "date": "2026-10-12"
+    },
+    "id": "5jmq0k1tgviobf8qrit0ak6hou@google.com",
+    "status": "confirmed",
+    "summary": "Herbstferien"
   }
 ]
