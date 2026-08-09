@@ -1,14 +1,14 @@
 [
   {
     "start": {
-      "date": "2026-08-10"
+      "dateTime": "2026-10-21T08:50:00+00:00"
     },
     "end": {
-      "date": "2026-08-11"
+      "dateTime": "2026-10-21T10:00:00+00:00"
     },
-    "id": "7nh17l43gu7lvlcvlm11dolgjd@google.com",
+    "id": "3nn8q720r1lq4q97216for8mds@google.com",
     "status": "confirmed",
-    "summary": "Schulanfang"
+    "summary": "Zahnarzt Seiler --> Kieferortho."
   },
   {
     "start": {
@@ -23,13 +23,13 @@
   },
   {
     "start": {
-      "dateTime": "2026-10-21T08:50:00+00:00"
+      "date": "2026-08-10"
     },
     "end": {
-      "dateTime": "2026-10-21T10:00:00+00:00"
+      "date": "2026-08-11"
     },
-    "id": "3nn8q720r1lq4q97216for8mds@google.com",
+    "id": "7nh17l43gu7lvlcvlm11dolgjd@google.com",
     "status": "confirmed",
-    "summary": "Zahnarzt Seiler --> Kieferortho."
+    "summary": "Schulanfang"
   }
 ]
