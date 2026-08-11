@@ -1,25 +1,14 @@
 [
   {
     "start": {
-      "dateTime": "2026-10-21T08:50:00+00:00"
+      "date": "2026-08-10"
     },
     "end": {
-      "dateTime": "2026-10-21T10:00:00+00:00"
+      "date": "2026-08-11"
     },
-    "id": "3nn8q720r1lq4q97216for8mds@google.com",
+    "id": "7nh17l43gu7lvlcvlm11dolgjd@google.com",
     "status": "confirmed",
-    "summary": "Zahnarzt Seiler --> Kieferortho."
-  },
-  {
-    "start": {
-      "date": "2026-09-26"
-    },
-    "end": {
-      "date": "2026-10-12"
-    },
-    "id": "5jmq0k1tgviobf8qrit0ak6hou@google.com",
-    "status": "confirmed",
-    "summary": "Herbstferien"
+    "summary": "Schulanfang"
   },
   {
     "start": {
@@ -34,14 +23,25 @@
   },
   {
     "start": {
-      "date": "2026-08-10"
+      "date": "2026-09-26"
     },
     "end": {
-      "date": "2026-08-11"
+      "date": "2026-10-12"
     },
-    "id": "7nh17l43gu7lvlcvlm11dolgjd@google.com",
+    "id": "5jmq0k1tgviobf8qrit0ak6hou@google.com",
     "status": "confirmed",
-    "summary": "Schulanfang"
+    "summary": "Herbstferien"
+  },
+  {
+    "start": {
+      "dateTime": "2026-10-21T08:50:00+00:00"
+    },
+    "end": {
+      "dateTime": "2026-10-21T10:00:00+00:00"
+    },
+    "id": "3nn8q720r1lq4q97216for8mds@google.com",
+    "status": "confirmed",
+    "summary": "Zahnarzt Seiler --> Kieferortho."
   },
   {
     "start": {
