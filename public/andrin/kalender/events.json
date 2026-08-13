@@ -1,6 +1,17 @@
 [
   {
     "start": {
+      "date": "2026-09-26"
+    },
+    "end": {
+      "date": "2026-10-12"
+    },
+    "id": "5jmq0k1tgviobf8qrit0ak6hou@google.com",
+    "status": "confirmed",
+    "summary": "Herbstferien"
+  },
+  {
+    "start": {
       "date": "2026-08-10"
     },
     "end": {
@@ -12,14 +23,14 @@
   },
   {
     "start": {
-      "dateTime": "2026-09-23T10:15:00+00:00"
+      "dateTime": "2026-08-12T17:30:00+01:00"
     },
     "end": {
-      "dateTime": "2026-09-23T12:30:00+00:00"
+      "dateTime": "2026-08-12T19:30:00+01:00"
     },
-    "id": "39jgst6jprtk942gfq7vseonm2@google.com",
+    "id": "6757kk0be64rv55it4up6ngfc2@google.com",
     "status": "confirmed",
-    "summary": "Religion - Mittagessen mitnehmen"
+    "summary": "Baskettraining"
   },
   {
     "start": {
@@ -34,14 +45,14 @@
   },
   {
     "start": {
-      "date": "2026-09-26"
+      "dateTime": "2026-09-23T10:15:00+00:00"
     },
     "end": {
-      "date": "2026-10-12"
+      "dateTime": "2026-09-23T12:30:00+00:00"
     },
-    "id": "5jmq0k1tgviobf8qrit0ak6hou@google.com",
+    "id": "39jgst6jprtk942gfq7vseonm2@google.com",
     "status": "confirmed",
-    "summary": "Herbstferien"
+    "summary": "Religion - Mittagessen mitnehmen"
   },
   {
     "start": {
@@ -53,16 +64,5 @@
     "id": "3nn8q720r1lq4q97216for8mds@google.com",
     "status": "confirmed",
     "summary": "Zahnarzt Seiler --> Kieferortho."
-  },
-  {
-    "start": {
-      "dateTime": "2026-08-12T17:30:00+01:00"
-    },
-    "end": {
-      "dateTime": "2026-08-12T19:30:00+01:00"
-    },
-    "id": "6757kk0be64rv55it4up6ngfc2@google.com",
-    "status": "confirmed",
-    "summary": "Baskettraining"
   }
 ]
