@@ -1,17 +1,6 @@
 [
   {
     "start": {
-      "dateTime": "2026-08-11T17:30:00+01:00"
-    },
-    "end": {
-      "dateTime": "2026-08-11T19:00:00+01:00"
-    },
-    "id": "4n4psttqfrco9gesl9f7q01jhc@google.com",
-    "status": "confirmed",
-    "summary": "Baskettraining"
-  },
-  {
-    "start": {
       "date": "2026-09-26"
     },
     "end": {
@@ -23,25 +12,14 @@
   },
   {
     "start": {
-      "dateTime": "2026-08-12T17:30:00+01:00"
+      "dateTime": "2026-08-11T17:30:00+01:00"
     },
     "end": {
-      "dateTime": "2026-08-12T19:30:00+01:00"
+      "dateTime": "2026-08-11T19:00:00+01:00"
     },
-    "id": "6757kk0be64rv55it4up6ngfc2@google.com",
+    "id": "4n4psttqfrco9gesl9f7q01jhc@google.com",
     "status": "confirmed",
     "summary": "Baskettraining"
-  },
-  {
-    "start": {
-      "dateTime": "2026-09-23T10:15:00+00:00"
-    },
-    "end": {
-      "dateTime": "2026-09-23T12:30:00+00:00"
-    },
-    "id": "39jgst6jprtk942gfq7vseonm2@google.com",
-    "status": "confirmed",
-    "summary": "Religion - Mittagessen mitnehmen"
   },
   {
     "start": {
@@ -64,5 +42,27 @@
     "id": "3nn8q720r1lq4q97216for8mds@google.com",
     "status": "confirmed",
     "summary": "Zahnarzt Seiler --> Kieferortho."
+  },
+  {
+    "start": {
+      "dateTime": "2026-09-23T10:15:00+00:00"
+    },
+    "end": {
+      "dateTime": "2026-09-23T12:30:00+00:00"
+    },
+    "id": "39jgst6jprtk942gfq7vseonm2@google.com",
+    "status": "confirmed",
+    "summary": "Religion - Mittagessen mitnehmen"
+  },
+  {
+    "start": {
+      "dateTime": "2026-08-12T17:30:00+01:00"
+    },
+    "end": {
+      "dateTime": "2026-08-12T19:30:00+01:00"
+    },
+    "id": "6757kk0be64rv55it4up6ngfc2@google.com",
+    "status": "confirmed",
+    "summary": "Baskettraining"
   }
 ]
