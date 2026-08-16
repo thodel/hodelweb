@@ -1,6 +1,17 @@
 [
   {
     "start": {
+      "dateTime": "2026-08-11T17:30:00+01:00"
+    },
+    "end": {
+      "dateTime": "2026-08-11T19:00:00+01:00"
+    },
+    "id": "4n4psttqfrco9gesl9f7q01jhc@google.com",
+    "status": "confirmed",
+    "summary": "Baskettraining"
+  },
+  {
+    "start": {
       "dateTime": "2026-10-21T08:50:00+00:00"
     },
     "end": {
@@ -23,34 +34,12 @@
   },
   {
     "start": {
-      "date": "2026-08-10"
-    },
-    "end": {
-      "date": "2026-08-11"
-    },
-    "id": "7nh17l43gu7lvlcvlm11dolgjd@google.com",
-    "status": "confirmed",
-    "summary": "Schulanfang"
-  },
-  {
-    "start": {
       "dateTime": "2026-08-12T17:30:00+01:00"
     },
     "end": {
       "dateTime": "2026-08-12T19:30:00+01:00"
     },
     "id": "6757kk0be64rv55it4up6ngfc2@google.com",
-    "status": "confirmed",
-    "summary": "Baskettraining"
-  },
-  {
-    "start": {
-      "dateTime": "2026-08-11T17:30:00+01:00"
-    },
-    "end": {
-      "dateTime": "2026-08-11T19:00:00+01:00"
-    },
-    "id": "4n4psttqfrco9gesl9f7q01jhc@google.com",
     "status": "confirmed",
     "summary": "Baskettraining"
   },
@@ -64,5 +53,16 @@
     "id": "39jgst6jprtk942gfq7vseonm2@google.com",
     "status": "confirmed",
     "summary": "Religion - Mittagessen mitnehmen"
+  },
+  {
+    "start": {
+      "date": "2026-08-10"
+    },
+    "end": {
+      "date": "2026-08-11"
+    },
+    "id": "7nh17l43gu7lvlcvlm11dolgjd@google.com",
+    "status": "confirmed",
+    "summary": "Schulanfang"
   }
 ]
