@@ -1,17 +1,6 @@
 [
   {
     "start": {
-      "dateTime": "2026-10-21T08:50:00+00:00"
-    },
-    "end": {
-      "dateTime": "2026-10-21T10:00:00+00:00"
-    },
-    "id": "3nn8q720r1lq4q97216for8mds@google.com",
-    "status": "confirmed",
-    "summary": "Zahnarzt Seiler --> Kieferortho."
-  },
-  {
-    "start": {
       "dateTime": "2026-09-23T10:15:00+00:00"
     },
     "end": {
@@ -34,6 +23,17 @@
   },
   {
     "start": {
+      "dateTime": "2026-08-12T17:30:00+01:00"
+    },
+    "end": {
+      "dateTime": "2026-08-12T19:30:00+01:00"
+    },
+    "id": "6757kk0be64rv55it4up6ngfc2@google.com",
+    "status": "confirmed",
+    "summary": "Baskettraining"
+  },
+  {
+    "start": {
       "date": "2026-09-26"
     },
     "end": {
@@ -45,13 +45,13 @@
   },
   {
     "start": {
-      "dateTime": "2026-08-12T17:30:00+01:00"
+      "dateTime": "2026-10-21T08:50:00+00:00"
     },
     "end": {
-      "dateTime": "2026-08-12T19:30:00+01:00"
+      "dateTime": "2026-10-21T10:00:00+00:00"
     },
-    "id": "6757kk0be64rv55it4up6ngfc2@google.com",
+    "id": "3nn8q720r1lq4q97216for8mds@google.com",
     "status": "confirmed",
-    "summary": "Baskettraining"
+    "summary": "Zahnarzt Seiler --> Kieferortho."
   }
 ]
