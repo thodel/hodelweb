@@ -1,14 +1,14 @@
 [
   {
     "start": {
-      "date": "2026-09-26"
+      "dateTime": "2026-09-23T10:15:00+00:00"
     },
     "end": {
-      "date": "2026-10-12"
+      "dateTime": "2026-09-23T12:30:00+00:00"
     },
-    "id": "5jmq0k1tgviobf8qrit0ak6hou@google.com",
+    "id": "39jgst6jprtk942gfq7vseonm2@google.com",
     "status": "confirmed",
-    "summary": "Herbstferien"
+    "summary": "Religion - Mittagessen mitnehmen"
   },
   {
     "start": {
@@ -23,13 +23,13 @@
   },
   {
     "start": {
-      "dateTime": "2026-09-23T10:15:00+00:00"
+      "date": "2026-09-26"
     },
     "end": {
-      "dateTime": "2026-09-23T12:30:00+00:00"
+      "date": "2026-10-12"
     },
-    "id": "39jgst6jprtk942gfq7vseonm2@google.com",
+    "id": "5jmq0k1tgviobf8qrit0ak6hou@google.com",
     "status": "confirmed",
-    "summary": "Religion - Mittagessen mitnehmen"
+    "summary": "Herbstferien"
   }
 ]
