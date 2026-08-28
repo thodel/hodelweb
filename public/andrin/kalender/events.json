@@ -23,17 +23,6 @@
   },
   {
     "start": {
-      "dateTime": "2026-11-25T11:15:00+00:00"
-    },
-    "end": {
-      "dateTime": "2026-11-25T13:30:00+00:00"
-    },
-    "id": "4g2jqh33dt4t28i0bt5nchahfk@google.com",
-    "status": "confirmed",
-    "summary": "Religion - mit Mittagessen"
-  },
-  {
-    "start": {
       "dateTime": "2026-09-23T10:15:00+00:00"
     },
     "end": {
@@ -42,5 +31,16 @@
     "id": "39jgst6jprtk942gfq7vseonm2@google.com",
     "status": "confirmed",
     "summary": "Religion - Mittagessen mitnehmen"
+  },
+  {
+    "start": {
+      "dateTime": "2026-11-25T11:15:00+00:00"
+    },
+    "end": {
+      "dateTime": "2026-11-25T13:30:00+00:00"
+    },
+    "id": "4g2jqh33dt4t28i0bt5nchahfk@google.com",
+    "status": "confirmed",
+    "summary": "Religion - mit Mittagessen"
   }
 ]
