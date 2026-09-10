@@ -87,11 +87,15 @@
     "doi": "10.7788/9783412530921.197",
     "authors": [
       {
+        "name": "Tobias Hodel",
+        "is_primary": true
+      },
+      {
         "name": "Jonas Widmer",
         "is_primary": false
       }
     ],
-    "coauthored": false
+    "coauthored": true
   },
   {
     "title": "Living in the Future— How I Met Günter Mühlberger and Techno-Optimism",
