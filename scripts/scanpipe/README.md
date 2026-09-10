@@ -5,7 +5,7 @@ erkannt, benannt und in den passenden Ordner einsortiert.
 
 ## Ablauf
 
-1. **Erfassen** — Foto in der Nextcloud-Talk-App in den Raum *Research Bot*
+1. **Erfassen** — Foto in der Nextcloud-Talk-App in den Raum **Dokumente**
    schicken (Büroklammer → Kamera). Mehrere Fotos nacheinander sind möglich,
    jedes wird einzeln behandelt.
 2. **Abholen** — `scanpipe.py` fragt alle 90 Sekunden nach neuen Nachrichten.
@@ -25,6 +25,23 @@ erkannt, benannt und in den passenden Ordner einsortiert.
    Ablagepfad.
 7. **Korrigieren** — Auf diese Antwort mit dem richtigen Domänennamen antworten,
    dann verschiebt die Pipeline Dokument und Beipackzettel.
+
+## Räume
+
+Der Raum *Dokumente* (`4cavkg2r`) ist die Ablage: nur Fotos hinein, nur Berichte
+heraus. Der openclaw-Agent ist dort **nicht** eingebunden, er kommentiert also
+nichts und verbraucht keine Modellaufrufe.
+
+Damit der Bot dort schreiben darf, musste er einmalig für das Gespräch
+freigeschaltet werden:
+
+```bash
+cd /var/www/nextcloud && sudo -u www-data php8.3 occ talk:bot:setup 3 <token>
+```
+
+Weitere Räume lassen sich in `config.json` unter `raeume` ergänzen. Der
+Research-Bot-Chat steht dort mit `"aktiv": false`, weil sonst jedes Bild aus
+einem Gespräch eingesammelt würde.
 
 ## Domänen
 
