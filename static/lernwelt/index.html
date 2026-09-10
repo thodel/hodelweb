@@ -1196,7 +1196,9 @@
       '⭐ ' + totalStars() + '/12 &nbsp; <span style="color:#fbbf24">🪙 ' + m +
       '</span> &nbsp; <span style="color:#c4b5fd">🎟️ ' + mk +
       '</span> &nbsp; <span style="color:#f9a8d4">🍬 ' + su + '</span>' +
-      (window.Insel && Insel.hatSchaufel(who) ? ' &nbsp; <span style="color:#fde68a">🪏</span>' : '');
+      (window.Insel && Insel.hatSchaufel(who) ? ' &nbsp; <span style="color:#fde68a">🪏</span>' : '') +
+      (window.Insel && Insel.hinweisGuthaben(who)
+        ? ' &nbsp; <span style="color:#7dd3fc">🗺️ ' + Insel.hinweisGuthaben(who) + '</span>' : '');
   }
 
   /* ================= Interaktion ================= */
@@ -1267,8 +1269,12 @@
     }
     if (p.istSeebaer) {
       var offenN = window.Insel ? Insel.offeneSchaetze(who).length : 0;
-      bannerEl.innerHTML = '<b>' + seebaer.name + '</b> — Schatzgeschichten' +
-        (offenN ? ' · noch ' + offenN + ' vergraben' : ' · alles gehoben') + ' — [E] zuhören';
+      var gut = window.Insel ? Insel.hinweisGuthaben(who) : 0;
+      bannerEl.innerHTML = '<b>' + seebaer.name + '</b> — ' +
+        (!offenN ? 'alles gehoben'
+                 : gut ? '🗺️ ' + gut + ' Hinweis' + (gut === 1 ? '' : 'e') + ' einlösen'
+                       : 'noch ' + offenN + ' vergraben · Hinweise gibt es fürs Üben') +
+        ' — [E] zuhören';
       bannerEl.classList.add('show');
       return;
     }
@@ -1287,6 +1293,11 @@
             muenzHinweis(offeneUebungen(p.fach)) + ' — [E] betreten';
     } else if (p.id === 'spielplatz') {
       txt = '<b>' + p.name + '</b> — ' + p.hint + muenzHinweis(offeneSpiele()) + ' — [E] betreten';
+    } else if (p.id === 'bestenliste') {
+      var ao = window.Insel && Insel.auftragOffen(who);
+      txt = '<b>' + p.name + '</b> — ' + p.hint +
+        (ao ? ' · 📋 Tagesauftrag ' + ao.fertig + '/' + ao.gesamt +
+              (ao.offen ? '' : ' ✔') : '') + ' — [E] betreten';
     } else {
       txt = '<b>' + p.name + '</b> — ' + p.hint + ' — [E] betreten';
     }
@@ -1377,24 +1388,45 @@
   }
 
   var geschichteNr = 0;
+  /* Hinweise sind nicht gratis: einen pro gemeisterter Übung, einen für den
+     erfüllten Tagesauftrag. Wer keines hat, bekommt nur eine Geschichte. */
   function schatzGeschichte() {
     var offene = Insel.offeneSchaetze(who);
-    var hatSchaufel = Insel.hatSchaufel(who);
     if (!offene.length) {
       flash(seebaer.name + ': "Alles gehoben. Jeder einzelne. Ich hätte nicht gedacht, ' +
             'dass du so gut zuhörst. Jetzt muss ich mir neue Geschichten ausdenken."');
       return;
     }
-    if (!hatSchaufel) {
+    if (!Insel.hatSchaufel(who)) {
       flash(seebaer.name + ': "' + seebaer.geschichten[2] + '"');
       return;
     }
-    /* Mit Schaufel gibt es einen konkreten Tipp. */
-    var tipp = offene[geschichteNr % offene.length];
-    geschichteNr++;
-    var vorspann = seebaer.geschichten[geschichteNr % 2];
-    flash(seebaer.name + ': "' + vorspann + ' Einer liegt ' + tipp.nahe + '. ' +
-          'Halt die Augen offen — mit der Schaufel in der Hand siehst du die Stelle glitzern."');
+
+    /* Schon verratene Stellen zuerst — sonst verpuffen die Hinweise. */
+    var verraten = Insel.verrateneSchaetze(who);
+    var guthaben = Insel.hinweisGuthaben(who);
+    if (verraten.length && !guthaben) {
+      flash(seebaer.name + ': "Was ich dir gesagt habe, gilt noch: einer liegt ' +
+            verraten[0].nahe + '. Grab den erst aus, bevor du mich um mehr bittest."');
+      return;
+    }
+    if (!guthaben) {
+      geschichteNr++;
+      flash(seebaer.name + ': "' + seebaer.geschichten[geschichteNr % 2] +
+            ' Wo genau? Das sage ich nur jemandem, der etwas geleistet hat. ' +
+            'Meistere eine Übung oder erledige den Tagesauftrag, dann reden wir wieder."');
+      return;
+    }
+
+    var r = Insel.hinweisEinloesen(who);
+    if (!r.ok) {
+      flash(seebaer.name + ': "Im Moment weiss ich auch nicht mehr als du."');
+      return;
+    }
+    updateHud();
+    flash(seebaer.name + ': "Für deine Mühe: einer liegt ' + r.schatz.nahe + '. ' +
+          'Ein rotes Kreuz zeigt dir die Stelle, sobald du in die Gegend kommst." ' +
+          '(Noch ' + r.guthaben + ' Hinweise auf deinem Konto.)');
   }
 
   /* ---------------- Affen füttern ---------------- */
@@ -1527,8 +1559,10 @@
     if (window.Insel && Insel.hatSchaufel(who)) {
       Insel.offeneSchaetze(who).forEach(function (sc) {
         var sx = sc.tx * TILE + 8, sy = sc.ty * TILE + 14;
-        if (Math.hypot(hero.x - sx, hero.y - sy) < 70) {
-          items.push({ x: sx, y: sy, kind: 'grabstelle' });
+        var verraten = Insel.schatzVerraten(sc.id, who);
+        var weite = verraten ? Insel.oekonomie.verratenWeite : 30;
+        if (Math.hypot(hero.x - sx, hero.y - sy) < weite) {
+          items.push({ x: sx, y: sy, kind: 'grabstelle', verraten: verraten });
         }
       });
     }
@@ -1570,6 +1604,12 @@
           px(ctx, X - 5, Y + 3, 2, 2, '#fbbf24');
           px(ctx, X + 3, Y + 3, 2, 2, '#fbbf24');
           ctx.globalAlpha = 1;
+          /* Verratene Stelle bekommt ein Kreuz, damit man sie von weitem sieht. */
+          if (it.verraten) {
+            var hoch = Math.round(Math.sin(waveT * 2.6 + X) * 2);
+            px(ctx, X - 4, Y - 22 + hoch, 8, 2, '#f87171');
+            px(ctx, X - 1, Y - 26 + hoch, 2, 10, '#f87171');
+          }
           break;
         }
         case 'hero': drawHero(ctx, X, Y, hero.dir, hero.frame, hero.jacket, hero.jacketD,
@@ -1878,7 +1918,20 @@
     var imWald = aufwachenPruefen();
     affenAbrechnen();
     if (!stumm && !imWald) {
-      if (flashT <= 0) flash('Willkommen auf der Lerninsel, ' + name + '! Laufe mit WASD zu einem der Orte.');
+      var auf = window.Insel && Insel.tagesauftrag(Insel.katalogAus(window.Uebungen, name), name);
+      if (flashT <= 0) {
+        if (auf) {
+          var offen = auf.sets.filter(function (x) { return !x.fertig; });
+          flash(offen.length
+            ? 'Willkommen, ' + name + '! Tagesauftrag: ' +
+              offen.map(function (x) { return x.titel; }).join(', ') + '. Alle drei zusammen bringen ' +
+              Insel.oekonomie.auftragBonus + ' Münzen und einen Schatzhinweis.'
+            : 'Willkommen zurück, ' + name + '! Der Tagesauftrag steht schon. ' +
+              'Am Anschlagbrett siehst du, wie das Wochenduell läuft.');
+        } else {
+          flash('Willkommen auf der Lerninsel, ' + name + '! Laufe mit WASD zu einem der Orte.');
+        }
+      }
     } else {
       var w = window.Insel && Insel.offeneWette(who);
       if (w && flashT <= 0) flash('Deine Wette mit ' + w.name + ' läuft noch: mehr als ' + w.ziel +

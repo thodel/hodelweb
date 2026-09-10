@@ -86,7 +86,12 @@
     baerTempo: 46,          /* langsamer als der Spieler (62) — weglaufen geht */
     baerSattDauer: 45,      /* so viele Sekunden lässt er dich nach der Beute in Ruhe */
     schaufelPreis: 20,      /* Münzen für die Schaufel im Kiosk — einmalig */
-    grabWeite: 22           /* so nah muss man an einem Schatz stehen */
+    grabWeite: 22,          /* so nah muss man an einem Schatz stehen */
+    auftragAnzahl: 3,       /* so viele Übungen stehen im Tagesauftrag */
+    auftragMindest: 60,     /* ab diesem Ergebnis zählt eine Übung als erledigt */
+    auftragBonus: 20,       /* Münzen, wenn der ganze Tagesauftrag steht */
+    wochenBonusMeister: 5,  /* Wochenpunkte extra fürs Meistern einer Übung */
+    verratenWeite: 210      /* so weit leuchtet ein verratener Schatz */
   };
 
   /* Zwei Wäldchen — dort wacht man nach einem Blackout auf. */
@@ -159,8 +164,42 @@
   }
   function save(data) { return writeRaw(KEY_DATA, JSON.stringify(data)); }
 
+  /* ---------------- Datum & Woche ---------------- */
+  function zwei(n) { return (n < 10 ? '0' : '') + n; }
+  function tagesStempel(d) {
+    d = d || new Date();
+    return d.getFullYear() + '-' + zwei(d.getMonth() + 1) + '-' + zwei(d.getDate());
+  }
+  /* ISO-Woche: Donnerstag entscheidet, zu welchem Jahr die Woche gehört. */
+  function wochenStempel(d) {
+    d = new Date(d || Date.now());
+    d.setHours(0, 0, 0, 0);
+    d.setDate(d.getDate() + 3 - ((d.getDay() + 6) % 7));
+    var ersterDonnerstag = new Date(d.getFullYear(), 0, 4);
+    ersterDonnerstag.setDate(ersterDonnerstag.getDate() + 3 - ((ersterDonnerstag.getDay() + 6) % 7));
+    var nr = 1 + Math.round((d - ersterDonnerstag) / (7 * 24 * 3600 * 1000));
+    return d.getFullYear() + '-W' + zwei(nr);
+  }
+  /* Immer dieselbe Auswahl für denselben Tag und dasselbe Kind. */
+  function saat(text) {
+    var h = 2166136261;
+    for (var i = 0; i < text.length; i++) {
+      h ^= text.charCodeAt(i);
+      h = (h * 16777619) >>> 0;
+    }
+    return h >>> 0;
+  }
+  function wuerfel(startwert) {
+    var z = startwert >>> 0;
+    return function () {
+      z = (z * 1664525 + 1013904223) >>> 0;
+      return z / 4294967296;
+    };
+  }
+
   function leererSpielstand() {
-    return { muenzen: 0, marken: 0, suessigkeiten: 0, uebungen: {}, besuche: {}, npc: {}, affen: {}, wette: null, seit: Date.now() };
+    return { muenzen: 0, marken: 0, suessigkeiten: 0, uebungen: {}, besuche: {}, npc: {},
+             affen: {}, wochen: {}, hinweise: 0, verraten: {}, wette: null, seit: Date.now() };
   }
 
   var Insel = {
@@ -252,6 +291,41 @@
       e.muenzenTotal += verdient;
       stand.muenzen = (stand.muenzen || 0) + verdient;
 
+      /* Wochenwertung: zählt jedes Ergebnis, auch wenn es keine Münzen gibt. */
+      var iso = wochenStempel();
+      if (!stand.wochen) stand.wochen = {};
+      if (!stand.wochen[iso]) stand.wochen[iso] = { punkte: 0, uebungen: 0 };
+      var neuGemeistert = e.gemeistert && !warGemeistert;
+      stand.wochen[iso].punkte += Math.round(pct / 10) + (neuGemeistert ? OEKONOMIE.wochenBonusMeister : 0);
+      stand.wochen[iso].uebungen++;
+      /* Alte Wochen aufräumen, sonst wächst der Speicher endlos. */
+      var wochen = Object.keys(stand.wochen).sort();
+      while (wochen.length > 10) delete stand.wochen[wochen.shift()];
+
+      /* Ein Schatzhinweis für jede neu gemeisterte Übung. */
+      if (neuGemeistert) stand.hinweise = (stand.hinweise || 0) + 1;
+
+      /* Tagesauftrag abhaken. */
+      var auftrag = null;
+      var a = stand.tagesauftrag;
+      if (a && a.datum === tagesStempel()) {
+        var zeile = a.sets.filter(function (x) { return x.fach === opts.fach && x.set === opts.set; })[0];
+        if (zeile) {
+          if (pct > (zeile.best || 0)) zeile.best = pct;
+          if (!zeile.fertig && pct >= OEKONOMIE.auftragMindest) zeile.fertig = true;
+        }
+        var fertig = a.sets.filter(function (x) { return x.fertig; }).length;
+        var bonus = 0;
+        if (fertig === a.sets.length && !a.bonusAbgeholt) {
+          a.bonusAbgeholt = true;
+          bonus = OEKONOMIE.auftragBonus;
+          stand.muenzen += bonus;
+          stand.hinweise = (stand.hinweise || 0) + 1;
+        }
+        auftrag = { dabei: !!zeile, fertig: fertig, gesamt: a.sets.length,
+                    bonus: bonus, geschafft: zeile ? !!zeile.fertig : false };
+      }
+
       /* Läuft eine Wette in diesem Fach? */
       var wettErgebnis = null;
       var w = stand.wette;
@@ -278,7 +352,10 @@
         muenzen: verdient,
         gesamtMuenzen: stand.muenzen,
         gemeistert: e.gemeistert,
-        neuGemeistert: e.gemeistert && !warGemeistert,
+        neuGemeistert: neuGemeistert,
+        auftrag: auftrag,
+        hinweise: stand.hinweise || 0,
+        wochenPunkte: stand.wochen[iso].punkte,
         ersteMal: e.versuche === 1,
         best: e.best,
         grund: grund,
@@ -289,6 +366,134 @@
     uebung: function (fach, set, who) {
       return this.stand(who).uebungen[fach + ':' + set] || null;
     },
+
+    /* ---------------- Tagesauftrag ----------------
+       Jeden Tag drei Übungen quer durch die Fächer. Wer alle drei schafft,
+       bekommt einen Bonus und einen Schatzhinweis. Die Auswahl hängt nur am
+       Datum und am Namen — beide Kinder sehen ihre Liste den ganzen Tag gleich.
+       'katalog' ist eine Liste {fach, set, titel, schwierigkeit}; ohne Katalog
+       kommt nur zurück, was schon gespeichert ist. */
+    heute: function () { return tagesStempel(); },
+    isoWoche: function (d) { return wochenStempel(d); },
+
+    /* Alle Übungen, die für dieses Kind in Frage kommen — quer über die Fächer.
+       Braucht uebungen.js; Seiten ohne Katalog rufen tagesauftrag() ohne Argument auf. */
+    katalogAus: function (Uebungen, who) {
+      if (!Uebungen || !Uebungen.fuer) return [];
+      var kl = this.klasse(who), out = [];
+      Object.keys(FAECHER).forEach(function (f) {
+        Uebungen.fuer(f, kl).eigene.forEach(function (u) {
+          out.push({ fach: f, set: u.id, titel: u.titel, schwierigkeit: u.schwierigkeit });
+        });
+      });
+      return out;
+    },
+
+    tagesauftrag: function (katalog, who) {
+      who = who || this.who();
+      var stand = this.stand(who);
+      var tag = tagesStempel();
+      var a = stand.tagesauftrag;
+      if (a && a.datum === tag) return a;
+      if (!katalog || !katalog.length) return null;
+
+      var rnd = wuerfel(saat(tag + '|' + who));
+      var pool = katalog.slice();
+      var gewaehlt = [];
+      var wieViele = Math.min(OEKONOMIE.auftragAnzahl, pool.length);
+      /* Erst je Fach höchstens eine Übung, damit der Auftrag durchmischt ist. */
+      var faecherDrin = {};
+      for (var runde = 0; runde < 2 && gewaehlt.length < wieViele; runde++) {
+        for (var i = pool.length - 1; i >= 0 && gewaehlt.length < wieViele; i--) {
+          var idx = Math.floor(rnd() * pool.length);
+          var k = pool[idx];
+          if (!k) continue;
+          if (runde === 0 && faecherDrin[k.fach]) continue;
+          faecherDrin[k.fach] = 1;
+          gewaehlt.push({ fach: k.fach, set: k.set, titel: k.titel || k.set,
+                          schwierigkeit: k.schwierigkeit || 'leicht', fertig: false, best: 0 });
+          pool.splice(idx, 1);
+        }
+      }
+      a = { datum: tag, sets: gewaehlt, bonusAbgeholt: false };
+      stand.tagesauftrag = a;
+      this._speichern(who, stand);
+      return a;
+    },
+    auftragOffen: function (who) {
+      var a = this.stand(who).tagesauftrag;
+      if (!a || a.datum !== tagesStempel()) return null;
+      var fertig = a.sets.filter(function (x) { return x.fertig; }).length;
+      return { gesamt: a.sets.length, fertig: fertig, offen: a.sets.length - fertig,
+               bonusAbgeholt: !!a.bonusAbgeholt, sets: a.sets };
+    },
+    /* Steht diese Übung heute auf dem Zettel? */
+    imAuftrag: function (fach, set, who) {
+      var a = this.stand(who).tagesauftrag;
+      if (!a || a.datum !== tagesStempel()) return null;
+      return a.sets.filter(function (x) { return x.fach === fach && x.set === set; })[0] || null;
+    },
+
+    /* ---------------- Wochenwertung ----------------
+       Punkte sammeln sich pro Kalenderwoche. Nichts wird gelöscht, die Woche
+       ist einfach der Schlüssel — so lässt sich auch später nachschauen. */
+    wochenPunkte: function (iso, who) {
+      var w = (this.stand(who).wochen || {})[iso || wochenStempel()];
+      return w ? { punkte: w.punkte || 0, uebungen: w.uebungen || 0 } : { punkte: 0, uebungen: 0 };
+    },
+    wochenTabelle: function (iso) {
+      iso = iso || wochenStempel();
+      var self = this;
+      var reihen = Object.keys(KINDER).map(function (k) {
+        var w = self.wochenPunkte(iso, k);
+        return { name: k, punkte: w.punkte, uebungen: w.uebungen };
+      });
+      reihen.sort(function (a, b) { return (b.punkte - a.punkte) || (b.uebungen - a.uebungen); });
+      return reihen;
+    },
+    /* Sieger einer Woche. Null bei null Punkten oder Gleichstand an der Spitze. */
+    wochenSieger: function (iso) {
+      var t = this.wochenTabelle(iso);
+      if (!t.length || !t[0].punkte) return null;
+      if (t.length > 1 && t[1].punkte === t[0].punkte) return null;
+      return t[0];
+    },
+    letzteWoche: function () { return wochenStempel(new Date(Date.now() - 7 * 24 * 3600 * 1000)); },
+    /* Sekunden bis Sonntag, 24 Uhr — für die Restanzeige. */
+    wochenRest: function () {
+      var jetzt = new Date();
+      var ende = new Date(jetzt);
+      var bisSonntag = (7 - ((jetzt.getDay() + 6) % 7)) - 1;
+      ende.setDate(ende.getDate() + bisSonntag);
+      ende.setHours(24, 0, 0, 0);
+      return Math.max(0, Math.round((ende - jetzt) / 1000));
+    },
+
+    /* ---------------- Schatzhinweise ----------------
+       Hinweise gibt es nicht geschenkt: für jede gemeisterte Übung einen,
+       und einen für den erfüllten Tagesauftrag. Käpten Krümel löst sie ein. */
+    hinweisGuthaben: function (who) { return this.stand(who).hinweise || 0; },
+    schatzVerraten: function (id, who) { return !!(this.stand(who).verraten || {})[id]; },
+    verrateneSchaetze: function (who) {
+      var v = this.stand(who).verraten || {}, self = this;
+      return SCHAETZE.filter(function (x) { return v[x.id] && !self.schatzGehoben(x.id, who); });
+    },
+    /* Einen Hinweis eintauschen. Rückgabe: { ok, schatz } oder { ok:false, grund }. */
+    hinweisEinloesen: function (who) {
+      who = who || this.who();
+      var stand = this.stand(who);
+      if (!stand.verraten) stand.verraten = {};
+      var offen = this.offeneSchaetze(who);
+      if (!offen.length) return { ok: false, grund: 'alle' };
+      var neu = offen.filter(function (x) { return !stand.verraten[x.id]; });
+      if (!neu.length) return { ok: false, grund: 'schonVerraten', schatz: offen[0] };
+      if ((stand.hinweise || 0) < 1) return { ok: false, grund: 'kein' };
+      stand.hinweise--;
+      stand.verraten[neu[0].id] = Date.now();
+      this._speichern(who, stand);
+      return { ok: true, schatz: neu[0], guthaben: stand.hinweise, offen: neu.length - 1 };
+    },
+
     uebungenImFach: function (fach, who) {
       var alle = this.stand(who).uebungen, out = [];
       for (var k in alle) if (alle[k].fach === fach) out.push(alle[k]);
