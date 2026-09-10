@@ -10,9 +10,9 @@ summary: "Impressum und Datenschutzerklärung"
 
 Verantwortlich für den Inhalt dieser Website:
 
-Prof. Dr. Tobias Hodel
-Universität Bern, Digital Humanities
-Länggassstrasse 49
+Prof. Dr. Tobias Hodel\
+Universität Bern, Digital Humanities\
+Länggassstrasse 49\
 3012 Bern, Schweiz
 
 Kontakt: {{< email >}}

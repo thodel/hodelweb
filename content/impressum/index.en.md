@@ -10,9 +10,9 @@ summary: "Imprint and privacy notice"
 
 Responsible for the content of this website:
 
-Prof. Dr. Tobias Hodel
-University of Bern, Digital Humanities
-Länggassstrasse 49
+Prof. Dr. Tobias Hodel\
+University of Bern, Digital Humanities\
+Länggassstrasse 49\
 3012 Bern, Switzerland
 
 Contact: {{< email >}}
