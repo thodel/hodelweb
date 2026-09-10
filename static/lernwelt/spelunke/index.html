@@ -2,42 +2,21 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Alte Spelunke — Lerninsel</title>
 <link rel="icon" href="/favicon-32x32.png" sizes="32x32">
+<link rel="stylesheet" href="/lernwelt/raum.css">
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-         background: #150d16; color: #e2e8f0; padding: 18px 14px 60px; min-height: 100vh;
-         background-image: radial-gradient(circle at 50% 0%, #2c1526 0%, #150d16 60%); }
-  body.schwank1 { animation: wanken 3s ease-in-out infinite; }
-  body.schwank2 { animation: wanken 1.6s ease-in-out infinite; }
-  @keyframes wanken {
-    0%,100% { transform: translate(0,0) rotate(0); }
-    25% { transform: translate(-6px,3px) rotate(-.8deg); }
-    50% { transform: translate(4px,-4px) rotate(.6deg); }
-    75% { transform: translate(6px,3px) rotate(.9deg); }
-  }
-  .wrap { max-width: 640px; margin: 0 auto; }
-  h1 { font-size: 26px; text-align: center; font-weight: 800; color: #f9a8d4; }
-  .sub { text-align: center; font-size: 13px; color: #a78295; margin: 6px 0 18px; }
-
-  .bank { background: #2a1020; border: 3px solid #f472b6; border-radius: 16px;
-          padding: 14px; text-align: center; margin-bottom: 16px; }
-  .bank .l { font-size: 11.5px; color: #f9a8d4; letter-spacing: .06em; text-transform: uppercase; }
-  .bank .z { font-size: 40px; font-weight: 900; color: #fda4af; line-height: 1.15; }
-  .bank .k { font-size: 12.5px; color: #cbb0be; margin-top: 5px; line-height: 1.6; }
-
-  .reiter { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
-  .reiter button { flex: 1; min-width: 110px; padding: 11px 6px; border-radius: 10px;
-                   border: 2px solid #4a2440; background: #221024; color: #cbb0be;
-                   font-size: 13.5px; font-weight: 700; cursor: pointer; }
-  .reiter button.aktiv { background: #f472b6; color: #4a0f2e; border-color: #f9a8d4; }
-
-  .karte { background: #221024; border: 2px solid #4a2440; border-radius: 16px;
-           padding: 18px; margin-bottom: 16px; }
-  h2 { font-size: 15px; margin-bottom: 10px; color: #f9a8d4; }
-  .tafel[hidden] { display: none; }
+  body { background: #0b0710; }
+  #raum { border-color: #4a2440; box-shadow: 0 0 0 3px #150d16, 0 14px 40px rgba(0,0,0,.6); }
+  #hud, #banner, #dialog .kasten { border-color: #4a2440; background: rgba(21,13,22,.94); }
+  #hud b, #banner b, #dialog .wer { color: #f9a8d4; }
+  .pad button, #knopf-e { border-color: #7c3f66; background: rgba(42,16,32,.86); color: #f9a8d4; }
+  .pad button:active, #knopf-e:active { background: #f472b6; color: #4a0f2e; }
+  .platte { background: #221024; border-color: #7c3f66; }
+  .platte h2 { color: #f9a8d4; }
+  .platte .unter { color: #a78295; }
+  .zu { border-color: #7c3f66; background: #2a1020; color: #f9a8d4; }
 
   .einsatz { display: flex; gap: 8px; justify-content: center; margin-bottom: 8px; flex-wrap: wrap; }
   .einsatz button { padding: 10px 16px; border-radius: 10px; border: 2px solid #4a2440;
@@ -47,7 +26,6 @@
   .erg { text-align: center; font-size: 17px; font-weight: 800; min-height: 28px; margin-top: 12px; }
   .erg.win { color: #4ade80; } .erg.lose { color: #fda4af; }
 
-  /* Muscheln */
   .muscheln { display: flex; gap: 12px; justify-content: center; margin: 16px 0; }
   .muschel { width: 92px; height: 92px; border-radius: 14px; cursor: pointer;
              background: linear-gradient(160deg,#5b3a2e,#3a251d); border: 3px solid #7c5341;
@@ -56,27 +34,23 @@
   .muschel.treffer { background: linear-gradient(160deg,#166534,#14532d); border-color: #4ade80; }
   .muschel.daneben { background: linear-gradient(160deg,#4c0519,#2a0410); border-color: #f43f5e; opacity: .75; }
 
-  /* Karten */
   .hand { display: flex; gap: 8px; justify-content: center; margin: 8px 0 4px; min-height: 78px; flex-wrap: wrap; }
   .spielkarte { width: 50px; height: 72px; border-radius: 8px; background: #f8fafc; color: #111827;
                 border: 2px solid #cbd5e1; display: flex; flex-direction: column;
                 align-items: center; justify-content: center; font-weight: 800; font-size: 17px; }
   .spielkarte.rot { color: #dc2626; }
-  .spielkarte.zu { background: linear-gradient(135deg,#4c1d3a,#2a1020); color: #f9a8d4; border-color: #7c3f66; }
+  .spielkarte.zu2 { background: linear-gradient(135deg,#4c1d3a,#2a1020); color: #f9a8d4; border-color: #7c3f66; }
   .handzeile { text-align: center; font-size: 13px; color: #cbb0be; margin-bottom: 10px; }
   .handzeile b { color: #f8fafc; font-size: 16px; }
 
-  /* Roulette */
-  .rad { text-align: center; font-size: 46px; font-weight: 900; margin: 8px 0;
-         min-height: 62px; letter-spacing: .04em; }
-  .rad .zahl { display: inline-block; min-width: 96px; padding: 6px 14px; border-radius: 14px; }
+  .rad { text-align: center; font-size: 42px; font-weight: 900; margin: 8px 0; min-height: 58px; }
+  .rad .zahl { display: inline-block; min-width: 92px; padding: 6px 14px; border-radius: 14px; }
   .rad .rot { background: #b91c1c; color: #fff; }
   .rad .schwarz { background: #1f2937; color: #fff; }
   .rad .gruen { background: #15803d; color: #fff; }
   .wetten { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
   .wetten button { padding: 12px 4px; border-radius: 10px; border: 2px solid #4a2440;
                    background: #2a1020; color: #e2e8f0; font-size: 13px; font-weight: 700; cursor: pointer; }
-  .wetten button.aktiv { background: #f472b6; color: #4a0f2e; border-color: #f9a8d4; }
   .zahlfeld { display: flex; gap: 8px; align-items: center; justify-content: center; margin-top: 10px; }
   .zahlfeld input { width: 78px; padding: 10px; font-size: 18px; text-align: center; font-weight: 700;
                     border-radius: 10px; border: 2px solid #4a2440; background: #150d16; color: #f8fafc; }
@@ -91,188 +65,439 @@
   td { padding: 7px 0; border-bottom: 1px solid #3d1f36; }
   td:last-child { text-align: right; color: #cbb0be; }
   tr:last-child td { border-bottom: 0; }
+  .bankbox { background: #2a1020; border: 2px solid #f472b6; border-radius: 14px;
+             padding: 12px; text-align: center; margin-bottom: 14px; }
+  .bankbox .l { font-size: 10.5px; color: #f9a8d4; letter-spacing: .06em; text-transform: uppercase; }
+  .bankbox .z { font-size: 30px; font-weight: 900; line-height: 1.2; }
+  .bankbox .k { font-size: 12px; color: #cbb0be; margin-top: 4px; line-height: 1.6; }
   .warnung { background: #2a1020; border-left: 5px solid #f43f5e; border-radius: 12px;
-             padding: 14px 16px; font-size: 13.5px; line-height: 1.75; color: #f1d4e0; }
+             padding: 13px 15px; font-size: 13px; line-height: 1.75; color: #f1d4e0; margin-top: 14px; }
   .warnung b { color: #fda4af; }
-  .rechnung { background: #16121c; border-radius: 12px; padding: 14px; font-size: 13px;
+  .rechnung { background: #16121c; border-radius: 12px; padding: 13px; font-size: 12.5px;
               line-height: 1.9; color: #cbb0be; margin-top: 10px; font-family: ui-monospace, Menlo, monospace; }
   .rechnung b { color: #f9a8d4; }
-  .glaeser { text-align: center; font-size: 30px; letter-spacing: 6px; margin: 8px 0; }
-  .lnk { display: block; text-align: center; padding: 13px; border-radius: 12px; margin-top: 18px;
-         background: #1e3a5f; border: 2px solid #fde68a; color: #fde68a; text-decoration: none; font-weight: 700; }
-  footer { text-align: center; margin-top: 24px; font-size: 12px; color: #6b4a5e; }
-  @media (hover: none) {
-    .einsatz button, .wetten button { padding: 14px 18px; font-size: 16px; }
-    .muschel { width: 104px; height: 104px; font-size: 46px; }
-    .spielkarte { width: 58px; height: 84px; font-size: 19px; }
-  }
-
-  /* Blackout */
-  #blackout { position: fixed; inset: 0; background: #000; z-index: 99;
-              display: flex; align-items: center; justify-content: center; text-align: center;
-              color: #cbb0be; font-size: 16px; line-height: 2; padding: 24px; opacity: 0;
-              transition: opacity 1.4s ease; pointer-events: none; }
-  #blackout.an { opacity: 1; pointer-events: auto; }
+  .glaeser { text-align: center; font-size: 30px; letter-spacing: 6px; margin: 10px 0; }
+  .nuechtern { text-align: center; font-size: 12.5px; color: #a78295; margin-top: 4px; }
 </style>
 </head>
 <body>
-<div class="wrap">
+
+<div id="rahmen">
   <div id="hud"></div>
-  <h1>🎲 Alte Spelunke</h1>
-  <div class="sub">Drei Spiele und eine Schänke. Die Bank rechnet mit.</div>
+  <canvas id="raum"></canvas>
+  <div id="banner"></div>
+</div>
 
-  <div class="bank">
-    <div class="l">So viel hat die Bank bei dir gewonnen</div>
-    <div class="z" id="bank">0 🪙</div>
-    <div class="k" id="bank-k">Noch hast du hier nicht gespielt.</div>
+<div id="steuer">
+  <div class="pad" id="pad-links">
+    <button class="leer"></button><button data-dir="up">▲</button><button class="leer"></button>
+    <button data-dir="left">◀</button><button class="leer"></button><button data-dir="right">▶</button>
+    <button class="leer"></button><button data-dir="down">▼</button><button class="leer"></button>
   </div>
+  <button id="knopf-e">E</button>
+</div>
 
-  <div class="reiter" id="reiter"></div>
-
-  <!-- Muscheln -->
-  <div class="karte tafel" id="t-muscheln">
-    <h2>🐚 Muscheln — wo ist die Perle?</h2>
-    <div class="einsatz" id="einsatz-m"></div>
-    <div class="chance" id="chance-m"></div>
-    <div class="muscheln" id="muscheln"></div>
-    <div class="erg" id="erg-m"></div>
+<!-- Gespräch: bleibt stehen, bis man es wegklickt -->
+<div id="dialog">
+  <div class="kasten">
+    <div class="wer" id="dialog-wer"></div>
+    <div class="was" id="dialog-was"></div>
+    <button class="weiter" id="dialog-weiter">Weiter ▸</button>
   </div>
+</div>
 
-  <!-- Black Jack -->
-  <div class="karte tafel" id="t-bj" hidden>
-    <h2>🃏 Black Jack — näher an 21 als der Wirt</h2>
-    <div class="einsatz" id="einsatz-bj"></div>
-    <div class="chance">Black Jack (21 mit zwei Karten) zahlt das 2,5-fache.
-      Ein normaler Sieg das Doppelte. Der Wirt zieht bis 17.</div>
-    <div class="handzeile" style="margin-top:14px">Wirt: <b id="bj-wirt-wert">—</b></div>
-    <div class="hand" id="bj-wirt"></div>
-    <div class="handzeile">Du: <b id="bj-spieler-wert">—</b></div>
-    <div class="hand" id="bj-spieler"></div>
-    <div class="knopfreihe">
-      <button class="btn" id="bj-start">Geben</button>
-      <button class="btn" id="bj-karte" hidden>Karte</button>
-      <button class="btn grau" id="bj-halt" hidden>Halten</button>
+<div id="fenster">
+  <div class="platte">
+    <button class="zu" id="zu">✕</button>
+
+    <div class="tafel" id="t-muscheln" hidden>
+      <h2>🐚 Muscheltisch</h2>
+      <div class="unter">Wo ist die Perle? Eine von drei Muscheln — die Auszahlung ist
+        kleiner, als die Chance es verlangt.</div>
+      <div class="bankbox" data-bank></div>
+      <div class="einsatz" data-einsatz></div>
+      <div class="chance" id="chance-m"></div>
+      <div class="muscheln" id="muscheln"></div>
+      <div class="erg" id="erg-m"></div>
     </div>
-    <div class="erg" id="erg-bj"></div>
-  </div>
 
-  <!-- Roulette -->
-  <div class="karte tafel" id="t-roulette" hidden>
-    <h2>🎡 Roulette — 37 Fächer, eine Kugel</h2>
-    <div class="einsatz" id="einsatz-r"></div>
-    <div class="rad" id="rad"><span class="zahl gruen">?</span></div>
-    <div class="wetten" id="wetten"></div>
-    <div class="zahlfeld">
-      <span style="font-size:13px;color:#cbb0be">oder genau die Zahl</span>
-      <input id="r-zahl" type="text" inputmode="numeric" placeholder="0–36">
-      <button class="btn" id="r-zahl-los" style="padding:10px 14px;font-size:14px">Setzen</button>
+    <div class="tafel" id="t-bj" hidden>
+      <h2>🃏 Black-Jack-Tisch</h2>
+      <div class="unter">Näher an 21 als der Wirt, aber nicht darüber. Black Jack zahlt das
+        2,5-fache, ein normaler Sieg das Doppelte. Der Wirt zieht bis 17.</div>
+      <div class="bankbox" data-bank></div>
+      <div class="einsatz" data-einsatz></div>
+      <div class="handzeile" style="margin-top:14px">Wirt: <b id="bj-wirt-wert">—</b></div>
+      <div class="hand" id="bj-wirt"></div>
+      <div class="handzeile">Du: <b id="bj-spieler-wert">—</b></div>
+      <div class="hand" id="bj-spieler"></div>
+      <div class="knopfreihe">
+        <button class="btn" id="bj-start">Geben</button>
+        <button class="btn" id="bj-karte" hidden>Karte</button>
+        <button class="btn grau" id="bj-halt" hidden>Halten</button>
+      </div>
+      <div class="erg" id="erg-bj"></div>
     </div>
-    <div class="chance" id="chance-r" style="margin-top:10px"></div>
-    <div class="erg" id="erg-r"></div>
-  </div>
 
-  <!-- Schänke -->
-  <div class="karte tafel" id="t-schaenke" hidden>
-    <h2>🍺 Die Schänke</h2>
-    <div class="chance">Der Wirt braut etwas Undurchsichtiges. Ein Glas kostet
-      <b id="gebraeu-preis">15</b> Münzen. Nach dem ersten wackelt das Bild, nach dem zweiten
-      stärker — und nach dem dritten ist der Abend vorbei.</div>
-    <div class="glaeser" id="glaeser">🥛🥛🥛</div>
-    <div class="knopfreihe">
-      <button class="btn" id="trinken" style="background:#a16207;color:#fef3c7">Ein Glas bestellen</button>
+    <div class="tafel" id="t-roulette" hidden>
+      <h2>🎡 Roulettetisch</h2>
+      <div class="unter">37 Fächer, eine Kugel. Die grüne 0 gehört immer der Bank —
+        genau daran verdient sie.</div>
+      <div class="bankbox" data-bank></div>
+      <div class="einsatz" data-einsatz></div>
+      <div class="rad" id="rad"><span class="zahl gruen">?</span></div>
+      <div class="wetten" id="wetten"></div>
+      <div class="zahlfeld">
+        <span style="font-size:13px;color:#cbb0be">oder genau die Zahl</span>
+        <input id="r-zahl" type="text" inputmode="numeric" placeholder="0–36">
+        <button class="btn" id="r-zahl-los" style="padding:10px 14px;font-size:14px">Setzen</button>
+      </div>
+      <div class="chance" id="chance-r" style="margin-top:10px"></div>
+      <div class="erg" id="erg-r"></div>
     </div>
-    <div class="erg" id="erg-t"></div>
-    <div class="warnung" style="margin-top:14px">
-      Das ist keine gute Idee. Nach dem dritten Glas wachst du irgendwo im Wald auf —
-      und die <b>Hälfte deiner Münzen</b> ist weg.
+
+    <div class="tafel" id="t-bar" hidden>
+      <h2>🍺 An der Bar</h2>
+      <div class="unter">Der Wirt braut etwas Undurchsichtiges. Ein Glas kostet
+        <b id="gebraeu-preis">15</b> Münzen.</div>
+      <div class="glaeser" id="glaeser">🥛🥛🥛</div>
+      <div class="nuechtern" id="nuechtern"></div>
+      <div class="knopfreihe">
+        <button class="btn" id="trinken" style="background:#a16207;color:#fef3c7">Ein Glas bestellen</button>
+      </div>
+      <div class="erg" id="erg-t"></div>
+      <div class="warnung">
+        Nach dem ersten Glas wackelt das Bild, nach dem zweiten stärker. Nach dem dritten
+        wachst du irgendwo im Wald auf, und die <b>Hälfte deiner Münzen</b> ist weg.
+        Wer wartet, wird wieder nüchtern: nach zehn Minuten ist alles vorbei.
+      </div>
+    </div>
+
+    <div class="tafel" id="t-bilanz" hidden>
+      <h2>📊 Der Aushang</h2>
+      <div class="unter">Was du hier bisher gelassen hast — und warum das kein Zufall ist.</div>
+      <div class="bankbox" data-bank></div>
+      <table id="stats"></table>
+      <div class="warnung" id="warnung"></div>
+      <div class="rechnung" id="rechnung"></div>
     </div>
   </div>
-
-  <div class="karte">
-    <h2>📊 Deine Bilanz</h2>
-    <table id="stats"></table>
-  </div>
-
-  <div class="karte">
-    <h2>🧮 Warum die Bank immer gewinnt</h2>
-    <div class="warnung" id="warnung"></div>
-    <div class="rechnung" id="rechnung"></div>
-  </div>
-
-  <a class="lnk" href="/lernwelt/">🏝️ Zurück zur Insel</a>
-  <footer>hodelweb.ch/lernwelt/spelunke · Wahrscheinlichkeit — Lehrplan 21: MA.3.B.2</footer>
 </div>
 
 <div id="blackout"><div id="blackout-text"></div></div>
 
 <script src="/lernwelt/insel.js"></script>
+<script src="/lernwelt/pixel.js"></script>
+<script src="/lernwelt/dialog.js"></script>
+<script src="/lernwelt/raum.js"></script>
+<script src="/lernwelt/musik.js"></script>
 <script>
 (function () {
   'use strict';
   var $ = function (i) { return document.getElementById(i); };
   var who = Insel.who();
+  var px = Pixel.px;
+  var TILE = 16, RAUM_W = 30, RAUM_H = 19;
+
+  var FARBEN = {
+    boden:  ['#5c3a24', '#553520'], diele: '#4a2e1c',
+    wand:   '#33202c', wandD: '#26161f', wandL: '#3f2836',
+    holz:   '#7c5341', holzD: '#5b3a2e', holzL: '#9a6a51',
+    tuch:   '#0f5132', tuchD: '#0a3d26',
+    messing:'#c9a227', kerze: '#ffd98a'
+  };
+
+  var moebel = [
+    { art: 'tresen', tx: 2,  ty: 4,  tw: 9, th: 1 },
+    { art: 'tisch',  tx: 4,  ty: 12, tw: 3, th: 2 },
+    { art: 'karten', tx: 13, ty: 9,  tw: 4, th: 2 },
+    { art: 'rund',   tx: 22, ty: 6,  tw: 4, th: 2 },
+    { art: 'box',    tx: 25, ty: 13, tw: 2, th: 2 },
+    { art: 'fass',   tx: 27, ty: 4,  tw: 1, th: 1 },
+    { art: 'fass',   tx: 27, ty: 17, tw: 1, th: 1 },
+    { art: 'fass',   tx: 1,  ty: 17, tw: 1, th: 1 }
+  ];
+
+  var raum = Raum.starten({
+    canvas: $('raum'), breiteKacheln: RAUM_W, hoeheKacheln: RAUM_H,
+    start: { tx: 15, ty: 16, dir: 'up' },
+    tuerKacheln: [14, 15],
+    /* Der Streifen hinter dem Tresen gehört dem Wirt. */
+    hindernisse: [{ tx: 1, ty: 3, tw: 11, th: 1 }],
+    who: who,
+    moebel: moebel,
+
+    stationen: [
+      { id: 'bar',      name: 'Bar',                tafel: 't-bar',      tx: 9,  ty: 6,  farbe: '#fbbf24' },
+      { id: 'muscheln', name: 'Muscheltisch',       tafel: 't-muscheln', tx: 5,  ty: 15, farbe: '#e2e8f0',
+        hinweis: 'wo ist die Perle?' },
+      { id: 'bj',       name: 'Black-Jack-Tisch',   tafel: 't-bj',       tx: 15, ty: 13, farbe: '#f8fafc',
+        hinweis: 'gegen den Wirt' },
+      { id: 'roulette', name: 'Roulettetisch',      tafel: 't-roulette', tx: 23, ty: 10, farbe: '#fda4af',
+        hinweis: '37 Fächer, eine Kugel' },
+      { id: 'bilanz',   name: 'Aushang',            tafel: 't-bilanz',   tx: 18, ty: 5,  farbe: '#f9a8d4',
+        hinweis: 'was die Bank gewonnen hat' },
+      { id: 'musik',    name: 'Musikecke',          tafel: null,         tx: 25, ty: 15, farbe: '#c4b5fd' },
+      { id: 'tuer',     name: 'Tür nach draussen',  tafel: null,         tx: 15, ty: 17, farbe: '#fde68a',
+        hinweis: 'zurück auf die Insel' }
+    ],
+
+    leute: [
+      { name: 'Wirt Gorm', tx: 4, ty: 3, hinterTresen: true, blick: 'down',
+        jacke: ['#7f1d1d', '#5c1414'], haar: '#3b2a1a', haut: '#d8a882',
+        sprueche: [
+          'Ich bin der Wirt. Ich gewinne immer. Nicht weil ich gut bin, sondern weil ich die Bank bin.',
+          'Das erste Glas geht auf meine Rechnung. Das zweite auch. Das dritte kostet dich den Abend.',
+          'Alle hier erzählen dir von ihrem grossen Gewinn. Vom Rest erzählt keiner.'
+        ] },
+      { name: 'Rita', tx: 3, ty: 6, jacke: ['#7e22ce', '#5b1899'], haar: '#d9a441', haut: '#f2c8a0',
+        sprueche: [
+          'Ich setze immer auf Rot. Immer. Seit vier Stunden. Es muss ja mal kommen.',
+          'Die Kugel weiss nicht, was letztes Mal war. Ich weiss es noch. Das ist genau mein Problem.'
+        ] },
+      { name: 'Knut', tx: 3, ty: 12, jacke: ['#0f766e', '#0b544e'], haar: '#1f2937', haut: '#b97a4f',
+        sprueche: [
+          'Eine von drei — und sie zahlen zweieinhalb. Merkst du was? Ich habe drei Stunden gebraucht.',
+          'Ich habe ein System bei den Muscheln. Es funktioniert nicht, aber es ist meins.'
+        ] },
+      { name: 'Berta', tx: 8, ty: 14, jacke: ['#b45309', '#8a3f07'], haar: '#a8391f', haut: '#e0ac7e',
+        sprueche: [
+          'Gewonnen habe ich heute achtmal. Verloren dreiundzwanzigmal. Aber achtmal gewonnen!',
+          'Mein Neffe sagt, ich soll lieber Bruchrechnen üben. Vermutlich hat er recht.'
+        ] },
+      { name: 'Alois', tx: 11, ty: 12, jacke: ['#1d4ed8', '#17399b'], haar: '#e2e8f0', haut: '#c98d63',
+        sprueche: [
+          'Bei siebzehn hält man. Immer. Ausser bei sechzehn. Und bei achtzehn sowieso.',
+          'Ich zähle die Karten mit. Bis vier. Dann komme ich durcheinander.'
+        ] },
+      { name: 'Momo', tx: 19, ty: 10, jacke: ['#166534', '#0f4a25'], haar: '#5b3a1e', haut: '#7c4a2d',
+        sprueche: [
+          'Der Wirt hat gerade drei Asse gezogen. Nacheinander. Ich sage dazu nichts.',
+          'Ich spiele nur zum Zuschauen. Das ist billiger, und man sieht mehr.'
+        ] },
+      { name: 'Zilla', tx: 20, ty: 9, jacke: ['#be185d', '#8f1246'], haar: '#1f2937', haut: '#e0ac7e',
+        sprueche: [
+          'Die Null. Immer die Null. Sie kommt selten — aber sie kommt für den Wirt.',
+          'Einmal hatte ich die richtige Zahl. Einmal, bei sechsunddreissig Versuchen. Rechne das mal nach.'
+        ] },
+      { name: 'Hein', tx: 26, ty: 10, jacke: ['#374151', '#262d38'], haar: '#8b5a2b', haut: '#f2c8a0',
+        sprueche: [
+          'Ich schaue nur zu. Zuschauen kostet nichts, und der Ausgang ist derselbe.',
+          'Wenn du gewinnst, hör auf. Das sagt hier jeder. Gemacht hat es noch niemand.'
+        ] },
+      { name: 'Fiedel-Fred', tx: 27, ty: 15, musiker: true,
+        jacke: ['#7c2d12', '#5a1f0c'], haar: '#e2e8f0', haut: '#d8a882',
+        sprueche: [
+          'Ich spiele hier jeden Abend. Bezahlt werde ich in Applaus und Gebräu. Vor allem in Gebräu.',
+          'Wirf die Musikbox an. Dann muss ich nicht spielen und kann endlich selber zuhören.'
+        ] }
+    ],
+
+    /* ---- Raum zeichnen ---- */
+    boden: function (ctx, t) {
+      for (var ty = 3; ty < RAUM_H; ty++) {
+        for (var tx = 0; tx < RAUM_W; tx++) {
+          px(ctx, tx * TILE, ty * TILE, TILE, TILE, FARBEN.boden[(tx + ty) % 2]);
+          px(ctx, tx * TILE, ty * TILE + TILE - 1, TILE, 1, FARBEN.diele);
+        }
+      }
+      for (var wx = 0; wx < RAUM_W; wx++) {
+        px(ctx, wx * TILE, 0, TILE, 48, FARBEN.wand);
+        px(ctx, wx * TILE, 42, TILE, 6, FARBEN.wandD);
+        if (wx % 2 === 0) px(ctx, wx * TILE + 2, 6, 2, 34, FARBEN.wandL);
+      }
+      px(ctx, 0, 48, RAUM_W * TILE, 2, '#1c1018');
+      for (var sy = 3; sy < RAUM_H; sy++) {
+        px(ctx, 0, sy * TILE, TILE, TILE, FARBEN.wand);
+        px(ctx, (RAUM_W - 1) * TILE, sy * TILE, TILE, TILE, FARBEN.wand);
+      }
+      for (var bx = 0; bx < RAUM_W; bx++) {
+        if (bx >= 14 && bx <= 15) continue;
+        px(ctx, bx * TILE, (RAUM_H - 1) * TILE, TILE, TILE, FARBEN.wand);
+      }
+      /* Tür */
+      var ty2 = (RAUM_H - 1) * TILE;
+      px(ctx, 14 * TILE, ty2, 2 * TILE, TILE, '#2a1a10');
+      px(ctx, 14 * TILE + 2, ty2 + 2, 2 * TILE - 4, TILE - 2, FARBEN.holzD);
+      px(ctx, 14 * TILE + 4, ty2 + 4, 2 * TILE - 8, TILE - 4, FARBEN.holz);
+      px(ctx, 15 * TILE + 3, ty2 + 8, 2, 2, FARBEN.messing);
+
+      /* Aushang an der Wand */
+      px(ctx, 17 * TILE, 12, 3 * TILE, 30, '#1a0f18');
+      px(ctx, 17 * TILE + 2, 14, 3 * TILE - 4, 26, '#e8dcc0');
+      ctx.font = '7px ui-monospace, monospace';
+      ctx.textAlign = 'center';
+      ctx.fillStyle = '#4a2e1c';
+      ctx.fillText('DIE BANK', 18 * TILE + 8, 24);
+      ctx.fillText('GEWINNT', 18 * TILE + 8, 33);
+
+      /* Fackeln */
+      [3, 12, 22, 27].forEach(function (fx) {
+        var flack = 0.72 + 0.28 * Math.abs(Math.sin(t * 3.4 + fx));
+        px(ctx, fx * TILE + 6, 16, 4, 12, FARBEN.holzD);
+        ctx.globalAlpha = flack;
+        px(ctx, fx * TILE + 5, 8, 6, 8, '#f59e0b');
+        px(ctx, fx * TILE + 6, 5, 4, 5, FARBEN.kerze);
+        ctx.globalAlpha = 0.12 * flack;
+        px(ctx, fx * TILE - 4, 4, 24, 42, '#fde68a');
+        ctx.globalAlpha = 1;
+      });
+    },
+
+    moebelZeichnen: function (ctx, m, t) {
+      var x = m.tx * TILE, y = m.ty * TILE, w = m.tw * TILE, h = m.th * TILE;
+      if (m.art === 'tresen') {
+        px(ctx, x, y - 4, w, TILE + 4, FARBEN.holzD);
+        px(ctx, x, y - 6, w, 4, FARBEN.holzL);
+        px(ctx, x, y + TILE - 4, w, 4, '#3a251d');
+        for (var i = 1; i < m.tw; i += 2) {
+          px(ctx, x + i * TILE + 4, y - 12, 5, 7, '#cbb0be');
+          px(ctx, x + i * TILE + 4, y - 7, 5, 2, '#d97706');
+        }
+        px(ctx, x + w - 22, y - 16, 4, 12, FARBEN.messing);
+        px(ctx, x + w - 26, y - 16, 10, 3, FARBEN.messing);
+        return;
+      }
+      if (m.art === 'box') {
+        var an = window.Musik && Musik.laeuft();
+        px(ctx, x, y - 14, w, h + 14, '#4c1d3a');
+        px(ctx, x + 2, y - 12, w - 4, 14, '#7c3f66');
+        px(ctx, x + 4, y - 10, w - 8, 9, '#150d16');
+        for (var b = 0; b < 4; b++) {
+          var hoehe = an ? 2 + Math.round(Math.abs(Math.sin(t * 6 + b * 1.4)) * 6) : 2;
+          px(ctx, x + 6 + b * 5, y - 3 - hoehe, 3, hoehe, an ? '#c4b5fd' : '#3d2136');
+        }
+        px(ctx, x + 3, y + 2, w - 6, 3, FARBEN.messing);
+        if (an) {
+          ctx.globalAlpha = 0.5 + 0.4 * Math.abs(Math.sin(t * 4));
+          px(ctx, x - 2, y - 16, w + 4, 2, '#c4b5fd');
+          ctx.globalAlpha = 1;
+        }
+        return;
+      }
+      if (m.art === 'fass') {
+        px(ctx, x + 2, y - 10, TILE - 4, 14, FARBEN.holzD);
+        px(ctx, x + 1, y - 7, TILE - 2, 3, FARBEN.messing);
+        px(ctx, x + 1, y - 1, TILE - 2, 3, FARBEN.messing);
+        return;
+      }
+      /* Spieltische */
+      px(ctx, x + 2, y + h - 3, w - 4, 4, 'rgba(0,0,0,.3)');
+      px(ctx, x, y - 6, w, h + 4, FARBEN.holzD);
+      px(ctx, x + 2, y - 8, w - 4, h + 2, FARBEN.holz);
+      px(ctx, x + 4, y - 10, w - 8, h, m.art === 'rund' ? FARBEN.tuch : FARBEN.tuchD);
+      if (m.art === 'rund') {
+        var cxp = x + w / 2, cyp = y - 4;
+        px(ctx, cxp - 11, cyp - 8, 22, 12, '#1f2937');
+        px(ctx, cxp - 9, cyp - 7, 18, 10, '#b91c1c');
+        px(ctx, cxp - 5, cyp - 6, 10, 8, '#0f172a');
+        var dreh = t * 2.2;
+        px(ctx, cxp - 1 + Math.round(Math.cos(dreh) * 7), cyp - 2 + Math.round(Math.sin(dreh) * 4),
+           2, 2, FARBEN.messing);
+      } else if (m.art === 'karten') {
+        for (var k = 0; k < 4; k++) {
+          px(ctx, x + 6 + k * 12, y - 6, 7, 10, '#f8fafc');
+          px(ctx, x + 7 + k * 12, y - 5, 5, 8, k % 2 ? '#dc2626' : '#111827');
+        }
+      } else {
+        for (var s = 0; s < 3; s++) {
+          px(ctx, x + 6 + s * 12, y - 5, 8, 6, '#cbb0be');
+          px(ctx, x + 7 + s * 12, y - 4, 6, 4, '#9a8290');
+        }
+      }
+      px(ctx, x + w - 12, y - 8, 5, 2, FARBEN.messing);
+      px(ctx, x + w - 12, y - 10, 5, 2, '#e3b93a');
+    },
+
+    leuteZeichnen: function (ctx, g, t) {
+      if (!g.musiker) return false;
+      px(ctx, g.x + 6, g.y - 16, 7, 4, FARBEN.holzD);
+      px(ctx, g.x + 11, g.y - 22, 2, 8, FARBEN.holzL);
+      return false;
+    },
+
+    /* ---- Was passiert an einer Station? ---- */
+    stationHinweis: function (s) {
+      if (s.id === 'musik') {
+        return (window.Musik && Musik.laeuft()) ? 'läuft gerade' : 'Musikbox anwerfen';
+      }
+      if (s.id === 'bar') {
+        return 'Gebräu für ' + Insel.oekonomie.gebraeuPreis + ' Münzen · ' +
+               Insel.gebraeuke(who) + ' von ' + Insel.oekonomie.gebraeuMax + ' intus';
+      }
+      return s.hinweis;
+    },
+    stationTun: function (s) {
+      if (s.id === 'musik') {
+        if (!window.Musik || !Musik.verfuegbar()) {
+          Raum.reden('Musikbox', 'Die Kiste bleibt stumm. Dieser Browser mag keinen Ton.');
+          return true;
+        }
+        Musik.umschalten();
+        Raum.reden('Musikbox', Musik.laeuft()
+          ? 'Die Kiste rumpelt los. Fiedel-Fred legt die Geige weg und bestellt ein Gebräu.'
+          : 'Aus. Man hört wieder das Klimpern der Münzen. Auch nicht besser.');
+        return true;
+      }
+      return false;
+    },
+    hudZeichnen: function () {
+      var bilanz = Insel.bankBilanz(who);
+      var rest = Insel.rauschRest(who);
+      return '<span>🧭 <b>' + who + '</b></span>' +
+             '<span class="z">🪙 ' + Insel.muenzen(who) + '</span>' +
+             (Insel.rausch(who) > 0.02
+               ? '<span>🍺 ' + Insel.rausch(who).toFixed(1) + ' · nüchtern in ' +
+                 Math.ceil(rest / 60) + ' Min</span>' : '') +
+             '<span>Bank: <b>' + bilanz + '</b> 🪙</span>' +
+             '<span><a href="/lernwelt/">🏝️ Insel</a></span>';
+    },
+    beiOeffnen: function () { alles(); },
+    beimZeichnen: function () { rauschAnzeigen(); }
+  });
+
+  /* ================= Rausch ================= */
+  var letzteStufe = -1;
+  function rauschAnzeigen() {
+    var r = Insel.rausch(who);
+    var cv = $('raum');
+    /* Stetig statt in Stufen: die Stärke steckt in einer CSS-Variablen. */
+    if (Math.abs(r - letzteStufe) > 0.02) {
+      letzteStufe = r;
+      cv.style.setProperty('--wank', r.toFixed(2));
+      cv.classList.toggle('wankt', r > 0.05);
+      if ($('nuechtern') && !$('t-bar').hidden) barZeigen();
+    }
+  }
+
+  /* ================= Spiele ================= */
   var EINSAETZE = [5, 10, 20];
   var einsatz = 5;
 
-  Insel.hudLeiste($('hud'));
-
-  /* ---------------- Reiter ---------------- */
-  var TAFELN = [
-    ['muscheln', '🐚 Muscheln'], ['bj', '🃏 Black Jack'],
-    ['roulette', '🎡 Roulette'], ['schaenke', '🍺 Schänke']
-  ];
-  function reiterBauen(aktiv) {
-    var box = $('reiter');
-    box.innerHTML = '';
-    TAFELN.forEach(function (t) {
-      var b = document.createElement('button');
-      b.textContent = t[1];
-      if (t[0] === aktiv) b.className = 'aktiv';
-      b.onclick = function () { zeigeTafel(t[0]); };
-      box.appendChild(b);
+  function einsatzLeisten() {
+    Array.prototype.forEach.call(document.querySelectorAll('[data-einsatz]'), function (box) {
+      box.innerHTML = '';
+      EINSAETZE.forEach(function (e) {
+        var b = document.createElement('button');
+        b.textContent = e + ' 🪙';
+        if (e === einsatz) b.className = 'aktiv';
+        b.onclick = function () { einsatz = e; einsatzLeisten(); chanceM(); chanceR(); };
+        box.appendChild(b);
+      });
     });
   }
-  function zeigeTafel(id) {
-    TAFELN.forEach(function (t) { $('t-' + t[0]).hidden = t[0] !== id; });
-    reiterBauen(id);
-  }
-
-  /* ---------------- Einsatz ---------------- */
-  function einsatzLeiste(elId, danach) {
-    var box = $(elId);
-    box.innerHTML = '';
-    EINSAETZE.forEach(function (e) {
-      var b = document.createElement('button');
-      b.textContent = e + ' 🪙';
-      if (e === einsatz) b.className = 'aktiv';
-      b.onclick = function () {
-        einsatz = e;
-        einsatzLeiste('einsatz-m', chanceM);
-        einsatzLeiste('einsatz-bj');
-        einsatzLeiste('einsatz-r', chanceR);
-        chanceM(); chanceR();
-      };
-      box.appendChild(b);
-    });
-    if (danach) danach();
-  }
-
-  function spiel(einsatzBetrag, auszahlung) {
-    var r = Insel.spelunkeSpielen(einsatzBetrag, auszahlung, who);
+  function spiel(betrag, auszahlung) {
+    var r = Insel.spelunkeSpielen(betrag, auszahlung, who);
     alles();
     return r;
   }
-  function genugMuenzen() {
-    if (Insel.muenzen(who) >= einsatz) return true;
-    return false;
-  }
+  function genug() { return Insel.muenzen(who) >= einsatz; }
 
-  /* ================= Muscheln ================= */
+  /* ---- Muscheln ---- */
   var mLaeuft = false;
   function chanceM() {
-    var gewinn = Math.round(einsatz * 2.5);
-    $('chance-m').innerHTML = 'Trefferchance <b>1 von 3</b> (33 %) · Auszahlung <b>' + gewinn +
-      ' 🪙</b> bei ' + einsatz + ' 🪙 Einsatz';
+    $('chance-m').innerHTML = 'Trefferchance <b>1 von 3</b> (33 %) · Auszahlung <b>' +
+      Math.round(einsatz * 2.5) + ' 🪙</b> bei ' + einsatz + ' 🪙 Einsatz';
   }
   function muschelnBauen() {
     var box = $('muscheln');
@@ -286,7 +511,7 @@
   }
   function muschelSpiel(gewaehlt) {
     if (mLaeuft) return;
-    if (!genugMuenzen()) { $('erg-m').textContent = 'Zu wenig Münzen. Geh üben!'; $('erg-m').className = 'erg lose'; return; }
+    if (!genug()) { $('erg-m').textContent = 'Zu wenig Münzen. Geh üben!'; $('erg-m').className = 'erg lose'; return; }
     mLaeuft = true;
     var perle = Math.floor(Math.random() * 3);
     var gewonnen = gewaehlt === perle;
@@ -303,13 +528,13 @@
     setTimeout(function () { mLaeuft = false; muschelnBauen(); $('erg-m').textContent = ''; }, 1800);
   }
 
-  /* ================= Black Jack ================= */
+  /* ---- Black Jack ---- */
   var bjSpieler = [], bjWirt = [], bjLaeuft = false;
   var WERTE = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'B', 'D', 'K'];
-  var FARBEN = ['♠', '♥', '♦', '♣'];
-  function karteZiehen() {
+  var KFARBEN = ['♠', '♥', '♦', '♣'];
+  function karte() {
     return { w: WERTE[Math.floor(Math.random() * WERTE.length)],
-             f: FARBEN[Math.floor(Math.random() * FARBEN.length)] };
+             f: KFARBEN[Math.floor(Math.random() * KFARBEN.length)] };
   }
   function handWert(hand) {
     var summe = 0, asse = 0;
@@ -321,12 +546,12 @@
     while (summe > 21 && asse > 0) { summe -= 10; asse--; }
     return summe;
   }
-  function handZeigen(elId, hand, verdeckt) {
-    var box = $(elId);
+  function handZeigen(id, hand, verdeckt) {
+    var box = $(id);
     box.innerHTML = '';
     hand.forEach(function (k, i) {
       var d = document.createElement('div');
-      if (verdeckt && i === 1) { d.className = 'spielkarte zu'; d.textContent = '★'; }
+      if (verdeckt && i === 1) { d.className = 'spielkarte zu2'; d.textContent = '★'; }
       else {
         d.className = 'spielkarte' + (k.f === '♥' || k.f === '♦' ? ' rot' : '');
         d.innerHTML = k.w + '<span style="font-size:14px">' + k.f + '</span>';
@@ -342,10 +567,10 @@
   }
   function bjStart() {
     if (bjLaeuft) return;
-    if (!genugMuenzen()) { $('erg-bj').textContent = 'Zu wenig Münzen.'; $('erg-bj').className = 'erg lose'; return; }
+    if (!genug()) { $('erg-bj').textContent = 'Zu wenig Münzen.'; $('erg-bj').className = 'erg lose'; return; }
     bjLaeuft = true;
-    bjSpieler = [karteZiehen(), karteZiehen()];
-    bjWirt = [karteZiehen(), karteZiehen()];
+    bjSpieler = [karte(), karte()];
+    bjWirt = [karte(), karte()];
     $('erg-bj').textContent = '';
     $('bj-start').hidden = true; $('bj-karte').hidden = false; $('bj-halt').hidden = false;
     bjZeichnen(false);
@@ -353,14 +578,13 @@
   }
   function bjKarte() {
     if (!bjLaeuft) return;
-    bjSpieler.push(karteZiehen());
+    bjSpieler.push(karte());
     bjZeichnen(false);
     if (handWert(bjSpieler) > 21) bjEnde('bust');
   }
   function bjHalten() {
     if (!bjLaeuft) return;
-    while (handWert(bjWirt) < 17) bjWirt.push(karteZiehen());
-    bjZeichnen(true);
+    while (handWert(bjWirt) < 17) bjWirt.push(karte());
     bjEnde('vergleich');
   }
   function bjEnde(art) {
@@ -370,29 +594,29 @@
     var sp = handWert(bjSpieler), wi = handWert(bjWirt);
     var blackjack = sp === 21 && bjSpieler.length === 2;
     var aus = 0, text;
-    if (art === 'bust' || sp > 21) { text = '💥 Über 21 — verloren. − ' + einsatz + ' 🪙'; }
+    if (art === 'bust' || sp > 21) text = '💥 Über 21 — verloren. − ' + einsatz + ' 🪙';
     else if (blackjack && !(wi === 21 && bjWirt.length === 2)) {
       aus = Math.round(einsatz * 2.5); text = '🃏 Black Jack! + ' + aus + ' 🪙';
     } else if (wi > 21 || sp > wi) { aus = einsatz * 2; text = '🎉 Gewonnen (' + sp + ' gegen ' + wi + '). + ' + aus + ' 🪙'; }
     else if (sp === wi) { aus = einsatz; text = '🤝 Unentschieden — Einsatz zurück.'; }
-    else { text = '💸 Der Wirt gewinnt (' + wi + ' gegen ' + sp + '). − ' + einsatz + ' 🪙'; }
+    else text = '💸 Der Wirt gewinnt (' + wi + ' gegen ' + sp + '). − ' + einsatz + ' 🪙';
     spiel(einsatz, aus);
     $('erg-bj').textContent = text;
     $('erg-bj').className = 'erg ' + (aus > einsatz ? 'win' : aus === einsatz ? '' : 'lose');
   }
 
-  /* ================= Roulette ================= */
+  /* ---- Roulette ---- */
   var ROT = [1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36];
   var WETTEN = [
-    { id: 'rot',    name: 'Rot',       faktor: 2, trifft: function (z) { return ROT.indexOf(z) >= 0; } },
-    { id: 'schwarz',name: 'Schwarz',   faktor: 2, trifft: function (z) { return z !== 0 && ROT.indexOf(z) < 0; } },
-    { id: 'gerade', name: 'Gerade',    faktor: 2, trifft: function (z) { return z !== 0 && z % 2 === 0; } },
-    { id: 'ungerade', name: 'Ungerade',faktor: 2, trifft: function (z) { return z % 2 === 1; } },
-    { id: 'klein',  name: '1–18',      faktor: 2, trifft: function (z) { return z >= 1 && z <= 18; } },
-    { id: 'gross',  name: '19–36',     faktor: 2, trifft: function (z) { return z >= 19; } },
-    { id: 'd1',     name: '1. Dutzend',faktor: 3, trifft: function (z) { return z >= 1 && z <= 12; } },
-    { id: 'd2',     name: '2. Dutzend',faktor: 3, trifft: function (z) { return z >= 13 && z <= 24; } },
-    { id: 'd3',     name: '3. Dutzend',faktor: 3, trifft: function (z) { return z >= 25; } }
+    { name: 'Rot',        faktor: 2, trifft: function (z) { return ROT.indexOf(z) >= 0; } },
+    { name: 'Schwarz',    faktor: 2, trifft: function (z) { return z !== 0 && ROT.indexOf(z) < 0; } },
+    { name: 'Gerade',     faktor: 2, trifft: function (z) { return z !== 0 && z % 2 === 0; } },
+    { name: 'Ungerade',   faktor: 2, trifft: function (z) { return z % 2 === 1; } },
+    { name: '1–18',       faktor: 2, trifft: function (z) { return z >= 1 && z <= 18; } },
+    { name: '19–36',      faktor: 2, trifft: function (z) { return z >= 19; } },
+    { name: '1. Dutzend', faktor: 3, trifft: function (z) { return z >= 1 && z <= 12; } },
+    { name: '2. Dutzend', faktor: 3, trifft: function (z) { return z >= 13 && z <= 24; } },
+    { name: '3. Dutzend', faktor: 3, trifft: function (z) { return z >= 25; } }
   ];
   var rLaeuft = false;
   function wettenBauen() {
@@ -412,11 +636,10 @@
   function farbeVon(z) { return z === 0 ? 'gruen' : (ROT.indexOf(z) >= 0 ? 'rot' : 'schwarz'); }
   function drehen(wette, zahl) {
     if (rLaeuft) return;
-    if (!genugMuenzen()) { $('erg-r').textContent = 'Zu wenig Münzen.'; $('erg-r').className = 'erg lose'; return; }
+    if (!genug()) { $('erg-r').textContent = 'Zu wenig Münzen.'; $('erg-r').className = 'erg lose'; return; }
     rLaeuft = true;
     $('erg-r').textContent = '';
-    var ziel = Math.floor(Math.random() * 37);
-    var schritte = 0;
+    var ziel = Math.floor(Math.random() * 37), schritte = 0;
     var timer = setInterval(function () {
       var z = Math.floor(Math.random() * 37);
       $('rad').innerHTML = '<span class="zahl ' + farbeVon(z) + '">' + z + '</span>';
@@ -435,64 +658,35 @@
       }
     }, 90);
   }
-  $('r-zahl-los').onclick = function () {
-    var z = parseInt($('r-zahl').value, 10);
-    if (isNaN(z) || z < 0 || z > 36) { $('erg-r').textContent = 'Bitte eine Zahl von 0 bis 36.'; $('erg-r').className = 'erg lose'; return; }
-    drehen(null, z);
-  };
 
-  /* ================= Schänke ================= */
-  function glaeserZeigen() {
+  /* ---- Bar ---- */
+  function barZeigen() {
     var g = Insel.gebraeuke(who);
-    $('glaeser').textContent = '🍺'.repeat(g) + '🥛'.repeat(Math.max(0, 3 - g));
+    var rest = Insel.rauschRest(who);
+    $('glaeser').textContent = '🍺'.repeat(g) + '🥛'.repeat(Math.max(0, Insel.oekonomie.gebraeuMax - g));
     $('trinken').disabled = Insel.muenzen(who) < Insel.oekonomie.gebraeuPreis;
-    rauschAnzeigen();
+    $('nuechtern').textContent = rest
+      ? 'Ganz nüchtern bist du in ' + (rest > 90 ? Math.ceil(rest / 60) + ' Minuten' : rest + ' Sekunden') + '.'
+      : 'Du bist nüchtern.';
   }
-  function rauschAnzeigen() {
-    var g = Insel.gebraeuke(who);
-    document.body.classList.toggle('schwank1', g === 1);
-    document.body.classList.toggle('schwank2', g >= 2);
-  }
-  $('trinken').onclick = function () {
-    var r = Insel.trinken(who);
-    if (!r.ok) {
-      $('erg-t').textContent = 'Dir fehlen ' + r.fehlt + ' Münzen.';
-      $('erg-t').className = 'erg lose';
-      return;
-    }
-    alles();
-    if (r.blackout) {
-      $('erg-t').textContent = 'Alles dreht sich …';
-      $('erg-t').className = 'erg lose';
-      $('blackout-text').innerHTML =
-        'Alles wird schwarz.<br><br>Du wachst im <b style="color:#f9a8d4">' + r.waldName +
-        '</b> auf.<br>' + r.verloren + ' Münzen sind weg.<br><br>' +
-        '<span style="font-size:13px;color:#6b4a5e">Es geht gleich weiter …</span>';
-      $('blackout').classList.add('an');
-      setTimeout(function () { window.location.href = '/lernwelt/'; }, 4200);
-      return;
-    }
-    $('erg-t').textContent = r.glaeser === 1
-      ? 'Das erste Glas. Der Boden schwankt ein wenig.'
-      : 'Das zweite Glas. Jetzt wird dir richtig schwummrig.';
-    $('erg-t').className = 'erg lose';
-    glaeserZeigen();
-  };
 
-  /* ================= Bilanz ================= */
+  /* ================= Anzeige ================= */
   function alles() {
     var sp = Insel.spelunkeStand(who);
     var bilanz = Insel.bankBilanz(who);
-    $('bank').textContent = bilanz + ' 🪙';
-    $('bank').style.color = bilanz > 0 ? '#fda4af' : bilanz < 0 ? '#4ade80' : '#cbb0be';
-    $('bank-k').textContent = !sp.spiele
-      ? 'Noch hast du hier nicht gespielt.'
-      : bilanz > 0
-        ? 'So viele Münzen hast du in ' + sp.spiele + (sp.spiele === 1 ? ' Spiel' : ' Spielen') +
-          ' an die Bank verloren.'
-        : bilanz < 0
-          ? 'Du liegst gerade ' + (-bilanz) + ' Münzen vorne. Das hält selten lange.'
-          : 'Im Moment steht es unentschieden.';
+    Raum.hudAuffrischen();
+
+    Array.prototype.forEach.call(document.querySelectorAll('[data-bank]'), function (b) {
+      b.innerHTML = '<div class="l">So viel hat die Bank bei dir gewonnen</div>' +
+        '<div class="z" style="color:' + (bilanz > 0 ? '#fda4af' : bilanz < 0 ? '#4ade80' : '#cbb0be') + '">' +
+        bilanz + ' 🪙</div>' +
+        '<div class="k">' + (!sp.spiele
+          ? 'Noch hast du hier nicht gespielt.'
+          : bilanz > 0
+            ? 'in ' + sp.spiele + (sp.spiele === 1 ? ' Spiel' : ' Spielen')
+            : bilanz < 0 ? 'Du liegst vorne. Das hält selten lange.' : 'Im Moment unentschieden.') +
+        '</div>';
+    });
 
     $('stats').innerHTML =
       '<tr><td>Spiele</td><td>' + sp.spiele + '</td></tr>' +
@@ -524,8 +718,7 @@
       'Black Jack &nbsp;: je nach Spielweise etwa <b>0,95</b><br>' +
       '<br>Alles unter 1,00 heisst: die Bank behält den Rest.';
 
-    $('hud').innerHTML = ''; Insel.hudLeiste($('hud'));
-    glaeserZeigen();
+    barZeigen();
   }
 
   /* ================= Start ================= */
@@ -533,10 +726,38 @@
   $('bj-start').onclick = bjStart;
   $('bj-karte').onclick = bjKarte;
   $('bj-halt').onclick = bjHalten;
-  einsatzLeiste('einsatz-m'); einsatzLeiste('einsatz-bj'); einsatzLeiste('einsatz-r');
-  chanceM(); chanceR(); muschelnBauen(); wettenBauen(); bjZeichnen(false);
-  zeigeTafel('muscheln');
+  $('r-zahl-los').onclick = function () {
+    var z = parseInt($('r-zahl').value, 10);
+    if (isNaN(z) || z < 0 || z > 36) { $('erg-r').textContent = 'Bitte eine Zahl von 0 bis 36.'; $('erg-r').className = 'erg lose'; return; }
+    drehen(null, z);
+  };
+  $('trinken').onclick = function () {
+    var r = Insel.trinken(who);
+    if (!r.ok) { $('erg-t').textContent = 'Dir fehlen ' + r.fehlt + ' Münzen.'; $('erg-t').className = 'erg lose'; return; }
+    alles();
+    if (r.blackout) {
+      $('erg-t').textContent = 'Alles dreht sich …';
+      $('erg-t').className = 'erg lose';
+      $('blackout-text').innerHTML =
+        'Alles wird schwarz.<br><br>Du wachst im <b>' + r.waldName + '</b> auf.<br>' +
+        r.verloren + ' Münzen sind weg.<br><br>' +
+        '<span style="font-size:13px;color:#6b4a5e">Es geht gleich weiter …</span>';
+      $('blackout').classList.add('an');
+      setTimeout(function () { window.location.href = '/lernwelt/'; }, 4200);
+      return;
+    }
+    $('erg-t').textContent = r.glaeser === 1
+      ? 'Das erste Glas. Der Boden schwankt ein wenig.'
+      : 'Das zweite Glas. Jetzt wird dir richtig schwummrig.';
+    $('erg-t').className = 'erg lose';
+  };
+
+  einsatzLeisten(); chanceM(); chanceR(); muschelnBauen(); wettenBauen(); bjZeichnen(false);
   alles();
+  if (window.Musik) Musik.beiErsterAktion();
+  Raum.reden('Alte Spelunke',
+    'Rauch, Münzen und schlechte Ideen. Lauf mit WASD herum und drück E, um dich an einen Tisch zu setzen ' +
+    'oder mit jemandem zu reden. Die Tür unten bringt dich zurück auf die Insel.');
 })();
 </script>
 </body>
