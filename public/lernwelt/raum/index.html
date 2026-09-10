@@ -37,6 +37,12 @@
   .v .t { font-size: 15px; font-weight: 700; }
   .v .i { font-size: 12px; color: #94a3b8; margin-top: 3px; }
   .v iframe { width: 100%; aspect-ratio: 16/9; border: 0; display: block; }
+  .gruppe { margin-bottom: 26px; }
+  .gruppe h2 { font-size: 16px; margin-bottom: 4px; }
+  .gruppe .gh { font-size: 12px; color: #94a3b8; margin-bottom: 12px; line-height: 1.6; }
+  .v.extern .thumb { background: linear-gradient(135deg,#3b1d2e,#1a0f18); }
+  .v.extern .play { background: rgba(248,113,113,.9); color: #450a0a; font-size: 18px; }
+  .v .extern-hinweis { font-size: 11px; color: #fca5a5; margin-top: 4px; }
   .leer { background: #1e293b; border: 2px dashed #475569; border-radius: 14px; padding: 22px;
           text-align: center; color: #94a3b8; font-size: 14px; line-height: 1.8; }
   .leer code { background: #0f172a; padding: 2px 6px; border-radius: 5px; color: #7dd3fc; font-size: 13px; }
@@ -66,7 +72,7 @@
     <div class="datenschutz">
       🔒 Die Videos laufen erst, wenn du auf ein Video klickst. Vorher wird nichts von YouTube geladen.
       Beim Abspielen werden Daten an YouTube (Google) übertragen — dafür wird der Modus
-      «youtube-nocookie» verwendet.
+      «youtube-nocookie» verwendet. Videos mit ↗ öffnen direkt auf YouTube.
     </div>
   </div>
 
@@ -89,8 +95,8 @@
 
   fetch('/lernwelt/videos.json')
     .then(function (r) { return r.json(); })
-    .then(function (j) { daten = j[raumId] || { titel: raumId, emoji: '🚪', videos: [] }; los(); })
-    .catch(function () { daten = { titel: raumId, emoji: '🚪', videos: [] }; los(); });
+    .then(function (j) { daten = j[raumId] || { titel: raumId, emoji: '🚪', gruppen: [] }; los(); })
+    .catch(function () { daten = { titel: raumId, emoji: '🚪', gruppen: [] }; los(); });
 
   function los() {
     document.title = daten.titel + ' — Lerninsel';
@@ -123,32 +129,61 @@
     $('inhalt').style.display = '';
     var box = $('videos');
     box.innerHTML = '';
+    box.className = '';          /* die Gruppen bringen ihr eigenes Raster mit */
 
-    if (!daten.videos || !daten.videos.length) {
+    /* Alte Fassung ohne Gruppen weiterhin unterstützen */
+    var gruppen = daten.gruppen;
+    if (!gruppen) gruppen = [{ titel: '', videos: daten.videos || [] }];
+    var total = gruppen.reduce(function (n, g) { return n + (g.videos ? g.videos.length : 0); }, 0);
+
+    if (!total) {
       box.innerHTML = '<div class="leer">Hier sind noch keine Videos eingetragen.<br>' +
         'Papa kann sie in der Datei <code>static/lernwelt/videos.json</code> ergänzen — ' +
         'dazu einfach die Video-ID (der Teil nach <code>?v=</code>) eintragen.</div>';
       return;
     }
 
-    daten.videos.forEach(function (v) {
-      var el = document.createElement('div');
-      el.className = 'v';
-      el.innerHTML =
-        '<div class="thumb"><div class="play">▶</div></div>' +
-        '<div class="txt"><div class="t">' + esc(v.titel) + '</div>' +
-        '<div class="i">' + esc(v.info || '') + '</div></div>';
-      el.querySelector('.thumb').onclick = function () {
-        var f = document.createElement('iframe');
-        f.src = 'https://www.youtube-nocookie.com/embed/' + encodeURIComponent(v.id) + '?rel=0&autoplay=1';
-        f.allow = 'accelerometer; encrypted-media; picture-in-picture; fullscreen';
-        f.allowFullscreen = true;
-        f.title = v.titel;
-        f.referrerPolicy = 'no-referrer';
-        el.replaceChild(f, el.firstChild);
-      };
-      box.appendChild(el);
+    gruppen.forEach(function (g) {
+      if (!g.videos || !g.videos.length) return;
+      var wrap = document.createElement('div');
+      wrap.className = 'gruppe';
+      if (g.titel) wrap.innerHTML = '<h2>' + esc(g.titel) + '</h2>';
+      if (g.hinweis) wrap.innerHTML += '<div class="gh">' + esc(g.hinweis) + '</div>';
+      var grid = document.createElement('div');
+      grid.className = 'videos';
+      g.videos.forEach(function (v) { grid.appendChild(karte(v)); });
+      wrap.appendChild(grid);
+      box.appendChild(wrap);
     });
+  }
+
+  function karte(v) {
+    var extern = v.modus === 'link';
+    var el = document.createElement('div');
+    el.className = 'v' + (extern ? ' extern' : '');
+    el.innerHTML =
+      '<div class="thumb"><div class="play">' + (extern ? '↗' : '▶') + '</div></div>' +
+      '<div class="txt"><div class="t">' + esc(v.titel) + '</div>' +
+      '<div class="i">' + esc(v.info || '') + '</div>' +
+      (extern ? '<div class="extern-hinweis">öffnet auf YouTube</div>' : '') + '</div>';
+
+    el.querySelector('.thumb').onclick = function () {
+      if (extern) {
+        window.open('https://www.youtube.com/watch?v=' + encodeURIComponent(v.id),
+                    '_blank', 'noopener,noreferrer');
+        return;
+      }
+      var f = document.createElement('iframe');
+      f.src = 'https://www.youtube-nocookie.com/embed/' + encodeURIComponent(v.id) + '?rel=0&autoplay=1';
+      f.allow = 'accelerometer; encrypted-media; picture-in-picture; fullscreen';
+      f.allowFullscreen = true;
+      f.title = v.titel;
+      /* YouTube prüft die einbettende Domain; ohne Referrer verweigert es mit Fehler 153.
+         'strict-origin-when-cross-origin' sendet nur die Domain, nicht die ganze Adresse. */
+      f.referrerPolicy = 'strict-origin-when-cross-origin';
+      el.replaceChild(f, el.firstChild);
+    };
+    return el;
   }
 
   function esc(s) {
