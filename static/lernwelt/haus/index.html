@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inselhaus — Lerninsel</title>
+<link rel="icon" href="/favicon-32x32.png" sizes="32x32">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+         background: #0f172a; color: #e2e8f0; padding: 18px 14px 60px; min-height: 100vh; }
+  .wrap { max-width: 640px; margin: 0 auto; }
+  h1 { font-size: 26px; text-align: center; font-weight: 800; }
+  .sub { text-align: center; font-size: 13px; color: #94a3b8; margin: 6px 0 20px; }
+  h2 { font-size: 15px; margin-bottom: 10px; }
+  .karte { background: #1e293b; border: 2px solid #334155; border-radius: 16px;
+           padding: 18px; margin-bottom: 16px; }
+
+  .zahlen { display: flex; gap: 10px; margin-bottom: 16px; }
+  .zahlen > div { flex: 1; background: #1e293b; border: 2px solid #334155; border-radius: 14px;
+                  padding: 14px 8px; text-align: center; }
+  .zahlen .z { font-size: 28px; font-weight: 900; line-height: 1.1; }
+  .zahlen .l { font-size: 11px; color: #94a3b8; margin-top: 3px; }
+
+  .schrank { display: flex; gap: 18px; flex-wrap: wrap; }
+  .vorschau { flex: 0 0 auto; text-align: center; }
+  .vorschau canvas { image-rendering: pixelated; background: #0b1021;
+                     border: 2px solid #334155; border-radius: 12px; }
+  .teile { flex: 1; min-width: 240px; }
+  .teil { margin-bottom: 12px; }
+  .teil .tn { font-size: 12px; color: #94a3b8; margin-bottom: 5px; }
+  .farben { display: flex; gap: 7px; flex-wrap: wrap; }
+  .farbe { width: 32px; height: 32px; border-radius: 8px; border: 2px solid #475569;
+           cursor: pointer; position: relative; padding: 0; }
+  .farbe.aktiv { border-color: #fde68a; box-shadow: 0 0 0 3px rgba(253,230,138,.25); }
+  .farbe .preis { position: absolute; bottom: -7px; right: -6px; font-size: 9px; font-weight: 700;
+                  background: #422006; color: #fbbf24; border-radius: 5px; padding: 1px 3px; }
+  .btn { display: block; width: 100%; padding: 14px; border: none; border-radius: 12px;
+         font-size: 16px; font-weight: 700; cursor: pointer; background: #38bdf8; color: #082f49;
+         margin-top: 12px; }
+  .btn:hover { background: #7dd3fc; }
+  .btn.grau { background: #334155; color: #cbd5e1; }
+  .btn.gold { background: #fbbf24; color: #451a03; }
+  .btn:disabled { background: #334155; color: #64748b; cursor: not-allowed; }
+  .msg { text-align: center; font-size: 14px; font-weight: 700; min-height: 22px; margin-top: 10px; }
+  .msg.ok { color: #4ade80; } .msg.no { color: #fda4af; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  td { padding: 7px 0; border-bottom: 1px solid #334155; }
+  td:last-child { text-align: right; color: #94a3b8; }
+  tr:last-child td { border-bottom: 0; }
+  .stern { color: #fbbf24; letter-spacing: 2px; }
+  .lnk { display: block; text-align: center; padding: 13px; border-radius: 12px; margin-top: 18px;
+         background: #1e3a5f; border: 2px solid #fde68a; color: #fde68a; text-decoration: none; font-weight: 700; }
+  .klein { font-size: 12px; color: #64748b; line-height: 1.7; margin-top: 8px; }
+  footer { text-align: center; margin-top: 24px; font-size: 12px; color: #475569; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div id="hud"></div>
+  <h1>🏠 Inselhaus</h1>
+  <div class="sub" id="sub"></div>
+
+  <div class="zahlen">
+    <div><div class="z" style="color:#fbbf24" id="z-muenzen">0</div><div class="l">Münzen</div></div>
+    <div><div class="z" style="color:#c4b5fd" id="z-marken">0</div><div class="l">Marken</div></div>
+    <div><div class="z" style="color:#fde68a" id="z-sterne">0</div><div class="l">Sterne</div></div>
+  </div>
+
+  <div class="karte">
+    <h2>👕 Kleiderschrank</h2>
+    <div class="klein" id="schrank-info"></div>
+    <div class="schrank" style="margin-top:14px">
+      <div class="vorschau">
+        <canvas id="figur" width="72" height="90"></canvas>
+        <div class="klein" id="kosten">—</div>
+      </div>
+      <div class="teile" id="teile"></div>
+    </div>
+    <button class="btn gold" id="anziehen">Anziehen</button>
+    <div class="msg" id="msg-schrank"></div>
+  </div>
+
+  <div class="karte">
+    <h2>💾 Fortschritt sichern</h2>
+    <div class="klein">Der Spielstand wird sowieso laufend im Browser gespeichert.
+      Hier legst du zusätzlich eine Sicherung an — falls einmal etwas schiefgeht.</div>
+    <button class="btn" id="sichern">Jetzt sichern</button>
+    <button class="btn grau" id="zurueckholen">Sicherung zurückholen</button>
+    <div class="msg" id="msg-sichern"></div>
+    <div class="klein" id="sicherung-info"></div>
+  </div>
+
+  <div class="karte">
+    <h2>📊 Dein Stand</h2>
+    <table id="stand"></table>
+  </div>
+
+  <div class="karte">
+    <h2>🧭 Wer spielt?</h2>
+    <div class="klein">Jedes Kind hat einen eigenen Spielstand.</div>
+    <div id="kinder" style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap"></div>
+  </div>
+
+  <a class="lnk" href="/lernwelt/">🏝️ Zurück zur Insel</a>
+  <footer>hodelweb.ch/lernwelt/haus</footer>
+</div>
+
+<script src="/lernwelt/insel.js"></script>
+<script>
+(function () {
+  'use strict';
+  var $ = function (i) { return document.getElementById(i); };
+  var who = Insel.who();
+  var auswahl = Insel.avatar(who);
+
+  Insel.hudLeiste($('hud'));
+  $('sub').textContent = who + ' · speichern, umziehen, nachschauen';
+
+  /* ---------------- Figur zeichnen ---------------- */
+  var cv = $('figur'), ctx = cv.getContext('2d');
+  ctx.imageSmoothingEnabled = false;
+  function px(x, y, w, h, col) { ctx.fillStyle = col; ctx.fillRect(x * 4, y * 4, w * 4, h * 4); }
+  function dunkler(hex, m) {
+    m = m || 30;
+    if (hex.charAt(0) !== '#') return hex;
+    var n = parseInt(hex.slice(1), 16);
+    return 'rgb(' + Math.max(0, (n >> 16) - m) + ',' + Math.max(0, ((n >> 8) & 255) - m) +
+           ',' + Math.max(0, (n & 255) - m) + ')';
+  }
+  function heller(hex) {
+    if (hex.charAt(0) !== '#') return hex;
+    var n = parseInt(hex.slice(1), 16);
+    return 'rgb(' + Math.min(255, (n >> 16) + 34) + ',' + Math.min(255, ((n >> 8) & 255) + 28) +
+           ',' + Math.min(255, (n & 255) + 20) + ')';
+  }
+  function figurZeichnen() {
+    ctx.clearRect(0, 0, cv.width, cv.height);
+    var a = auswahl, L = 3, T = 2;
+    var haut = a.haut, hautD = dunkler(haut, 26);
+    px(L + 1, T + 14, 4, 4, a.hose);
+    px(L + 7, T + 14, 4, 4, dunkler(a.hose, 20));
+    px(L + 1, T + 18, 4, 1, a.schuhe);
+    px(L + 7, T + 18, 4, 1, a.schuhe);
+    px(L + 1, T + 7, 10, 8, a.shirt);
+    px(L + 1, T + 7, 10, 1, dunkler(a.shirt));
+    px(L + 1, T + 14, 10, 1, dunkler(a.shirt));
+    px(L - 1, T + 8, 2, 5, dunkler(a.shirt));
+    px(L + 11, T + 8, 2, 5, dunkler(a.shirt));
+    px(L - 1, T + 12, 2, 2, haut);
+    px(L + 11, T + 12, 2, 2, haut);
+    px(L + 2, T + 1, 8, 7, haut);
+    px(L + 2, T + 7, 8, 1, hautD);
+    px(L + 2, T, 8, 2, a.haar);
+    px(L + 1, T + 1, 1, 4, a.haar);
+    px(L + 10, T + 1, 1, 4, a.haar);
+    px(L + 3, T, 3, 1, heller(a.haar));
+    px(L + 4, T + 4, 1, 2, '#141824');
+    px(L + 7, T + 4, 1, 2, '#141824');
+    px(L + 5, T + 6, 2, 1, dunkler(haut, 50));
+  }
+
+  /* ---------------- Kleiderschrank ---------------- */
+  function schrankBauen() {
+    var box = $('teile');
+    box.innerHTML = '';
+    Object.keys(Insel.garderobe).forEach(function (teil) {
+      var g = Insel.garderobe[teil];
+      var d = document.createElement('div');
+      d.className = 'teil';
+      d.innerHTML = '<div class="tn">' + g.name + (g.preis ? ' · neue Farbe ' + g.preis + ' 🪙' : ' · gratis') + '</div>';
+      var reihe = document.createElement('div');
+      reihe.className = 'farben';
+      g.werte.forEach(function (w) {
+        var b = document.createElement('button');
+        b.className = 'farbe' + (auswahl[teil] === w[0] ? ' aktiv' : '');
+        b.style.background = w[0];
+        b.title = w[1];
+        var muss = g.preis > 0 && !Insel.besitzt(teil, w[0], who) && Insel.avatarErstellt(who);
+        if (muss) b.innerHTML = '<span class="preis">' + g.preis + '</span>';
+        b.onclick = function () { auswahl[teil] = w[0]; schrankBauen(); figurZeichnen(); kostenZeigen(); };
+        reihe.appendChild(b);
+      });
+      d.appendChild(reihe);
+      box.appendChild(d);
+    });
+  }
+
+  function offeneKosten() {
+    if (!Insel.avatarErstellt(who)) return 0;
+    var alt = Insel.avatar(who), summe = 0;
+    Object.keys(Insel.garderobe).forEach(function (teil) {
+      var g = Insel.garderobe[teil];
+      if (!g.preis || auswahl[teil] === alt[teil]) return;
+      if (!Insel.besitzt(teil, auswahl[teil], who)) summe += g.preis;
+    });
+    return summe;
+  }
+
+  function kostenZeigen() {
+    var k = offeneKosten();
+    $('kosten').textContent = !Insel.avatarErstellt(who)
+      ? 'Die erste Ausstattung ist gratis.'
+      : (k ? 'Kostet ' + k + ' 🪙' : 'Kostet nichts');
+    $('anziehen').disabled = k > Insel.muenzen(who);
+    $('schrank-info').textContent = !Insel.avatarErstellt(who)
+      ? 'Stell dir deine Figur zusammen — das erste Mal ist alles gratis.'
+      : 'Farben, die du schon hast, kannst du jederzeit gratis wechseln. Neue kosten je 5 Münzen.';
+  }
+
+  $('anziehen').onclick = function () {
+    var r = Insel.avatarSetzen(auswahl, who);
+    var m = $('msg-schrank');
+    if (r.ok) {
+      m.textContent = r.gratis ? '✔ Fertig — deine erste Ausstattung war gratis.'
+        : r.kosten ? '✔ Angezogen. ' + r.kosten + ' Münzen bezahlt.' : '✔ Angezogen.';
+      m.className = 'msg ok';
+      auswahl = Insel.avatar(who);
+      alles();
+    } else {
+      m.textContent = 'Dir fehlen ' + r.fehlt + ' Münzen.';
+      m.className = 'msg no';
+    }
+  };
+
+  /* ---------------- Sichern ---------------- */
+  function sicherungInfo() {
+    var w = Insel.letzteSicherung(who);
+    $('sicherung-info').textContent = w
+      ? 'Letzte Sicherung: ' + new Date(w).toLocaleString('de-CH')
+      : 'Noch keine Sicherung angelegt.';
+    $('zurueckholen').disabled = !w;
+  }
+  $('sichern').onclick = function () {
+    var r = Insel.sichern(who);
+    $('msg-sichern').textContent = r.ok ? '✔ Gesichert.' : 'Konnte nicht sichern.';
+    $('msg-sichern').className = 'msg ' + (r.ok ? 'ok' : 'no');
+    sicherungInfo();
+  };
+  $('zurueckholen').onclick = function () {
+    var r = Insel.wiederherstellen(who);
+    $('msg-sichern').textContent = r.ok ? '✔ Sicherung zurückgeholt.' : 'Keine Sicherung gefunden.';
+    $('msg-sichern').className = 'msg ' + (r.ok ? 'ok' : 'no');
+    auswahl = Insel.avatar(who);
+    alles();
+  };
+
+  /* ---------------- Stand ---------------- */
+  function standZeigen() {
+    var t = $('stand');
+    t.innerHTML = '';
+    Object.keys(Insel.faecher).forEach(function (f) {
+      var fach = Insel.faecher[f];
+      var u = Insel.uebungenImFach(f, who);
+      var gem = u.filter(function (x) { return x.gemeistert; }).length;
+      var best = u.reduce(function (m, x) { return Math.max(m, x.best || 0); }, 0);
+      var st = Insel.sterne(f, who);
+      t.innerHTML += '<tr><td>' + fach.emoji + ' ' + fach.kurz +
+        ' <span class="stern">' + '★'.repeat(st) + '☆'.repeat(3 - st) + '</span></td>' +
+        '<td>' + u.length + ' Übungen · ' + gem + ' gemeistert · Bestwert ' + best + ' %</td></tr>';
+    });
+    var w = Insel.offeneWette(who);
+    if (w) {
+      t.innerHTML += '<tr><td>🤝 Offene Wette</td><td>gegen ' + w.name + ', Ziel über ' + w.ziel + ' %</td></tr>';
+    }
+    var sp = Insel.spelunkeStand(who);
+    if (sp.spiele) {
+      t.innerHTML += '<tr><td>🎲 Spelunke</td><td>' + sp.spiele + ' Spiele · Bank im Plus mit ' +
+        Insel.bankBilanz(who) + ' 🪙</td></tr>';
+    }
+  }
+
+  function kinderZeigen() {
+    var box = $('kinder');
+    box.innerHTML = '';
+    Object.keys(Insel.kinder).forEach(function (k) {
+      var b = document.createElement('button');
+      b.className = 'btn' + (k === who ? ' gold' : ' grau');
+      b.style.cssText += 'width:auto;flex:1;min-width:110px;margin-top:0;padding:11px';
+      b.textContent = Insel.kinder[k].emoji + ' ' + k;
+      b.onclick = function () {
+        Insel.setWho(k);
+        who = k;
+        auswahl = Insel.avatar(who);
+        Insel.positionVergessen();
+        $('sub').textContent = who + ' · speichern, umziehen, nachschauen';
+        alles();
+      };
+      box.appendChild(b);
+    });
+  }
+
+  function alles() {
+    $('z-muenzen').textContent = Insel.muenzen(who);
+    $('z-marken').textContent = Insel.marken(who);
+    $('z-sterne').textContent = Insel.sterneGesamt(who);
+    $('hud').innerHTML = ''; Insel.hudLeiste($('hud'));
+    schrankBauen(); figurZeichnen(); kostenZeigen();
+    sicherungInfo(); standZeigen(); kinderZeigen();
+  }
+  alles();
+})();
+</script>
+</body>
+</html>
