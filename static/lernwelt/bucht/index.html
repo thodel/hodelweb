@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Fischerbucht — Lerninsel</title>
+<link rel="icon" href="/favicon-32x32.png" sizes="32x32">
+<link rel="stylesheet" href="/lernwelt/raum.css">
+<style>
+  body { background: #07131f; }
+  #raum { border-color: #1c6ea4; box-shadow: 0 0 0 3px #07131f, 0 14px 40px rgba(0,0,0,.55); }
+  #hud, #banner, #dialog .kasten { border-color: #1c6ea4; background: rgba(9,22,36,.94); }
+  #hud b, #banner b, #dialog .wer { color: #7dd3fc; }
+  .platte { background: #0d2136; border-color: #1c6ea4; }
+  .fangbox { text-align: center; margin: 14px 0; }
+  .fangbox .gross { font-size: 40px; font-weight: 900; color: #7dd3fc; line-height: 1.2; }
+  .fangbox .k { font-size: 13px; color: #94a3b8; margin-top: 4px; }
+  .spur { position: relative; height: 26px; background: #06253c; border: 2px solid #1c6ea4;
+          border-radius: 999px; overflow: hidden; margin: 14px 0 8px; }
+  .spur .zone { position: absolute; top: 0; bottom: 0; background: rgba(74,222,128,.34);
+                border-left: 2px solid #4ade80; border-right: 2px solid #4ade80; }
+  .spur .zeiger { position: absolute; top: -3px; bottom: -3px; width: 5px; background: #fbbf24;
+                  border-radius: 3px; }
+  .knopf { display: block; width: 100%; text-align: center; padding: 15px; border-radius: 12px;
+           margin-top: 10px; background: #38bdf8; border: none; color: #082f49;
+           font: 700 17px -apple-system, BlinkMacSystemFont, sans-serif; cursor: pointer; }
+  .knopf:disabled { background: #1e293b; color: #64748b; cursor: not-allowed; }
+  .erg { text-align: center; font-size: 16px; font-weight: 800; min-height: 26px; margin-top: 10px; }
+  .erg.win { color: #4ade80; } .erg.lose { color: #fda4af; }
+  .fische { display: grid; gap: 8px; margin-top: 12px; }
+  .fisch { display: flex; gap: 10px; align-items: center; font-size: 13.5px;
+           padding: 7px 0; border-top: 1px solid #143b57; }
+  .fisch.weg { color: #64748b; }
+  .fisch .p { margin-left: auto; color: #fbbf24; font-weight: 700; }
+  .fisch.weg .p { color: #475569; }
+  .lohn { font-size: 12.5px; color: #94a3b8; margin-top: 12px; line-height: 1.7; }
+  .lohn b { color: #fbbf24; }
+</style>
+</head>
+<body>
+
+<div id="rahmen">
+  <div id="hud"></div>
+  <canvas id="raum"></canvas>
+  <div id="banner"></div>
+</div>
+
+<div id="steuer">
+  <div class="pad">
+    <button class="leer"></button><button data-dir="up">▲</button><button class="leer"></button>
+    <button data-dir="left">◀</button><button class="leer"></button><button data-dir="right">▶</button>
+    <button class="leer"></button><button data-dir="down">▼</button><button class="leer"></button>
+  </div>
+  <button id="knopf-e">E</button>
+</div>
+
+<div id="fenster">
+  <div class="platte">
+    <button class="zu" id="zu">✕</button>
+    <div class="tafel" id="t-angel" hidden>
+      <h2>🎣 Angeln</h2>
+      <div class="unter">Der Schwimmer wandert hin und her. Drück genau dann, wenn er im
+        grünen Feld ist. Je kleiner das Feld, desto grösser der Fisch.</div>
+      <div class="fangbox">
+        <div class="gross" id="fang-fisch">🐟</div>
+        <div class="k" id="fang-name">Bereit?</div>
+      </div>
+      <div class="spur" id="spur">
+        <div class="zone" id="zone"></div>
+        <div class="zeiger" id="zeiger"></div>
+      </div>
+      <button class="knopf" id="fang-knopf">Auswerfen</button>
+      <div class="erg" id="fang-erg"></div>
+      <div class="lohn" id="fang-lohn"></div>
+    </div>
+    <div class="tafel" id="t-eimer" hidden>
+      <h2>🪣 Dein Eimer</h2>
+      <div class="unter">Jede Art bringt beim ersten Mal Münzen. Danach ist sie nur noch schön.</div>
+      <div class="fische" id="eimer"></div>
+      <div class="lohn" id="eimer-lohn"></div>
+    </div>
+  </div>
+</div>
+
+<script src="/lernwelt/insel.js"></script>
+<script src="/lernwelt/pixel.js"></script>
+<script src="/lernwelt/dialog.js"></script>
+<script src="/lernwelt/raum.js"></script>
+<script>
+(function () {
+  'use strict';
+  var $ = function (i) { return document.getElementById(i); };
+  var px = Pixel.px;
+  var TILE = 16, RAUM_W = 26, RAUM_H = 17;
+  var who = Insel.who();
+
+  if (!Insel.teilOffen('bucht', who)) {
+    var st = Insel.teilStand('bucht', who);
+    Dialog.zeigen('Fischerbucht', [
+      'Das Tor zum Steg ist zugebunden.',
+      'Du brauchst ' + st.soll + ' Sterne, du hast ' + st.ist + '.'
+    ], function () { window.location.href = '/lernwelt/'; });
+    return;
+  }
+
+  /* Fische: je seltener, desto schmaler das grüne Feld und desto mehr Münzen. */
+  var FISCHE = [
+    { id: 'egli',    name: 'Egli',       emoji: '🐟', breite: 34, muenzen: 2 },
+    { id: 'forelle', name: 'Forelle',    emoji: '🐠', breite: 26, muenzen: 3 },
+    { id: 'hecht',   name: 'Hecht',      emoji: '🐡', breite: 19, muenzen: 5 },
+    { id: 'aal',     name: 'Aal',        emoji: '🐍', breite: 14, muenzen: 6 },
+    { id: 'krake',   name: 'Kleine Krake', emoji: '🐙', breite: 10, muenzen: 8 },
+    { id: 'stiefel', name: 'Alter Stiefel', emoji: '🥾', breite: 40, muenzen: 0 }
+  ];
+
+  function eimer() {
+    var st = Insel.stand(who);
+    return st.fische || (st.fische = {});
+  }
+  function gefangen(id) { return !!eimer()[id]; }
+  function eintragen(f) {
+    var stand = Insel.stand(who);
+    if (!stand.fische) stand.fische = {};
+    var neu = !stand.fische[f.id];
+    stand.fische[f.id] = (stand.fische[f.id] || 0) + 1;
+    var lohn = neu ? f.muenzen : 0;
+    stand.muenzen = (stand.muenzen || 0) + lohn;
+    Insel._speichern(who, stand);
+    return { neu: neu, lohn: lohn, anzahl: stand.fische[f.id] };
+  }
+
+  var moebel = [
+    { art: 'steg',  tx: 8, ty: 9, tw: 10, th: 2 },
+    { art: 'boot',  tx: 19, ty: 8, tw: 4, th: 2 },
+    { art: 'huette', tx: 3, ty: 5, tw: 4, th: 3 },
+    { art: 'kiste', tx: 21, ty: 13, tw: 1, th: 1 },
+    { art: 'kiste', tx: 3, ty: 13, tw: 1, th: 1 }
+  ];
+
+  Raum.starten({
+    canvas: $('raum'), breiteKacheln: RAUM_W, hoeheKacheln: RAUM_H,
+    start: { tx: 13, ty: 14, dir: 'up' },
+    tuerKacheln: [12, 13],
+    wandOben: 3,
+    who: who,
+    moebel: moebel,
+    lichtInnen: 'rgba(180,220,255,.05)',
+    lichtAussen: 'rgba(6,20,34,.34)',
+
+    stationen: [
+      { id: 'angel', name: 'Stegende', tafel: 't-angel', tx: 13, ty: 12, farbe: '#7dd3fc',
+        hinweis: 'hier beisst etwas', verb: 'angeln' },
+      { id: 'eimer', name: 'Eimer', tafel: 't-eimer', tx: 6, ty: 9, farbe: '#fbbf24',
+        hinweis: 'was schon drin ist', verb: 'nachsehen' },
+      { id: 'tuer', name: 'Weg zurück', tafel: null, tx: 13, ty: 15, farbe: '#fde68a',
+        hinweis: 'zurück auf die Insel' }
+    ],
+
+    leute: [
+      { name: 'Fischer Fritz', tx: 17, ty: 12, jacke: ['#0f766e', '#0b544e'],
+        haar: '#e2e8f0', haut: '#c98d63',
+        sprueche: [
+          ['Setz dich ans Stegende, wirf aus und warte.',
+           'Der Schwimmer wandert. Wenn er im grünen Feld ist, ziehst du. Nicht vorher, nicht nachher.'],
+          ['Der Aal ist der schwierigste. Das grüne Feld ist schmal wie ein Daumen.',
+           'Und wenn du ihn hast, windet er sich. Aber das siehst du dann schon.'],
+          'Einmal habe ich einen Stiefel gefangen. Zweimal denselben. Er kommt immer wieder.',
+          ['Fischen ist wie Üben.', 'Man wird nicht besser, weil man mehr will. Man wird besser, weil man ' +
+           'öfter hinschaut.']
+        ] },
+      { name: 'Katze Knapitän', tx: 9, ty: 12, jacke: ['#f59e0b', '#c2760a'],
+        haar: '#fbbf24', haut: '#fcd34d',
+        sprueche: [
+          'Miau.',
+          ['Miau. Miau.', 'Das heisst: der Eimer steht da drüben, und ja, sie schaut hinein.']
+        ] }
+    ],
+
+    boden: function (ctx, t) {
+      /* Wasser mit Wellen */
+      for (var ty = 3; ty < RAUM_H; ty++) {
+        for (var tx = 0; tx < RAUM_W; tx++) {
+          var welle = Math.sin(t * 1.2 + tx * 0.5 + ty * 0.3) > 0.6;
+          px(ctx, tx * TILE, ty * TILE, TILE, TILE, welle ? '#1f76ad' : '#1c6ea4');
+        }
+      }
+      /* Strand oben und unten */
+      for (var bx = 0; bx < RAUM_W; bx++) {
+        px(ctx, bx * TILE, 3 * TILE, TILE, TILE * 2, '#39a0c9');
+        px(ctx, bx * TILE, 0, TILE, 48, '#e8d3a0');
+        px(ctx, bx * TILE, 40, TILE, 8, '#dcc38f');
+        px(ctx, bx * TILE, (RAUM_H - 3) * TILE, TILE, TILE * 3, '#e8d3a0');
+      }
+      /* Schaumkanten */
+      for (var sx = 0; sx < RAUM_W * TILE; sx += 6) {
+        var h = Math.sin(t * 2 + sx * 0.1) > 0 ? 2 : 1;
+        px(ctx, sx, 48, 4, h, '#cfe8f5');
+        px(ctx, sx, (RAUM_H - 3) * TILE - h, 4, h, '#cfe8f5');
+      }
+      /* Weg zurück */
+      var ty2 = (RAUM_H - 1) * TILE;
+      px(ctx, 12 * TILE, ty2 - TILE, 2 * TILE, TILE * 2, '#c3a878');
+      /* Ein paar Fische, die vorbeiziehen */
+      for (var f = 0; f < 5; f++) {
+        var fx = ((t * (14 + f * 5) + f * 90) % (RAUM_W * TILE + 40)) - 20;
+        var fy = 5 * TILE + f * 22 + Math.sin(t * 1.6 + f) * 3;
+        ctx.globalAlpha = 0.5;
+        px(ctx, fx, fy, 6, 3, '#7dd3fc');
+        px(ctx, fx - 3, fy, 3, 3, '#7dd3fc');
+        ctx.globalAlpha = 1;
+      }
+    },
+
+    moebelZeichnen: function (ctx, m, t) {
+      var x = m.tx * TILE, y = m.ty * TILE, w = m.tw * TILE, h = m.th * TILE;
+      if (m.art === 'steg') {
+        px(ctx, x, y + h - 4, w, 5, '#5b3a2e');
+        px(ctx, x, y - 2, w, h, '#7c5341');
+        for (var i = 0; i < m.tw; i++) px(ctx, x + i * TILE, y - 2, 1, h, '#5b3a2e');
+        /* Poller */
+        px(ctx, x - 3, y - 12, 6, 12, '#5b3a2e');
+        px(ctx, x + w - 3, y - 12, 6, 12, '#5b3a2e');
+        return;
+      }
+      if (m.art === 'boot') {
+        var schaukel = Math.round(Math.sin(t * 1.1) * 2);
+        px(ctx, x + 2, y - 6 + schaukel, w - 4, 9, '#9a6a51');
+        px(ctx, x + 2, y + 2 + schaukel, w - 4, 4, '#5b3a2e');
+        px(ctx, x + w / 2 - 1, y - 26 + schaukel, 2, 21, '#5b3a2e');
+        px(ctx, x + w / 2 + 1, y - 25 + schaukel, 12, 12, '#f8fafc');
+        return;
+      }
+      if (m.art === 'huette') {
+        px(ctx, x, y - 6, w, h + 4, '#7c5341');
+        px(ctx, x - 3, y - 16, w + 6, 11, '#8a2c2c');
+        px(ctx, x + 6, y - 2, 10, 10, '#5b3a2e');
+        px(ctx, x + w - 14, y - 3, 8, 7, '#39a0c9');
+        /* Netze an der Wand */
+        for (var n = 0; n < 4; n++) px(ctx, x + 3 + n * 8, y - 5, 1, 8, '#cbd5e1');
+        return;
+      }
+      px(ctx, x + 1, y - 9, TILE - 2, 13, '#5b3a2e');
+      px(ctx, x + 1, y - 6, TILE - 2, 2, '#c9a227');
+    },
+
+    stationTun: function (s) {
+      if (s.id === 'angel') { angelOeffnen(); return true; }
+      if (s.id === 'eimer') { eimerOeffnen(); return true; }
+      return false;
+    },
+    hudZeichnen: function () {
+      var arten = Object.keys(eimer()).length;
+      return '<span>🧭 <b>' + who + '</b></span>' +
+             '<span class="z">🪙 ' + Insel.muenzen(who) + '</span>' +
+             '<span>🎣 ' + arten + '/' + FISCHE.length + ' Arten</span>' +
+             '<span><a href="/lernwelt/">🏝️ Insel</a></span>';
+    }
+  });
+
+  /* ================= Angeln ================= */
+  var laeuft = false, pos = 0, richtung = 1, tempo = 0.9, zonenStart = 0, zonenBreite = 0;
+  var zielFisch = null, timer = null;
+
+  function angelOeffnen() {
+    $('fang-erg').textContent = '';
+    $('fang-fisch').textContent = '🎣';
+    $('fang-name').textContent = 'Wirf aus, dann beisst schon etwas.';
+    $('fang-knopf').textContent = 'Auswerfen';
+    $('fang-knopf').disabled = false;
+    lohnZeigen();
+    Raum.fensterOeffnen('t-angel');
+  }
+  function lohnZeigen() {
+    var offen = FISCHE.filter(function (f) { return !gefangen(f.id) && f.muenzen; });
+    $('fang-lohn').innerHTML = offen.length
+      ? 'Noch nie gefangen: <b>' + offen.map(function (f) { return f.name; }).join(', ') + '</b>. ' +
+        'Für jede neue Art gibt es einmalig Münzen.'
+      : 'Du hast alles schon einmal an der Angel gehabt. Weiterfischen darfst du trotzdem.';
+  }
+
+  function auswerfen() {
+    if (laeuft) { zuschlagen(); return; }
+    /* Seltene Fische kommen seltener an den Haken. */
+    var topf = [];
+    FISCHE.forEach(function (f, i) {
+      var wie = f.id === 'stiefel' ? 2 : Math.max(1, 7 - i * 1.2);
+      for (var n = 0; n < Math.round(wie); n++) topf.push(f);
+    });
+    zielFisch = topf[Math.floor(Math.random() * topf.length)];
+    zonenBreite = zielFisch.breite;
+    zonenStart = 6 + Math.random() * (100 - zonenBreite - 12);
+    tempo = 0.75 + Math.random() * 0.75;
+    pos = 0; richtung = 1;
+    laeuft = true;
+    $('zone').style.left = zonenStart + '%';
+    $('zone').style.width = zonenBreite + '%';
+    $('fang-fisch').textContent = '❓';
+    $('fang-name').textContent = 'Da zappelt etwas — pass auf!';
+    $('fang-erg').textContent = '';
+    $('fang-knopf').textContent = 'Zuschlagen!';
+    if (timer) clearInterval(timer);
+    timer = setInterval(schritt, 16);
+  }
+
+  function schritt() {
+    pos += richtung * tempo;
+    if (pos >= 100) { pos = 100; richtung = -1; }
+    if (pos <= 0) { pos = 0; richtung = 1; }
+    $('zeiger').style.left = 'calc(' + pos + '% - 2px)';
+  }
+
+  function zuschlagen() {
+    if (!laeuft) return;
+    laeuft = false;
+    clearInterval(timer);
+    var mitte = zonenStart + zonenBreite / 2;
+    var treffer = pos >= zonenStart && pos <= zonenStart + zonenBreite;
+    $('fang-knopf').textContent = 'Nochmal auswerfen';
+
+    if (!treffer) {
+      $('fang-fisch').textContent = '💦';
+      $('fang-name').textContent = 'Weg ist er.';
+      $('fang-erg').textContent = pos < zonenStart ? '💨 Zu früh gezogen.' : '💨 Zu spät gezogen.';
+      $('fang-erg').className = 'erg lose';
+      return;
+    }
+    var r = eintragen(zielFisch);
+    $('fang-fisch').textContent = zielFisch.emoji;
+    $('fang-name').textContent = zielFisch.name +
+      (r.anzahl > 1 ? ' · schon ' + r.anzahl + '-mal gefangen' : ' · zum ersten Mal!');
+    if (zielFisch.muenzen === 0) {
+      $('fang-erg').textContent = '🥾 Ein alter Stiefel. Immerhin passt er.';
+      $('fang-erg').className = 'erg';
+    } else if (r.lohn) {
+      $('fang-erg').textContent = '🎉 ' + zielFisch.name + '! + ' + r.lohn + ' 🪙';
+      $('fang-erg').className = 'erg win';
+    } else {
+      $('fang-erg').textContent = 'Schöner Fang — aber den hattest du schon. Keine Münzen.';
+      $('fang-erg').className = 'erg';
+    }
+    Raum.hudAuffrischen();
+    lohnZeigen();
+  }
+
+  $('fang-knopf').onclick = auswerfen;
+
+  function eimerOeffnen() {
+    var b = eimer();
+    $('eimer').innerHTML = FISCHE.map(function (f) {
+      var n = b[f.id] || 0;
+      return '<div class="fisch ' + (n ? '' : 'weg') + '">' +
+             '<span style="font-size:22px">' + (n ? f.emoji : '·') + '</span>' +
+             '<span>' + f.name + (n ? ' × ' + n : ' — noch nie') + '</span>' +
+             '<span class="p">' + (f.muenzen ? f.muenzen + ' 🪙' : '—') + '</span></div>';
+    }).join('');
+    var arten = Object.keys(b).length;
+    $('eimer-lohn').innerHTML = arten === FISCHE.length
+      ? 'Alle Arten im Eimer. Fischer Fritz ist beeindruckt und sagt es nur nicht.'
+      : '<b>' + arten + '</b> von ' + FISCHE.length + ' Arten. Für jede neue gibt es einmalig Münzen.';
+    Raum.fensterOeffnen('t-eimer');
+  }
+
+  Raum.reden('Fischerbucht', [
+    'Möwen, Salz und ein Steg, der bei jedem Schritt knarrt.',
+    'Vorne am Stegende beisst etwas. Der Eimer steht bei der Hütte.'
+  ]);
+})();
+</script>
+</body>
+</html>
