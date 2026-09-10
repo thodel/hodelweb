@@ -14,6 +14,18 @@
                 href="https://www.hodelweb.ch/en/cv/"
                 />
   </url><url>
+    <loc>https://www.hodelweb.ch/en/imprint/</loc>
+    <xhtml:link
+                rel="alternate"
+                hreflang="de"
+                href="https://www.hodelweb.ch/impressum/"
+                />
+    <xhtml:link
+                rel="alternate"
+                hreflang="en"
+                href="https://www.hodelweb.ch/en/imprint/"
+                />
+  </url><url>
     <loc>https://www.hodelweb.ch/en/projects/</loc>
     <xhtml:link
                 rel="alternate"
