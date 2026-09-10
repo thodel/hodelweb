@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Raum — Lerninsel</title>
+<link rel="icon" href="/favicon-32x32.png" sizes="32x32">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+         background: #0b1021; color: #e2e8f0; padding: 18px 14px 60px; min-height: 100vh; }
+  .wrap { max-width: 760px; margin: 0 auto; }
+  h1 { font-size: 27px; text-align: center; font-weight: 800; }
+  .sub { text-align: center; font-size: 13px; color: #94a3b8; margin: 6px 0 20px; }
+
+  .tuer { background: #12203f; border: 3px solid #a78bfa; border-radius: 18px;
+          padding: 26px 20px; text-align: center; }
+  .tuer .icon { font-size: 60px; }
+  .tuer h2 { font-size: 20px; margin: 10px 0 8px; }
+  .tuer p { font-size: 14px; color: #cbd5e1; line-height: 1.7; }
+  .btn { display: inline-block; padding: 15px 26px; border: none; border-radius: 12px; margin-top: 18px;
+         font-size: 17px; font-weight: 700; cursor: pointer; background: #a78bfa; color: #2e1065; }
+  .btn:hover { background: #c4b5fd; }
+  .btn:disabled { background: #334155; color: #64748b; cursor: not-allowed; }
+  .msg { margin-top: 12px; font-size: 14px; font-weight: 700; min-height: 22px; }
+  .msg.no { color: #fda4af; }
+
+  .videos { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); }
+  .v { background: #1e293b; border: 2px solid #334155; border-radius: 14px; overflow: hidden; }
+  .v .thumb { position: relative; aspect-ratio: 16/9; background: linear-gradient(135deg,#1e293b,#0f172a);
+              display: flex; align-items: center; justify-content: center; cursor: pointer;
+              border-bottom: 2px solid #334155; }
+  .v .thumb:hover { background: linear-gradient(135deg,#243449,#16213a); }
+  .v .play { width: 54px; height: 54px; border-radius: 50%; background: rgba(167,139,250,.9);
+             display: flex; align-items: center; justify-content: center; font-size: 22px; color: #2e1065; }
+  .v .txt { padding: 10px 12px; }
+  .v .t { font-size: 15px; font-weight: 700; }
+  .v .i { font-size: 12px; color: #94a3b8; margin-top: 3px; }
+  .v iframe { width: 100%; aspect-ratio: 16/9; border: 0; display: block; }
+  .leer { background: #1e293b; border: 2px dashed #475569; border-radius: 14px; padding: 22px;
+          text-align: center; color: #94a3b8; font-size: 14px; line-height: 1.8; }
+  .leer code { background: #0f172a; padding: 2px 6px; border-radius: 5px; color: #7dd3fc; font-size: 13px; }
+  .datenschutz { margin-top: 20px; font-size: 12px; color: #64748b; line-height: 1.7;
+                 background: #12203f; border-radius: 12px; padding: 12px 14px; }
+  .lnk { display: block; text-align: center; padding: 13px; border-radius: 12px; margin-top: 18px;
+         background: #1e3a5f; border: 2px solid #fde68a; color: #fde68a; text-decoration: none; font-weight: 700; }
+  footer { text-align: center; margin-top: 24px; font-size: 12px; color: #475569; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div id="hud"></div>
+  <h1 id="titel">Raum</h1>
+  <div class="sub" id="sub"></div>
+
+  <div id="tuer" class="tuer" style="display:none">
+    <div class="icon" id="tuer-icon">🚪</div>
+    <h2 id="tuer-h">Die Tür ist zu</h2>
+    <p id="tuer-p"></p>
+    <button class="btn" id="oeffnen">🎟️ Marke einlösen</button>
+    <div class="msg" id="msg"></div>
+  </div>
+
+  <div id="inhalt" style="display:none">
+    <div class="videos" id="videos"></div>
+    <div class="datenschutz">
+      🔒 Die Videos laufen erst, wenn du auf ein Video klickst. Vorher wird nichts von YouTube geladen.
+      Beim Abspielen werden Daten an YouTube (Google) übertragen — dafür wird der Modus
+      «youtube-nocookie» verwendet.
+    </div>
+  </div>
+
+  <a class="lnk" href="/lernwelt/">🏝️ Zurück zur Insel</a>
+  <a class="lnk" href="/lernwelt/kiosk/" style="border-color:#a78bfa;color:#c4b5fd;background:#1e1b4b">🏪 Kiosk</a>
+  <footer>hodelweb.ch/lernwelt</footer>
+</div>
+
+<script src="/lernwelt/insel.js"></script>
+<script>
+(function () {
+  'use strict';
+  var $ = function (id) { return document.getElementById(id); };
+  var q = new URLSearchParams(location.search);
+  var raumId = q.get('raum') === 'musik' ? 'musik' : 'kino';
+  var who = Insel.who();
+  var daten = null;
+
+  Insel.hudLeiste($('hud'));
+
+  fetch('/lernwelt/videos.json')
+    .then(function (r) { return r.json(); })
+    .then(function (j) { daten = j[raumId] || { titel: raumId, emoji: '🚪', videos: [] }; los(); })
+    .catch(function () { daten = { titel: raumId, emoji: '🚪', videos: [] }; los(); });
+
+  function los() {
+    document.title = daten.titel + ' — Lerninsel';
+    $('titel').textContent = daten.emoji + ' ' + daten.titel;
+    $('sub').textContent = daten.beschreibung || '';
+    $('tuer-icon').textContent = daten.emoji;
+    if (Insel.raumOffen(raumId)) zeigeInhalt(); else zeigeTuer();
+  }
+
+  function zeigeTuer() {
+    $('tuer').style.display = '';
+    $('inhalt').style.display = 'none';
+    var marken = Insel.marken(who);
+    $('tuer-h').textContent = 'Die Tür ist zu';
+    $('tuer-p').innerHTML = 'Um den Raum zu öffnen, brauchst du <b>1 Marke</b>.<br>' +
+      'Du hast im Moment <b>' + marken + ' Marke(n)</b> und ' + Insel.muenzen(who) + ' Münzen.<br>' +
+      'Marken gibt es im <a href="/lernwelt/kiosk/" style="color:#c4b5fd">Kiosk</a> für je ' +
+      Insel.oekonomie.markePreis + ' Münzen.';
+    $('oeffnen').disabled = marken < 1;
+  }
+
+  $('oeffnen').onclick = function () {
+    var r = Insel.raumOeffnen(raumId, who);
+    if (r.ok) { $('hud').innerHTML = ''; Insel.hudLeiste($('hud')); zeigeInhalt(); }
+    else { $('msg').textContent = 'Dir fehlt noch ' + r.fehlt + ' Marke.'; $('msg').className = 'msg no'; }
+  };
+
+  function zeigeInhalt() {
+    $('tuer').style.display = 'none';
+    $('inhalt').style.display = '';
+    var box = $('videos');
+    box.innerHTML = '';
+
+    if (!daten.videos || !daten.videos.length) {
+      box.innerHTML = '<div class="leer">Hier sind noch keine Videos eingetragen.<br>' +
+        'Papa kann sie in der Datei <code>static/lernwelt/videos.json</code> ergänzen — ' +
+        'dazu einfach die Video-ID (der Teil nach <code>?v=</code>) eintragen.</div>';
+      return;
+    }
+
+    daten.videos.forEach(function (v) {
+      var el = document.createElement('div');
+      el.className = 'v';
+      el.innerHTML =
+        '<div class="thumb"><div class="play">▶</div></div>' +
+        '<div class="txt"><div class="t">' + esc(v.titel) + '</div>' +
+        '<div class="i">' + esc(v.info || '') + '</div></div>';
+      el.querySelector('.thumb').onclick = function () {
+        var f = document.createElement('iframe');
+        f.src = 'https://www.youtube-nocookie.com/embed/' + encodeURIComponent(v.id) + '?rel=0&autoplay=1';
+        f.allow = 'accelerometer; encrypted-media; picture-in-picture; fullscreen';
+        f.allowFullscreen = true;
+        f.title = v.titel;
+        f.referrerPolicy = 'no-referrer';
+        el.replaceChild(f, el.firstChild);
+      };
+      box.appendChild(el);
+    });
+  }
+
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+})();
+</script>
+</body>
+</html>

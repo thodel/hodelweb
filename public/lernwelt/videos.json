@@ -1,0 +1,24 @@
+{
+  "_hinweis": "Videoliste für die Lerninsel. Neue Videos einfach hier eintragen: id = der Teil nach ?v= in der YouTube-Adresse. Danach 'hugo' laufen lassen und public/ committen.",
+  "kino": {
+    "titel": "Kino",
+    "emoji": "🎬",
+    "beschreibung": "Sport-Videos",
+    "videos": []
+  },
+  "musik": {
+    "titel": "Musikhütte",
+    "emoji": "🎵",
+    "beschreibung": "Musik-Videos",
+    "videos": [
+      { "id": "Zi_XLOBDo_Y", "titel": "Billie Jean", "info": "Michael Jackson · Official Video" },
+      { "id": "oRdxUFDoQe0", "titel": "Beat It", "info": "Michael Jackson · Official 4K Video" },
+      { "id": "h_D3VFfhvs4", "titel": "Smooth Criminal", "info": "Michael Jackson · Official Video" },
+      { "id": "sOnqjkJTMaA", "titel": "Thriller", "info": "Michael Jackson · Official 4K Video" },
+      { "id": "dsUXAEzaC3Q", "titel": "Bad", "info": "Michael Jackson · Shortened Version" },
+      { "id": "F2AitTPI5U0", "titel": "Black Or White", "info": "Michael Jackson · Shortened Version" },
+      { "id": "QNJL6nfu__Q", "titel": "They Don't Care About Us", "info": "Michael Jackson" },
+      { "id": "LeiFF0gvqcc", "titel": "Remember the Time", "info": "Michael Jackson · Upscaled" }
+    ]
+  }
+}
