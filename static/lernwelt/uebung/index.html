@@ -25,7 +25,7 @@
   .set:hover { border-color: #64748b; transform: translateX(3px); }
   .set.leicht { border-left-color: #4ade80; }
   .set.schwer { border-left-color: #fb923c; }
-  .set .top { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+  .set .top { display: flex; justify-content: space-between; align-items: center; gap: 6px; flex-wrap: wrap; }
   .set .t { font-size: 17px; font-weight: 700; }
   .set .i { font-size: 13px; color: #94a3b8; margin-top: 4px; }
   .set .meta { font-size: 11px; color: #64748b; margin-top: 8px; font-family: ui-monospace, Menlo, monospace; }
@@ -47,6 +47,31 @@
              font-size: 12.5px; color: #94a3b8; line-height: 1.9; }
   .legende b { color: #cbd5e1; }
   .legende .z { display: block; }
+  /* Tagesauftrag */
+  .auftrag { background: linear-gradient(180deg,#1c2b46,#1a2438); border: 2px solid #38bdf8;
+             border-radius: 16px; padding: 15px 17px; margin-bottom: 14px; }
+  .auftrag.fertig { border-color: #4ade80; }
+  .auftrag h3 { font-size: 15px; color: #7dd3fc; display: flex; justify-content: space-between;
+                align-items: baseline; gap: 10px; }
+  .auftrag.fertig h3 { color: #86efac; }
+  .auftrag h3 small { font-size: 11.5px; font-weight: 600; color: #94a3b8; }
+  .auftrag .bal { height: 8px; background: #0f172a; border-radius: 99px; overflow: hidden; margin: 9px 0 11px; }
+  .auftrag .bal i { display: block; height: 100%; border-radius: 99px;
+                    background: linear-gradient(90deg,#38bdf8,#4ade80); transition: width .4s; }
+  .auftrag ol { list-style: none; }
+  .auftrag li { display: flex; gap: 9px; align-items: baseline; font-size: 13.5px;
+                padding: 4px 0; color: #cbd5e1; }
+  .auftrag li.ok { color: #64748b; }
+  .auftrag li.ok .n { text-decoration: line-through; }
+  .auftrag li .h { font-size: 14px; }
+  .auftrag li a.n { color: #e2e8f0; text-decoration: none; border-bottom: 1px dotted #475569; }
+  .auftrag li a.n:hover { color: #7dd3fc; border-bottom-color: #7dd3fc; }
+  .auftrag li.ok a.n { color: #64748b; border-bottom: 0; }
+  .auftrag li .f { font-size: 11px; color: #64748b; }
+  .auftrag .lohn { font-size: 12.5px; color: #94a3b8; margin-top: 9px; line-height: 1.6; }
+  .auftrag .lohn b { color: #fbbf24; }
+  .tag.auftrag2 { background: #0c4a6e; color: #7dd3fc; }
+
   .muenzband { border-radius: 12px; padding: 10px 13px; margin-bottom: 14px;
                 font-size: 12.5px; line-height: 1.6; }
   .muenzband b { display: block; font-size: 13px; margin-bottom: 1px; }
@@ -201,6 +226,34 @@
       return;
     }
 
+    /* Tagesauftrag zuoberst — der Grund, heute überhaupt anzufangen. */
+    var auftrag = Insel.tagesauftrag(Insel.katalogAus(window.Uebungen, who), who);
+    if (auftrag) {
+      var fertig = auftrag.sets.filter(function (x) { return x.fertig; }).length;
+      var alles = fertig === auftrag.sets.length;
+      var karte = document.createElement('div');
+      karte.className = 'auftrag' + (alles ? ' fertig' : '');
+      karte.innerHTML =
+        '<h3>' + (alles ? '✅ Tagesauftrag geschafft' : '📋 Tagesauftrag') +
+          '<small>' + fertig + ' von ' + auftrag.sets.length + '</small></h3>' +
+        '<div class="bal"><i style="width:' + Math.round(fertig / auftrag.sets.length * 100) + '%"></i></div>' +
+        '<ol>' + auftrag.sets.map(function (x) {
+          var f = Insel.faecher[x.fach] || { emoji: '📘', kurz: x.fach };
+          return '<li class="' + (x.fertig ? 'ok' : '') + '">' +
+                 '<span class="h">' + (x.fertig ? '✔' : '○') + '</span>' +
+                 '<a class="n" href="/lernwelt/uebung/?fach=' + x.fach + '&set=' + x.set + '">' +
+                 f.emoji + ' ' + x.titel + '</a>' +
+                 '<span class="f">' + (x.fertig ? '' : x.best ? 'bisher ' + x.best + ' %' : '') + '</span></li>';
+        }).join('') + '</ol>' +
+        '<div class="lohn">' + (alles
+          ? (auftrag.bonusAbgeholt ? 'Bonus kassiert. Morgen gibt es einen neuen Auftrag.'
+                                   : 'Hol dir den Bonus beim nächsten Ergebnis.')
+          : 'Jede Übung zählt ab <b>' + Insel.oekonomie.auftragMindest + ' %</b>. ' +
+            'Alle drei zusammen bringen <b>' + Insel.oekonomie.auftragBonus +
+            ' Münzen</b> und einen <b>Schatzhinweis</b>.') + '</div>';
+      box.appendChild(karte);
+    }
+
     /* Kopfzeile: wie viele Übungen zahlen hier noch? */
     var alleSets = listen.eigene;
     var nochOffen = alleSets.filter(function (s) {
@@ -229,9 +282,12 @@
       var a = document.createElement('a');
       a.className = 'set ' + s.schwierigkeit + (ms.zahlt ? '' : ' erledigt');
       a.href = '/lernwelt/uebung/?fach=' + fach + '&set=' + s.id;
-      var status = '';
-      if (st && st.gemeistert) status = '<span class="tag fertig">✔ gemeistert</span>';
-      else status = '<span class="tag ' + s.schwierigkeit + '">' +
+      var auf = Insel.imAuftrag(fach, s.id, who);
+      var status = auf
+        ? '<span class="tag auftrag2">' + (auf.fertig ? '✔ Auftrag' : '📋 Tagesauftrag') + '</span>'
+        : '';
+      if (st && st.gemeistert) status += '<span class="tag fertig">✔ gemeistert</span>';
+      else if (!auf) status += '<span class="tag ' + s.schwierigkeit + '">' +
         (s.schwierigkeit === 'leicht' ? 'Grundlagen' : 'Knacknuss') + '</span>';
       a.innerHTML =
         '<div class="top"><span class="t">' + s.titel + '</span>' + status + '</div>' +
@@ -309,6 +365,9 @@
     $('titel').textContent = set.titel;
     $('untertitel').textContent = set.info + ' · Lehrplan 21: ' + set.lp21 +
       ' · ' + (set.schwierigkeit === 'leicht' ? 'Grundlagen' : 'Knacknuss');
+
+    /* Auch beim Direkteinstieg muss der Tagesauftrag stehen, sonst zählt die Runde nicht. */
+    Insel.tagesauftrag(Insel.katalogAus(window.Uebungen, who), who);
 
     /* Vorab sagen, ob diese Runde noch Münzen bringt. */
     var ms = Insel.muenzStatus(fach, set.id, set.schwierigkeit, who);
@@ -495,8 +554,28 @@
         '<div class="warum">' + res.grund + '</div>' +
         '<div class="warum">Du hast ' + res.gesamtMuenzen + ' Münzen.</div>';
     if (res.neuGemeistert) {
-      mb.innerHTML += '<div style="margin-top:8px;color:#4ade80;font-weight:700">⭐ Übung gemeistert!</div>';
+      mb.innerHTML += '<div style="margin-top:8px;color:#4ade80;font-weight:700">⭐ Übung gemeistert!</div>' +
+        '<div class="warum">Dafür gibt es einen Schatzhinweis. Käpten Krümel am Dorfplatz ' +
+        'löst ihn ein. Guthaben: ' + res.hinweise + '.</div>';
     }
+    /* Tagesauftrag */
+    if (res.auftrag && res.auftrag.dabei) {
+      var au = res.auftrag;
+      mb.innerHTML += '<div style="margin-top:12px;padding-top:12px;border-top:1px solid #334155">' +
+        (au.bonus
+          ? '<span style="color:#38bdf8;font-weight:800">📋 Tagesauftrag erfüllt!</span>' +
+            '<div class="warum">Alle ' + au.gesamt + ' Übungen geschafft — <b style="color:#fbbf24">+ ' +
+            au.bonus + ' Münzen</b> und ein Schatzhinweis obendrauf.</div>'
+          : '<span style="color:#7dd3fc;font-weight:800">📋 Tagesauftrag: ' + au.fertig +
+            ' von ' + au.gesamt + '</span>' +
+            '<div class="warum">' + (au.geschafft
+              ? 'Diese Übung ist abgehakt.'
+              : 'Ab ' + Insel.oekonomie.auftragMindest + ' % zählt sie. Nochmal?') + '</div>') +
+        '</div>';
+    }
+    /* Wochenwertung */
+    mb.innerHTML += '<div class="warum" style="margin-top:10px">🏁 Wochenpunkte: <b style="color:#e2e8f0">' +
+      res.wochenPunkte + '</b></div>';
     if (res.wette) {
       var w = res.wette;
       mb.innerHTML += '<div style="margin-top:12px;padding-top:12px;border-top:1px solid #334155">' +
