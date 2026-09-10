@@ -44,6 +44,41 @@
   .top { background: #0f172a; border-radius: 12px; padding: 12px 14px; margin-top: 12px;
          font-size: 13px; color: #cbd5e1; line-height: 1.8; }
   .top b { color: #fbbf24; }
+  /* Wochenduell */
+  .duell { background: linear-gradient(180deg,#2a2010,#1e293b); border: 2px solid #fbbf24;
+           border-radius: 16px; padding: 16px 18px; margin-bottom: 18px; }
+  .duell h2 { font-size: 17px; color: #fbbf24; display: flex; justify-content: space-between;
+              align-items: baseline; gap: 10px; }
+  .duell h2 small { font-size: 11.5px; font-weight: 600; color: #94a3b8; }
+  .dz { display: flex; align-items: center; gap: 10px; padding: 9px 0;
+        border-top: 1px solid #3f3520; font-size: 14px; }
+  .dz:first-of-type { border-top: 0; }
+  .dz .r { width: 22px; font-weight: 800; color: #64748b; text-align: right; }
+  .dz .n { flex: 1; font-weight: 700; }
+  .dz .b { flex: 2; height: 9px; background: #0f172a; border-radius: 99px; overflow: hidden; }
+  .dz .b i { display: block; height: 100%; border-radius: 99px;
+             background: linear-gradient(90deg,#f59e0b,#fbbf24); }
+  .dz .p { width: 62px; text-align: right; font-weight: 800; color: #fbbf24; }
+  .dz.fuehrt .n { color: #fde68a; }
+  .duell .fuss { font-size: 12.5px; color: #cbd5e1; margin-top: 12px; line-height: 1.7; }
+  .duell .fuss b { color: #fde68a; }
+  .pokal { font-size: 15px; }
+
+  /* Tagesauftrag */
+  .auftrag { background: linear-gradient(180deg,#14283f,#1e293b); border: 2px solid #38bdf8;
+             border-radius: 16px; padding: 16px 18px; margin-bottom: 18px; }
+  .auftrag.fertig { border-color: #4ade80; }
+  .auftrag h2 { font-size: 17px; color: #7dd3fc; display: flex; justify-content: space-between;
+                align-items: baseline; gap: 10px; }
+  .auftrag.fertig h2 { color: #86efac; }
+  .auftrag h2 small { font-size: 11.5px; font-weight: 600; color: #94a3b8; }
+  .auftrag a { display: flex; gap: 9px; align-items: baseline; padding: 6px 0;
+               font-size: 13.5px; color: #cbd5e1; text-decoration: none; border-top: 1px solid #26405c; }
+  .auftrag a.ok { color: #64748b; }
+  .auftrag a.ok .n { text-decoration: line-through; }
+  .auftrag .lohn { font-size: 12.5px; color: #94a3b8; margin-top: 10px; line-height: 1.6; }
+  .auftrag .lohn b { color: #fbbf24; }
+
   .offenbox { background: #1e293b; border: 2px solid #334155; border-radius: 16px;
               padding: 16px 18px; margin-top: 20px; }
   .offenbox h2 { font-size: 17px; margin-bottom: 3px; }
@@ -73,6 +108,8 @@
   <div class="sub">Wer steht wo? Pro Fach die besten Ergebnisse.</div>
 
   <div class="gesamt" id="gesamt"></div>
+  <div class="duell" id="duell"></div>
+  <div id="auftrag"></div>
   <div id="faecher"></div>
   <div class="offenbox" id="offen"></div>
 
@@ -243,7 +280,83 @@
       '</div>';
   }
 
+  /* ---------- Wochenduell ---------- */
+  function restText(sek) {
+    var tage = Math.floor(sek / 86400), std = Math.floor((sek % 86400) / 3600);
+    if (tage >= 1) return tage + (tage === 1 ? ' Tag' : ' Tage') + ' und ' + std + ' Stunden';
+    if (std >= 1) return std + (std === 1 ? ' Stunde' : ' Stunden');
+    return Math.max(1, Math.round(sek / 60)) + ' Minuten';
+  }
+  function duell() {
+    var box = $('duell');
+    var tabelle = Insel.wochenTabelle();
+    var max = Math.max.apply(null, tabelle.map(function (r) { return r.punkte; })) || 1;
+    var vorwoche = Insel.wochenSieger(Insel.letzteWoche());
+
+    var zeilen = tabelle.map(function (r, i) {
+      var k = Insel.kinder[r.name] || { emoji: '🙂' };
+      var fuehrt = r.punkte > 0 && r.punkte === tabelle[0].punkte;
+      return '<div class="dz' + (fuehrt ? ' fuehrt' : '') + '">' +
+        '<span class="r">' + (i + 1) + '.</span>' +
+        '<span class="n">' + k.emoji + ' ' + r.name +
+          (r.name === ich ? ' ·' : '') +
+          (vorwoche && vorwoche.name === r.name ? ' <span class="pokal" title="Sieger der letzten Woche">🏆</span>' : '') +
+        '</span>' +
+        '<span class="b"><i style="width:' + Math.round(r.punkte / max * 100) + '%"></i></span>' +
+        '<span class="p">' + r.punkte + '</span></div>';
+    }).join('');
+
+    var meine = Insel.wochenPunkte(null, ich).punkte;
+    var spitze = tabelle[0];
+    var abstand = spitze && spitze.name !== ich ? spitze.punkte - meine : 0;
+
+    box.innerHTML =
+      '<h2>🏁 Wochenduell<small>noch ' + restText(Insel.wochenRest()) + '</small></h2>' +
+      zeilen +
+      '<div class="fuss">' +
+        (tabelle[0] && !tabelle[0].punkte
+          ? 'Diese Woche hat noch niemand geübt. Die erste Übung führt.'
+          : abstand > 0
+            ? 'Dir fehlen <b>' + abstand + ' Punkte</b> auf ' + spitze.name + '. ' +
+              'Ein gutes Ergebnis bringt bis zu 10 Punkte, eine gemeisterte Übung ' +
+              Insel.oekonomie.wochenBonusMeister + ' extra.'
+            : 'Du führst. Punkte gibt es für jedes Ergebnis, auch wenn eine Übung ' +
+              'keine Münzen mehr zahlt.') +
+        '<br>Am Sonntag um Mitternacht wird abgerechnet, dann beginnt die nächste Runde.' +
+        (vorwoche ? ' Letzte Woche hat <b>' + vorwoche.name + '</b> mit ' + vorwoche.punkte +
+                    ' Punkten gewonnen.' : '') +
+      '</div>';
+  }
+
+  /* ---------- Tagesauftrag ---------- */
+  function auftrag() {
+    var box = $('auftrag');
+    var a = Insel.tagesauftrag(Insel.katalogAus(window.Uebungen, ich), ich);
+    if (!a) { box.innerHTML = ''; return; }
+    var fertig = a.sets.filter(function (x) { return x.fertig; }).length;
+    var alles = fertig === a.sets.length;
+    box.innerHTML =
+      '<div class="auftrag' + (alles ? ' fertig' : '') + '">' +
+      '<h2>' + (alles ? '✅ Tagesauftrag geschafft' : '📋 Tagesauftrag für ' + ich) +
+        '<small>' + fertig + ' von ' + a.sets.length + '</small></h2>' +
+      a.sets.map(function (x) {
+        var f = Insel.faecher[x.fach] || { emoji: '📘' };
+        return '<a class="' + (x.fertig ? 'ok' : '') + '" href="/lernwelt/uebung/?fach=' +
+               x.fach + '&set=' + x.set + '">' +
+               '<span>' + (x.fertig ? '✔' : '○') + '</span>' +
+               '<span class="n">' + f.emoji + ' ' + x.titel + '</span></a>';
+      }).join('') +
+      '<div class="lohn">' + (alles
+        ? (a.bonusAbgeholt ? 'Bonus kassiert. Morgen wartet ein neuer Auftrag.'
+                           : 'Der Bonus kommt beim nächsten Ergebnis.')
+        : 'Jede Übung zählt ab <b>' + Insel.oekonomie.auftragMindest + ' %</b>. Alle zusammen bringen <b>' +
+          Insel.oekonomie.auftragBonus + ' Münzen</b> und einen <b>Schatzhinweis</b>.') +
+      '</div></div>';
+  }
+
   gesamt();
+  duell();
+  auftrag();
   faecher();
   offeneListe();
 })();
