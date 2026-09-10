@@ -1,0 +1,11 @@
+[Unit]
+Description=scanpipe regelmässig laufen lassen
+
+[Timer]
+OnBootSec=2min
+OnUnitInactiveSec=90s
+AccuracySec=15s
+Unit=scanpipe.service
+
+[Install]
+WantedBy=timers.target
