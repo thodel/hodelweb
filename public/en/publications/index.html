@@ -44,15 +44,18 @@
       --card-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
     }
     
-    [data-theme="dark"] {
-      --bg: #0f172a;
-      --bg-alt: #1e293b;
-      --text: #f1f5f9;
-      --text-muted: #94a3b8;
-      --accent: #60a5fa;
-      --accent-light: #1e293b;
-      --border: #334155;
-      --card-shadow: 0 1px 3px rgba(0,0,0,0.3);
+     
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0f172a;
+        --bg-alt: #1e293b;
+        --text: #f1f5f9;
+        --text-muted: #94a3b8;
+        --accent: #60a5fa;
+        --accent-light: #1e293b;
+        --border: #334155;
+        --card-shadow: 0 1px 3px rgba(0,0,0,0.3);
+      }
     }
     
     * {
@@ -277,7 +280,6 @@
       
       <a href="/publikationen/">DE</a>
       
-      <button class="theme-toggle" onclick="toggleTheme()">◑</button>
     </div>
   </div>
   
@@ -311,28 +313,39 @@
       </div>
     </div>
   </div>
-  
+
+  <footer>
+  <style>
+    footer .cc-icon { height: 1.1em; width: auto; vertical-align: -0.2em; margin-right: 0.15em; }
+    footer .sep { margin: 0 0.4em; }
+    footer a { color: var(--text-muted); }
+    footer a:hover { color: var(--accent); }
+  </style>
+  <span class="cc-line">
+  <a href="https://creativecommons.org/licenses/by/4.0/" rel="license noopener" target="_blank" title="Creative Commons Attribution 4.0"><img src="/images/cc-by.svg" alt="CC BY 4.0" class="cc-icon" width="120" height="42"></a>
+  Text and images: <a href="https://creativecommons.org/licenses/by/4.0/" rel="license noopener" target="_blank">CC BY 4.0</a> Tobias Hodel
+</span>
+<span class="sep">·</span>
+<span>Contact: <a class="mail-link" href="#" data-u="tobias.hodel" data-d="unibe.ch" rel="nofollow">tobias.hodel [at] unibe.ch</a>
+</span>
+<span class="sep">·</span>
+<a href="/en/imprint/">Imprint & Privacy</a>
+
+</footer>
+<script>
+  document.querySelectorAll('a.mail-link').forEach(function (a) {
+    var addr = a.dataset.u + '@' + a.dataset.d;
+    a.href = 'mailto:' + addr;
+    if (!a.dataset.keepLabel) { a.textContent = addr; }
+  });
+</script>
+
+
+
   <script>
     let allPublications = [];
     let filteredPublications = [];
-    
-    function toggleTheme() {
-      const body = document.body;
-      if (body.getAttribute('data-theme') === 'dark') {
-        body.removeAttribute('data-theme');
-        localStorage.setItem('theme', 'light');
-      } else {
-        body.setAttribute('data-theme', 'dark');
-        localStorage.setItem('theme', 'dark');
-      }
-    }
-    
-    
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme === 'dark') {
-      document.body.setAttribute('data-theme', 'dark');
-    }
-    
+
     function formatAuthors(authors) {
       if (!authors || authors.length === 0) return '';
 

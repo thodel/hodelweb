@@ -47,15 +47,18 @@
     --card-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
   }
 
-  [data-theme="dark"] {
-    --bg: #0f172a;
-    --bg-alt: #1e293b;
-    --text: #f1f5f9;
-    --text-muted: #94a3b8;
-    --accent: #60a5fa;
-    --accent-light: #1e293b;
-    --border: #334155;
-    --card-shadow: 0 1px 3px rgba(0,0,0,0.3);
+   
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f172a;
+      --bg-alt: #1e293b;
+      --text: #f1f5f9;
+      --text-muted: #94a3b8;
+      --accent: #60a5fa;
+      --accent-light: #1e293b;
+      --border: #334155;
+      --card-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    }
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -298,7 +301,6 @@
     
     <a href="/">DE</a>
     
-    <button class="theme-toggle" onclick="toggleTheme()">◑</button>
   </div>
 </div>
 
@@ -320,7 +322,7 @@
       <div class="social-row">
         <a href="https://orcid.org/0000-0002-2071-6407">ORCID</a>
         <a href="https://github.com/thodel">GitHub</a>
-        <a href="mailto:tobias.hodel@unibe.ch">Email</a>
+        <a class="mail-link" href="#" data-u="tobias.hodel" data-d="unibe.ch" data-keep-label="1">Email</a>
       </div>
     </div>
   </div>
@@ -383,29 +385,55 @@
   <section id="teaching">
     <h2>Teaching</h2>
     <p>Programme director DH Master Major and Minor (30/90 ECTS), MAS Extended Intelligence, MAS Archival, Library and Information Science. Doctoral programme DH (Bern & Basel).</p>
-    <p style="margin-top:1rem;"><a href="https://dhbern.github.io/introduction-to-dh/" style="color:var(--accent); text-decoration:none; font-weight:500;">Introduction DH Spring 2026 →</a></p>
+    <div class="cards" style="margin-top:1.5rem;">
+      <div class="card">
+        <h3>Introduction to Digital Humanities</h3>
+        <p>Course website of the introductory lecture at the University of Bern.</p>
+        <a href="https://dhbern.github.io/introduction-to-dh/">Course website →</a>
+      </div>
+      <div class="card">
+        <h3>DH Lab</h3>
+        <p>Hands-on companion to the introduction: tools, data, methods.</p>
+        <a href="https://dhbern.github.io/dh-lab/">Course website →</a>
+      </div>
+      <div class="card">
+        <h3>DH Lecture Series</h3>
+        <p>Public lecture series of Digital Humanities at the University of Bern.</p>
+        <a href="https://dhbern.github.io/dh-lecture-series/">Programme →</a>
+      </div>
+    </div>
   </section>
 </div>
 
+<footer>
+  <style>
+    footer .cc-icon { height: 1.1em; width: auto; vertical-align: -0.2em; margin-right: 0.15em; }
+    footer .sep { margin: 0 0.4em; }
+    footer a { color: var(--text-muted); }
+    footer a:hover { color: var(--accent); }
+  </style>
+  <span class="cc-line">
+  <a href="https://creativecommons.org/licenses/by/4.0/" rel="license noopener" target="_blank" title="Creative Commons Attribution 4.0"><img src="/images/cc-by.svg" alt="CC BY 4.0" class="cc-icon" width="120" height="42"></a>
+  Text and images: <a href="https://creativecommons.org/licenses/by/4.0/" rel="license noopener" target="_blank">CC BY 4.0</a> Tobias Hodel
+</span>
+<span class="sep">·</span>
+<span>Contact: <a class="mail-link" href="#" data-u="tobias.hodel" data-d="unibe.ch" rel="nofollow">tobias.hodel [at] unibe.ch</a>
+</span>
+<span class="sep">·</span>
+<a href="/en/imprint/">Imprint & Privacy</a>
+
+</footer>
+<script>
+  document.querySelectorAll('a.mail-link').forEach(function (a) {
+    var addr = a.dataset.u + '@' + a.dataset.d;
+    a.href = 'mailto:' + addr;
+    if (!a.dataset.keepLabel) { a.textContent = addr; }
+  });
+</script>
+
+
 
 <script>
-function toggleTheme() {
-  const body = document.body;
-  if (body.getAttribute('data-theme') === 'dark') {
-    body.removeAttribute('data-theme');
-    localStorage.setItem('theme', 'light');
-  } else {
-    body.setAttribute('data-theme', 'dark');
-    localStorage.setItem('theme', 'dark');
-  }
-}
-
-
-const savedTheme = localStorage.getItem('theme');
-if (savedTheme === 'dark') {
-  document.body.setAttribute('data-theme', 'dark');
-}
-
 let allPublications = [];
 let filteredPublications = [];
 
