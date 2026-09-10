@@ -456,15 +456,8 @@ function formatTypeLabel(type) {
 function formatAuthors(authors) {
   if (!authors || authors.length === 0) return '';
 
-  // Sort to put primary author (Tobias) first
-  const sorted = [...authors].sort((a, b) => {
-    if (a.is_primary && !b.is_primary) return -1;
-    if (!a.is_primary && b.is_primary) return 1;
-    return 0;
-  });
-
-  // Primary author is shown in bold
-  const names = sorted.map(a => a.is_primary ? `<strong>${a.name}</strong>` : a.name);
+  // Keep the author order from ORCID; the primary author (Tobias) is shown in bold
+  const names = authors.map(a => a.is_primary ? `<strong>${a.name}</strong>` : a.name);
   
   if (names.length === 1) return names[0];
   if (names.length === 2) return `${names[0]} & ${names[1]}`;
