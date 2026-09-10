@@ -370,13 +370,24 @@
     mb.innerHTML = res.muenzen > 0
       ? '<div class="gross2">+ ' + res.muenzen + ' 🪙</div>' +
         '<div class="warum">' + res.grund + '</div>' +
-        '<div class="warum">Insgesamt: ' + res.gesamtMuenzen + ' Münzen · ' +
-        '<a href="/lernwelt/kiosk/" style="color:#fbbf24">Zum Kiosk</a></div>'
+        '<div class="warum">Insgesamt: ' + res.gesamtMuenzen + ' Münzen.</div>'
       : '<div class="gross2" style="color:#64748b">+ 0 🪙</div>' +
         '<div class="warum">' + res.grund + '</div>' +
         '<div class="warum">Du hast ' + res.gesamtMuenzen + ' Münzen.</div>';
     if (res.neuGemeistert) {
       mb.innerHTML += '<div style="margin-top:8px;color:#4ade80;font-weight:700">⭐ Übung gemeistert!</div>';
+    }
+    if (res.wette) {
+      var w = res.wette;
+      mb.innerHTML += '<div style="margin-top:12px;padding-top:12px;border-top:1px solid #334155">' +
+        (w.gewonnen
+          ? '<span style="color:#4ade80;font-weight:800">🤝 Wette gegen ' + w.name + ' gewonnen!</span>' +
+            '<div class="warum">' + w.erreicht + ' % gegen ' + w.ziel + ' % — dafür gibt es ' +
+            w.gewinn + ' Münzen.</div>'
+          : '<span style="color:#fda4af;font-weight:800">🤝 Wette gegen ' + w.name + ' verloren.</span>' +
+            '<div class="warum">Du hattest ' + w.erreicht + ' %, nötig waren mehr als ' + w.ziel +
+            ' %. Der Einsatz von ' + w.einsatz + ' Münzen ist weg.</div>') +
+        '</div>';
     }
 
     var fl = $('s-fehler');
