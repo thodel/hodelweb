@@ -118,6 +118,7 @@
 </div>
 
 <script src="/lernwelt/insel.js"></script>
+<script src="/lernwelt/musik.js"></script>
 <script src="/lernwelt/uebungen.js"></script>
 <script>
 (function () {
@@ -126,7 +127,7 @@
   var ich = Insel.who();
   var kinder = Object.keys(Insel.kinder);
 
-  Insel.hudLeiste($('hud'));
+  Insel.hudLeiste($('hud'), 'insel');
 
   /* ---------- Zahlen je Kind und Fach ---------- */
   function fachDaten(who, fach) {

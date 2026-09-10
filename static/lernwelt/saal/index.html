@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Kino — Lerninsel</title>
+<link rel="icon" href="/favicon-32x32.png" sizes="32x32">
+<link rel="stylesheet" href="/lernwelt/raum.css">
+<style>
+  body { background: #07060f; }
+  #raum { border-color: #4c1d95; box-shadow: 0 0 0 3px #07060f, 0 14px 40px rgba(0,0,0,.65); }
+  #hud, #banner, #dialog .kasten { border-color: #4c1d95; background: rgba(14,10,28,.94); }
+  #hud b, #banner b, #dialog .wer { color: #c4b5fd; }
+  .platte { background: #16112b; border-color: #6d28d9; }
+  .platte h2 { color: #c4b5fd; }
+  .zu { border-color: #6d28d9; background: #0d0a1c; color: #c4b5fd; }
+
+  .gruppe { margin-bottom: 18px; }
+  .gruppe h3 { font-size: 14.5px; color: #c4b5fd; margin-bottom: 4px; }
+  .gh { font-size: 12px; color: #94a3b8; margin-bottom: 8px; line-height: 1.6; }
+  .videos { display: grid; gap: 10px; }
+  .v { background: #0d0a1c; border: 2px solid #3b2a63; border-radius: 12px; overflow: hidden; }
+  .v .thumb { position: relative; aspect-ratio: 16/9; background: #1c1436; cursor: pointer;
+              display: flex; align-items: center; justify-content: center; }
+  .v .thumb:hover { background: #2a1f4d; }
+  .v .play { font-size: 34px; color: #c4b5fd; }
+  .v iframe { width: 100%; aspect-ratio: 16/9; border: 0; display: block; }
+  .v .txt { padding: 9px 11px; }
+  .v .t { font-size: 14px; font-weight: 700; }
+  .v .i { font-size: 12px; color: #94a3b8; margin-top: 2px; }
+  .v.extern .play { color: #fcd34d; }
+  .v .extern-hinweis { font-size: 11px; color: #fcd34d; margin-top: 3px; }
+  .leer { color: #94a3b8; font-size: 13.5px; line-height: 1.8; text-align: center; padding: 18px 6px; }
+  .leer code { color: #c4b5fd; }
+  .knopf { display: block; width: 100%; text-align: center; padding: 14px; border-radius: 12px;
+           margin-top: 12px; background: #7c3aed; border: none; color: #f5f3ff;
+           font: 700 16px -apple-system, BlinkMacSystemFont, sans-serif; cursor: pointer; }
+  .knopf:disabled { background: #2a1f4d; color: #6b5b95; cursor: not-allowed; }
+  .lohn { font-size: 12.5px; color: #94a3b8; margin-top: 10px; line-height: 1.7; }
+  .lohn b { color: #fcd34d; }
+</style>
+</head>
+<body>
+
+<div id="rahmen">
+  <div id="hud"></div>
+  <canvas id="raum"></canvas>
+  <div id="banner"></div>
+</div>
+
+<div id="steuer">
+  <div class="pad">
+    <button class="leer"></button><button data-dir="up">▲</button><button class="leer"></button>
+    <button data-dir="left">◀</button><button class="leer"></button><button data-dir="right">▶</button>
+    <button class="leer"></button><button data-dir="down">▼</button><button class="leer"></button>
+  </div>
+  <button id="knopf-e">E</button>
+</div>
+
+<div id="fenster">
+  <div class="platte">
+    <button class="zu" id="zu">✕</button>
+    <div class="tafel" id="t-leinwand" hidden>
+      <h2 id="lw-titel">Leinwand</h2>
+      <div class="unter" id="lw-unter"></div>
+      <div id="lw-tuer" hidden>
+        <div class="leer" id="tuer-text"></div>
+        <button class="knopf" id="oeffnen">Mit 1 Marke öffnen</button>
+      </div>
+      <div id="videos"></div>
+    </div>
+    <div class="tafel" id="t-kasse" hidden>
+      <h2 id="kasse-titel">🍿 Der Stand</h2>
+      <div class="unter" id="kasse-unter"></div>
+      <div class="lohn" id="kasse-text"></div>
+      <button class="knopf" id="kasse-kauf">Süssigkeit kaufen</button>
+      <div class="lohn" id="kasse-msg"></div>
+    </div>
+  </div>
+</div>
+
+<script src="/lernwelt/insel.js"></script>
+<script src="/lernwelt/pixel.js"></script>
+<script src="/lernwelt/dialog.js"></script>
+<script src="/lernwelt/raum.js"></script>
+<script src="/lernwelt/musik.js"></script>
+<script>
+(function () {
+  'use strict';
+  var $ = function (i) { return document.getElementById(i); };
+  var px = Pixel.px;
+  var TILE = 16, RAUM_W = 26, RAUM_H = 18;
+
+  var q = new URLSearchParams(location.search);
+  var raumId = q.get('raum') === 'musik' ? 'musik' : 'kino';
+  var istMusik = raumId === 'musik';
+  var who = Insel.who();
+  var daten = { titel: istMusik ? 'Musikhütte' : 'Kino', emoji: istMusik ? '🎵' : '🎬', gruppen: [] };
+  document.title = daten.titel + ' — Lerninsel';
+
+  var F = istMusik
+    ? { boden: ['#3b2340', '#35203a'], fuge: '#2a1830', wand: '#4c2a52', wandD: '#391f3e',
+        stuhl: '#7c3f66', stuhlD: '#5b2c4b', licht: '#f9a8d4', vorhang: '#9d2c6b' }
+    : { boden: ['#241a3d', '#201736'], fuge: '#1a1230', wand: '#2f2154', wandD: '#241a41',
+        stuhl: '#7f1d3a', stuhlD: '#5c132a', licht: '#c4b5fd', vorhang: '#7f1d3a' };
+
+  /* Stuhlreihen als Möbel — man läuft dazwischen durch. */
+  var moebel = [];
+  for (var reihe = 0; reihe < 3; reihe++) {
+    moebel.push({ art: 'reihe', tx: 3, ty: 9 + reihe * 3, tw: 8, th: 1 });
+    moebel.push({ art: 'reihe', tx: 15, ty: 9 + reihe * 3, tw: 8, th: 1 });
+  }
+  moebel.push({ art: 'stand', tx: 21, ty: 5, tw: 3, th: 2 });
+  moebel.push({ art: 'projektor', tx: 2, ty: 5, tw: 2, th: 2 });
+
+  Raum.starten({
+    canvas: $('raum'), breiteKacheln: RAUM_W, hoeheKacheln: RAUM_H,
+    start: { tx: 13, ty: 15, dir: 'up' },
+    tuerKacheln: [12, 13],
+    who: who,
+    musik: istMusik ? 'musikhuette' : 'kino',
+    moebel: moebel,
+    lichtInnen: 'rgba(196,181,253,.05)',
+    lichtAussen: 'rgba(4,3,12,.55)',
+
+    stationen: [
+      { id: 'leinwand', name: istMusik ? 'Bühne' : 'Leinwand', tafel: 't-leinwand',
+        tx: 13, ty: 7, farbe: F.licht, verb: 'ansehen',
+        hinweis: istMusik ? 'Musikvideos' : 'kurze Sportclips' },
+      { id: 'kasse', name: istMusik ? 'Getränkestand' : 'Popcornstand', tafel: 't-kasse',
+        tx: 21, ty: 7, farbe: '#fcd34d', verb: 'anstehen', hinweis: 'Süssigkeiten' },
+      { id: 'tuer', name: 'Ausgang', tafel: null, tx: 13, ty: 16, farbe: '#fde68a',
+        hinweis: 'zurück auf die Insel' }
+    ],
+
+    leute: [
+      { name: istMusik ? 'DJ Dana' : 'Platzanweiser Pit', tx: 4, ty: 8,
+        jacke: ['#6d28d9', '#4c1d95'], haar: '#1f2937', haut: '#c98d63',
+        sprueche: istMusik ? [
+          ['Willkommen in der Hütte. Ich lege auf, wenn niemand zuschaut.',
+           'Die grossen Videos laufen auf der Bühne. Such dir eins aus.'],
+          'Michael Jackson, Prince, die Fantastischen Vier. Alles Leute, die vor deiner Zeit laut waren.',
+          ['Ein Tipp: Oper klingt komisch, bis man sie laut hört.', 'Dann klingt sie immer noch komisch, aber grossartig.']
+        ] : [
+          ['Willkommen im Kino. Ich weise Plätze an, obwohl alle frei sind.',
+           'Die Filme laufen auf der Leinwand vorne. Setz dich, wohin du willst.'],
+          'Nur kurze Clips heute. Alles über zwei Minuten kommt hier gar nicht erst rein.',
+          ['Früher lief hier ein Film mit einem Hai.', 'Seither traut sich niemand mehr in die erste Reihe.']
+        ] },
+      { name: istMusik ? 'Tänzer Toni' : 'Popcorn-Paula', tx: 20, ty: 9,
+        jacke: ['#b45309', '#8a3f07'], haar: '#d9a441', haut: '#f2c8a0',
+        sprueche: istMusik ? [
+          'Ich tanze seit vier Stunden. Die Musik läuft seit zwanzig Minuten.',
+          'Moonwalk kann ich. Rückwärts. Sonst wäre es kein Moonwalk.'
+        ] : [
+          'Popcorn habe ich keines. Süssigkeiten schon. Ist fast dasselbe, nur kleiner.',
+          ['Im Dunkeln schmeckt alles besser.', 'Das ist keine Ausrede, das ist Wissenschaft. Ungefähr.']
+        ] },
+      { name: 'Oma Ottilie', tx: 8, ty: 12, blick: 'up',
+        jacke: ['#0f766e', '#0b544e'], haar: '#e2e8f0', haut: '#e0ac7e',
+        sprueche: [
+          'Pst. Es fängt gleich an.',
+          ['Ich komme jeden Tag hierher.', 'Nicht wegen der Filme. Wegen der Stühle. Die sind besser als meine.']
+        ] }
+    ],
+
+    boden: function (ctx, t) {
+      /* Boden, leicht ansteigend Richtung Ausgang */
+      for (var ty = 3; ty < RAUM_H; ty++) {
+        for (var tx = 0; tx < RAUM_W; tx++) {
+          px(ctx, tx * TILE, ty * TILE, TILE, TILE, F.boden[(tx + ty) % 2]);
+          px(ctx, tx * TILE, ty * TILE + TILE - 1, TILE, 1, F.fuge);
+        }
+      }
+      /* Mittelgang */
+      for (var gy = 6; gy < RAUM_H - 1; gy++) {
+        px(ctx, 11 * TILE, gy * TILE, 4 * TILE, TILE, F.fuge);
+        px(ctx, 11 * TILE, gy * TILE + 6, 4 * TILE, 2, '#3b2f5e');
+      }
+      /* Wände */
+      for (var wx = 0; wx < RAUM_W; wx++) {
+        px(ctx, wx * TILE, 0, TILE, 48, F.wand);
+        px(ctx, wx * TILE, 42, TILE, 6, F.wandD);
+      }
+      for (var sy = 3; sy < RAUM_H; sy++) {
+        px(ctx, 0, sy * TILE, TILE, TILE, F.wand);
+        px(ctx, (RAUM_W - 1) * TILE, sy * TILE, TILE, TILE, F.wand);
+      }
+      for (var bx = 0; bx < RAUM_W; bx++) {
+        if (bx >= 12 && bx <= 13) continue;
+        px(ctx, bx * TILE, (RAUM_H - 1) * TILE, TILE, TILE, F.wand);
+      }
+      var tuy = (RAUM_H - 1) * TILE;
+      px(ctx, 12 * TILE, tuy, 2 * TILE, TILE, '#120d24');
+      px(ctx, 12 * TILE + 3, tuy + 3, 2 * TILE - 6, TILE - 3, '#3b2f5e');
+      /* Notausgangsschild */
+      px(ctx, 12 * TILE + 4, tuy - 8, 2 * TILE - 8, 6, '#166534');
+      px(ctx, 12 * TILE + 6, tuy - 6, 2 * TILE - 12, 2, '#86efac');
+
+      /* Leinwand oder Bühne */
+      var lw = { x: 7 * TILE, y: 6, w: 12 * TILE, h: 38 };
+      px(ctx, lw.x - 6, lw.y - 2, lw.w + 12, lw.h + 6, '#0b0818');
+      var laeuft = Insel.raumOffen(raumId);
+      if (istMusik) {
+        px(ctx, lw.x, lw.y, lw.w, lw.h, '#1b1030');
+        /* Bühnenlichter */
+        for (var l = 0; l < 6; l++) {
+          var hell = 0.4 + 0.6 * Math.abs(Math.sin(t * 2.2 + l));
+          ctx.globalAlpha = laeuft ? hell : 0.25;
+          px(ctx, lw.x + 8 + l * 30, lw.y + 4, 14, 8, ['#f472b6','#c4b5fd','#fcd34d'][l % 3]);
+          ctx.globalAlpha = 1;
+        }
+        px(ctx, lw.x, lw.y + lw.h - 8, lw.w, 8, '#3b2340');
+      } else {
+        px(ctx, lw.x, lw.y, lw.w, lw.h, laeuft ? '#e8e6f5' : '#2a2350');
+        if (laeuft) {
+          /* Bewegtes Bild auf der Leinwand */
+          var b = Math.floor(t * 2) % 3;
+          ctx.globalAlpha = 0.5;
+          px(ctx, lw.x + 12 + b * 20, lw.y + 8, 40, 20, '#7c3aed');
+          px(ctx, lw.x + 70, lw.y + 14, 30, 14, '#f472b6');
+          ctx.globalAlpha = 1;
+        }
+      }
+      /* Vorhänge links und rechts */
+      for (var v = 0; v < 5; v++) {
+        px(ctx, lw.x - 8 - v * 3, lw.y - 2, 3, lw.h + 6, v % 2 ? F.vorhang : '#5c132a');
+        px(ctx, lw.x + lw.w + 5 + v * 3, lw.y - 2, 3, lw.h + 6, v % 2 ? F.vorhang : '#5c132a');
+      }
+
+      /* Lichtkegel vom Projektor */
+      if (laeuft && !istMusik) {
+        ctx.globalAlpha = 0.10 + 0.04 * Math.abs(Math.sin(t * 3));
+        ctx.fillStyle = '#e8e6f5';
+        ctx.beginPath();
+        ctx.moveTo(3 * TILE, 6 * TILE);
+        ctx.lineTo(lw.x + 6, lw.y + lw.h);
+        ctx.lineTo(lw.x + lw.w - 6, lw.y + lw.h);
+        ctx.closePath();
+        ctx.fill();
+        ctx.globalAlpha = 1;
+      }
+    },
+
+    moebelZeichnen: function (ctx, m, t) {
+      var x = m.tx * TILE, y = m.ty * TILE, w = m.tw * TILE;
+      if (m.art === 'reihe') {
+        for (var i = 0; i < m.tw; i++) {
+          var sx = x + i * TILE;
+          px(ctx, sx + 1, y + 6, TILE - 2, 6, F.stuhlD);
+          px(ctx, sx + 1, y - 8, TILE - 2, 15, F.stuhl);
+          px(ctx, sx + 2, y - 7, TILE - 4, 3, Pixel.heller(F.stuhl, 22));
+        }
+        return;
+      }
+      if (m.art === 'stand') {
+        px(ctx, x, y - 10, w, 26, '#7c5341');
+        px(ctx, x, y - 13, w, 5, '#9a6a51');
+        px(ctx, x + 4, y - 22, 10, 10, '#fcd34d');
+        px(ctx, x + 6, y - 20, 6, 6, '#fef3c7');
+        px(ctx, x + w - 14, y - 20, 8, 8, '#f472b6');
+        return;
+      }
+      /* Projektor */
+      px(ctx, x + 2, y + 4, w - 4, 8, '#1f2937');
+      px(ctx, x, y - 10, w, 15, '#334155');
+      px(ctx, x + w - 4, y - 6, 6, 7, '#94a3b8');
+      var an = Insel.raumOffen(raumId);
+      if (an) {
+        ctx.globalAlpha = 0.5 + 0.5 * Math.abs(Math.sin(t * 5));
+        px(ctx, x + w + 1, y - 5, 4, 5, '#fde68a');
+        ctx.globalAlpha = 1;
+      }
+      px(ctx, x + 3, y - 16, 5, 6, '#475569');
+      px(ctx, x + w - 8, y - 16, 5, 6, '#475569');
+    },
+
+    stationTun: function (s) {
+      if (s.id === 'leinwand') { leinwandOeffnen(); return true; }
+      if (s.id === 'kasse') { kasseOeffnen(); return true; }
+      return false;
+    },
+    stationHinweis: function (s) {
+      if (s.id === 'leinwand') {
+        return Insel.raumOffen(raumId)
+          ? 'läuft — ' + anzahlSichtbar() + ' Videos'
+          : '1 Marke · du hast ' + Insel.marken(who);
+      }
+      return s.hinweis;
+    },
+    hudZeichnen: function () {
+      return '<span>🧭 <b>' + who + '</b></span>' +
+             '<span class="z">🪙 ' + Insel.muenzen(who) + '</span>' +
+             '<span>🎟️ ' + Insel.marken(who) + '</span>' +
+             '<span>🍬 ' + Insel.suessigkeiten(who) + '</span>' +
+             '<span>' + daten.emoji + ' ' + daten.titel + '</span>' +
+             '<span><a href="/lernwelt/">🏝️ Insel</a></span>';
+    }
+  });
+
+  /* ================= Videos ================= */
+  fetch('/lernwelt/videos.json')
+    .then(function (r) { return r.json(); })
+    .then(function (j) {
+      daten = j[raumId] || daten;
+      document.title = daten.titel + ' — Lerninsel';
+      Raum.hudAuffrischen();
+    })
+    .catch(function () { /* ohne Liste bleibt der Raum leer */ });
+
+  function grenze() { return daten && daten.maxSekunden ? daten.maxSekunden : 120; }
+  function passt(v) { return !v.sekunden || v.sekunden <= grenze(); }
+  function mmss(s) { return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); }
+  function gruppenListe() {
+    return daten.gruppen || [{ titel: '', videos: daten.videos || [] }];
+  }
+  function anzahlSichtbar() {
+    return gruppenListe().reduce(function (n, g) {
+      return n + (g.videos ? g.videos.filter(passt).length : 0);
+    }, 0);
+  }
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+    });
+  }
+
+  function leinwandOeffnen() {
+    $('lw-titel').textContent = daten.emoji + ' ' + (istMusik ? 'Die Bühne' : 'Die Leinwand');
+    $('lw-unter').textContent = daten.beschreibung || '';
+    if (Insel.raumOffen(raumId)) { $('lw-tuer').hidden = true; videosZeigen(); }
+    else { $('lw-tuer').hidden = false; $('videos').innerHTML = ''; tuerZeigen(); }
+    Raum.fensterOeffnen('t-leinwand');
+  }
+
+  function tuerZeigen() {
+    if (!anzahlSichtbar()) {
+      $('tuer-text').innerHTML = 'Hier ist gerade nichts zu sehen. Erlaubt sind nur Videos bis ' +
+        Math.round(grenze() / 60) + ' Minuten.<br>Deine Marke bleibt dir erhalten.';
+      $('oeffnen').style.display = 'none';
+      return;
+    }
+    $('oeffnen').style.display = '';
+    var marken = Insel.marken(who);
+    $('tuer-text').innerHTML = 'Die Vorstellung kostet <b>1 Marke</b>. Du hast <b>' + marken +
+      '</b> und ' + Insel.muenzen(who) + ' Münzen.<br>' +
+      'Marken gibt es am Kiosk für je ' + Insel.oekonomie.markePreis + ' Münzen.';
+    $('oeffnen').disabled = marken < 1;
+  }
+
+  $('oeffnen').onclick = function () {
+    var r = Insel.raumOeffnen(raumId, who);
+    if (!r.ok) { $('tuer-text').innerHTML = 'Dir fehlt noch ' + r.fehlt + ' Marke.'; return; }
+    Raum.hudAuffrischen();
+    $('lw-tuer').hidden = true;
+    videosZeigen();
+  };
+
+  function videosZeigen() {
+    var box = $('videos');
+    box.innerHTML = '';
+    var gruppen = gruppenListe();
+    if (!anzahlSichtbar()) {
+      var zuLang = gruppen.reduce(function (n, g) { return n + (g.videos ? g.videos.length : 0); }, 0);
+      box.innerHTML = '<div class="leer">' + (zuLang
+        ? 'Alle ' + zuLang + ' Videos sind länger als ' + Math.round(grenze() / 60) +
+          ' Minuten.<br>Deine Marke ist noch da.'
+        : 'Hier sind noch keine Videos eingetragen.<br>' +
+          'Papa kann sie in <code>static/lernwelt/videos.json</code> ergänzen.') + '</div>';
+      return;
+    }
+    gruppen.forEach(function (g) {
+      if (!g.videos || !g.videos.length) return;
+      var sichtbar = g.videos.filter(passt);
+      if (!sichtbar.length) return;
+      var wrap = document.createElement('div');
+      wrap.className = 'gruppe';
+      if (g.titel) wrap.innerHTML = '<h3>' + esc(g.titel) + '</h3>';
+      if (g.hinweis) wrap.innerHTML += '<div class="gh">' + esc(g.hinweis) + '</div>';
+      var grid = document.createElement('div');
+      grid.className = 'videos';
+      sichtbar.forEach(function (v) { grid.appendChild(karte(v)); });
+      wrap.appendChild(grid);
+      box.appendChild(wrap);
+    });
+  }
+
+  function karte(v) {
+    var extern = v.modus === 'link';
+    var el = document.createElement('div');
+    el.className = 'v' + (extern ? ' extern' : '');
+    el.innerHTML =
+      '<div class="thumb"><div class="play">' + (extern ? '↗' : '▶') + '</div></div>' +
+      '<div class="txt"><div class="t">' + esc(v.titel) + '</div>' +
+      '<div class="i">' + esc(v.info || '') + (v.sekunden ? ' · ' + mmss(v.sekunden) : '') + '</div>' +
+      (extern ? '<div class="extern-hinweis">öffnet auf YouTube</div>' : '') + '</div>';
+
+    el.querySelector('.thumb').onclick = function () {
+      if (extern) {
+        window.open('https://www.youtube.com/watch?v=' + encodeURIComponent(v.id),
+                    '_blank', 'noopener,noreferrer');
+        return;
+      }
+      /* Während des Films ist die Hintergrundmusik im Weg. */
+      if (window.Musik && Musik.laeuft()) Musik.aus();
+      var f = document.createElement('iframe');
+      f.src = 'https://www.youtube-nocookie.com/embed/' + encodeURIComponent(v.id) + '?rel=0&autoplay=1';
+      f.allow = 'accelerometer; encrypted-media; picture-in-picture; fullscreen';
+      f.allowFullscreen = true;
+      f.title = v.titel;
+      /* YouTube prüft die einbettende Domain; ohne Referrer verweigert es mit Fehler 153. */
+      f.referrerPolicy = 'strict-origin-when-cross-origin';
+      el.replaceChild(f, el.firstChild);
+    };
+    return el;
+  }
+
+  /* ================= Stand ================= */
+  function kasseOeffnen() {
+    $('kasse-titel').textContent = istMusik ? '🥤 Der Getränkestand' : '🍿 Der Popcornstand';
+    $('kasse-unter').textContent = 'Popcorn ist ausgegangen. Süssigkeiten gibt es noch.';
+    kasseZeigen();
+    Raum.fensterOeffnen('t-kasse');
+  }
+  function kasseZeigen() {
+    var preis = Insel.oekonomie.suessigkeitPreis;
+    $('kasse-text').innerHTML = 'Eine Süssigkeit kostet <b>' + preis + ' Münzen</b>. ' +
+      'Du hast ' + Insel.muenzen(who) + ' Münzen und ' + Insel.suessigkeiten(who) + ' Süssigkeiten.<br>' +
+      'Damit lassen sich draussen die Affen zähmen — Bären allerdings riechen sie auch.';
+    $('kasse-kauf').disabled = Insel.muenzen(who) < preis;
+  }
+  $('kasse-kauf').onclick = function () {
+    var r = Insel.suessigkeitKaufen(1, who);
+    $('kasse-msg').textContent = r.ok
+      ? '✔ Gekauft. Du hast jetzt ' + r.suessigkeiten + ' Süssigkeiten.'
+      : 'Dir fehlen ' + r.fehlt + ' Münzen.';
+    Raum.hudAuffrischen();
+    kasseZeigen();
+  };
+
+  Raum.reden(daten.titel, istMusik
+    ? ['Bunte Lichter, klebriger Boden, und irgendwo brummt ein Verstärker.',
+       'Vorne ist die Bühne, rechts der Getränkestand. Setz dich, wohin du willst.']
+    : ['Dunkel, kühl und leicht nach Popcorn riechend — obwohl es gar keines gibt.',
+       'Vorne ist die Leinwand, rechts der Stand. Die Plätze sind alle frei.']);
+})();
+</script>
+</body>
+</html>

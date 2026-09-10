@@ -81,6 +81,7 @@
 </div>
 
 <script src="/lernwelt/insel.js"></script>
+<script src="/lernwelt/musik.js"></script>
 <script>
 (function () {
   'use strict';
@@ -90,7 +91,7 @@
   var who = Insel.who();
   var daten = null;
 
-  Insel.hudLeiste($('hud'));
+  Insel.hudLeiste($('hud'), 'kino');
 
   fetch('/lernwelt/videos.json')
     .then(function (r) { return r.json(); })
@@ -134,7 +135,7 @@
 
   $('oeffnen').onclick = function () {
     var r = Insel.raumOeffnen(raumId, who);
-    if (r.ok) { $('hud').innerHTML = ''; Insel.hudLeiste($('hud')); zeigeInhalt(); }
+    if (r.ok) { $('hud').innerHTML = ''; Insel.hudLeiste($('hud'), 'kino'); zeigeInhalt(); }
     else { $('msg').textContent = 'Dir fehlt noch ' + r.fehlt + ' Marke.'; $('msg').className = 'msg no'; }
   };
 

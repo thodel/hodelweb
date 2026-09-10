@@ -189,6 +189,7 @@
 </div>
 
 <script src="/lernwelt/insel.js"></script>
+<script src="/lernwelt/musik.js"></script>
 <script src="/lernwelt/uebungen.js"></script>
 <script>
 (function () {
@@ -203,7 +204,7 @@
   var klasse = Insel.klasse(who);
   var fachInfo = Insel.faecher[fach] || { name: fach, emoji: '📘', kurz: fach };
 
-  Insel.hudLeiste($('hud'));
+  Insel.hudLeiste($('hud'), fach);
   /* Kam der Spieler aus einem Innenraum, führt der Rückweg auch wieder dorthin. */
   var ausRaum = Insel.letzterRaum();
   $('zurueck-fach').href = ausRaum || ('/lernwelt/uebung/?fach=' + fach);
@@ -641,7 +642,8 @@
     } else fl.style.display = 'none';
 
     $('summary').classList.add('show');
-    Insel.hudLeiste($('hud').firstChild ? ($('hud').innerHTML = '', $('hud')) : $('hud'));
+    $('hud').innerHTML = '';
+    Insel.hudLeiste($('hud'), fach);
   }
 
   $('nochmal').onclick = starte;

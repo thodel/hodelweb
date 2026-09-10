@@ -41,6 +41,12 @@ body {
 #hud b { color: #7dd3fc; }
 #hud .z { color: #fbbf24; }
 #hud a { color: #fde68a; text-decoration: none; border-bottom: 1px dotted #7c5341; }
+#hud .musikknopf {
+  border: 2px solid #475569; background: rgba(15,23,42,.6); color: #cbd5e1;
+  border-radius: 8px; padding: 3px 9px; font: 700 10.5px ui-monospace, monospace;
+  cursor: pointer;
+}
+#hud .musikknopf:hover { border-color: #7dd3fc; color: #7dd3fc; }
 
 #banner {
   min-height: 22px; margin-top: 7px; font-size: 11.5px; text-align: center; color: #cbd5e1;

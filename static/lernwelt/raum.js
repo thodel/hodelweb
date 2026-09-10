@@ -310,6 +310,12 @@
       Pixel.anpassen({ canvas: cv, breite: VIEW_W, hoehe: VIEW_H, rand: 26, bandUnten: 160 });
     });
 
+    if (global.Musik) {
+      if (opts.musik) Musik.stueck(opts.musik);
+      Musik.beiErsterAktion();
+      /* Startet der Ton erst nach der ersten Berührung, muss der Knopf nach. */
+      document.addEventListener('musikwechsel', hudAuffrischen);
+    }
     hudAuffrischen();
     requestAnimationFrame(function (t) { letzteZeit = t; schritt(t); });
     return Raum;
@@ -317,7 +323,20 @@
 
   function hudAuffrischen() {
     var h = $('hud');
-    if (h && cfg && cfg.hudZeichnen) h.innerHTML = cfg.hudZeichnen();
+    if (!h || !cfg || !cfg.hudZeichnen) return;
+    h.innerHTML = cfg.hudZeichnen();
+    /* Musikknopf: jeder Raum hat sein eigenes Stück. */
+    if (global.Musik && Musik.verfuegbar()) {
+      var b = document.createElement('button');
+      b.className = 'musikknopf';
+      b.title = Musik.titel();
+      b.textContent = Musik.laeuft() ? '🎵 ' + Musik.titel() : '🔇 Musik';
+      b.onclick = function () {
+        Musik.umschalten();
+        hudAuffrischen();
+      };
+      h.appendChild(b);
+    }
   }
 
   var Raum = {

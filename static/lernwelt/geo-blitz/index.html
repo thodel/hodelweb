@@ -196,7 +196,11 @@
 </div>
 
 <script src="/lernwelt/insel.js"></script>
+<script src="/lernwelt/musik.js"></script>
 <script>
+/* Eigenes Stück für das Geo-Quiz, wie in jedem anderen Raum. */
+if (window.Musik) { Musik.stueck('nmg'); Musik.beiErsterAktion(); }
+
 const SHAPES = ['▲','◆','●','■'];
 
 const QUESTION_POOL = [
