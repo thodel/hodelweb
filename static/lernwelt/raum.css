@@ -1,0 +1,103 @@
+@import url("/lernwelt/dialog.css");
+
+/* ============================================================
+   Lerninsel — begehbare Innenräume
+   Gemeinsames Aussehen für Schänke, Aussichtsberg und die anderen.
+   ============================================================ */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  font-family: ui-monospace, Menlo, Consolas, monospace;
+  background: #0f172a; color: #e2e8f0; overflow: hidden;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  -webkit-user-select: none; user-select: none; touch-action: none;
+}
+
+#rahmen { position: relative; display: flex; flex-direction: column; align-items: center; }
+
+#raum {
+  image-rendering: pixelated; image-rendering: crisp-edges;
+  border: 3px solid #334155; border-radius: 6px; background: #0b1220;
+  box-shadow: 0 0 0 3px #0f172a, 0 14px 40px rgba(0,0,0,.55);
+  --wank: 0;
+}
+/* Der Rausch lässt stetig nach: die Stärke steckt in --wank. */
+#raum.wankt { animation: wanken 2.4s ease-in-out infinite; }
+@keyframes wanken {
+  0%,100% { transform: translate(0,0) rotate(0deg); }
+  25% { transform: translate(calc(var(--wank) * -3px), calc(var(--wank) * 1.6px))
+                  rotate(calc(var(--wank) * -0.4deg)); }
+  50% { transform: translate(calc(var(--wank) * 2.2px), calc(var(--wank) * -1.8px))
+                  rotate(calc(var(--wank) * 0.3deg)); }
+  75% { transform: translate(calc(var(--wank) * 2.8px), calc(var(--wank) * 1.6px))
+                  rotate(calc(var(--wank) * 0.45deg)); }
+}
+
+#hud {
+  display: flex; gap: 12px; align-items: center; flex-wrap: wrap; justify-content: center;
+  font-size: 11px; padding: 6px 10px; margin-bottom: 6px; color: #cbd5e1;
+  background: rgba(15,23,42,.9); border: 2px solid #334155; border-radius: 8px;
+}
+#hud b { color: #7dd3fc; }
+#hud .z { color: #fbbf24; }
+#hud a { color: #fde68a; text-decoration: none; border-bottom: 1px dotted #7c5341; }
+
+#banner {
+  min-height: 22px; margin-top: 7px; font-size: 11.5px; text-align: center; color: #cbd5e1;
+  background: rgba(15,23,42,.92); border: 2px solid #334155; border-radius: 8px;
+  padding: 5px 12px; opacity: 0; transition: opacity .15s; max-width: 96vw;
+}
+#banner.show { opacity: 1; }
+#banner b { color: #7dd3fc; }
+
+/* ---- Tablet-Steuerung ---- */
+#steuer { display: none; }
+#steuer.an { display: block; }
+.pad {
+  position: fixed; bottom: 18px; left: 18px; display: grid; gap: 8px;
+  grid-template-columns: repeat(3, 62px); grid-template-rows: repeat(3, 62px);
+}
+.pad button, #knopf-e {
+  border-radius: 14px; border: 2px solid #475569; background: rgba(15,23,42,.86);
+  color: #7dd3fc; font: 700 20px ui-monospace, monospace; touch-action: none;
+  -webkit-user-select: none; user-select: none;
+}
+.pad button:active, #knopf-e:active { background: #38bdf8; color: #082f49; }
+.pad .leer { visibility: hidden; }
+#knopf-e { position: fixed; right: 20px; bottom: 34px; width: 108px; height: 108px; font-size: 22px; }
+
+/* ---- Fenster für ein Spiel oder eine Übung ---- */
+#fenster {
+  position: fixed; inset: 0; background: rgba(6,10,20,.86); z-index: 40;
+  display: none; align-items: flex-start; justify-content: center;
+  padding: 18px 12px; overflow-y: auto;
+}
+#fenster.auf { display: flex; }
+.platte {
+  position: relative; width: 100%; max-width: 520px; background: #1e293b;
+  border: 3px solid #475569; border-radius: 18px; padding: 18px 18px 22px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+.platte h2 { font-size: 17px; color: #7dd3fc; margin-bottom: 4px; padding-right: 46px; }
+.platte .unter { font-size: 12.5px; color: #94a3b8; margin-bottom: 14px; line-height: 1.6; }
+.zu {
+  position: absolute; top: 14px; right: 16px; width: 42px; height: 42px; border-radius: 12px;
+  border: 2px solid #475569; background: #0f172a; color: #7dd3fc; font-size: 20px;
+  font-weight: 700; cursor: pointer;
+}
+.tafel[hidden] { display: none; }
+
+/* ---- Blackout ---- */
+#blackout {
+  position: fixed; inset: 0; background: #000; z-index: 90;
+  display: flex; align-items: center; justify-content: center; text-align: center;
+  color: #cbd5e1; font-size: 16px; line-height: 2; padding: 24px; opacity: 0;
+  transition: opacity 1.4s ease; pointer-events: none;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+}
+#blackout.an { opacity: 1; pointer-events: auto; }
+#blackout b { color: #7dd3fc; }
+
+@media (orientation: portrait) {
+  #knopf-e { right: 22px; bottom: 26px; }
+}

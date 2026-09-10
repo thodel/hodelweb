@@ -81,7 +81,7 @@
     affenFundTakt: 120,     /* alle wie viele Sekunden er etwas findet */
     gebraeuPreis: 15,       /* Münzen für ein Gebräu in der Spelunke */
     gebraeuMax: 3,          /* beim dritten Glas ist Schluss */
-    gebraeuVerfall: 900,    /* nach so vielen Sekunden ist der Rausch weg */
+    gebraeuVerfall: 600,    /* in so vielen Sekunden nüchtert man wieder aus */
     baerWitterung: 150,     /* auf so viele Pixel riecht ein Bär die Süssigkeiten */
     baerTempo: 46,          /* langsamer als der Spieler (62) — weglaufen geht */
     baerSattDauer: 45,      /* so viele Sekunden lässt er dich nach der Beute in Ruhe */
@@ -870,37 +870,49 @@
     /* ---------------- Spelunke: das Gebräu ----------------
        Nach dem dritten Glas ist der Abend vorbei: halbe Kasse und
        irgendwo im Wald aufwachen. */
-    gebraeuke: function (who) {
-      var stand = this.stand(who);
-      if (!stand.gebraeu) stand.gebraeu = { glaeser: 0, zuletzt: 0 };
-      /* Rausch verfliegt mit der Zeit */
-      if (stand.gebraeu.zuletzt &&
-          Date.now() - stand.gebraeu.zuletzt > OEKONOMIE.gebraeuVerfall * 1000) {
-        stand.gebraeu.glaeser = 0;
-      }
-      return stand.gebraeu.glaeser;
+    /* Der Rausch baut sich linear ab: was beim letzten Glas da war, ist nach
+       gebraeuVerfall Sekunden wieder weg. Rückgabe ist eine Kommazahl,
+       damit das Wackeln stetig nachlässt statt in Stufen zu springen. */
+    rausch: function (who) {
+      var g = this.stand(who).gebraeu;
+      if (!g) return 0;
+      /* Alte Spielstände kannten nur ganze Gläser. */
+      var stufe = g.stufe !== undefined ? g.stufe : (g.glaeser || 0);
+      if (!stufe || !g.zuletzt) return 0;
+      var vergangen = (Date.now() - g.zuletzt) / 1000;
+      var rest = stufe * (1 - vergangen / OEKONOMIE.gebraeuVerfall);
+      return Math.max(0, Math.min(OEKONOMIE.gebraeuMax, rest));
+    },
+    /* Ganze Gläser — für Anzeigen wie „2 von 3“. */
+    gebraeuke: function (who) { return Math.ceil(this.rausch(who) - 0.001); },
+    /* Sekunden, bis der Rausch ganz weg ist. */
+    rauschRest: function (who) {
+      var g = this.stand(who).gebraeu;
+      if (!g || !g.zuletzt) return 0;
+      var stufe = g.stufe !== undefined ? g.stufe : (g.glaeser || 0);
+      if (!stufe) return 0;
+      var vergangen = (Date.now() - g.zuletzt) / 1000;
+      return Math.max(0, Math.round(OEKONOMIE.gebraeuVerfall - vergangen));
     },
     trinken: function (who) {
       who = who || this.who();
       var stand = this.stand(who);
-      if (!stand.gebraeu) stand.gebraeu = { glaeser: 0, zuletzt: 0 };
-      if (stand.gebraeu.zuletzt &&
-          Date.now() - stand.gebraeu.zuletzt > OEKONOMIE.gebraeuVerfall * 1000) {
-        stand.gebraeu.glaeser = 0;
-      }
+      if (!stand.gebraeu) stand.gebraeu = { stufe: 0, zuletzt: 0 };
       if ((stand.muenzen || 0) < OEKONOMIE.gebraeuPreis) {
         return { ok: false, fehlt: OEKONOMIE.gebraeuPreis - (stand.muenzen || 0) };
       }
+      var vorher = this.rausch(who);
       stand.muenzen -= OEKONOMIE.gebraeuPreis;
-      stand.gebraeu.glaeser++;
-      stand.gebraeu.zuletzt = Date.now();
+      stand.gebraeu = { stufe: vorher + 1, zuletzt: Date.now() };
 
-      var ergebnis = { ok: true, glaeser: stand.gebraeu.glaeser, blackout: false };
-      if (stand.gebraeu.glaeser >= OEKONOMIE.gebraeuMax) {
+      var ergebnis = { ok: true, glaeser: Math.ceil(stand.gebraeu.stufe - 0.001),
+                       stufe: stand.gebraeu.stufe, blackout: false };
+      /* Kleine Toleranz: zwischen zwei Gläsern nüchtert man schon ein wenig aus,
+         drei Gläser hintereinander sollen trotzdem sicher zum Blackout führen. */
+      if (stand.gebraeu.stufe + 0.2 >= OEKONOMIE.gebraeuMax) {
         var verloren = Math.floor((stand.muenzen || 0) / 2);
         stand.muenzen -= verloren;
-        stand.gebraeu.glaeser = 0;
-        stand.gebraeu.zuletzt = 0;
+        stand.gebraeu = { stufe: 0, zuletzt: 0 };
         var ids = Object.keys(WAELDER);
         var wald = ids[Math.floor(Math.random() * ids.length)];
         stand.aufwachen = wald;
@@ -998,7 +1010,7 @@
     },
     ausnuechtern: function (who) {
       var stand = this.stand(who);
-      stand.gebraeu = { glaeser: 0, zuletzt: 0 };
+      stand.gebraeu = { stufe: 0, zuletzt: 0 };
       this._speichern(who, stand);
     },
 

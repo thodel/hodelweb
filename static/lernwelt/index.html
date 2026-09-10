@@ -6,6 +6,7 @@
 <title>Die Lerninsel</title>
 <meta name="description" content="Lerninsel — ein kleines Abenteuerspiel mit Übungen in Mathe, Deutsch, Englisch und Geografie.">
 <link rel="icon" href="/favicon-32x32.png" sizes="32x32">
+<link rel="stylesheet" href="/lernwelt/dialog.css">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body {
@@ -27,14 +28,18 @@
   }
   #frame { display: flex; flex-direction: column; align-items: center; }
   #spielfeld { position: relative; image-rendering: pixelated; line-height: 0; }
-  /* Nach einem Gebräu wackelt das Bild. */
-  #spielfeld.schwank1 { animation: schwanken 2.6s ease-in-out infinite; }
-  #spielfeld.schwank2 { animation: schwanken 1.5s ease-in-out infinite; }
+  /* Nach einem Gebräu wackelt das Bild. Die Stärke steckt in --wank und
+     nimmt stetig ab, bis man wieder nüchtern ist. */
+  #spielfeld { --wank: 0; }
+  #spielfeld.wankt { animation: schwanken 2.4s ease-in-out infinite; }
   @keyframes schwanken {
     0%, 100% { transform: translate(0, 0) rotate(0deg); }
-    25%      { transform: translate(-5px, 2px) rotate(-0.7deg); }
-    50%      { transform: translate(3px, -3px) rotate(0.5deg); }
-    75%      { transform: translate(5px, 2px) rotate(0.8deg); }
+    25%      { transform: translate(calc(var(--wank) * -2.6px), calc(var(--wank) * 1.4px))
+                          rotate(calc(var(--wank) * -0.36deg)); }
+    50%      { transform: translate(calc(var(--wank) * 1.8px), calc(var(--wank) * -1.6px))
+                          rotate(calc(var(--wank) * 0.26deg)); }
+    75%      { transform: translate(calc(var(--wank) * 2.6px), calc(var(--wank) * 1.4px))
+                          rotate(calc(var(--wank) * 0.4deg)); }
   }
   canvas {
     display: block;
@@ -245,6 +250,8 @@
 </div>
 
 <script src="/lernwelt/insel.js"></script>
+<script src="/lernwelt/pixel.js"></script>
+<script src="/lernwelt/dialog.js"></script>
 <script src="/lernwelt/uebungen.js"></script>
 <script src="/lernwelt/musik.js"></script>
 <script>
@@ -274,7 +281,7 @@
   };
 
   /* ================= Utils ================= */
-  function px(c, x, y, w, h, col) { c.fillStyle = col; c.fillRect(x | 0, y | 0, w | 0, h | 0); }
+  var px = Pixel.px;   /* Figuren und Farbhelfer kommen aus pixel.js */
   function mulberry32(a) {
     return function () {
       a |= 0; a = a + 0x6D2B79F5 | 0;
@@ -961,62 +968,8 @@
 
   /* Spielfigur: 16x18, 3 Richtungen, 2 Laufphasen */
   var SKIN_STD = '#f2c8a0', SKIN_D_STD = '#d9a97e', HAIR_STD = '#5b3a1e', HAIR_L_STD = '#7a5029';
-  function dunklerHex(hex) {
-    if (hex.charAt(0) !== '#') return hex;
-    var n = parseInt(hex.slice(1), 16);
-    return 'rgb(' + Math.max(0, (n >> 16) - 28) + ',' + Math.max(0, ((n >> 8) & 255) - 26) +
-           ',' + Math.max(0, (n & 255) - 22) + ')';
-  }
-  function aufhellen(hex) {
-    var n = parseInt(hex.slice(1), 16);
-    var r = Math.min(255, (n >> 16) + 34), g = Math.min(255, ((n >> 8) & 255) + 28), b = Math.min(255, (n & 255) + 20);
-    return 'rgb(' + r + ',' + g + ',' + b + ')';
-  }
-  function drawHero(c, x, y, dir, frame, jacket, jacketD, haarFarbe, teile) {
-    var top = y - 18, left = x - 6;
-    var HAIR = haarFarbe || HAIR_STD, HAIR_L = haarFarbe ? aufhellen(haarFarbe) : HAIR_L_STD;
-    teile = teile || {};
-    var SKIN = teile.haut || SKIN_STD, SKIN_D = teile.haut ? dunklerHex(teile.haut) : SKIN_D_STD;
-    var HOSE = teile.hose || '#2f4d7a', HOSE_D = teile.hose ? dunklerHex(teile.hose) : '#24406b';
-    var SCHUH = teile.schuhe || '#1f2937';
-    /* Schatten */
-    px(c, x - 6, y - 1, 12, 2, 'rgba(0,0,0,.22)');
-    /* Beine */
-    var swing = frame === 1 ? 1 : frame === 2 ? -1 : 0;
-    px(c, left + 1, top + 14, 4, 4, HOSE);
-    px(c, left + 7, top + 14, 4, 4, HOSE_D);
-    px(c, left + 1, top + 17 + (swing > 0 ? 1 : 0), 4, 1, SCHUH);
-    px(c, left + 7, top + 17 + (swing < 0 ? 1 : 0), 4, 1, SCHUH);
-    /* Körper */
-    px(c, left + 1, top + 7, 10, 8, jacket);
-    px(c, left + 1, top + 7, 10, 1, jacketD);
-    px(c, left + 1, top + 14, 10, 1, jacketD);
-    /* Arme */
-    px(c, left - 1, top + 8, 2, 5, jacketD);
-    px(c, left + 11, top + 8, 2, 5, jacketD);
-    px(c, left - 1, top + 12, 2, 2, SKIN);
-    px(c, left + 11, top + 12, 2, 2, SKIN);
-    /* Kopf */
-    px(c, left + 2, top + 1, 8, 7, SKIN);          /* Gesicht */
-    px(c, left + 2, top + 7, 8, 1, SKIN_D);        /* Kinnschatten */
-    px(c, left + 2, top, 8, 2, HAIR);              /* Haarkappe */
-    px(c, left + 1, top + 1, 1, 4, HAIR);          /* Koteletten */
-    px(c, left + 10, top + 1, 1, 4, HAIR);
-    px(c, left + 3, top, 3, 1, HAIR_L);
-    if (dir === 'down') {
-      px(c, left + 4, top + 4, 1, 2, COL.black);
-      px(c, left + 7, top + 4, 1, 2, COL.black);
-      px(c, left + 5, top + 6, 2, 1, '#c98d76');   /* Mund */
-    } else if (dir === 'up') {
-      px(c, left + 2, top, 8, 6, HAIR);            /* Hinterkopf */
-      px(c, left + 3, top + 1, 3, 1, HAIR_L);
-    } else {
-      var right = dir === 'right';
-      px(c, right ? left + 7 : left + 4, top + 4, 1, 2, COL.black);
-      px(c, right ? left + 9 : left + 2, top + 6, 1, 1, '#c98d76');
-      px(c, right ? left + 2 : left + 7, top + 1, 3, 4, HAIR);  /* Hinterkopf seitlich */
-    }
-  }
+  var dunklerHex = Pixel.dunkler, aufhellen = Pixel.heller;
+  var drawHero = Pixel.drawHero;
 
   /* ================= Wetter =================
      Draussen auf der Insel wechselt das Wetter. Es wird im Browser gewürfelt,
@@ -1380,9 +1333,54 @@
     updateBanner();
   }
 
+  /* ---------------- Von selbst ansprechen ----------------
+     Die Inselbewohner warten nicht, bis man sie anspricht. Kommt der Spieler
+     in die Nähe, fangen sie selber an. Danach halten sie eine Weile still. */
+  var letztesGespraech = 0;
+  function ansprechenPruefen() {
+    if (!window.Dialog || Dialog.offen() || state !== 'play') return;
+    if (Date.now() - letztesGespraech < 15000) return;
+
+    /* Flaneure zuerst — sie sind die Schwatzhaften. */
+    for (var i = 0; i < flaneure.length; i++) {
+      var f = flaneure[i];
+      if (Math.hypot(hero.x - f.x, hero.y - f.y) > 32) continue;
+      if (f.zuletztGeredet && Date.now() - f.zuletztGeredet < 90000) continue;
+      f.zuletztGeredet = Date.now();
+      letztesGespraech = Date.now();
+      f.pause = 4;
+      plaudern(f);
+      return;
+    }
+    /* Die Wett-Bewohner rufen einen an, solange sie noch wetten wollen. */
+    for (var n = 0; n < npcs.length; n++) {
+      var npc = npcs[n];
+      if (Math.hypot(hero.x - npc.tx * TILE - 8, hero.y - npc.ty * TILE - 14) > 32) continue;
+      if (npc.zuletztGeredet && Date.now() - npc.zuletztGeredet < 120000) continue;
+      if (!window.Insel || !Insel.npcWettetNoch(npc.id, who)) continue;
+      if (Insel.offeneWette(who)) continue;
+      npc.zuletztGeredet = Date.now();
+      letztesGespraech = Date.now();
+      var ziel = Insel.npcZiel(npc.id, npc.basis, who);
+      var spruch = npc.prahlen[Math.floor(Math.random() * npc.prahlen.length)]
+                     .replace('{ziel}', Math.round(ziel / 10) + ' von 10');
+      flash([spruch, 'Trau dich und sprich mich an — dann wetten wir.'], npc.name);
+      return;
+    }
+    /* Käpten Krümel meldet sich, wenn ein Hinweis auf dem Konto liegt. */
+    if (window.Insel && Insel.hinweisGuthaben(who) > 0 &&
+        Math.hypot(hero.x - seebaer.tx * TILE - 8, hero.y - seebaer.ty * TILE - 14) < 40 &&
+        (!seebaer.zuletztGeredet || Date.now() - seebaer.zuletztGeredet > 120000)) {
+      seebaer.zuletztGeredet = Date.now();
+      letztesGespraech = Date.now();
+      flash('He, du da! Du hast etwas gut bei mir. Sprich mich an, dann verrate ich dir, ' +
+            'wo eine Kiste liegt.', seebaer.name);
+    }
+  }
+
   /* ---------------- Flaneure ---------------- */
   function plaudern(f) {
-    flash(f.name + ': "' + f.sprueche[f.spruch] + '"');
+    flash(f.sprueche[f.spruch], f.name);
     f.spruch = (f.spruch + 1) % f.sprueche.length;
     f.pause = 3;
   }
@@ -1393,12 +1391,12 @@
   function schatzGeschichte() {
     var offene = Insel.offeneSchaetze(who);
     if (!offene.length) {
-      flash(seebaer.name + ': "Alles gehoben. Jeder einzelne. Ich hätte nicht gedacht, ' +
-            'dass du so gut zuhörst. Jetzt muss ich mir neue Geschichten ausdenken."');
+      flash('Alles gehoben. Jeder einzelne. Ich hätte nicht gedacht, dass du so gut zuhörst. ' +
+            'Jetzt muss ich mir neue Geschichten ausdenken.', seebaer.name);
       return;
     }
     if (!Insel.hatSchaufel(who)) {
-      flash(seebaer.name + ': "' + seebaer.geschichten[2] + '"');
+      flash(seebaer.geschichten[2], seebaer.name);
       return;
     }
 
@@ -1406,27 +1404,28 @@
     var verraten = Insel.verrateneSchaetze(who);
     var guthaben = Insel.hinweisGuthaben(who);
     if (verraten.length && !guthaben) {
-      flash(seebaer.name + ': "Was ich dir gesagt habe, gilt noch: einer liegt ' +
-            verraten[0].nahe + '. Grab den erst aus, bevor du mich um mehr bittest."');
+      flash('Was ich dir gesagt habe, gilt noch: einer liegt ' + verraten[0].nahe +
+            '. Grab den erst aus, bevor du mich um mehr bittest.', seebaer.name);
       return;
     }
     if (!guthaben) {
       geschichteNr++;
-      flash(seebaer.name + ': "' + seebaer.geschichten[geschichteNr % 2] +
-            ' Wo genau? Das sage ich nur jemandem, der etwas geleistet hat. ' +
-            'Meistere eine Übung oder erledige den Tagesauftrag, dann reden wir wieder."');
+      flash([seebaer.geschichten[geschichteNr % 2],
+             'Wo genau? Das sage ich nur jemandem, der etwas geleistet hat. ' +
+             'Meistere eine Übung oder erledige den Tagesauftrag — dann reden wir wieder.'],
+            seebaer.name);
       return;
     }
 
     var r = Insel.hinweisEinloesen(who);
     if (!r.ok) {
-      flash(seebaer.name + ': "Im Moment weiss ich auch nicht mehr als du."');
+      flash('Im Moment weiss ich auch nicht mehr als du.', seebaer.name);
       return;
     }
     updateHud();
-    flash(seebaer.name + ': "Für deine Mühe: einer liegt ' + r.schatz.nahe + '. ' +
-          'Ein rotes Kreuz zeigt dir die Stelle, sobald du in die Gegend kommst." ' +
-          '(Noch ' + r.guthaben + ' Hinweise auf deinem Konto.)');
+    flash(['Für deine Mühe: einer liegt ' + r.schatz.nahe + '.',
+           'Ein rotes Kreuz zeigt dir die Stelle, sobald du in die Gegend kommst. ' +
+           'Auf deinem Konto sind noch ' + r.guthaben + ' Hinweise.'], seebaer.name);
   }
 
   /* ---------------- Affen füttern ---------------- */
@@ -1498,7 +1497,12 @@
   }
 
   var flashT = 0, flashMsg = '';
-  function flash(msg) { flashMsg = msg; flashT = 2.8; }
+  /* Nachrichten bleiben stehen, bis sie weggeklickt werden.
+     'wer' ist optional und steht als Sprecher über dem Text. */
+  function flash(msg, wer) {
+    if (window.Dialog) Dialog.zeigen(wer || '', msg);
+    else { flashMsg = msg; flashT = 2.8; }
+  }
 
   function showTreasure() {
     var el = document.getElementById('scr-treasure');
@@ -1811,7 +1815,7 @@
     var dt = Math.min(0.05, (ts - lastTs) / 1000 || 0);
     lastTs = ts;
 
-    if (state === 'play') {
+    if (state === 'play' && !(window.Dialog && Dialog.offen())) {
       var dx = 0, dy = 0;
       if (keys['w'] || keys['arrowup'] || touchDir === 'up') dy -= 1;
       if (keys['s'] || keys['arrowdown'] || touchDir === 'down') dy += 1;
@@ -1839,7 +1843,9 @@
 
       baerenBewegen(dt);
       flaneureBewegen(dt);
+      ansprechenPruefen();
 
+      rauschAnzeigen();
       var n = findNearest();
       if (n !== nearest) { nearest = n; updateBanner(); }
       else if (nearest) updateBanner();
@@ -1858,11 +1864,14 @@
     if (!id) updateBanner();
   }
 
+  var letzterRausch = -1;
   function rauschAnzeigen() {
-    var g = window.Insel ? Insel.gebraeuke(who) : 0;
+    var r = window.Insel ? Insel.rausch(who) : 0;
+    if (Math.abs(r - letzterRausch) < 0.02) return;
+    letzterRausch = r;
     var el = document.getElementById('spielfeld');
-    el.classList.toggle('schwank1', g === 1);
-    el.classList.toggle('schwank2', g >= 2);
+    el.style.setProperty('--wank', r.toFixed(2));
+    el.classList.toggle('wankt', r > 0.05);
   }
 
   /* Bäume wachsen dort, wo sie wollen. Wer hier landet, soll nicht feststecken. */
@@ -1942,6 +1951,7 @@
   /* ================= Eingabe ================= */
   window.addEventListener('keydown', function (e) {
     var k = e.key.toLowerCase();
+    if (window.Dialog && Dialog.offen()) { keys = Object.create(null); return; }
     keys[k] = true;
     if (['arrowup', 'arrowdown', 'arrowleft', 'arrowright', ' '].indexOf(k) >= 0) e.preventDefault();
 
