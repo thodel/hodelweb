@@ -105,9 +105,24 @@
     if (Insel.raumOffen(raumId)) zeigeInhalt(); else zeigeTuer();
   }
 
+  function anzahlSichtbar() {
+    var g = daten.gruppen || [{ videos: daten.videos || [] }];
+    return g.reduce(function (n, x) { return n + (x.videos ? x.videos.filter(passt).length : 0); }, 0);
+  }
+
   function zeigeTuer() {
     $('tuer').style.display = '';
     $('inhalt').style.display = 'none';
+    /* Für einen leeren Raum wird keine Marke verlangt. */
+    if (!anzahlSichtbar()) {
+      $('tuer-h').textContent = 'Gerade nichts zu sehen';
+      $('tuer-p').innerHTML = 'In diesem Raum ist im Moment kein Video freigegeben ' +
+        '(erlaubt sind nur Videos bis ' + Math.round(grenze() / 60) + ' Minuten).<br>' +
+        'Deine Marke bleibt dir erhalten.';
+      $('oeffnen').style.display = 'none';
+      return;
+    }
+    $('oeffnen').style.display = '';
     var marken = Insel.marken(who);
     $('tuer-h').textContent = 'Die Tür ist zu';
     $('tuer-p').innerHTML = 'Um den Raum zu öffnen, brauchst du <b>1 Marke</b>.<br>' +
@@ -133,17 +148,24 @@
     /* Alte Fassung ohne Gruppen weiterhin unterstützen */
     var gruppen = daten.gruppen;
     if (!gruppen) gruppen = [{ titel: '', videos: daten.videos || [] }];
-    var total = gruppen.reduce(function (n, g) { return n + (g.videos ? g.videos.length : 0); }, 0);
+    var total = gruppen.reduce(function (n, g) {
+      return n + (g.videos ? g.videos.filter(passt).length : 0);
+    }, 0);
 
     if (!total) {
-      box.innerHTML = '<div class="leer">Hier sind noch keine Videos eingetragen.<br>' +
-        'Papa kann sie in der Datei <code>static/lernwelt/videos.json</code> ergänzen — ' +
-        'dazu einfach die Video-ID (der Teil nach <code>?v=</code>) eintragen.</div>';
+      var zuLang = gruppen.reduce(function (n, g) { return n + (g.videos ? g.videos.length : 0); }, 0);
+      box.innerHTML = '<div class="leer">' + (zuLang
+        ? 'In diesem Raum ist gerade nichts zu sehen: alle ' + zuLang + ' Videos sind länger als ' +
+          Math.round(grenze() / 60) + ' Minuten.<br>Deine Marke ist noch da.'
+        : 'Hier sind noch keine Videos eingetragen.<br>' +
+          'Papa kann sie in <code>static/lernwelt/videos.json</code> ergänzen.') + '</div>';
       return;
     }
 
     gruppen.forEach(function (g) {
       if (!g.videos || !g.videos.length) return;
+      g = { titel: g.titel, hinweis: g.hinweis, videos: g.videos.filter(passt) };
+      if (!g.videos.length) return;
       var wrap = document.createElement('div');
       wrap.className = 'gruppe';
       if (g.titel) wrap.innerHTML = '<h2>' + esc(g.titel) + '</h2>';
@@ -156,6 +178,10 @@
     });
   }
 
+  function grenze() { return daten && daten.maxSekunden ? daten.maxSekunden : 120; }
+  function passt(v) { return !v.sekunden || v.sekunden <= grenze(); }
+  function mmss(s) { return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); }
+
   function karte(v) {
     var extern = v.modus === 'link';
     var el = document.createElement('div');
@@ -163,7 +189,7 @@
     el.innerHTML =
       '<div class="thumb"><div class="play">' + (extern ? '↗' : '▶') + '</div></div>' +
       '<div class="txt"><div class="t">' + esc(v.titel) + '</div>' +
-      '<div class="i">' + esc(v.info || '') + '</div>' +
+      '<div class="i">' + esc(v.info || '') + (v.sekunden ? ' · ' + mmss(v.sekunden) : '') + '</div>' +
       (extern ? '<div class="extern-hinweis">öffnet auf YouTube</div>' : '') + '</div>';
 
     el.querySelector('.thumb').onclick = function () {
