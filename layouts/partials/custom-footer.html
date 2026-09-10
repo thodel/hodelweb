@@ -1,0 +1,11 @@
+{{- /* Footer for the hand-written layouts (home, publications) */ -}}
+<footer>
+  <style>
+    footer .cc-icon { height: 1.1em; width: auto; vertical-align: -0.2em; margin-right: 0.15em; }
+    footer .sep { margin: 0 0.4em; }
+    footer a { color: var(--text-muted); }
+    footer a:hover { color: var(--accent); }
+  </style>
+  {{ partial "license-line.html" . }}
+</footer>
+{{ partial "mail-script.html" . }}

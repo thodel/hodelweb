@@ -18,6 +18,8 @@ summary: "Teaching"
 - **Autumn 2019** — Lecturer, "Machine Learning in Digital History: Text Recognition and Document Analysis with Transkribus", University of Basel
 - **Since 2016** — Regular contribution to "Introduction to Cultural Studies" (block course: Introduction to Digital Humanities), University of Lucerne
 
-## Introduction to Digital Humanities (Spring 2026)
+## Course websites
 
-Course repository: [Introduction to Digital Humanities (DHBern)](https://dhbern.github.io/introduction-to-dh/)
+- [Introduction to Digital Humanities](https://dhbern.github.io/introduction-to-dh/)
+- [DH Lab](https://dhbern.github.io/dh-lab/) — hands-on companion to the introduction
+- [DH Lecture Series](https://dhbern.github.io/dh-lecture-series/)

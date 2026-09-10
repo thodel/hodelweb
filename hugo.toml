@@ -98,7 +98,8 @@ defaultContentLanguageInSubdir = false
   ShowShareButtons = false
   ShowPostNavLinks = true
   ShowBreadCrumbs = true
-  defaultTheme = "light"
+  defaultTheme = "auto"
+  disableThemeToggle = true
   [[params.socialIcons]]
     name = "orcid"
     url = "https://orcid.org/0000-0002-2071-6407"

@@ -1,0 +1,10 @@
+{{- /* CC BY 4.0 line with icons, contact and imprint link; used by both footers */ -}}
+{{- $de := eq .Site.Language.Lang "de" -}}
+<span class="cc-line">
+  <a href="https://creativecommons.org/licenses/by/4.0/" rel="license noopener" target="_blank" title="Creative Commons Attribution 4.0"><img src="/images/cc.svg" alt="CC" width="20" height="20" class="cc-icon"><img src="/images/by.svg" alt="BY" width="20" height="20" class="cc-icon"></a>
+  {{ if $de }}Texte und Bilder: <a href="https://creativecommons.org/licenses/by/4.0/deed.de" rel="license noopener" target="_blank">CC BY 4.0</a> Tobias Hodel{{ else }}Text and images: <a href="https://creativecommons.org/licenses/by/4.0/" rel="license noopener" target="_blank">CC BY 4.0</a> Tobias Hodel{{ end }}
+</span>
+<span class="sep">·</span>
+<span>{{ if $de }}Kontakt{{ else }}Contact{{ end }}: {{ partial "mail.html" (dict) }}</span>
+<span class="sep">·</span>
+<a href="{{ if $de }}/impressum/{{ else }}/en/imprint/{{ end }}">{{ if $de }}Impressum & Datenschutz{{ else }}Imprint & Privacy{{ end }}</a>

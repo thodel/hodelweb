@@ -45,15 +45,18 @@
     --card-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
   }
 
-  [data-theme="dark"] {
-    --bg: #0f172a;
-    --bg-alt: #1e293b;
-    --text: #f1f5f9;
-    --text-muted: #94a3b8;
-    --accent: #60a5fa;
-    --accent-light: #1e293b;
-    --border: #334155;
-    --card-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  /* Dark mode follows the device setting; nothing is stored in the browser */
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f172a;
+      --bg-alt: #1e293b;
+      --text: #f1f5f9;
+      --text-muted: #94a3b8;
+      --accent: #60a5fa;
+      --accent-light: #1e293b;
+      --border: #334155;
+      --card-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    }
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -298,7 +301,6 @@
     {{ else }}
     <a href="/">DE</a>
     {{ end }}
-    <button class="theme-toggle" onclick="toggleTheme()">◑</button>
   </div>
 </div>
 
@@ -320,7 +322,7 @@
       <div class="social-row">
         <a href="https://orcid.org/0000-0002-2071-6407">ORCID</a>
         <a href="https://github.com/thodel">GitHub</a>
-        <a href="mailto:tobias.hodel@unibe.ch">Email</a>
+        <a class="mail-link" href="#" data-u="tobias.hodel" data-d="unibe.ch" data-keep-label="1">Email</a>
       </div>
     </div>
   </div>
@@ -383,29 +385,29 @@
   <section id="teaching">
     <h2>{{ if eq .Site.Language.Lang "de" }}Lehre{{ else }}Teaching{{ end }}</h2>
     <p>{{ if eq .Site.Language.Lang "de" }}Programmverantwortlicher DH Master Major und Minor (30/90 ECTS), MAS Extended Intelligence, MAS Archiv-, Bibliotheks- und Informationswissenschaft. Doktoratsprogramm DH (Bern & Basel).{{ else }}Programme director DH Master Major and Minor (30/90 ECTS), MAS Extended Intelligence, MAS Archival, Library and Information Science. Doctoral programme DH (Bern & Basel).{{ end }}</p>
-    <p style="margin-top:1rem;"><a href="https://dhbern.github.io/introduction-to-dh/" style="color:var(--accent); text-decoration:none; font-weight:500;">{{ if eq .Site.Language.Lang "de" }}Einführung DH FS2026{{ else }}Introduction DH Spring 2026{{ end }} →</a></p>
+    <div class="cards" style="margin-top:1.5rem;">
+      <div class="card">
+        <h3>{{ if eq .Site.Language.Lang "de" }}Einführung in die Digital Humanities{{ else }}Introduction to Digital Humanities{{ end }}</h3>
+        <p>{{ if eq .Site.Language.Lang "de" }}Kurswebsite der Einführungsvorlesung an der Universität Bern.{{ else }}Course website of the introductory lecture at the University of Bern.{{ end }}</p>
+        <a href="https://dhbern.github.io/introduction-to-dh/">{{ if eq .Site.Language.Lang "de" }}Zur Kurswebsite{{ else }}Course website{{ end }} →</a>
+      </div>
+      <div class="card">
+        <h3>DH Lab</h3>
+        <p>{{ if eq .Site.Language.Lang "de" }}Praktischer Begleitkurs zur Einführung: Werkzeuge, Daten, Methoden.{{ else }}Hands-on companion to the introduction: tools, data, methods.{{ end }}</p>
+        <a href="https://dhbern.github.io/dh-lab/">{{ if eq .Site.Language.Lang "de" }}Zur Kurswebsite{{ else }}Course website{{ end }} →</a>
+      </div>
+      <div class="card">
+        <h3>{{ if eq .Site.Language.Lang "de" }}DH Ringvorlesung{{ else }}DH Lecture Series{{ end }}</h3>
+        <p>{{ if eq .Site.Language.Lang "de" }}Öffentliche Vortragsreihe der Digital Humanities an der Universität Bern.{{ else }}Public lecture series of Digital Humanities at the University of Bern.{{ end }}</p>
+        <a href="https://dhbern.github.io/dh-lecture-series/">{{ if eq .Site.Language.Lang "de" }}Programm{{ else }}Programme{{ end }} →</a>
+      </div>
+    </div>
   </section>
 </div>
 
+{{ partial "custom-footer.html" . }}
 
 <script>
-function toggleTheme() {
-  const body = document.body;
-  if (body.getAttribute('data-theme') === 'dark') {
-    body.removeAttribute('data-theme');
-    localStorage.setItem('theme', 'light');
-  } else {
-    body.setAttribute('data-theme', 'dark');
-    localStorage.setItem('theme', 'dark');
-  }
-}
-
-// Apply saved theme
-const savedTheme = localStorage.getItem('theme');
-if (savedTheme === 'dark') {
-  document.body.setAttribute('data-theme', 'dark');
-}
-
 let allPublications = [];
 let filteredPublications = [];
 
