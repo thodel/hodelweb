@@ -58,7 +58,7 @@
     },
     {
       id: 'stellenwert', klassen: [4, 5, 6], schwierigkeit: 'leicht',
-      titel: 'Stellenwerte & Runden', lp21: 'MA.1.A.1',
+      titel: 'Stellenwerte & Runden', lp21: 'MA.1.A.1 / MA.1.A.4',
       info: 'Zahlen lesen, ordnen und runden.',
       gen: function () {
         var z = rint(1000, 99999);
@@ -98,7 +98,7 @@
     },
     {
       id: 'groessen4', klassen: [4, 5], schwierigkeit: 'schwer',
-      titel: 'Grössen umwandeln', lp21: 'MA.3.A.1',
+      titel: 'Grössen umwandeln', lp21: 'MA.3.A.2',
       info: 'Meter, Kilogramm, Liter, Zeit und Geld umrechnen.',
       gen: function () {
         var art = pick(['laenge', 'masse', 'zeit', 'geld']);
@@ -120,7 +120,7 @@
     },
     {
       id: 'sachaufgaben4', klassen: [4, 5], schwierigkeit: 'schwer',
-      titel: 'Sachaufgaben', lp21: 'MA.3.B.1',
+      titel: 'Sachaufgaben', lp21: 'MA.3.C.2',
       info: 'Rechengeschichten aus dem Alltag.',
       gen: function () {
         var v = [
@@ -154,9 +154,9 @@
       }
     },
     {
-      id: 'geometrie4', klassen: [4, 5], schwierigkeit: 'leicht',
-      titel: 'Formen & Umfang', lp21: 'MA.2.C.1',
-      info: 'Umfang, Symmetrie und Körper erkennen.',
+      id: 'geometrie4', klassen: [4, 5, 6], schwierigkeit: 'leicht',
+      titel: 'Formen, Umfang & Symmetrie', lp21: 'MA.2.A.2 / MA.2.A.3',
+      info: 'Spiegeln und Körper ab der 4. Klasse, Umfang berechnen ab der 5./6.',
       gen: function () {
         var art = pick(['umfang', 'quadrat', 'koerper', 'symmetrie']);
         if (art === 'umfang') {
@@ -186,7 +186,7 @@
     {
       id: 'mult-gross', klassen: [5, 6], schwierigkeit: 'schwer',
       titel: 'Mehrstellig multiplizieren', lp21: 'MA.1.A.3',
-      info: 'Schriftliche Multiplikation und Division.',
+      info: 'Im Kopf oder mit eigenem Rechenweg — der Lehrplan verlangt hier kein schriftliches Verfahren.',
       gen: function () {
         if (Math.random() < 0.55) {
           var a = rint(23, 98), b = rint(12, 49);
@@ -227,10 +227,13 @@
                    antwort: (zz / t) + '/' + (nnn / t), hinweis: 'Schreibe so: 3/4' };
         }
         if (art === 'ganzes') {
-          var teil = pick([2, 3, 4, 5]), anz = teil * rint(2, 9);
-          return { typ: 'zahl', frage: 'Drei Viertel von ' + (4 * rint(3, 12)) + ' — nein, einfacher: ' +
-                   (teil) + '/' + (teil) + ' von ' + anz + ' ist wie viel?', antwort: String(anz),
-                   hinweis: 'Ein ganzer Bruch ist das Ganze.' };
+          var nenner = pick([2, 3, 4, 5, 8]), zaehler = rint(1, nenner - 1);
+          var ganzes = nenner * rint(2, 12);
+          var worte = { 2: 'Halbe', 3: 'Drittel', 4: 'Viertel', 5: 'Fünftel', 8: 'Achtel' };
+          return { typ: 'zahl',
+                   frage: 'Wie viel sind ' + zaehler + '/' + nenner + ' von ' + ganzes + '?',
+                   antwort: String(ganzes / nenner * zaehler),
+                   hinweis: 'Zuerst ein ' + worte[nenner] + ' ausrechnen, dann mal ' + zaehler + '.' };
         }
         var paare = [['1/2', '1/3'], ['2/3', '3/4'], ['3/5', '1/2'], ['5/8', '1/2'], ['2/5', '1/2'], ['7/10', '3/4']];
         var p = pick(paare);
@@ -267,7 +270,7 @@
     },
     {
       id: 'prozent', klassen: [6], schwierigkeit: 'schwer',
-      titel: 'Prozente', lp21: 'MA.1.A.3',
+      titel: 'Prozente', lp21: 'MA.1.A.1 (weiterführend)',
       info: 'Prozentanteile von Grössen berechnen.',
       gen: function () {
         var p = pick([10, 20, 25, 50, 75]), g = pick([40, 60, 80, 120, 200, 240, 400]);
@@ -282,7 +285,7 @@
     },
     {
       id: 'flaeche', klassen: [5, 6], schwierigkeit: 'schwer',
-      titel: 'Fläche & Umfang', lp21: 'MA.2.C.1',
+      titel: 'Fläche & Umfang', lp21: 'MA.2.A.3',
       info: 'Rechteck, Quadrat und Dreieck berechnen.',
       gen: function () {
         var art = pick(['flaeche', 'dreieck', 'umkehr', 'umfang']);
@@ -301,7 +304,7 @@
     },
     {
       id: 'groessen6', klassen: [6], schwierigkeit: 'schwer',
-      titel: 'Grössen (gross & klein)', lp21: 'MA.3.A.1',
+      titel: 'Grössen (gross & klein)', lp21: 'MA.3.A.2',
       info: 'km, t, Liter, Milliliter und Zeitspannen.',
       gen: function () {
         var art = pick(['km', 'tonne', 'liter', 'zeit']);
@@ -320,8 +323,8 @@
     },
     {
       id: 'terme', klassen: [6], schwierigkeit: 'schwer',
-      titel: 'Terme & Gleichungen', lp21: 'MA.1.B.1',
-      info: 'Platzhalter x bestimmen.',
+      titel: 'Terme & Gleichungen', lp21: 'MA.1.A.4 (weiterführend)',
+      info: 'Platzhalter x bestimmen — Vorbereitung auf die Oberstufe.',
       gen: function () {
         var art = pick(['add', 'mult', 'zwei']);
         if (art === 'add') { var x = rint(4, 60), b = rint(5, 40); return { typ: 'zahl', frage: 'x + ' + b + ' = ' + (x + b) + ' — wie gross ist x?', antwort: String(x) }; }
@@ -329,6 +332,106 @@
         var a = rint(2, 6), z = rint(3, 15), c = rint(2, 20);
         return { typ: 'zahl', frage: a + ' · x + ' + c + ' = ' + (a * z + c) + ' — wie gross ist x?', antwort: String(z),
                  hinweis: 'Zuerst ' + c + ' abziehen, dann durch ' + a + ' teilen.' };
+      }
+    },
+    {
+      id: 'uhrzeit', klassen: [4, 5], schwierigkeit: 'leicht',
+      titel: 'Uhrzeit & Zeitdauer', lp21: 'MA.3.A.2',
+      info: 'Uhr lesen und ausrechnen, wie lange etwas dauert.',
+      gen: function () {
+        var art = pick(['dauer', 'ende', 'start', 'umwandeln']);
+        var h = rint(7, 18), m = pick([0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55]);
+        var d = pick([20, 25, 35, 40, 45, 50, 55, 70, 80, 90]);
+        var t1 = h * 60 + m, t2 = t1 + d;
+        var f = function (x) { return Math.floor(x / 60) % 24 + ':' + String(x % 60).padStart(2, '0'); };
+        if (art === 'ende') {
+          return { typ: 'text', frage: 'Es ist ' + f(t1) + ' Uhr. In ' + d + ' Minuten beginnt das Training.\nWie spät ist es dann?',
+                   antwort: f(t2), alternativen: [f(t2) + ' Uhr', f(t2).replace(':', '.')], hinweis: 'Schreibe so: 14:35' };
+        }
+        if (art === 'start') {
+          return { typ: 'text', frage: 'Der Film endet um ' + f(t2) + ' Uhr und dauerte ' + d + ' Minuten.\nWann hat er begonnen?',
+                   antwort: f(t1), alternativen: [f(t1) + ' Uhr', f(t1).replace(':', '.')], hinweis: 'Schreibe so: 14:35' };
+        }
+        if (art === 'dauer') {
+          return { typ: 'zahl', frage: 'Von ' + f(t1) + ' Uhr bis ' + f(t2) + ' Uhr — wie viele Minuten sind das?',
+                   antwort: String(d), einheit: 'min' };
+        }
+        var std = rint(2, 6), min2 = pick([15, 30, 45]);
+        return { typ: 'zahl', frage: std + ' Stunden ' + min2 + ' Minuten = ? Minuten', antwort: String(std * 60 + min2) };
+      }
+    },
+    {
+      id: 'geld', klassen: [4, 5], schwierigkeit: 'leicht',
+      titel: 'Rechnen mit Geld', lp21: 'MA.3.A.2',
+      info: 'Franken und Rappen zusammenzählen und Rückgeld bestimmen.',
+      gen: function () {
+        var art = pick(['summe', 'rueckgeld', 'anzahl']);
+        var f1 = rint(2, 40), r1 = pick([10, 20, 30, 40, 50, 60, 70, 80, 90]);
+        var f2 = rint(1, 25), r2 = pick([10, 20, 30, 40, 50, 60, 70, 80, 90]);
+        var fmtFr = function (rp) { return (Math.floor(rp / 100)) + '.' + String(rp % 100).padStart(2, '0'); };
+        var a = f1 * 100 + r1, b = f2 * 100 + r2;
+        if (art === 'summe') {
+          return { typ: 'text', frage: fmtFr(a) + ' Fr. + ' + fmtFr(b) + ' Fr. =',
+                   antwort: fmtFr(a + b), alternativen: [fmtFr(a + b) + ' Fr.', String((a + b) / 100)],
+                   hinweis: 'Schreibe so: 12.50' };
+        }
+        if (art === 'rueckgeld') {
+          var schein = a <= 2000 ? 2000 : a <= 5000 ? 5000 : 10000;
+          return { typ: 'text', frage: 'Du bezahlst ' + fmtFr(a) + ' Fr. mit einer ' + (schein / 100) + '-Franken-Note.\nWie viel Rückgeld bekommst du?',
+                   antwort: fmtFr(schein - a), alternativen: [fmtFr(schein - a) + ' Fr.'], hinweis: 'Schreibe so: 12.50' };
+        }
+        var stueck = rint(3, 9), preis = rint(2, 12) * 100 + pick([0, 50]);
+        return { typ: 'text', frage: stueck + ' Hefte kosten je ' + fmtFr(preis) + ' Fr. Was kostet alles zusammen?',
+                 antwort: fmtFr(stueck * preis), alternativen: [fmtFr(stueck * preis) + ' Fr.'], hinweis: 'Schreibe so: 12.50' };
+      }
+    },
+    {
+      id: 'zahlenfolgen', klassen: [4, 5, 6], schwierigkeit: 'leicht',
+      titel: 'Zahlenfolgen', lp21: 'MA.3.A.3',
+      info: 'Wie geht die Reihe weiter?',
+      gen: function () {
+        var art = pick(['linear', 'linear', 'quadrat', 'dreieck', 'abnehmend']);
+        var folge = [], i;
+        if (art === 'linear') {
+          var start = rint(3, 40), schritt = rint(3, 12);
+          for (i = 0; i < 5; i++) folge.push(start + i * schritt);
+        } else if (art === 'abnehmend') {
+          var s2 = rint(60, 120), sch2 = rint(4, 11);
+          for (i = 0; i < 5; i++) folge.push(s2 - i * sch2);
+        } else if (art === 'quadrat') {
+          for (i = 1; i <= 5; i++) folge.push(i * i);
+        } else {
+          for (i = 1; i <= 5; i++) folge.push(i * (i + 1) / 2);
+        }
+        var naechste = art === 'linear' ? folge[4] + (folge[1] - folge[0])
+          : art === 'abnehmend' ? folge[4] + (folge[1] - folge[0])
+          : art === 'quadrat' ? 36 : 21;
+        return { typ: 'zahl', frage: folge.join(', ') + ', …\nWelche Zahl kommt als Nächstes?',
+                 antwort: String(naechste) };
+      }
+    },
+    {
+      id: 'proportional', klassen: [6], schwierigkeit: 'schwer',
+      titel: 'Proportional rechnen', lp21: 'MA.3.A.3',
+      info: 'Vom Preis auf die Menge schliessen (Dreisatz).',
+      gen: function () {
+        var art = pick(['preis', 'weg', 'verbrauch']);
+        if (art === 'preis') {
+          var kiloPreis = rint(8, 30), gramm = pick([200, 250, 300, 400, 500, 750]);
+          var res = Math.round(kiloPreis * gramm / 1000 * 100) / 100;
+          return { typ: 'text', frage: '1 kg Käse kostet ' + kiloPreis + ' Fr.\nWas kosten ' + gramm + ' g?',
+                   antwort: fmt(res), alternativen: [String(res), fmt(res) + ' Fr.'], hinweis: 'Zuerst: Was kostet 1 g?' };
+        }
+        if (art === 'weg') {
+          var kmh = pick([4, 5, 6, 12, 15, 20]), min = pick([15, 20, 30, 45, 90]);
+          var km = Math.round(kmh * min / 60 * 100) / 100;
+          return { typ: 'text', frage: 'Du bist mit ' + kmh + ' km/h unterwegs.\nWie weit kommst du in ' + min + ' Minuten?',
+                   antwort: fmt(km), alternativen: [String(km), fmt(km) + ' km'], hinweis: 'In 60 Minuten sind es ' + kmh + ' km.' };
+        }
+        var lit = pick([5, 6, 7, 8]), strecke = pick([200, 300, 350, 700]);
+        var total = Math.round(lit * strecke / 100 * 10) / 10;
+        return { typ: 'text', frage: 'Ein Auto braucht ' + lit + ' Liter auf 100 km.\nWie viel braucht es auf ' + strecke + ' km?',
+                 antwort: fmt(total), alternativen: [String(total), fmt(total) + ' l'] };
       }
     }
   ];
@@ -359,7 +462,7 @@
   var DEUTSCH = [
     {
       id: 'wortarten', klassen: [4, 5], schwierigkeit: 'leicht',
-      titel: 'Wortarten erkennen', lp21: 'D.5.C.1',
+      titel: 'Wortarten erkennen', lp21: 'D.5.D.1',
       info: 'Nomen, Verb oder Adjektiv?',
       gen: function () {
         var art = pick(['nomen', 'verb', 'adjektiv']);
@@ -370,7 +473,7 @@
     },
     {
       id: 'mehrzahl', klassen: [4], schwierigkeit: 'leicht',
-      titel: 'Einzahl und Mehrzahl', lp21: 'D.5.C.1',
+      titel: 'Einzahl und Mehrzahl', lp21: 'D.5.D.1',
       info: 'Die Mehrzahl richtig bilden.',
       gen: function () {
         var p = pick(MEHRZAHL);
@@ -380,7 +483,7 @@
     },
     {
       id: 'grossklein', klassen: [4, 5], schwierigkeit: 'schwer',
-      titel: 'Gross- und Kleinschreibung', lp21: 'D.5.D.1',
+      titel: 'Gross- und Kleinschreibung', lp21: 'D.5.E.1',
       info: 'Welches Wort wird grossgeschrieben?',
       gen: function () {
         var saetze = [
@@ -402,7 +505,7 @@
     },
     {
       id: 'satzzeichen', klassen: [4], schwierigkeit: 'leicht',
-      titel: 'Satzzeichen', lp21: 'D.5.D.1',
+      titel: 'Satzzeichen', lp21: 'D.5.E.1',
       info: 'Punkt, Fragezeichen oder Ausrufezeichen?',
       gen: function () {
         var saetze = [
@@ -417,8 +520,8 @@
     },
     {
       id: 'zeitformen4', klassen: [4, 5], schwierigkeit: 'schwer',
-      titel: 'Zeitformen bilden', lp21: 'D.5.C.1',
-      info: 'Präsens, Präteritum und Perfekt.',
+      titel: 'Zeitformen bilden', lp21: 'D.5.D.1',
+      info: 'Präsens, Präteritum und Perfekt — die drei Zeiten des Grundanspruchs.',
       gen: function () {
         var v = pick(STARKE_VERBEN);
         if (Math.random() < 0.5) {
@@ -431,9 +534,9 @@
       }
     },
     {
-      id: 'faelle', klassen: [5, 6], schwierigkeit: 'schwer',
-      titel: 'Die vier Fälle', lp21: 'D.5.C.1',
-      info: 'Nominativ, Genitiv, Dativ oder Akkusativ?',
+      id: 'faelle', klassen: [6], schwierigkeit: 'schwer',
+      titel: 'Die vier Fälle', lp21: 'D.5.D.1 (weiterführend)',
+      info: 'Nominativ, Genitiv, Dativ, Akkusativ — im 2. Zyklus zum Kennenlernen.',
       gen: function () {
         var s = pick([
           ['Der Lehrer erklärt die Aufgabe.', 'Der Lehrer', 'Nominativ'],
@@ -454,8 +557,8 @@
     },
     {
       id: 'satzglieder', klassen: [6], schwierigkeit: 'schwer',
-      titel: 'Satzglieder', lp21: 'D.5.C.1',
-      info: 'Subjekt, Prädikat oder Objekt?',
+      titel: 'Satzglieder', lp21: 'D.5.D.1.e — Stoff der Oberstufe',
+      info: 'Subjekt, Prädikat, Objekt. Kommt erst im 3. Zyklus — gut als Vorbereitung.',
       gen: function () {
         var s = pick([
           ['Der Bauer melkt die Kuh.', 'Der Bauer', 'Subjekt'],
@@ -474,8 +577,8 @@
     },
     {
       id: 'dasdass', klassen: [6], schwierigkeit: 'schwer',
-      titel: 'das oder dass', lp21: 'D.5.D.1',
-      info: 'Der Klassiker — mit Ersatzprobe lösen.',
+      titel: 'das oder dass', lp21: 'D.5.E.1 (Schulpraxis)',
+      info: 'Der Klassiker — mit der Ersatzprobe lösen.',
       gen: function () {
         var s = pick([
           ['Ich glaube, ___ es morgen regnet.', 'dass'],
@@ -496,7 +599,7 @@
     },
     {
       id: 'wortfamilie', klassen: [4, 5, 6], schwierigkeit: 'leicht',
-      titel: 'Wortstamm & Wortfamilie', lp21: 'D.5.B.1',
+      titel: 'Wortstamm & Wortfamilie', lp21: 'D.5.D.1',
       info: 'Welches Wort gehört nicht dazu?',
       gen: function () {
         var gruppen = [
@@ -510,6 +613,109 @@
         var g = pick(gruppen);
         return wahl('Welches Wort gehört NICHT in diese Wortfamilie?\n' + g[0].join(', ') + ', ' + g[1],
           g[1], distinct(g[1], g[0], 3), 'Achte auf den Wortstamm.');
+      }
+    },
+    {
+      id: 'rechtschreibung4', klassen: [4, 5], schwierigkeit: 'schwer',
+      titel: 'ie, ck, tz, f/v, e/ä', lp21: 'D.5.E.1',
+      info: 'Die Rechtschreibregeln der 3./4. Klasse.',
+      gen: function () {
+        var w = pick([
+          ['Sp__l', 'ie', ['i'], 'Langes i schreibt man meist ie.'],
+          ['V__h', 'ie', ['i'], 'Langes i schreibt man meist ie.'],
+          ['w__der', 'ie', ['i'], 'Langes i schreibt man meist ie.'],
+          ['Br__f', 'ie', ['i'], 'Langes i schreibt man meist ie.'],
+          ['Zu__er', 'ck', ['k', 'kk'], 'Nach kurzem Vokal steht ck.'],
+          ['Bä__er', 'ck', ['k', 'kk'], 'Nach kurzem Vokal steht ck.'],
+          ['Ja__e', 'ck', ['k', 'kk'], 'Nach kurzem Vokal steht ck.'],
+          ['Ka__e', 'tz', ['z', 'zz'], 'Nach kurzem Vokal steht tz.'],
+          ['Pla__', 'tz', ['z', 'zz'], 'Nach kurzem Vokal steht tz.'],
+          ['Wi__', 'tz', ['z', 'zz'], 'Nach kurzem Vokal steht tz.'],
+          ['__ogel', 'V', ['F'], 'Vogel, Vater, viel, vier — mit V.'],
+          ['__ater', 'V', ['F'], 'Vogel, Vater, viel, vier — mit V.'],
+          ['__enster', 'F', ['V'], 'Fenster schreibt man mit F.'],
+          ['B__ume', 'äu', ['eu'], 'Von «Baum» abgeleitet, darum äu.'],
+          ['H__ser', 'äu', ['eu'], 'Von «Haus» abgeleitet, darum äu.'],
+          ['k__lter', 'ä', ['e'], 'Von «kalt» abgeleitet, darum ä.'],
+          ['H__nde', 'ä', ['e'], 'Von «Hand» abgeleitet, darum ä.']
+        ]);
+        return wahl('Was gehört in die Lücke?\n' + w[0], w[1], w[2], w[3]);
+      }
+    },
+    {
+      id: 'doppelkonsonant', klassen: [5, 6], schwierigkeit: 'schwer',
+      titel: 'Doppelte Konsonanten', lp21: 'D.5.E.1',
+      info: 'Kurzer Vokal — Konsonant doppelt.',
+      gen: function () {
+        var w = pick([
+          ['Sonne', 'Sone'], ['kommen', 'komen'], ['Wasser', 'Waser'], ['Butter', 'Buter'],
+          ['immer', 'imer'], ['Puppe', 'Pupe'], ['Sommer', 'Somer'], ['rennen', 'renen'],
+          ['Koffer', 'Kofer'], ['Teller', 'Teler'], ['Mutter', 'Muter'], ['schnell', 'schnel'],
+          ['Ball', 'Bal'], ['Hammer', 'Hamer'], ['Wolle', 'Wole'], ['Suppe', 'Supe']
+        ]);
+        return wahl('Welche Schreibweise ist richtig?', w[0], [w[1]],
+          'Nach einem kurz gesprochenen Vokal steht der Konsonant doppelt.');
+      }
+    },
+    {
+      id: 'trennregel', klassen: [5, 6], schwierigkeit: 'leicht',
+      titel: 'Wörter trennen', lp21: 'D.5.E.1',
+      info: 'Wo darf man das Wort trennen?',
+      gen: function () {
+        var w = pick([
+          ['Fenster', 'Fens-ter', ['Fe-nster', 'Fenst-er']],
+          ['Zucker', 'Zu-cker', ['Zuck-er', 'Z-ucker']],
+          ['Kinder', 'Kin-der', ['Ki-nder', 'Kind-er']],
+          ['Wasser', 'Was-ser', ['Wa-sser', 'Wass-er']],
+          ['Bäcker', 'Bä-cker', ['Bäck-er', 'Bäc-ker']],
+          ['Schule', 'Schu-le', ['Sch-ule', 'Schul-e']],
+          ['Sonntag', 'Sonn-tag', ['So-nntag', 'Sonnt-ag']],
+          ['Apfel', 'Ap-fel', ['A-pfel', 'Apf-el']],
+          ['Winter', 'Win-ter', ['Wi-nter', 'Wint-er']],
+          ['Flasche', 'Fla-sche', ['Flas-che', 'Flasch-e']]
+        ]);
+        return wahl('Wie trennt man «' + w[0] + '» richtig?', w[1], w[2],
+          'Getrennt wird nach Sprechsilben; ck und sch bleiben zusammen.');
+      }
+    },
+    {
+      id: 'komma-aufzaehlung', klassen: [4, 5], schwierigkeit: 'leicht',
+      titel: 'Komma bei Aufzählungen', lp21: 'D.5.E.1',
+      info: 'Wie viele Kommas braucht der Satz?',
+      gen: function () {
+        var s = pick([
+          ['Ich packe Brot Käse und einen Apfel ein.', 1],
+          ['Wir kaufen Äpfel Birnen Bananen und Trauben.', 2],
+          ['Im Etui sind Stifte Radiergummi Lineal und Schere.', 2],
+          ['Meine Farben sind blau und grün.', 0],
+          ['Sie mag Lesen Schwimmen Turnen und Malen.', 2],
+          ['Auf dem Tisch liegen ein Buch ein Heft und ein Stift.', 1],
+          ['Er hat einen Hund und eine Katze.', 0],
+          ['Wir brauchen Mehl Zucker Butter Eier und Milch.', 3]
+        ]);
+        return wahl('Wie viele Kommas fehlen in diesem Satz?\n«' + s[0] + '»', s[1],
+          distinct(s[1], [0, 1, 2, 3, 4], 3),
+          'Zwischen den Gliedern einer Aufzählung steht ein Komma — vor «und» aber nicht.');
+      }
+    },
+    {
+      id: 'zusammensetzung', klassen: [4, 5], schwierigkeit: 'leicht',
+      titel: 'Zusammengesetzte Nomen', lp21: 'D.5.D.1',
+      info: 'Aus welchen Wörtern besteht das Wort?',
+      gen: function () {
+        var w = pick([
+          ['Haustür', 'Haus + Tür'], ['Schulweg', 'Schule + Weg'], ['Fussball', 'Fuss + Ball'],
+          ['Kinderzimmer', 'Kinder + Zimmer'], ['Sonnenblume', 'Sonne + Blume'],
+          ['Handschuh', 'Hand + Schuh'], ['Regenbogen', 'Regen + Bogen'],
+          ['Taschenlampe', 'Tasche + Lampe'], ['Bahnhof', 'Bahn + Hof'],
+          ['Baumhaus', 'Baum + Haus'], ['Winterjacke', 'Winter + Jacke'], ['Buchstabe', 'Buch + Stabe']
+        ]);
+        var falsche = shuffle([
+          'Haus + Tor', 'Schule + Zeit', 'Fuss + Bahn', 'Kind + Zimmer',
+          'Sonne + Blatt', 'Hand + Schuhe', 'Regen + Wolke', 'Tasche + Licht'
+        ]).slice(0, 3);
+        return wahl('Woraus besteht das Wort «' + w[0] + '»?', w[1], falsche,
+          'Zusammengesetzte Nomen bestehen aus zwei eigenen Wörtern.');
       }
     }
   ];
@@ -565,7 +771,7 @@
   var ENGLISCH = [
     {
       id: 'words-basic', klassen: [4, 5], schwierigkeit: 'leicht',
-      titel: 'Words — choose the answer', lp21: 'FS1E.2.A.1',
+      titel: 'Words — choose the answer', lp21: 'FS1E.5.B.1',
       info: 'Wörter erkennen (Auswahl).',
       gen: function () {
         var alle = alleVokabeln(), w = pick(alle);
@@ -578,7 +784,7 @@
     },
     {
       id: 'words-write', klassen: [4, 5, 6], schwierigkeit: 'schwer',
-      titel: 'Words — write them', lp21: 'FS1E.5.B.1',
+      titel: 'Words — write them', lp21: 'FS1E.5.E.1',
       info: 'Wörter selbst schreiben.',
       gen: function () {
         var w = pick(alleVokabeln());
@@ -588,7 +794,7 @@
     },
     {
       id: 'plural-en', klassen: [4, 5], schwierigkeit: 'leicht',
-      titel: 'Plural forms', lp21: 'FS1E.4.A.1',
+      titel: 'Plural forms', lp21: 'FS1E.5.D.1',
       info: 'Mehrzahl im Englischen.',
       gen: function () {
         var p = pick([['one dog', 'two dogs'], ['one box', 'two boxes'], ['one child', 'two children'],
@@ -601,7 +807,7 @@
     },
     {
       id: 'simple-past', klassen: [6], schwierigkeit: 'schwer',
-      titel: 'Simple past — irregular verbs', lp21: 'FS1E.4.A.1',
+      titel: 'Simple past — irregular verbs', lp21: 'FS1E.5.D.1',
       info: 'Die zweite Verbform (past tense).',
       gen: function () {
         var v = pick(IRREGULAR);
@@ -614,7 +820,7 @@
     },
     {
       id: 'questions-en', klassen: [6], schwierigkeit: 'schwer',
-      titel: 'Questions & short answers', lp21: 'FS1E.4.A.1',
+      titel: 'Questions & short answers', lp21: 'FS1E.5.D.1',
       info: 'do / does / did und Fragewörter.',
       gen: function () {
         var s = pick([
@@ -634,7 +840,7 @@
     },
     {
       id: 'sentences-en', klassen: [5, 6], schwierigkeit: 'schwer',
-      titel: 'Everyday sentences', lp21: 'FS1E.3.A.1',
+      titel: 'Everyday sentences', lp21: 'FS1E.4.A.1 / FS1E.3.D.1',
       info: 'Ganze Sätze übersetzen.',
       gen: function () {
         var s = pick([
@@ -652,6 +858,78 @@
         return { typ: 'text', frage: 'Translate: ' + s[0], antwort: s[1],
                  alternativen: [s[1].replace(/\.$/, ''), s[1].replace('do not', "don't").replace(/\.$/, ''), s[1].replace('do not', "don't")],
                  hinweis: 'Ganzer Satz, Punkt am Schluss ist egal.' };
+      }
+    },
+    {
+      id: 'be-have', klassen: [4, 5], schwierigkeit: 'leicht',
+      titel: 'to be / have got', lp21: 'FS1E.5.D.1',
+      info: 'am, is, are — have, has.',
+      gen: function () {
+        var s = pick([
+          ['I ___ eleven years old.', 'am', ['is', 'are']],
+          ['She ___ my best friend.', 'is', ['am', 'are']],
+          ['We ___ in the same class.', 'are', ['am', 'is']],
+          ['They ___ very hungry.', 'are', ['is', 'am']],
+          ['My brother ___ a new bike.', 'has got', ['have got', 'is got']],
+          ['I ___ two cats at home.', 'have got', ['has got', 'am got']],
+          ['It ___ cold today.', 'is', ['are', 'am']],
+          ['You ___ right!', 'are', ['is', 'am']],
+          ['The dogs ___ in the garden.', 'are', ['is', 'am']],
+          ['Peter ___ got a sister.', 'has', ['have', 'is']]
+        ]);
+        return wahl('Fill in: ' + s[0], s[1], s[2]);
+      }
+    },
+    {
+      id: 'present-s', klassen: [4, 5, 6], schwierigkeit: 'schwer',
+      titel: 'Simple present — the -s', lp21: 'FS1E.5.D.1',
+      info: 'he, she, it — das s muss mit.',
+      gen: function () {
+        var v = pick([
+          ['play', 'plays'], ['read', 'reads'], ['live', 'lives'], ['like', 'likes'],
+          ['go', 'goes'], ['do', 'does'], ['watch', 'watches'], ['study', 'studies'],
+          ['fly', 'flies'], ['run', 'runs'], ['eat', 'eats'], ['teach', 'teaches']
+        ]);
+        var subj = pick(['He', 'She', 'My brother', 'The teacher', 'Anna']);
+        return { typ: 'text', frage: subj + ' ___ (' + v[0] + ') every day.', antwort: v[1],
+                 hinweis: 'Nur das Verb schreiben.' };
+      }
+    },
+    {
+      id: 'word-order', klassen: [6], schwierigkeit: 'schwer',
+      titel: 'Word order', lp21: 'FS1E.5.D.1',
+      info: 'Welcher Satz ist richtig gebaut?',
+      gen: function () {
+        var s = pick([
+          ['I always go to school by bike.', ['I go always to school by bike.', 'Always I go to school by bike.']],
+          ['She never eats breakfast.', ['She eats never breakfast.', 'Never she eats breakfast.']],
+          ['We played football yesterday.', ['We played yesterday football.', 'Yesterday played we football.']],
+          ['Do you like pizza?', ['You do like pizza?', 'Like you pizza?']],
+          ['My sister is often late.', ['My sister often is late.', 'Often my sister is late.']],
+          ['They live in a small house.', ['They in a small house live.', 'They live in a house small.']],
+          ['I did not see him.', ['I saw not him.', 'I not did see him.']],
+          ['Where does your friend live?', ['Where lives your friend?', 'Where your friend does live?']]
+        ]);
+        return wahl('Which sentence is correct?', s[0], s[1],
+          'Subjekt – Verb – Objekt; Häufigkeitswörter stehen vor dem Vollverb.');
+      }
+    },
+    {
+      id: 'phrases', klassen: [4, 5], schwierigkeit: 'leicht',
+      titel: 'Everyday phrases', lp21: 'FS1E.3.A.1',
+      info: 'Was sagst du in dieser Situation?',
+      gen: function () {
+        var s = pick([
+          ['Du möchtest ein Getränk bestellen.', "Can I have a coke, please?", ['I want coke now.', 'Give me a coke.']],
+          ['Du triffst jemanden am Morgen.', 'Good morning!', ['Good night!', 'Good bye!']],
+          ['Jemand hilft dir.', 'Thank you very much.', ['You are welcome.', 'Never mind.']],
+          ['Du hast die Frage nicht verstanden.', 'Sorry, can you repeat that?', ['I know nothing.', 'Speak again now.']],
+          ['Du willst wissen, wie spät es ist.', 'What time is it?', ['How is the time?', 'When is the clock?']],
+          ['Du stellst dich vor.', "My name is Joris.", ['I am called by Joris.', 'Me Joris.']],
+          ['Du fragst nach dem Weg.', 'Excuse me, where is the station?', ['Where go station?', 'Say me the station.']],
+          ['Du möchtest wissen, wie alt jemand ist.', 'How old are you?', ['How many years you?', 'What age have you?']]
+        ]);
+        return wahl(s[0], s[1], s[2]);
       }
     }
   ];
@@ -681,8 +959,8 @@
   var NMG = [
     {
       id: 'kantone', klassen: [4, 5, 6], schwierigkeit: 'leicht',
-      titel: 'Kantone der Schweiz', lp21: 'NMG.8.3',
-      info: 'Kantone, Kürzel und Hauptorte.',
+      titel: 'Kantone der Schweiz', lp21: 'NMG.8.4 (Schulpraxis)',
+      info: 'Kantone, Kürzel und Hauptorte. Der Lehrplan nennt keine Kantonsliste — üblich ist sie trotzdem.',
       gen: function () {
         var k = pick(KANTONE);
         var art = pick(['kuerzel', 'hauptort', 'kanton']);
@@ -700,7 +978,7 @@
     },
     {
       id: 'schweiz-geo', klassen: [4, 5], schwierigkeit: 'leicht',
-      titel: 'Schweiz: Berge, Flüsse, Seen', lp21: 'NMG.8.1',
+      titel: 'Schweiz: Berge, Flüsse, Seen', lp21: 'NMG.8.4',
       info: 'Die wichtigsten Naturräume.',
       gen: function () {
         var f = pick([
@@ -720,7 +998,7 @@
     },
     {
       id: 'nachbarn-sprachen', klassen: [4, 5, 6], schwierigkeit: 'leicht',
-      titel: 'Nachbarländer & Sprachen', lp21: 'NMG.7.3',
+      titel: 'Nachbarländer & Sprachen', lp21: 'NMG.8.4 (Schulpraxis)',
       info: 'Die Schweiz und ihre Nachbarn.',
       gen: function () {
         var f = pick([
@@ -738,7 +1016,7 @@
     },
     {
       id: 'europa', klassen: [5, 6], schwierigkeit: 'schwer',
-      titel: 'Europa: Länder & Hauptstädte', lp21: 'NMG.8.3',
+      titel: 'Europa: Länder & Hauptstädte', lp21: 'NMG.8.4',
       info: 'Hauptstädte in Europa.',
       gen: function () {
         var e = pick(EUROPA);
@@ -752,7 +1030,7 @@
     },
     {
       id: 'weltkarte', klassen: [5, 6], schwierigkeit: 'schwer',
-      titel: 'Kontinente & Ozeane', lp21: 'NMG.8.2',
+      titel: 'Kontinente & Ozeane', lp21: 'NMG.8.4',
       info: 'Orientierung auf der Weltkarte.',
       gen: function () {
         var f = pick([
@@ -790,9 +1068,9 @@
     { fach: 'mathe', id: 'rechnen-trainer', titel: 'Rechen-Trainer (Reihen)', schwierigkeit: 'leicht',
       lp21: 'MA.1.A.3', info: 'Malrechnen und Dividieren mit Zahlenpad.', url: '/joris/', klassen: [4, 5, 6] },
     { fach: 'deutsch', id: 'kommaregeln', titel: 'Kommaregeln (grosse Übung)', schwierigkeit: 'schwer',
-      lp21: 'D.5.D.1', info: 'Kommas im Satz setzen.', url: '/andrin/kommasetzung/', klassen: [5, 6] },
+      lp21: 'D.5.E.1', info: 'Kommas im Satz setzen.', url: '/andrin/kommasetzung/', klassen: [5, 6] },
     { fach: 'nmg', id: 'geo-quiz', titel: 'Geo-Quiz (Kahoot-Style)', schwierigkeit: 'leicht',
-      lp21: 'NMG.8.3', info: 'Schnelles Quiz mit Zeitdruck.', url: '/andrin/geo-quiz/', klassen: [4, 5, 6] }
+      lp21: 'NMG.8.4', info: 'Schnelles Quiz mit Zeitdruck.', url: '/andrin/geo-quiz/', klassen: [4, 5, 6] }
   ];
 
   global.Uebungen = {
