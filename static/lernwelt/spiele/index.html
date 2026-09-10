@@ -11,18 +11,28 @@
          background: #0f172a; color: #e2e8f0; padding: 18px 14px 60px; min-height: 100vh; }
   .wrap { max-width: 620px; margin: 0 auto; }
   h1 { font-size: 26px; text-align: center; font-weight: 800; }
-  .sub { text-align: center; font-size: 13px; color: #94a3b8; margin: 6px 0 20px; }
+  .sub { text-align: center; font-size: 13px; color: #94a3b8; margin: 6px 0 16px; }
   h2 { font-size: 14px; color: #64748b; text-transform: uppercase; letter-spacing: .08em;
        margin: 22px 0 10px; }
+  .legende { background: #1e293b; border-radius: 14px; padding: 13px 15px; margin-bottom: 6px;
+             font-size: 12.5px; color: #94a3b8; line-height: 1.9; }
+  .legende b { color: #cbd5e1; }
+  .legende span { display: block; }
   .grid { display: grid; gap: 12px; }
   .g { display: block; background: #1e293b; border: 2px solid #334155; border-left-width: 6px;
        border-radius: 14px; padding: 15px 16px; text-decoration: none; color: inherit; }
   .g:hover { border-color: #64748b; transform: translateX(3px); }
   .g.sport { border-left-color: #38bdf8; }
   .g.nmg { border-left-color: #fcd34d; }
+  .g.erledigt { opacity: .72; }
+  .g.erledigt .t { color: #94a3b8; }
   .g .t { font-size: 18px; font-weight: 700; }
   .g .i { font-size: 13px; color: #94a3b8; margin-top: 4px; line-height: 1.5; }
   .g .m { font-size: 11px; color: #64748b; margin-top: 8px; font-family: ui-monospace, Menlo, monospace; }
+  .st { font-size: 12.5px; font-weight: 700; margin-top: 8px; line-height: 1.5; }
+  .st.offen { color: #fbbf24; }
+  .st.erledigt { color: #64748b; }
+  .st small { display: block; font-weight: 400; color: #64748b; font-size: 12px; margin-top: 1px; }
   .lnk { display: block; text-align: center; padding: 13px; border-radius: 12px; margin-top: 22px;
          background: #1e3a5f; border: 2px solid #fde68a; color: #fde68a; text-decoration: none; font-weight: 700; }
   footer { text-align: center; margin-top: 24px; font-size: 12px; color: #475569; }
@@ -34,41 +44,60 @@
   <h1>🎮 Spielplatz</h1>
   <div class="sub">Kurze Spiele — beim ersten Durchspielen gibt es Münzen.</div>
 
-  <h2>Sport</h2>
-  <div class="grid">
-    <a class="g sport" href="/lernwelt/spiele/sprint/">
-      <div class="t">🏃 Hürdenlauf, Fussball & Basketball</div>
-      <div class="i">Jump &amp; Run: renne los, spring über die Hürden und sammle Bälle.
-        Drei kurze Strecken, jede dauert etwa eine Minute.</div>
-      <div class="m">Springen: Leertaste · Doppelsprung · Ducken: S</div>
-    </a>
+  <div class="legende">
+    <span><b>🪙 noch offen</b> — hier wartet noch Geld auf dich.</span>
+    <span><b>✔ abgeholt</b> — schon gespielt, gibt keine Münzen mehr. Spielen darfst du trotzdem.</span>
   </div>
 
-  <h2>Länder & Karten</h2>
-  <div class="grid">
-    <a class="g nmg" href="/lernwelt/spiele/kantone/">
-      <div class="t">🧩 Kantone-Puzzle</div>
-      <div class="i">Setze die Schweizer Kantone an den richtigen Platz auf der Karte.
-        Erst die grossen, dann alle 26.</div>
-      <div class="m">Klicken oder tippen</div>
-    </a>
-    <a class="g nmg" href="/lernwelt/uebung/?fach=nmg&set=europa">
-      <div class="t">🌍 Hauptstädte-Quiz</div>
-      <div class="i">Länder und Hauptstädte in Europa.</div>
-      <div class="m">Lehrplan 21: NMG.8.3</div>
-    </a>
-    <a class="g nmg" href="/lernwelt/geo-blitz/?von=insel">
-      <div class="t">⚡ Geo-Blitz</div>
-      <div class="i">Schnelles Quiz mit Zeitdruck.</div>
-      <div class="m">Lehrplan 21: NMG.8.4</div>
-    </a>
-  </div>
+  <h2>Sport</h2>
+  <div class="grid" id="sport"></div>
+
+  <h2>Länder &amp; Karten</h2>
+  <div class="grid" id="nmg"></div>
 
   <a class="lnk" href="/lernwelt/bestenliste/" style="border-color:#fbbf24;color:#fbbf24;background:#422006">🏆 Bestenliste</a>
   <a class="lnk" href="/lernwelt/">🏝️ Zurück zur Insel</a>
   <footer>hodelweb.ch/lernwelt/spiele</footer>
 </div>
 <script src="/lernwelt/insel.js"></script>
-<script>Insel.hudLeiste(document.getElementById('hud'));</script>
+<script>
+(function () {
+  'use strict';
+  var $ = function (i) { return document.getElementById(i); };
+  var who = Insel.who();
+  Insel.hudLeiste($('hud'));
+
+  var SPIELE = Insel.spiele;
+
+  SPIELE.forEach(function (s) {
+    var st = Insel.muenzStatusGruppe(s.fach, s.sets, s.schwierigkeit, who);
+    var offen = st.offen, gesamt = st.gesamt, text = st.text;
+
+    /* Manche Spiele haben eine zweite, schwere Stufe. */
+    if (s.zweit) {
+      var z = Insel.muenzStatusGruppe(s.fach, s.zweit.sets, s.zweit.schwierigkeit, who);
+      offen += z.offen; gesamt += z.gesamt;
+      text += ' ' + (z.zahlt ? 'Für ' + s.zweit.name + ' gibt es noch Münzen.'
+                             : s.zweit.name.charAt(0).toUpperCase() + s.zweit.name.slice(1) +
+                               ': geschafft, keine Münzen mehr.');
+    }
+    var zahlt = offen > 0;
+    var marke = !zahlt ? '✔ abgeholt'
+              : gesamt > 1 ? '🪙 ' + offen + ' von ' + gesamt + ' offen'
+              : '🪙 noch offen';
+
+    var a = document.createElement('a');
+    a.className = 'g ' + s.art + (zahlt ? '' : ' erledigt');
+    a.href = s.url;
+    a.innerHTML =
+      '<div class="t">' + s.titel + '</div>' +
+      '<div class="i">' + s.info + '</div>' +
+      '<div class="m">' + s.meta + '</div>' +
+      '<div class="st ' + (zahlt ? 'offen' : 'erledigt') + '">' +
+        marke + '<small>' + text + '</small></div>';
+    $(s.box).appendChild(a);
+  });
+})();
+</script>
 </body>
 </html>

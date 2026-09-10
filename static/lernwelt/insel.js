@@ -16,6 +16,44 @@
     Gast:   { klasse: 5, jacke: ['#3d8f57', '#2d6f42'], emoji: '🐵' }
   };
 
+  /* Spiele, die Münzen melden. Einmal hier gepflegt, überall gleich:
+     Spielplatz, Bestenliste und Haus lesen dieselbe Liste. */
+  var SPIELE = [
+    { id: 'sprint', box: 'sport', art: 'sport', url: '/lernwelt/spiele/sprint/',
+      titel: '🏃 Hürdenlauf, Fussball & Basketball',
+      info: 'Jump &amp; Run: renne los, spring über die Hürden und sammle Bälle. ' +
+            'Drei kurze Strecken, jede dauert etwa eine Minute.',
+      meta: 'Springen: Leertaste · Doppelsprung · Ducken: S',
+      fach: 'sport', sets: ['sprint-huerden', 'sprint-fussball', 'sprint-basket'], schwierigkeit: 'leicht' },
+
+    { id: 'pferderennen', box: 'sport', art: 'sport', url: '/lernwelt/spiele/pferderennen/',
+      titel: '🐎 Pferderennen',
+      info: 'Links, rechts, links, rechts — im Wechsel drücken, dann galoppiert dein Pferd. ' +
+            'Drei Bahnen gegen drei Gegner.',
+      meta: 'Tasten ← und → im Wechsel · auf dem Tablet die beiden grossen Knöpfe',
+      fach: 'sport', sets: ['pferderennen-kurz', 'pferderennen-mittel', 'pferderennen-lang'], schwierigkeit: 'leicht' },
+
+    { id: 'kantone', box: 'nmg', art: 'nmg', url: '/lernwelt/spiele/kantone/',
+      titel: '🧩 Kantone-Puzzle',
+      info: 'Setze die Schweizer Kantone an den richtigen Platz auf der Karte. ' +
+            'Erst die grossen, dann alle 26.',
+      meta: 'Klicken oder tippen',
+      fach: 'nmg', sets: ['kantone-puzzle-gross'], schwierigkeit: 'leicht',
+      zweit: { sets: ['kantone-puzzle-alle'], schwierigkeit: 'schwer', name: 'alle 26 (Knacknuss)' } },
+
+    { id: 'europa', box: 'nmg', art: 'nmg', url: '/lernwelt/uebung/?fach=nmg&set=europa',
+      titel: '🌍 Hauptstädte-Quiz',
+      info: 'Länder und Hauptstädte in Europa.',
+      meta: 'Lehrplan 21: NMG.8.3',
+      fach: 'nmg', sets: ['europa'], schwierigkeit: 'leicht' },
+
+    { id: 'geo-blitz', box: 'nmg', art: 'nmg', url: '/lernwelt/geo-blitz/?von=insel',
+      titel: '⚡ Geo-Blitz',
+      info: 'Schnelles Quiz mit Zeitdruck.',
+      meta: 'Lehrplan 21: NMG.8.4',
+      fach: 'nmg', sets: ['geo-quiz'], schwierigkeit: 'leicht' }
+  ];
+
   var FAECHER = {
     mathe:    { name: 'Mathematik', kurz: 'Mathe',    emoji: '🧮', ort: 'Rechenturm' },
     deutsch:  { name: 'Deutsch',    kurz: 'Deutsch',  emoji: '✏️', ort: 'Schreiberhütte' },
@@ -35,7 +73,52 @@
     raumKosten: 1,          /* Marken pro Raumbesuch */
     wettEinsatz: 10,        /* Münzen, die eine Wette kostet */
     wettGewinn: 25,         /* Münzen bei gewonnener Wette */
-    wettSiegeMax: 3         /* so oft lässt sich eine Figur schlagen */
+    wettSiegeMax: 3,        /* so oft lässt sich eine Figur schlagen */
+    suessigkeitPreis: 3,    /* Münzen pro Süssigkeit */
+    zaehmDauer: 600,        /* Sekunden, die ein Affe nach dem Füttern zahm bleibt */
+    affenDiebstahl: 5,      /* Münzen, die ein vernachlässigter Affe stiehlt */
+    affenFund: 1,           /* Münzen, die ein zahmer Affe findet */
+    affenFundTakt: 120,     /* alle wie viele Sekunden er etwas findet */
+    gebraeuPreis: 15,       /* Münzen für ein Gebräu in der Spelunke */
+    gebraeuMax: 3,          /* beim dritten Glas ist Schluss */
+    gebraeuVerfall: 900,    /* nach so vielen Sekunden ist der Rausch weg */
+    baerWitterung: 150,     /* auf so viele Pixel riecht ein Bär die Süssigkeiten */
+    baerTempo: 46,          /* langsamer als der Spieler (62) — weglaufen geht */
+    baerSattDauer: 45,      /* so viele Sekunden lässt er dich nach der Beute in Ruhe */
+    schaufelPreis: 20,      /* Münzen für die Schaufel im Kiosk — einmalig */
+    grabWeite: 22           /* so nah muss man an einem Schatz stehen */
+  };
+
+  /* Zwei Wäldchen — dort wacht man nach einem Blackout auf. */
+  var WAELDER = {
+    nordwald: { name: 'Nordwald', tx: 17, ty: 8,  x: 280, y: 142 },
+    suedwald: { name: 'Südwald',  tx: 30, ty: 24, x: 488, y: 398 }
+  };
+
+  /* Vergrabene Schätze. Ohne Schaufel bleibt der Boden zu.
+     'nahe' ist der Hinweis, den der alte Seebär erzählt. */
+  var SCHAETZE = [
+    { id: 's1', tx: 12, ty: 6,  muenzen: 5, nahe: 'nördlich vom Rechenturm, wo der Wald am dunkelsten ist' },
+    { id: 's2', tx: 35, ty: 13, muenzen: 3, nahe: 'zwischen der Schreiberhütte und der Musikhütte' },
+    { id: 's3', tx: 12, ty: 29, muenzen: 4, nahe: 'am Strand beim Piratenschiff, keine drei Schritte vom Wasser' },
+    { id: 's4', tx: 27, ty: 30, muenzen: 2, nahe: 'ganz im Süden, unterhalb vom Kiosk' },
+    { id: 's5', tx: 20, ty: 17, muenzen: 3, nahe: 'gleich beim Dorfplatz — da läuft jeder drüber' },
+    { id: 's6', tx: 36, ty: 24, muenzen: 5, nahe: 'im Osten, auf dem Weg zum Aussichtsberg' },
+    { id: 's7', tx: 8,  ty: 18, muenzen: 4, nahe: 'im Westen, wo die Küste einen Bogen macht' },
+    { id: 's8', tx: 24, ty: 9,  muenzen: 2, nahe: 'kurz vor der Schatzhöhle, unter einem einzelnen Baum' }
+  ];
+
+  /* Die Bären. Sie lassen sich nicht zähmen — sie riechen nur die Süssigkeiten. */
+  var BAEREN = {
+    brumm: { name: 'Brumm',  fell: '#5a3a22' },
+    tatze: { name: 'Tatze',  fell: '#6f4526' }
+  };
+
+  /* Die Affen der Insel */
+  var AFFEN = {
+    koko:  { name: 'Koko',  fell: '#8b5a2b' },
+    nala:  { name: 'Nala',  fell: '#6b4423' },
+    bimbo: { name: 'Bimbo', fell: '#a9713a' }
   };
 
   /* ---- Aussehen: erste Zusammenstellung gratis, jedes weitere Teil kostet ---- */
@@ -77,13 +160,18 @@
   function save(data) { return writeRaw(KEY_DATA, JSON.stringify(data)); }
 
   function leererSpielstand() {
-    return { muenzen: 0, marken: 0, uebungen: {}, besuche: {}, npc: {}, wette: null, seit: Date.now() };
+    return { muenzen: 0, marken: 0, suessigkeiten: 0, uebungen: {}, besuche: {}, npc: {}, affen: {}, wette: null, seit: Date.now() };
   }
 
   var Insel = {
+    waelder: WAELDER,
+    affenArten: AFFEN,
+    baerenArten: BAEREN,
+    schaetze: SCHAETZE,
     garderobe: GARDEROBE,
     kinder: KINDER,
     faecher: FAECHER,
+    spiele: SPIELE,
     raeume: RAEUME,
     oekonomie: OEKONOMIE,
 
@@ -205,6 +293,64 @@
       var alle = this.stand(who).uebungen, out = [];
       for (var k in alle) if (alle[k].fach === fach) out.push(alle[k]);
       return out;
+    },
+
+    /* Gibt es hier noch Münzen?
+       Rückgabe: { zahlt, art, kurz, text, versuche, best }
+       art: 'neu' | 'offen' | 'wiederholen' | 'abgeholt' | 'gemeistert'
+       Dieselben Regeln wie in melden() — wer hier etwas ändert, muss dort auch schauen. */
+    muenzStatus: function (fach, set, schwierigkeit, who) {
+      var e = this.uebung(fach, set, who);
+      var schwer = schwierigkeit === 'schwer';
+      var basis = { versuche: e ? e.versuche || 0 : 0, best: e ? e.best || 0 : 0,
+                    muenzenTotal: e ? e.muenzenTotal || 0 : 0 };
+
+      function mit(o) { for (var k in basis) o[k] = basis[k]; return o; }
+
+      if (!e || !e.versuche) {
+        return mit({ zahlt: true, art: 'neu', kurz: '🪙 noch offen',
+                     text: schwer
+                       ? 'Noch nicht probiert — hier gibt es jedes Mal Münzen, bis du sie meisterst.'
+                       : 'Noch nicht probiert — beim ersten guten Ergebnis gibt es Münzen.' });
+      }
+      if (schwer) {
+        if (e.gemeistert) {
+          return mit({ zahlt: false, art: 'gemeistert', kurz: '✔ gemeistert · keine Münzen mehr',
+                       text: 'Mit ' + e.best + ' % gemeistert. Üben kannst du weiter, Münzen gibt es keine mehr.' });
+        }
+        return mit({ zahlt: true, art: 'wiederholen', kurz: '🪙 zahlt weiter',
+                     text: 'Bis ' + OEKONOMIE.meisterAb + ' % gibt es jedes Mal Münzen. Bestwert: ' + e.best + ' %.' });
+      }
+      if (e.bezahlt) {
+        return mit({ zahlt: false, art: 'abgeholt', kurz: '✔ Münzen abgeholt',
+                     text: 'Die Münzen für diese Übung hast du schon. Üben darfst du weiter — Münzen gibt es keine mehr.' });
+      }
+      return mit({ zahlt: true, art: 'offen', kurz: '🪙 noch offen',
+                   text: 'Beim ersten Ergebnis ab ' + OEKONOMIE.mindestensFuerMuenzen +
+                         ' % gibt es Münzen. Bisher bester Versuch: ' + e.best + ' %.' });
+    },
+
+    /* Sammelstatus über mehrere Runden eines Spiels (z. B. drei Strecken).
+       sets = Liste von Set-Namen. Rückgabe zusätzlich: { offen, gesamt } */
+    muenzStatusGruppe: function (fach, sets, schwierigkeit, who) {
+      var self = this, offen = 0, gespielt = 0;
+      sets.forEach(function (s) {
+        var st = self.muenzStatus(fach, s, schwierigkeit, who);
+        if (st.zahlt) offen++;
+        if (st.versuche) gespielt++;
+      });
+      var gesamt = sets.length;
+      if (!gespielt) {
+        return { zahlt: true, art: 'neu', offen: offen, gesamt: gesamt, gespielt: 0,
+                 kurz: '🪙 noch offen', text: 'Noch nicht gespielt.' };
+      }
+      if (!offen) {
+        return { zahlt: false, art: 'abgeholt', offen: 0, gesamt: gesamt, gespielt: gespielt,
+                 kurz: '✔ alles abgeholt', text: 'Alle ' + gesamt + ' Runden gespielt — hier gibt es keine Münzen mehr.' };
+      }
+      return { zahlt: true, art: 'offen', offen: offen, gesamt: gesamt, gespielt: gespielt,
+               kurz: '🪙 ' + offen + ' von ' + gesamt + ' offen',
+               text: offen + ' von ' + gesamt + ' Runden zahlen noch Münzen.' };
     },
 
     /* Sterne pro Fach: 1 je gemeisterter Übung, maximal 3 */
@@ -424,6 +570,233 @@
       } catch (e) { return { ok: false }; }
     },
 
+    /* ---------------- Süssigkeiten ---------------- */
+    suessigkeiten: function (who) { return this.stand(who).suessigkeiten || 0; },
+    suessigkeitKaufen: function (anzahl, who) {
+      anzahl = Math.max(1, anzahl || 1);
+      var stand = this.stand(who);
+      var preis = OEKONOMIE.suessigkeitPreis * anzahl;
+      if ((stand.muenzen || 0) < preis) return { ok: false, fehlt: preis - (stand.muenzen || 0) };
+      stand.muenzen -= preis;
+      stand.suessigkeiten = (stand.suessigkeiten || 0) + anzahl;
+      this._speichern(who, stand);
+      return { ok: true, suessigkeiten: stand.suessigkeiten, muenzen: stand.muenzen };
+    },
+
+    /* ---------------- Affen ----------------
+       Ein gefütterter Affe bleibt zehn Minuten zahm. Läuft die Zeit ab,
+       holt er sich seine Münzen selber. */
+    affe: function (id, who) {
+      var stand = this.stand(who);
+      if (!stand.affen) stand.affen = {};
+      if (!stand.affen[id]) stand.affen[id] = { bis: 0, gefuettert: 0, gestohlen: 0, fundAb: 0 };
+      return stand.affen[id];
+    },
+    affeZahm: function (id, who) {
+      return this.affe(id, who).bis > Date.now();
+    },
+    affeRest: function (id, who) {     /* 0 … 1 */
+      var a = this.affe(id, who);
+      var rest = (a.bis - Date.now()) / 1000;
+      if (rest <= 0) return 0;
+      return Math.min(1, rest / OEKONOMIE.zaehmDauer);
+    },
+    affeRestSekunden: function (id, who) {
+      return Math.max(0, Math.round((this.affe(id, who).bis - Date.now()) / 1000));
+    },
+
+    affeFuettern: function (id, who) {
+      who = who || this.who();
+      var stand = this.stand(who);
+      if ((stand.suessigkeiten || 0) < 1) return { ok: false, grund: 'keine' };
+      if (!stand.affen) stand.affen = {};
+      if (!stand.affen[id]) stand.affen[id] = { bis: 0, gefuettert: 0, gestohlen: 0, fundAb: 0 };
+      var a = stand.affen[id];
+      var warZahm = a.bis > Date.now();
+      stand.suessigkeiten--;
+      a.bis = Date.now() + OEKONOMIE.zaehmDauer * 1000;
+      a.gefuettert++;
+      if (!a.fundAb) a.fundAb = Date.now();
+      this._speichern(who, stand);
+      return { ok: true, warZahm: warZahm, bis: a.bis, suessigkeiten: stand.suessigkeiten };
+    },
+
+    /* Beim Betreten der Insel nachrechnen, was in der Zwischenzeit geschah. */
+    affenPruefen: function (who) {
+      who = who || this.who();
+      var stand = this.stand(who);
+      if (!stand.affen) return [];
+      var jetzt = Date.now(), meldungen = [], geaendert = false;
+
+      Object.keys(stand.affen).forEach(function (id) {
+        var a = stand.affen[id];
+        var name = (AFFEN[id] && AFFEN[id].name) || id;
+
+        /* Zahmer Affe findet ab und zu eine Münze. */
+        if (a.bis > jetzt && a.fundAb) {
+          var takte = Math.floor((jetzt - a.fundAb) / (OEKONOMIE.affenFundTakt * 1000));
+          if (takte > 0) {
+            var fund = takte * OEKONOMIE.affenFund;
+            stand.muenzen = (stand.muenzen || 0) + fund;
+            a.fundAb += takte * OEKONOMIE.affenFundTakt * 1000;
+            a.gefunden = (a.gefunden || 0) + fund;
+            meldungen.push({ art: 'fund', affe: id, name: name, muenzen: fund });
+            geaendert = true;
+          }
+        }
+
+        /* Zeit abgelaufen und noch nicht abgerechnet: er stiehlt. */
+        if (a.bis && a.bis <= jetzt && !a.abgerechnet) {
+          var weg = Math.min(OEKONOMIE.affenDiebstahl, stand.muenzen || 0);
+          stand.muenzen = (stand.muenzen || 0) - weg;
+          a.gestohlen = (a.gestohlen || 0) + weg;
+          a.abgerechnet = true;
+          a.fundAb = 0;
+          meldungen.push({ art: 'diebstahl', affe: id, name: name, muenzen: weg });
+          geaendert = true;
+        }
+        if (a.bis > jetzt) a.abgerechnet = false;
+      });
+
+      if (geaendert) this._speichern(who, stand);
+      return meldungen;
+    },
+
+    /* ---------------- Spelunke: das Gebräu ----------------
+       Nach dem dritten Glas ist der Abend vorbei: halbe Kasse und
+       irgendwo im Wald aufwachen. */
+    gebraeuke: function (who) {
+      var stand = this.stand(who);
+      if (!stand.gebraeu) stand.gebraeu = { glaeser: 0, zuletzt: 0 };
+      /* Rausch verfliegt mit der Zeit */
+      if (stand.gebraeu.zuletzt &&
+          Date.now() - stand.gebraeu.zuletzt > OEKONOMIE.gebraeuVerfall * 1000) {
+        stand.gebraeu.glaeser = 0;
+      }
+      return stand.gebraeu.glaeser;
+    },
+    trinken: function (who) {
+      who = who || this.who();
+      var stand = this.stand(who);
+      if (!stand.gebraeu) stand.gebraeu = { glaeser: 0, zuletzt: 0 };
+      if (stand.gebraeu.zuletzt &&
+          Date.now() - stand.gebraeu.zuletzt > OEKONOMIE.gebraeuVerfall * 1000) {
+        stand.gebraeu.glaeser = 0;
+      }
+      if ((stand.muenzen || 0) < OEKONOMIE.gebraeuPreis) {
+        return { ok: false, fehlt: OEKONOMIE.gebraeuPreis - (stand.muenzen || 0) };
+      }
+      stand.muenzen -= OEKONOMIE.gebraeuPreis;
+      stand.gebraeu.glaeser++;
+      stand.gebraeu.zuletzt = Date.now();
+
+      var ergebnis = { ok: true, glaeser: stand.gebraeu.glaeser, blackout: false };
+      if (stand.gebraeu.glaeser >= OEKONOMIE.gebraeuMax) {
+        var verloren = Math.floor((stand.muenzen || 0) / 2);
+        stand.muenzen -= verloren;
+        stand.gebraeu.glaeser = 0;
+        stand.gebraeu.zuletzt = 0;
+        var ids = Object.keys(WAELDER);
+        var wald = ids[Math.floor(Math.random() * ids.length)];
+        stand.aufwachen = wald;
+        ergebnis.blackout = true;
+        ergebnis.verloren = verloren;
+        ergebnis.wald = wald;
+        ergebnis.waldName = WAELDER[wald].name;
+      }
+      stand.muenzen = Math.max(0, stand.muenzen);
+      this._speichern(who, stand);
+      ergebnis.muenzen = stand.muenzen;
+      return ergebnis;
+    },
+    /* Wo wacht der Spieler auf? Wird beim Abholen gelöscht. */
+    /* ---------------- Bären ----------------
+       Ein Bär folgt der Nase, nicht dem Herzen: Süssigkeiten locken ihn an,
+       zähmen lässt er sich nicht. Erwischt er dich, ist die Tüte leer.
+       Hast du nichts dabei, schleift er dich zum Rechenturm. */
+    baerStand: function (id, who) {
+      var b = this.stand(who).baeren || {};
+      return b[id] || { gefressen: 0, geschleppt: 0, sattBis: 0 };
+    },
+    baerSatt: function (id, who) {
+      return this.baerStand(id, who).sattBis > Date.now();
+    },
+    /* Der Bär erwischt den Spieler. Rückgabe sagt, was passiert ist. */
+    baerErwischt: function (id, who) {
+      who = who || this.who();
+      var stand = this.stand(who);
+      if (!stand.baeren) stand.baeren = {};
+      if (!stand.baeren[id]) stand.baeren[id] = { gefressen: 0, geschleppt: 0, sattBis: 0 };
+      var b = stand.baeren[id];
+      var hatte = stand.suessigkeiten || 0;
+      var art;
+      if (hatte > 0) {
+        stand.suessigkeiten = 0;
+        b.gefressen += hatte;
+        b.sattBis = Date.now() + OEKONOMIE.baerSattDauer * 1000;
+        art = 'gefressen';
+      } else {
+        b.geschleppt++;
+        b.sattBis = Date.now() + OEKONOMIE.baerSattDauer * 1000;
+        art = 'geschleppt';
+      }
+      this._speichern(who, stand);
+      return { art: art, suessigkeiten: hatte, gefressen: b.gefressen, geschleppt: b.geschleppt,
+               name: (BAEREN[id] || {}).name || id };
+    },
+
+    /* ---------------- Schaufel & vergrabene Schätze ---------------- */
+    hatSchaufel: function (who) { return !!this.stand(who).schaufel; },
+    schaufelKaufen: function (who) {
+      who = who || this.who();
+      var stand = this.stand(who);
+      if (stand.schaufel) return { ok: false, grund: 'schon' };
+      if ((stand.muenzen || 0) < OEKONOMIE.schaufelPreis) {
+        return { ok: false, grund: 'geld', fehlt: OEKONOMIE.schaufelPreis - (stand.muenzen || 0) };
+      }
+      stand.muenzen -= OEKONOMIE.schaufelPreis;
+      stand.schaufel = true;
+      this._speichern(who, stand);
+      return { ok: true, muenzen: stand.muenzen };
+    },
+    schatzGehoben: function (id, who) {
+      var g = this.stand(who).graben || {};
+      return !!g[id];
+    },
+    /* Alle noch nicht gehobenen Schätze — für die Geschichten des Seebären. */
+    offeneSchaetze: function (who) {
+      var self = this;
+      return SCHAETZE.filter(function (x) { return !self.schatzGehoben(x.id, who); });
+    },
+    graben: function (id, who) {
+      who = who || this.who();
+      var stand = this.stand(who);
+      var schatz = SCHAETZE.filter(function (x) { return x.id === id; })[0];
+      if (!schatz) return { ok: false, grund: 'nichts' };
+      if (!stand.schaufel) return { ok: false, grund: 'schaufel' };
+      if (!stand.graben) stand.graben = {};
+      if (stand.graben[id]) return { ok: false, grund: 'leer' };
+      stand.graben[id] = Date.now();
+      stand.muenzen = (stand.muenzen || 0) + schatz.muenzen;
+      this._speichern(who, stand);
+      var offen = this.offeneSchaetze(who).length;
+      return { ok: true, muenzen: schatz.muenzen, gesamt: stand.muenzen,
+               gehoben: SCHAETZE.length - offen, alle: SCHAETZE.length, offen: offen };
+    },
+
+    aufwachenAbholen: function (who) {
+      who = who || this.who();
+      var stand = this.stand(who);
+      var w = stand.aufwachen;
+      if (w) { delete stand.aufwachen; this._speichern(who, stand); }
+      return w && WAELDER[w] ? { id: w, name: WAELDER[w].name, x: WAELDER[w].x, y: WAELDER[w].y } : null;
+    },
+    ausnuechtern: function (who) {
+      var stand = this.stand(who);
+      stand.gebraeu = { glaeser: 0, zuletzt: 0 };
+      this._speichern(who, stand);
+    },
+
     /* ---------------- Räume ---------------- */
     /* Marke einlösen: öffnet den Raum für diesen Besuch (Tab-Sitzung). */
     raumOeffnen: function (raum, who) {
@@ -479,6 +852,8 @@
           this.muenzen(who) + '</span>' +
         '<span style="background:#1e293b;border:2px solid #a78bfa;border-radius:8px;padding:7px 10px;color:#c4b5fd">🎟️ ' +
           this.marken(who) + '</span>' +
+        '<span style="background:#1e293b;border:2px solid #f9a8d4;border-radius:8px;padding:7px 10px;color:#f9a8d4">🍬 ' +
+          this.suessigkeiten(who) + '</span>' +
         '<a href="/lernwelt/" style="background:#1e3a5f;border:2px solid #fde68a;border-radius:8px;padding:7px 10px;color:#fde68a;text-decoration:none">🏝️ Insel</a>';
       if (parent) parent.appendChild(el);
       return el;

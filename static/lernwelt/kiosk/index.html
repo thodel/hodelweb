@@ -19,6 +19,7 @@
   .konto .lbl { font-size: 12px; color: #94a3b8; margin-top: 4px; }
   .muenzen .zahl { color: #fbbf24; } .muenzen { border-color: #fbbf24 !important; }
   .marken .zahl { color: #c4b5fd; } .marken { border-color: #a78bfa !important; }
+  .suess .zahl { color: #f9a8d4; } .suess { border-color: #f472b6 !important; }
 
   .card { background: #1e293b; border-radius: 18px; padding: 20px 18px; margin-bottom: 16px; border: 2px solid #334155; }
   .card h2 { font-size: 17px; margin-bottom: 6px; }
@@ -52,6 +53,7 @@
   <div class="konto">
     <div class="muenzen"><div class="zahl" id="m">0</div><div class="lbl">Münzen</div></div>
     <div class="marken"><div class="zahl" id="t">0</div><div class="lbl">Marken</div></div>
+    <div class="suess"><div class="zahl" id="su">0</div><div class="lbl">Süssigkeiten</div></div>
   </div>
 
   <div class="card">
@@ -60,6 +62,31 @@
        oder die Musikhütte öffnen.</p>
     <div class="msg" id="msg"></div>
     <button class="btn" id="kaufen">1 Marke kaufen</button>
+  </div>
+
+  <div class="card">
+    <h2>🍬 Süssigkeiten</h2>
+    <p>Eine Süssigkeit kostet <b id="su-preis">3</b> Münzen. Damit lassen sich die Affen
+       auf der Insel zähmen — ein zahmer Affe sucht für dich nach Münzen. Wer ihn hungern
+       lässt, dem klaut er welche.</p>
+    <p style="color:#fca5a5">Achtung: Bären riechen Süssigkeiten von weitem und lassen sich
+       nicht zähmen. Erwischt dich einer, ist die Tüte leer. Hast du nichts dabei,
+       schleift er dich zum Rechenturm.</p>
+    <div class="msg" id="msg-su"></div>
+    <div style="display:flex;gap:10px">
+      <button class="btn" id="kauf-su1" style="background:#f472b6;color:#4a0f2e">1 kaufen</button>
+      <button class="btn" id="kauf-su5" style="background:#f9a8d4;color:#4a0f2e">5 kaufen</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>🪏 Schaufel</h2>
+    <p>Die Schaufel kostet <b id="sch-preis">20</b> Münzen und hält ein Leben lang.
+       Auf der Insel liegen acht kleine Schätze vergraben, je 2 bis 5 Münzen.
+       Mit der Schaufel in der Hand glitzert eine Grabstelle, sobald du in die Nähe kommst.
+       Käpten Krümel am Dorfplatz erzählt, wo noch etwas liegt.</p>
+    <div class="msg" id="msg-sch"></div>
+    <button class="btn" id="kauf-sch" style="background:#fde68a;color:#422006">Schaufel kaufen</button>
   </div>
 
   <div class="card">
@@ -106,7 +133,13 @@
   function zeichne() {
     $('m').textContent = Insel.muenzen(who);
     $('t').textContent = Insel.marken(who);
+    $('su').textContent = Insel.suessigkeiten(who);
     $('kaufen').disabled = Insel.muenzen(who) < Insel.oekonomie.markePreis;
+    $('kauf-su1').disabled = Insel.muenzen(who) < Insel.oekonomie.suessigkeitPreis;
+    $('kauf-su5').disabled = Insel.muenzen(who) < Insel.oekonomie.suessigkeitPreis * 5;
+    var hat = Insel.hatSchaufel(who);
+    $('kauf-sch').disabled = hat || Insel.muenzen(who) < Insel.oekonomie.schaufelPreis;
+    $('kauf-sch').textContent = hat ? '✔ Schaufel im Gepäck' : 'Schaufel kaufen';
     $('hud').innerHTML = '';
     Insel.hudLeiste($('hud'));
   }
@@ -123,6 +156,39 @@
     }
     zeichne();
   };
+
+  $('su-preis').textContent = Insel.oekonomie.suessigkeitPreis;
+  function suessKaufen(n) {
+    var r = Insel.suessigkeitKaufen(n, who);
+    var m = $('msg-su');
+    if (r.ok) {
+      m.textContent = '✔ Gekauft. Du hast jetzt ' + r.suessigkeiten + ' Süssigkeiten.';
+      m.className = 'msg ok';
+    } else {
+      m.textContent = 'Dir fehlen ' + r.fehlt + ' Münzen.';
+      m.className = 'msg no';
+    }
+    zeichne();
+  }
+  $('sch-preis').textContent = Insel.oekonomie.schaufelPreis;
+  $('kauf-sch').onclick = function () {
+    var r = Insel.schaufelKaufen(who);
+    var m = $('msg-sch');
+    if (r.ok) {
+      m.textContent = '✔ Gekauft. Jetzt kannst du graben — such die glitzernden Stellen.';
+      m.className = 'msg ok';
+    } else if (r.grund === 'schon') {
+      m.textContent = 'Du hast schon eine Schaufel.';
+      m.className = 'msg no';
+    } else {
+      m.textContent = 'Dir fehlen ' + r.fehlt + ' Münzen.';
+      m.className = 'msg no';
+    }
+    zeichne();
+  };
+
+  $('kauf-su1').onclick = function () { suessKaufen(1); };
+  $('kauf-su5').onclick = function () { suessKaufen(5); };
 
   zeichne();
 })();
