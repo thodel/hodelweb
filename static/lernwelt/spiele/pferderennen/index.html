@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Pferderennen — Lerninsel</title>
+<link rel="icon" href="/favicon-32x32.png" sizes="32x32">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; background: #0b1021; color: #e2e8f0; overflow: hidden;
+               font-family: ui-monospace, Menlo, Consolas, monospace; }
+  #stage { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
+           background: radial-gradient(circle at 50% 25%, #1d2a1c 0%, #0b1021 70%);
+           padding: env(safe-area-inset-top) env(safe-area-inset-right)
+                    env(safe-area-inset-bottom) env(safe-area-inset-left); }
+  #frame { display: flex; flex-direction: column; align-items: center; }
+  #feld { position: relative; line-height: 0; }
+  canvas { display: block; image-rendering: pixelated; border: 4px solid #1e293b; border-radius: 4px;
+           box-shadow: 0 0 0 2px #0b1021, 0 12px 40px rgba(0,0,0,.6); background: #86c06c;
+           touch-action: none; }
+  .ov { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center;
+        justify-content: center; text-align: center; background: rgba(9,14,33,.93); padding: 14px; gap: 12px; }
+  .ov[hidden] { display: none !important; }
+  .t { font-size: clamp(19px,4.5vw,30px); font-weight: 900; color: #fde68a; letter-spacing: .1em;
+       text-shadow: 3px 3px 0 #b45309; }
+  .p { font-size: 12.5px; color: #cbd5e1; line-height: 1.9; max-width: 440px; }
+  .btn { cursor: pointer; border: 3px solid #fde68a; background: #12203f; color: #fde68a;
+         padding: 12px 22px; font: 700 15px inherit; }
+  .btn:hover { background: #1e3a5f; }
+  .reihe { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+  kbd { background: #1e293b; border: 1px solid #475569; border-bottom-width: 3px; border-radius: 4px;
+        padding: 2px 8px; font: inherit; font-size: 13px; color: #fde68a; }
+  #hud { position: absolute; top: 0; left: 0; right: 0; display: flex; justify-content: space-between;
+         padding: 8px 10px; font-size: 11px; pointer-events: none; }
+  #hud div { background: rgba(9,14,33,.78); border: 2px solid #334155; padding: 4px 8px; }
+  /* Steuerung unter der Bahn */
+  #steuer { display: none; }
+  #steuer.on { display: flex; width: 100%; gap: 16px; justify-content: center; padding: 16px 10px 0; }
+  #steuer button { flex: 1; max-width: 240px; height: 104px; border-radius: 16px;
+                   border: 3px solid #0ea5e9; background: rgba(56,189,248,.9); color: #082f49;
+                   font: 900 22px inherit; touch-action: none; -webkit-user-select: none; user-select: none; }
+  #steuer button:active { background: #fde68a; }
+  #steuer button.dran { background: #fde68a; border-color: #f59e0b; }
+  a.back { position: absolute; top: 8px; left: 50%; transform: translateX(-50%); font-size: 10.5px;
+           color: #cbd5e1; text-decoration: none; background: rgba(9,14,33,.8);
+           border: 2px solid #334155; padding: 3px 8px; }
+</style>
+</head>
+<body>
+<div id="stage"><div id="frame">
+ <div id="feld">
+  <canvas id="c" width="320" height="200"></canvas>
+  <div id="hud" hidden><div id="h1">—</div><div id="h2">—</div></div>
+
+  <div class="ov" id="menu">
+    <div class="t">PFERDERENNEN</div>
+    <div class="p">Abwechselnd <kbd>←</kbd> und <kbd>→</kbd> drücken, dann galoppiert dein Pferd.
+      Immer schön im Wechsel — zweimal dieselbe Taste bringt nichts.<br>
+      Auf dem Tablet: die beiden grossen Knöpfe im Wechsel antippen.</div>
+    <div class="reihe" id="strecken"></div>
+    <a class="btn" href="/lernwelt/spiele/" style="text-decoration:none">← Spiele</a>
+  </div>
+
+  <div class="ov" id="ende" hidden>
+    <div class="t" id="e-t">ZIEL!</div>
+    <div class="p" id="e-p"></div>
+    <div class="reihe">
+      <button class="btn" id="e-nochmal">Nochmal</button>
+      <button class="btn" id="e-menu">Menü</button>
+    </div>
+  </div>
+  <a class="back" href="/lernwelt/spiele/">← Spiele</a>
+ </div>
+ <div id="steuer">
+   <button id="k-links">◀ LINKS</button>
+   <button id="k-rechts">RECHTS ▶</button>
+ </div>
+</div></div>
+
+<script src="/lernwelt/insel.js"></script>
+<script>
+(function () {
+  'use strict';
+  var W = 320, H = 200;
+  var cv = document.getElementById('c'), ctx = cv.getContext('2d');
+  ctx.imageSmoothingEnabled = false;
+  var $ = function (i) { return document.getElementById(i); };
+  var who = Insel.who();
+
+  var STRECKEN = [
+    { id: 'kurz',   name: 'Kurzstrecke', laenge: 600,  tempoGegner: [46, 50, 54] },
+    { id: 'mittel', name: 'Mittelbahn',  laenge: 1000, tempoGegner: [50, 55, 60] },
+    { id: 'lang',   name: 'Langstrecke', laenge: 1500, tempoGegner: [54, 58, 63] }
+  ];
+  var FARBEN = [['#c2703f', '#8a4f2c'], ['#e2e8f0', '#a8b0bd'], ['#3b3040', '#221c2b'], ['#b08d3f', '#7d642c']];
+  var NAMEN = ['Du', 'Blitz', 'Donner', 'Wirbel'];
+
+  var strecke = null, pferde = [], zeit = 0, laufend = false, letzteZeit = 0;
+  var erwartet = 'links', kadenz = 0, tempo = 0, fehltritt = 0, platz = 0;
+
+  function px(x, y, w, h, col) { ctx.fillStyle = col; ctx.fillRect(x | 0, y | 0, w | 0, h | 0); }
+
+  /* ---------- Zeichnen ---------- */
+  function pferdZeichnen(x, y, farbe, schritt, istSpieler) {
+    var b = farbe[0], d = farbe[1];
+    var hoch = schritt ? 1 : 0;
+    px(x - 12, y - 1, 24, 2, 'rgba(0,0,0,.2)');
+    /* Beine */
+    px(x - 8, y - 7 + hoch, 3, 7, d);
+    px(x + 5, y - 7 - hoch, 3, 7, d);
+    px(x - 3, y - 6 - hoch, 3, 6, b);
+    px(x + 1, y - 6 + hoch, 3, 6, b);
+    /* Körper */
+    px(x - 10, y - 15, 20, 9, b);
+    px(x - 10, y - 15, 20, 2, 'rgba(255,255,255,.16)');
+    /* Schweif */
+    px(x - 14, y - 15, 4, 7, d);
+    /* Hals und Kopf */
+    px(x + 7, y - 22, 5, 9, b);
+    px(x + 9, y - 26, 8, 6, b);
+    px(x + 15, y - 24, 2, 2, '#141824');
+    px(x + 8, y - 27, 3, 3, d);
+    /* Reiter */
+    px(x - 3, y - 22, 7, 7, istSpieler ? '#e11d48' : '#475569');
+    px(x - 1, y - 27, 5, 5, '#f2c8a0');
+    px(x - 1, y - 28, 5, 2, '#3b2a1a');
+  }
+
+  function zeichne() {
+    /* Himmel und Bahn */
+    var g = ctx.createLinearGradient(0, 0, 0, 70);
+    g.addColorStop(0, '#7ec0ee'); g.addColorStop(1, '#bfe3ff');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, 70);
+    px(0, 60, W, 12, '#4f8f45');
+    var kamera = pferde.length ? pferde[0].pos : 0;
+    for (var i = 0; i < 12; i++) {
+      var bx = ((i * 60 - kamera * 0.3) % (W + 60) + W + 60) % (W + 60) - 30;
+      px(bx, 44, 6, 18, '#2f6b34'); px(bx - 6, 34, 18, 12, '#3d8340');
+    }
+    px(0, 72, W, H - 72, '#c8a06a');
+    for (var b = 0; b < 4; b++) {
+      px(0, 78 + b * 30, W, 2, 'rgba(255,255,255,.28)');
+      px(0, 100 + b * 30, W, 1, 'rgba(0,0,0,.08)');
+    }
+    /* Ziel */
+    var zielX = (strecke.laenge - kamera) * 0.5 + 60;
+    if (zielX > -20 && zielX < W + 20) {
+      for (var r = 0; r < 9; r++) for (var s = 0; s < 2; s++)
+        px(zielX + s * 5, 72 + r * 14, 5, 14, (r + s) % 2 ? '#f8fafc' : '#111827');
+    }
+    /* Pferde */
+    pferde.forEach(function (p, idx) {
+      var x = (p.pos - kamera) * 0.5 + 60;
+      var y = 96 + idx * 30;
+      if (x < -30 || x > W + 30) return;
+      pferdZeichnen(x, y, FARBEN[idx], Math.floor(p.anim) % 2 === 0, idx === 0);
+      ctx.font = '7px ui-monospace, monospace';
+      ctx.textAlign = 'left';
+      ctx.fillStyle = idx === 0 ? '#fde68a' : 'rgba(15,23,42,.7)';
+      ctx.fillText(NAMEN[idx], x - 14, y + 8);
+    });
+    /* Fortschrittsleiste */
+    px(8, 8, W - 16, 5, 'rgba(9,14,33,.55)');
+    pferde.forEach(function (p, idx) {
+      var f = Math.min(1, p.pos / strecke.laenge);
+      px(8 + (W - 16) * f - 2, 8 + idx, 3, 2, idx === 0 ? '#fde68a' : '#94a3b8');
+    });
+    if (laufend) {
+      $('h1').textContent = '🐎 ' + Math.round(pferde[0].pos / strecke.laenge * 100) + ' %';
+      $('h2').textContent = 'Tempo ' + Math.round(tempo) + '  ·  Platz ' + rang();
+    }
+  }
+
+  function rang() {
+    var sortiert = pferde.slice().sort(function (a, b) { return b.pos - a.pos; });
+    return sortiert.indexOf(pferde[0]) + 1;
+  }
+
+  /* ---------- Ablauf ---------- */
+  function start(st) {
+    strecke = st;
+    pferde = [{ pos: 0, anim: 0 }];
+    st.tempoGegner.forEach(function (t) {
+      pferde.push({ pos: 0, anim: 0, tempo: t, schwanken: Math.random() * 6 });
+    });
+    zeit = 0; tempo = 0; kadenz = 0; erwartet = 'links'; fehltritt = 0; laufend = true;
+    $('menu').hidden = true; $('ende').hidden = true; $('hud').hidden = false;
+    knopfMarkieren();
+  }
+
+  function schritt(dt) {
+    zeit += dt;
+    /* Tempo fällt ohne Tastendruck stetig ab. */
+    tempo = Math.max(0, tempo - 42 * dt);
+    pferde[0].pos += tempo * dt;
+    pferde[0].anim += tempo * dt * 0.12;
+
+    for (var i = 1; i < pferde.length; i++) {
+      var p = pferde[i];
+      var t = p.tempo + Math.sin(zeit * 1.3 + p.schwanken) * 6;
+      p.pos += t * dt;
+      p.anim += t * dt * 0.12;
+    }
+    if (pferde.some(function (p) { return p.pos >= strecke.laenge; })) ende();
+  }
+
+  function tritt(seite) {
+    if (!laufend) return;
+    if (seite === erwartet) {
+      tempo = Math.min(150, tempo + 17);
+      erwartet = seite === 'links' ? 'rechts' : 'links';
+      fehltritt = 0;
+    } else {
+      /* Falsche Seite: das Pferd stolpert kurz. */
+      tempo = Math.max(0, tempo - 12);
+      fehltritt++;
+    }
+    knopfMarkieren();
+  }
+
+  function knopfMarkieren() {
+    $('k-links').classList.toggle('dran', erwartet === 'links');
+    $('k-rechts').classList.toggle('dran', erwartet === 'rechts');
+  }
+
+  function ende() {
+    laufend = false;
+    $('hud').hidden = true;
+    platz = rang();
+    var namen = ['🥇 Erster!', '🥈 Zweiter', '🥉 Dritter', 'Vierter'];
+    $('e-t').textContent = platz === 1 ? 'GEWONNEN!' : 'IM ZIEL';
+    var text = namen[platz - 1] + ' auf der ' + strecke.name + '.';
+    if (window.Insel) {
+      var pct = platz === 1 ? 100 : platz === 2 ? 75 : platz === 3 ? 60 : 50;
+      var r = Insel.melden({
+        fach: 'sport', set: 'pferderennen-' + strecke.id, titel: 'Pferderennen: ' + strecke.name,
+        schwierigkeit: 'leicht', pct: pct
+      });
+      text += r.muenzen > 0
+        ? '<br><br><span style="color:#fbbf24;font-weight:700">+ ' + r.muenzen + ' 🪙</span> ' + r.grund
+        : '<br><br><span style="color:#64748b">' + r.grund + '</span>';
+      try {
+        var key = 'lerninsel.pferd.' + strecke.id;
+        var best = +(localStorage.getItem(key) || 0);
+        var sekunden = Math.round(zeit * 10) / 10;
+        if (!best || sekunden < best) { localStorage.setItem(key, String(sekunden)); text += '<br>Neue Bestzeit: ' + sekunden + ' s!'; }
+        else text += '<br>Zeit: ' + sekunden + ' s (Bestzeit ' + best + ' s)';
+      } catch (e) {}
+    }
+    $('e-p').innerHTML = text;
+    $('ende').hidden = false;
+  }
+
+  /* ---------- Steuerung ---------- */
+  window.addEventListener('keydown', function (e) {
+    var k = e.key.toLowerCase();
+    if (['arrowleft', 'arrowright', 'a', 'd', ' '].indexOf(k) >= 0) e.preventDefault();
+    if (k === 'arrowleft' || k === 'a') tritt('links');
+    if (k === 'arrowright' || k === 'd') tritt('rechts');
+    if (!laufend && !$('ende').hidden && (k === 'enter' || k === ' ')) { $('ende').hidden = true; start(strecke); }
+  });
+  function knopf(el, seite) {
+    var f = function (e) { e.preventDefault(); tritt(seite); };
+    el.addEventListener('touchstart', f, { passive: false });
+    el.addEventListener('mousedown', f);
+  }
+  knopf($('k-links'), 'links');
+  knopf($('k-rechts'), 'rechts');
+
+  $('e-nochmal').onclick = function () { $('ende').hidden = true; start(strecke); };
+  $('e-menu').onclick = function () { $('ende').hidden = true; $('menu').hidden = false; };
+
+  STRECKEN.forEach(function (st) {
+    var b = document.createElement('button');
+    b.className = 'btn';
+    var best = 0;
+    try { best = +(localStorage.getItem('lerninsel.pferd.' + st.id) || 0); } catch (e) {}
+    b.innerHTML = st.name + '<br><small style="font-weight:400;color:#94a3b8">' +
+      Math.round(st.laenge / 10) + ' m' + (best ? ' · ★ ' + best + ' s' : '') + '</small>';
+    b.onclick = function () { start(st); };
+    $('strecken').appendChild(b);
+  });
+
+  /* ---------- Grösse ---------- */
+  var isTouch = new URLSearchParams(location.search).get('touch') === '1' ||
+                window.matchMedia('(hover: none)').matches || 'ontouchstart' in window;
+  if (isTouch) $('steuer').classList.add('on');
+  function resize() {
+    var vv = window.visualViewport;
+    var b = Math.round(vv ? vv.width : innerWidth), h = Math.round(vv ? vv.height : innerHeight);
+    var band = isTouch ? 130 : 0;
+    var s = Math.max(1, Math.min(5, Math.floor(Math.min((b - 16) / W, (h - 16 - band) / H) * 2) / 2));
+    cv.style.width = (W * s) + 'px'; cv.style.height = (H * s) + 'px';
+  }
+  addEventListener('resize', resize);
+  if (window.visualViewport) window.visualViewport.addEventListener('resize', resize);
+  resize();
+
+  function schleife(ts) {
+    var dt = Math.min(0.05, (ts - letzteZeit) / 1000 || 0);
+    letzteZeit = ts;
+    if (laufend) schritt(dt);
+    if (strecke) zeichne();
+    requestAnimationFrame(schleife);
+  }
+  requestAnimationFrame(function (t) { letzteZeit = t; schleife(t); });
+})();
+</script>
+</body>
+</html>

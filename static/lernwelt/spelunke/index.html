@@ -10,63 +10,116 @@
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
          background: #150d16; color: #e2e8f0; padding: 18px 14px 60px; min-height: 100vh;
          background-image: radial-gradient(circle at 50% 0%, #2c1526 0%, #150d16 60%); }
-  .wrap { max-width: 620px; margin: 0 auto; }
+  body.schwank1 { animation: wanken 3s ease-in-out infinite; }
+  body.schwank2 { animation: wanken 1.6s ease-in-out infinite; }
+  @keyframes wanken {
+    0%,100% { transform: translate(0,0) rotate(0); }
+    25% { transform: translate(-6px,3px) rotate(-.8deg); }
+    50% { transform: translate(4px,-4px) rotate(.6deg); }
+    75% { transform: translate(6px,3px) rotate(.9deg); }
+  }
+  .wrap { max-width: 640px; margin: 0 auto; }
   h1 { font-size: 26px; text-align: center; font-weight: 800; color: #f9a8d4; }
   .sub { text-align: center; font-size: 13px; color: #a78295; margin: 6px 0 18px; }
 
   .bank { background: #2a1020; border: 3px solid #f472b6; border-radius: 16px;
-          padding: 16px; text-align: center; margin-bottom: 16px; }
-  .bank .l { font-size: 12px; color: #f9a8d4; letter-spacing: .06em; text-transform: uppercase; }
-  .bank .z { font-size: 44px; font-weight: 900; color: #fda4af; line-height: 1.15; }
-  .bank .k { font-size: 12.5px; color: #cbb0be; margin-top: 6px; line-height: 1.6; }
+          padding: 14px; text-align: center; margin-bottom: 16px; }
+  .bank .l { font-size: 11.5px; color: #f9a8d4; letter-spacing: .06em; text-transform: uppercase; }
+  .bank .z { font-size: 40px; font-weight: 900; color: #fda4af; line-height: 1.15; }
+  .bank .k { font-size: 12.5px; color: #cbb0be; margin-top: 5px; line-height: 1.6; }
+
+  .reiter { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
+  .reiter button { flex: 1; min-width: 110px; padding: 11px 6px; border-radius: 10px;
+                   border: 2px solid #4a2440; background: #221024; color: #cbb0be;
+                   font-size: 13.5px; font-weight: 700; cursor: pointer; }
+  .reiter button.aktiv { background: #f472b6; color: #4a0f2e; border-color: #f9a8d4; }
 
   .karte { background: #221024; border: 2px solid #4a2440; border-radius: 16px;
            padding: 18px; margin-bottom: 16px; }
   h2 { font-size: 15px; margin-bottom: 10px; color: #f9a8d4; }
+  .tafel[hidden] { display: none; }
 
-  .muscheln { display: flex; gap: 12px; justify-content: center; margin: 18px 0; }
-  .muschel { width: 92px; height: 92px; border-radius: 14px; cursor: pointer;
-             background: linear-gradient(160deg,#5b3a2e,#3a251d); border: 3px solid #7c5341;
-             display: flex; align-items: center; justify-content: center; font-size: 40px;
-             transition: transform .12s; padding: 0; }
-  .muschel:hover:not(:disabled) { transform: translateY(-4px); border-color: #f472b6; }
-  .muschel:disabled { cursor: default; }
-  .muschel.treffer { background: linear-gradient(160deg,#166534,#14532d); border-color: #4ade80; }
-  .muschel.daneben { background: linear-gradient(160deg,#4c0519,#2a0410); border-color: #f43f5e; opacity: .75; }
-
-  .einsatz { display: flex; gap: 8px; justify-content: center; margin-bottom: 6px; }
+  .einsatz { display: flex; gap: 8px; justify-content: center; margin-bottom: 8px; flex-wrap: wrap; }
   .einsatz button { padding: 10px 16px; border-radius: 10px; border: 2px solid #4a2440;
                     background: #2a1020; color: #e2e8f0; font-size: 15px; font-weight: 700; cursor: pointer; }
   .einsatz button.aktiv { background: #f472b6; color: #4a0f2e; border-color: #f9a8d4; }
   .chance { text-align: center; font-size: 12.5px; color: #cbb0be; line-height: 1.7; }
-  @media (hover: none) {
-    .einsatz button { padding: 14px 22px; font-size: 17px; }
-    .muschel { width: 104px; height: 104px; font-size: 46px; }
-  }
-  .erg { text-align: center; font-size: 17px; font-weight: 800; min-height: 30px; margin-top: 12px; }
+  .erg { text-align: center; font-size: 17px; font-weight: 800; min-height: 28px; margin-top: 12px; }
   .erg.win { color: #4ade80; } .erg.lose { color: #fda4af; }
+
+  /* Muscheln */
+  .muscheln { display: flex; gap: 12px; justify-content: center; margin: 16px 0; }
+  .muschel { width: 92px; height: 92px; border-radius: 14px; cursor: pointer;
+             background: linear-gradient(160deg,#5b3a2e,#3a251d); border: 3px solid #7c5341;
+             display: flex; align-items: center; justify-content: center; font-size: 40px; padding: 0; }
+  .muschel:hover:not(:disabled) { transform: translateY(-4px); border-color: #f472b6; }
+  .muschel.treffer { background: linear-gradient(160deg,#166534,#14532d); border-color: #4ade80; }
+  .muschel.daneben { background: linear-gradient(160deg,#4c0519,#2a0410); border-color: #f43f5e; opacity: .75; }
+
+  /* Karten */
+  .hand { display: flex; gap: 8px; justify-content: center; margin: 8px 0 4px; min-height: 78px; flex-wrap: wrap; }
+  .spielkarte { width: 50px; height: 72px; border-radius: 8px; background: #f8fafc; color: #111827;
+                border: 2px solid #cbd5e1; display: flex; flex-direction: column;
+                align-items: center; justify-content: center; font-weight: 800; font-size: 17px; }
+  .spielkarte.rot { color: #dc2626; }
+  .spielkarte.zu { background: linear-gradient(135deg,#4c1d3a,#2a1020); color: #f9a8d4; border-color: #7c3f66; }
+  .handzeile { text-align: center; font-size: 13px; color: #cbb0be; margin-bottom: 10px; }
+  .handzeile b { color: #f8fafc; font-size: 16px; }
+
+  /* Roulette */
+  .rad { text-align: center; font-size: 46px; font-weight: 900; margin: 8px 0;
+         min-height: 62px; letter-spacing: .04em; }
+  .rad .zahl { display: inline-block; min-width: 96px; padding: 6px 14px; border-radius: 14px; }
+  .rad .rot { background: #b91c1c; color: #fff; }
+  .rad .schwarz { background: #1f2937; color: #fff; }
+  .rad .gruen { background: #15803d; color: #fff; }
+  .wetten { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
+  .wetten button { padding: 12px 4px; border-radius: 10px; border: 2px solid #4a2440;
+                   background: #2a1020; color: #e2e8f0; font-size: 13px; font-weight: 700; cursor: pointer; }
+  .wetten button.aktiv { background: #f472b6; color: #4a0f2e; border-color: #f9a8d4; }
+  .zahlfeld { display: flex; gap: 8px; align-items: center; justify-content: center; margin-top: 10px; }
+  .zahlfeld input { width: 78px; padding: 10px; font-size: 18px; text-align: center; font-weight: 700;
+                    border-radius: 10px; border: 2px solid #4a2440; background: #150d16; color: #f8fafc; }
+
+  .btn { padding: 13px 20px; border: none; border-radius: 12px; font-size: 16px; font-weight: 700;
+         cursor: pointer; background: #f472b6; color: #4a0f2e; }
+  .btn.grau { background: #3d2136; color: #cbb0be; }
+  .btn:disabled { background: #3d2136; color: #6b4a5e; cursor: not-allowed; }
+  .knopfreihe { display: flex; gap: 10px; justify-content: center; margin-top: 12px; flex-wrap: wrap; }
 
   table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
   td { padding: 7px 0; border-bottom: 1px solid #3d1f36; }
   td:last-child { text-align: right; color: #cbb0be; }
   tr:last-child td { border-bottom: 0; }
-
   .warnung { background: #2a1020; border-left: 5px solid #f43f5e; border-radius: 12px;
              padding: 14px 16px; font-size: 13.5px; line-height: 1.75; color: #f1d4e0; }
   .warnung b { color: #fda4af; }
   .rechnung { background: #16121c; border-radius: 12px; padding: 14px; font-size: 13px;
               line-height: 1.9; color: #cbb0be; margin-top: 10px; font-family: ui-monospace, Menlo, monospace; }
   .rechnung b { color: #f9a8d4; }
+  .glaeser { text-align: center; font-size: 30px; letter-spacing: 6px; margin: 8px 0; }
   .lnk { display: block; text-align: center; padding: 13px; border-radius: 12px; margin-top: 18px;
          background: #1e3a5f; border: 2px solid #fde68a; color: #fde68a; text-decoration: none; font-weight: 700; }
   footer { text-align: center; margin-top: 24px; font-size: 12px; color: #6b4a5e; }
+  @media (hover: none) {
+    .einsatz button, .wetten button { padding: 14px 18px; font-size: 16px; }
+    .muschel { width: 104px; height: 104px; font-size: 46px; }
+    .spielkarte { width: 58px; height: 84px; font-size: 19px; }
+  }
+
+  /* Blackout */
+  #blackout { position: fixed; inset: 0; background: #000; z-index: 99;
+              display: flex; align-items: center; justify-content: center; text-align: center;
+              color: #cbb0be; font-size: 16px; line-height: 2; padding: 24px; opacity: 0;
+              transition: opacity 1.4s ease; pointer-events: none; }
+  #blackout.an { opacity: 1; pointer-events: auto; }
 </style>
 </head>
 <body>
 <div class="wrap">
   <div id="hud"></div>
   <h1>🎲 Alte Spelunke</h1>
-  <div class="sub">Unter einer Muschel liegt die Perle. Wer richtig tippt, gewinnt.</div>
+  <div class="sub">Drei Spiele und eine Schänke. Die Bank rechnet mit.</div>
 
   <div class="bank">
     <div class="l">So viel hat die Bank bei dir gewonnen</div>
@@ -74,12 +127,65 @@
     <div class="k" id="bank-k">Noch hast du hier nicht gespielt.</div>
   </div>
 
-  <div class="karte">
-    <h2>Einsatz wählen</h2>
-    <div class="einsatz" id="einsatz"></div>
-    <div class="chance" id="chance"></div>
+  <div class="reiter" id="reiter"></div>
+
+  <!-- Muscheln -->
+  <div class="karte tafel" id="t-muscheln">
+    <h2>🐚 Muscheln — wo ist die Perle?</h2>
+    <div class="einsatz" id="einsatz-m"></div>
+    <div class="chance" id="chance-m"></div>
     <div class="muscheln" id="muscheln"></div>
-    <div class="erg" id="erg"></div>
+    <div class="erg" id="erg-m"></div>
+  </div>
+
+  <!-- Black Jack -->
+  <div class="karte tafel" id="t-bj" hidden>
+    <h2>🃏 Black Jack — näher an 21 als der Wirt</h2>
+    <div class="einsatz" id="einsatz-bj"></div>
+    <div class="chance">Black Jack (21 mit zwei Karten) zahlt das 2,5-fache.
+      Ein normaler Sieg das Doppelte. Der Wirt zieht bis 17.</div>
+    <div class="handzeile" style="margin-top:14px">Wirt: <b id="bj-wirt-wert">—</b></div>
+    <div class="hand" id="bj-wirt"></div>
+    <div class="handzeile">Du: <b id="bj-spieler-wert">—</b></div>
+    <div class="hand" id="bj-spieler"></div>
+    <div class="knopfreihe">
+      <button class="btn" id="bj-start">Geben</button>
+      <button class="btn" id="bj-karte" hidden>Karte</button>
+      <button class="btn grau" id="bj-halt" hidden>Halten</button>
+    </div>
+    <div class="erg" id="erg-bj"></div>
+  </div>
+
+  <!-- Roulette -->
+  <div class="karte tafel" id="t-roulette" hidden>
+    <h2>🎡 Roulette — 37 Fächer, eine Kugel</h2>
+    <div class="einsatz" id="einsatz-r"></div>
+    <div class="rad" id="rad"><span class="zahl gruen">?</span></div>
+    <div class="wetten" id="wetten"></div>
+    <div class="zahlfeld">
+      <span style="font-size:13px;color:#cbb0be">oder genau die Zahl</span>
+      <input id="r-zahl" type="text" inputmode="numeric" placeholder="0–36">
+      <button class="btn" id="r-zahl-los" style="padding:10px 14px;font-size:14px">Setzen</button>
+    </div>
+    <div class="chance" id="chance-r" style="margin-top:10px"></div>
+    <div class="erg" id="erg-r"></div>
+  </div>
+
+  <!-- Schänke -->
+  <div class="karte tafel" id="t-schaenke" hidden>
+    <h2>🍺 Die Schänke</h2>
+    <div class="chance">Der Wirt braut etwas Undurchsichtiges. Ein Glas kostet
+      <b id="gebraeu-preis">15</b> Münzen. Nach dem ersten wackelt das Bild, nach dem zweiten
+      stärker — und nach dem dritten ist der Abend vorbei.</div>
+    <div class="glaeser" id="glaeser">🥛🥛🥛</div>
+    <div class="knopfreihe">
+      <button class="btn" id="trinken" style="background:#a16207;color:#fef3c7">Ein Glas bestellen</button>
+    </div>
+    <div class="erg" id="erg-t"></div>
+    <div class="warnung" style="margin-top:14px">
+      Das ist keine gute Idee. Nach dem dritten Glas wachst du irgendwo im Wald auf —
+      und die <b>Hälfte deiner Münzen</b> ist weg.
+    </div>
   </div>
 
   <div class="karte">
@@ -97,99 +203,298 @@
   <footer>hodelweb.ch/lernwelt/spelunke · Wahrscheinlichkeit — Lehrplan 21: MA.3.B.2</footer>
 </div>
 
+<div id="blackout"><div id="blackout-text"></div></div>
+
 <script src="/lernwelt/insel.js"></script>
 <script>
 (function () {
   'use strict';
   var $ = function (i) { return document.getElementById(i); };
   var who = Insel.who();
-
   var EINSAETZE = [5, 10, 20];
-  var CHANCE = 1 / 3;          /* eine von drei Muscheln */
-  var FAKTOR = 2.5;            /* Auszahlung des Einsatzes bei einem Treffer */
-  var einsatz = 5, laeuft = false;
+  var einsatz = 5;
 
   Insel.hudLeiste($('hud'));
 
-  function einsatzLeiste() {
-    var box = $('einsatz');
+  /* ---------------- Reiter ---------------- */
+  var TAFELN = [
+    ['muscheln', '🐚 Muscheln'], ['bj', '🃏 Black Jack'],
+    ['roulette', '🎡 Roulette'], ['schaenke', '🍺 Schänke']
+  ];
+  function reiterBauen(aktiv) {
+    var box = $('reiter');
+    box.innerHTML = '';
+    TAFELN.forEach(function (t) {
+      var b = document.createElement('button');
+      b.textContent = t[1];
+      if (t[0] === aktiv) b.className = 'aktiv';
+      b.onclick = function () { zeigeTafel(t[0]); };
+      box.appendChild(b);
+    });
+  }
+  function zeigeTafel(id) {
+    TAFELN.forEach(function (t) { $('t-' + t[0]).hidden = t[0] !== id; });
+    reiterBauen(id);
+  }
+
+  /* ---------------- Einsatz ---------------- */
+  function einsatzLeiste(elId, danach) {
+    var box = $(elId);
     box.innerHTML = '';
     EINSAETZE.forEach(function (e) {
       var b = document.createElement('button');
       b.textContent = e + ' 🪙';
       if (e === einsatz) b.className = 'aktiv';
-      b.onclick = function () { einsatz = e; einsatzLeiste(); chanceText(); };
+      b.onclick = function () {
+        einsatz = e;
+        einsatzLeiste('einsatz-m', chanceM);
+        einsatzLeiste('einsatz-bj');
+        einsatzLeiste('einsatz-r', chanceR);
+        chanceM(); chanceR();
+      };
+      box.appendChild(b);
+    });
+    if (danach) danach();
+  }
+
+  function spiel(einsatzBetrag, auszahlung) {
+    var r = Insel.spelunkeSpielen(einsatzBetrag, auszahlung, who);
+    alles();
+    return r;
+  }
+  function genugMuenzen() {
+    if (Insel.muenzen(who) >= einsatz) return true;
+    return false;
+  }
+
+  /* ================= Muscheln ================= */
+  var mLaeuft = false;
+  function chanceM() {
+    var gewinn = Math.round(einsatz * 2.5);
+    $('chance-m').innerHTML = 'Trefferchance <b>1 von 3</b> (33 %) · Auszahlung <b>' + gewinn +
+      ' 🪙</b> bei ' + einsatz + ' 🪙 Einsatz';
+  }
+  function muschelnBauen() {
+    var box = $('muscheln');
+    box.innerHTML = '';
+    for (var i = 0; i < 3; i++) (function (n) {
+      var b = document.createElement('button');
+      b.className = 'muschel'; b.textContent = '🐚';
+      b.onclick = function () { muschelSpiel(n); };
+      box.appendChild(b);
+    })(i);
+  }
+  function muschelSpiel(gewaehlt) {
+    if (mLaeuft) return;
+    if (!genugMuenzen()) { $('erg-m').textContent = 'Zu wenig Münzen. Geh üben!'; $('erg-m').className = 'erg lose'; return; }
+    mLaeuft = true;
+    var perle = Math.floor(Math.random() * 3);
+    var gewonnen = gewaehlt === perle;
+    var aus = gewonnen ? Math.round(einsatz * 2.5) : 0;
+    spiel(einsatz, aus);
+    var k = $('muscheln').children;
+    for (var i = 0; i < 3; i++) {
+      k[i].disabled = true;
+      if (i === perle) { k[i].textContent = '🦪'; k[i].className = 'muschel treffer'; }
+      else if (i === gewaehlt) k[i].className = 'muschel daneben';
+    }
+    $('erg-m').textContent = gewonnen ? '🎉 Treffer! + ' + aus + ' 🪙' : '💸 Daneben. − ' + einsatz + ' 🪙';
+    $('erg-m').className = 'erg ' + (gewonnen ? 'win' : 'lose');
+    setTimeout(function () { mLaeuft = false; muschelnBauen(); $('erg-m').textContent = ''; }, 1800);
+  }
+
+  /* ================= Black Jack ================= */
+  var bjSpieler = [], bjWirt = [], bjLaeuft = false;
+  var WERTE = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'B', 'D', 'K'];
+  var FARBEN = ['♠', '♥', '♦', '♣'];
+  function karteZiehen() {
+    return { w: WERTE[Math.floor(Math.random() * WERTE.length)],
+             f: FARBEN[Math.floor(Math.random() * FARBEN.length)] };
+  }
+  function handWert(hand) {
+    var summe = 0, asse = 0;
+    hand.forEach(function (k) {
+      if (k.w === 'A') { summe += 11; asse++; }
+      else if (['B', 'D', 'K'].indexOf(k.w) >= 0) summe += 10;
+      else summe += parseInt(k.w, 10);
+    });
+    while (summe > 21 && asse > 0) { summe -= 10; asse--; }
+    return summe;
+  }
+  function handZeigen(elId, hand, verdeckt) {
+    var box = $(elId);
+    box.innerHTML = '';
+    hand.forEach(function (k, i) {
+      var d = document.createElement('div');
+      if (verdeckt && i === 1) { d.className = 'spielkarte zu'; d.textContent = '★'; }
+      else {
+        d.className = 'spielkarte' + (k.f === '♥' || k.f === '♦' ? ' rot' : '');
+        d.innerHTML = k.w + '<span style="font-size:14px">' + k.f + '</span>';
+      }
+      box.appendChild(d);
+    });
+  }
+  function bjZeichnen(offen) {
+    handZeigen('bj-spieler', bjSpieler, false);
+    handZeigen('bj-wirt', bjWirt, !offen);
+    $('bj-spieler-wert').textContent = bjSpieler.length ? handWert(bjSpieler) : '—';
+    $('bj-wirt-wert').textContent = !bjWirt.length ? '—' : (offen ? handWert(bjWirt) : '?');
+  }
+  function bjStart() {
+    if (bjLaeuft) return;
+    if (!genugMuenzen()) { $('erg-bj').textContent = 'Zu wenig Münzen.'; $('erg-bj').className = 'erg lose'; return; }
+    bjLaeuft = true;
+    bjSpieler = [karteZiehen(), karteZiehen()];
+    bjWirt = [karteZiehen(), karteZiehen()];
+    $('erg-bj').textContent = '';
+    $('bj-start').hidden = true; $('bj-karte').hidden = false; $('bj-halt').hidden = false;
+    bjZeichnen(false);
+    if (handWert(bjSpieler) === 21) bjHalten();
+  }
+  function bjKarte() {
+    if (!bjLaeuft) return;
+    bjSpieler.push(karteZiehen());
+    bjZeichnen(false);
+    if (handWert(bjSpieler) > 21) bjEnde('bust');
+  }
+  function bjHalten() {
+    if (!bjLaeuft) return;
+    while (handWert(bjWirt) < 17) bjWirt.push(karteZiehen());
+    bjZeichnen(true);
+    bjEnde('vergleich');
+  }
+  function bjEnde(art) {
+    bjLaeuft = false;
+    $('bj-start').hidden = false; $('bj-karte').hidden = true; $('bj-halt').hidden = true;
+    bjZeichnen(true);
+    var sp = handWert(bjSpieler), wi = handWert(bjWirt);
+    var blackjack = sp === 21 && bjSpieler.length === 2;
+    var aus = 0, text;
+    if (art === 'bust' || sp > 21) { text = '💥 Über 21 — verloren. − ' + einsatz + ' 🪙'; }
+    else if (blackjack && !(wi === 21 && bjWirt.length === 2)) {
+      aus = Math.round(einsatz * 2.5); text = '🃏 Black Jack! + ' + aus + ' 🪙';
+    } else if (wi > 21 || sp > wi) { aus = einsatz * 2; text = '🎉 Gewonnen (' + sp + ' gegen ' + wi + '). + ' + aus + ' 🪙'; }
+    else if (sp === wi) { aus = einsatz; text = '🤝 Unentschieden — Einsatz zurück.'; }
+    else { text = '💸 Der Wirt gewinnt (' + wi + ' gegen ' + sp + '). − ' + einsatz + ' 🪙'; }
+    spiel(einsatz, aus);
+    $('erg-bj').textContent = text;
+    $('erg-bj').className = 'erg ' + (aus > einsatz ? 'win' : aus === einsatz ? '' : 'lose');
+  }
+
+  /* ================= Roulette ================= */
+  var ROT = [1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36];
+  var WETTEN = [
+    { id: 'rot',    name: 'Rot',       faktor: 2, trifft: function (z) { return ROT.indexOf(z) >= 0; } },
+    { id: 'schwarz',name: 'Schwarz',   faktor: 2, trifft: function (z) { return z !== 0 && ROT.indexOf(z) < 0; } },
+    { id: 'gerade', name: 'Gerade',    faktor: 2, trifft: function (z) { return z !== 0 && z % 2 === 0; } },
+    { id: 'ungerade', name: 'Ungerade',faktor: 2, trifft: function (z) { return z % 2 === 1; } },
+    { id: 'klein',  name: '1–18',      faktor: 2, trifft: function (z) { return z >= 1 && z <= 18; } },
+    { id: 'gross',  name: '19–36',     faktor: 2, trifft: function (z) { return z >= 19; } },
+    { id: 'd1',     name: '1. Dutzend',faktor: 3, trifft: function (z) { return z >= 1 && z <= 12; } },
+    { id: 'd2',     name: '2. Dutzend',faktor: 3, trifft: function (z) { return z >= 13 && z <= 24; } },
+    { id: 'd3',     name: '3. Dutzend',faktor: 3, trifft: function (z) { return z >= 25; } }
+  ];
+  var rLaeuft = false;
+  function wettenBauen() {
+    var box = $('wetten');
+    box.innerHTML = '';
+    WETTEN.forEach(function (w) {
+      var b = document.createElement('button');
+      b.innerHTML = w.name + '<br><small style="color:#cbb0be;font-weight:400">×' + w.faktor + '</small>';
+      b.onclick = function () { drehen(w, null); };
       box.appendChild(b);
     });
   }
-
-  function chanceText() {
-    var gewinn = Math.round(einsatz * FAKTOR);
-    $('chance').innerHTML =
-      'Trefferchance <b>1 von 3</b> (33 %) · Auszahlung <b>' + gewinn + ' 🪙</b> bei ' + einsatz + ' 🪙 Einsatz' +
-      '<br>Im Schnitt bekommst du pro 3 Spiele ' + gewinn + ' zurück und zahlst ' + (einsatz * 3) + ' ein.';
+  function chanceR() {
+    $('chance-r').innerHTML = 'Einfache Chancen zahlen das Doppelte, Dutzende das Dreifache, ' +
+      'eine einzelne Zahl das <b>36-fache</b>. Die grüne 0 gehört immer der Bank.';
   }
-
-  function muschelnBauen(gesperrt) {
-    var box = $('muscheln');
-    box.innerHTML = '';
-    for (var i = 0; i < 3; i++) {
-      (function (n) {
-        var b = document.createElement('button');
-        b.className = 'muschel';
-        b.textContent = '🐚';
-        b.disabled = !!gesperrt;
-        b.onclick = function () { spielen(n); };
-        box.appendChild(b);
-      })(i);
-    }
+  function farbeVon(z) { return z === 0 ? 'gruen' : (ROT.indexOf(z) >= 0 ? 'rot' : 'schwarz'); }
+  function drehen(wette, zahl) {
+    if (rLaeuft) return;
+    if (!genugMuenzen()) { $('erg-r').textContent = 'Zu wenig Münzen.'; $('erg-r').className = 'erg lose'; return; }
+    rLaeuft = true;
+    $('erg-r').textContent = '';
+    var ziel = Math.floor(Math.random() * 37);
+    var schritte = 0;
+    var timer = setInterval(function () {
+      var z = Math.floor(Math.random() * 37);
+      $('rad').innerHTML = '<span class="zahl ' + farbeVon(z) + '">' + z + '</span>';
+      if (++schritte > 12) {
+        clearInterval(timer);
+        $('rad').innerHTML = '<span class="zahl ' + farbeVon(ziel) + '">' + ziel + '</span>';
+        var gewonnen = zahl !== null ? ziel === zahl : wette.trifft(ziel);
+        var faktor = zahl !== null ? 36 : wette.faktor;
+        var aus = gewonnen ? einsatz * faktor : 0;
+        spiel(einsatz, aus);
+        $('erg-r').textContent = gewonnen
+          ? '🎉 ' + ziel + ' — gewonnen! + ' + aus + ' 🪙'
+          : '💸 ' + ziel + ' — daneben. − ' + einsatz + ' 🪙';
+        $('erg-r').className = 'erg ' + (gewonnen ? 'win' : 'lose');
+        rLaeuft = false;
+      }
+    }, 90);
   }
+  $('r-zahl-los').onclick = function () {
+    var z = parseInt($('r-zahl').value, 10);
+    if (isNaN(z) || z < 0 || z > 36) { $('erg-r').textContent = 'Bitte eine Zahl von 0 bis 36.'; $('erg-r').className = 'erg lose'; return; }
+    drehen(null, z);
+  };
 
-  function spielen(gewaehlt) {
-    if (laeuft) return;
-    if (Insel.muenzen(who) < einsatz) {
-      $('erg').textContent = 'Du hast nicht genug Münzen. Geh üben!';
-      $('erg').className = 'erg lose';
+  /* ================= Schänke ================= */
+  function glaeserZeigen() {
+    var g = Insel.gebraeuke(who);
+    $('glaeser').textContent = '🍺'.repeat(g) + '🥛'.repeat(Math.max(0, 3 - g));
+    $('trinken').disabled = Insel.muenzen(who) < Insel.oekonomie.gebraeuPreis;
+    rauschAnzeigen();
+  }
+  function rauschAnzeigen() {
+    var g = Insel.gebraeuke(who);
+    document.body.classList.toggle('schwank1', g === 1);
+    document.body.classList.toggle('schwank2', g >= 2);
+  }
+  $('trinken').onclick = function () {
+    var r = Insel.trinken(who);
+    if (!r.ok) {
+      $('erg-t').textContent = 'Dir fehlen ' + r.fehlt + ' Münzen.';
+      $('erg-t').className = 'erg lose';
       return;
     }
-    laeuft = true;
-    var perle = Math.floor(Math.random() * 3);
-    var gewonnen = gewaehlt === perle;
-    var auszahlung = gewonnen ? Math.round(einsatz * FAKTOR) : 0;
-
-    var r = Insel.spelunkeSpielen(einsatz, auszahlung, who);
-    if (!r.ok) { laeuft = false; return; }
-
-    var knoepfe = $('muscheln').children;
-    for (var i = 0; i < 3; i++) {
-      knoepfe[i].disabled = true;
-      if (i === perle) { knoepfe[i].textContent = '🦪'; knoepfe[i].className = 'muschel treffer'; }
-      else if (i === gewaehlt) { knoepfe[i].className = 'muschel daneben'; }
-    }
-    $('erg').textContent = gewonnen
-      ? '🎉 Treffer! + ' + auszahlung + ' 🪙 (netto + ' + (auszahlung - einsatz) + ')'
-      : '💸 Daneben. − ' + einsatz + ' 🪙';
-    $('erg').className = 'erg ' + (gewonnen ? 'win' : 'lose');
-
     alles();
-    setTimeout(function () { laeuft = false; muschelnBauen(false); $('erg').textContent = ''; }, 1900);
-  }
+    if (r.blackout) {
+      $('erg-t').textContent = 'Alles dreht sich …';
+      $('erg-t').className = 'erg lose';
+      $('blackout-text').innerHTML =
+        'Alles wird schwarz.<br><br>Du wachst im <b style="color:#f9a8d4">' + r.waldName +
+        '</b> auf.<br>' + r.verloren + ' Münzen sind weg.<br><br>' +
+        '<span style="font-size:13px;color:#6b4a5e">Es geht gleich weiter …</span>';
+      $('blackout').classList.add('an');
+      setTimeout(function () { window.location.href = '/lernwelt/'; }, 4200);
+      return;
+    }
+    $('erg-t').textContent = r.glaeser === 1
+      ? 'Das erste Glas. Der Boden schwankt ein wenig.'
+      : 'Das zweite Glas. Jetzt wird dir richtig schwummrig.';
+    $('erg-t').className = 'erg lose';
+    glaeserZeigen();
+  };
 
+  /* ================= Bilanz ================= */
   function alles() {
     var sp = Insel.spelunkeStand(who);
     var bilanz = Insel.bankBilanz(who);
-    $('bank').textContent = (bilanz >= 0 ? bilanz : bilanz) + ' 🪙';
+    $('bank').textContent = bilanz + ' 🪙';
     $('bank').style.color = bilanz > 0 ? '#fda4af' : bilanz < 0 ? '#4ade80' : '#cbb0be';
     $('bank-k').textContent = !sp.spiele
       ? 'Noch hast du hier nicht gespielt.'
       : bilanz > 0
-        ? 'So viele Münzen hast du in ' + sp.spiele + ' Spielen an die Bank verloren.'
+        ? 'So viele Münzen hast du in ' + sp.spiele + (sp.spiele === 1 ? ' Spiel' : ' Spielen') +
+          ' an die Bank verloren.'
         : bilanz < 0
           ? 'Du liegst gerade ' + (-bilanz) + ' Münzen vorne. Das hält selten lange.'
           : 'Im Moment steht es unentschieden.';
 
-    var t = $('stats');
-    t.innerHTML =
+    $('stats').innerHTML =
       '<tr><td>Spiele</td><td>' + sp.spiele + '</td></tr>' +
       '<tr><td>Eingesetzt</td><td>' + sp.eingesetzt + ' 🪙</td></tr>' +
       '<tr><td>Ausbezahlt</td><td>' + sp.ausbezahlt + ' 🪙</td></tr>' +
@@ -199,35 +504,38 @@
 
     var w = $('warnung');
     if (!sp.spiele) {
-      w.innerHTML = 'Rechne nach, bevor du spielst: Du gewinnst nur in <b>einem von drei</b> Spielen, ' +
-        'bekommst dann aber nur das <b>2,5-fache</b> zurück. Fair wäre das <b>3-fache</b>.';
-    } else if (sp.eingesetzt > 0) {
+      w.innerHTML = 'Jedes Spiel hier zahlt weniger aus, als es fair wäre. Bei den Muscheln ' +
+        'gewinnst du <b>eine von drei</b> Runden, bekommst aber nur das <b>2,5-fache</b> statt des Dreifachen. ' +
+        'Beim Roulette gehört die grüne <b>0</b> immer der Bank.';
+    } else {
       var quote = Math.round(sp.ausbezahlt / sp.eingesetzt * 100);
+      var schluss;
+      if (sp.spiele < 10) schluss = 'Bei so wenigen Spielen schwankt das stark. Schau, wohin es sich bewegt.';
+      else if (quote > 100) schluss = 'Gerade liegst du vorn. Das ist Glück, kein Können — ' +
+        'je länger du spielst, desto sicherer holt sich die Bank das zurück.';
+      else schluss = '<b>Auf Dauer verlierst du hier immer.</b>';
       w.innerHTML = 'Du hast <b>' + sp.eingesetzt + '</b> Münzen eingesetzt und <b>' + sp.ausbezahlt +
-        '</b> zurückbekommen — das sind <b>' + quote + ' %</b>. ' +
-        (sp.spiele < 10
-          ? 'Bei wenigen Spielen schwankt das stark. Spiel weiter und schau, wohin es sich bewegt.'
-          : 'Je länger du spielst, desto näher kommt der Wert bei <b>83 %</b> — dem Anteil, den die Bank auszahlt. ' +
-            'Die übrigen 17 % behält sie. <b>Auf Dauer verlierst du hier immer.</b>');
+        '</b> zurückbekommen — das sind <b>' + quote + ' %</b>. ' + schluss;
     }
-
-    var erwartet = Math.round(sp.eingesetzt * FAKTOR * CHANCE);
     $('rechnung').innerHTML =
-      'Chance auf einen Treffer &nbsp;=&nbsp; 1 : 3 &nbsp;=&nbsp; <b>33,3 %</b><br>' +
-      'Auszahlung bei Treffer &nbsp;=&nbsp; Einsatz · 2,5<br>' +
-      'Erwartung pro Münze &nbsp;=&nbsp; 0,333 · 2,5 &nbsp;=&nbsp; <b>0,83 Münzen</b><br>' +
-      'Die Bank behält also im Schnitt <b>17 Rappen von jedem Franken</b>.<br>' +
-      (sp.eingesetzt
-        ? '<br>Bei deinen ' + sp.eingesetzt + ' eingesetzten Münzen wären rechnerisch <b>' + erwartet +
-          '</b> zurückgekommen — tatsächlich waren es <b>' + sp.ausbezahlt + '</b>.'
-        : '');
+      'Muscheln &nbsp;: 1 von 3 · Auszahlung 2,5 → Erwartung <b>0,83</b> pro Münze<br>' +
+      'Roulette Rot : 18 von 37 · Auszahlung 2 → Erwartung <b>0,97</b><br>' +
+      'Roulette Zahl: 1 von 37 · Auszahlung 36 → Erwartung <b>0,97</b><br>' +
+      'Black Jack &nbsp;: je nach Spielweise etwa <b>0,95</b><br>' +
+      '<br>Alles unter 1,00 heisst: die Bank behält den Rest.';
 
     $('hud').innerHTML = ''; Insel.hudLeiste($('hud'));
+    glaeserZeigen();
   }
 
-  einsatzLeiste();
-  chanceText();
-  muschelnBauen(false);
+  /* ================= Start ================= */
+  $('gebraeu-preis').textContent = Insel.oekonomie.gebraeuPreis;
+  $('bj-start').onclick = bjStart;
+  $('bj-karte').onclick = bjKarte;
+  $('bj-halt').onclick = bjHalten;
+  einsatzLeiste('einsatz-m'); einsatzLeiste('einsatz-bj'); einsatzLeiste('einsatz-r');
+  chanceM(); chanceR(); muschelnBauen(); wettenBauen(); bjZeichnen(false);
+  zeigeTafel('muscheln');
   alles();
 })();
 </script>

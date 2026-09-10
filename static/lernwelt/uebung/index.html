@@ -35,6 +35,26 @@
   .tag.fertig { background: #422006; color: #fbbf24; }
   .coins { font-size: 12px; color: #fbbf24; margin-top: 6px; font-weight: 700; }
 
+  /* Münzstatus: zahlt die Übung noch? */
+  .set.erledigt { opacity: .72; }
+  .set.erledigt .t { color: #94a3b8; }
+  .muenzstatus { font-size: 12.5px; margin-top: 8px; font-weight: 700;
+                 display: flex; align-items: center; gap: 7px; line-height: 1.45; }
+  .muenzstatus.offen { color: #fbbf24; }
+  .muenzstatus.erledigt { color: #64748b; }
+  .muenzstatus small { font-weight: 400; color: #64748b; font-size: 12px; }
+  .legende { background: #1e293b; border-radius: 14px; padding: 13px 15px; margin-bottom: 14px;
+             font-size: 12.5px; color: #94a3b8; line-height: 1.9; }
+  .legende b { color: #cbd5e1; }
+  .legende .z { display: block; }
+  .muenzband { border-radius: 12px; padding: 10px 13px; margin-bottom: 14px;
+                font-size: 12.5px; line-height: 1.6; }
+  .muenzband b { display: block; font-size: 13px; margin-bottom: 1px; }
+  .muenzband.offen { background: #422006; color: #cbd5e1; border-left: 4px solid #fbbf24; }
+  .muenzband.offen b { color: #fbbf24; }
+  .muenzband.erledigt { background: #16202e; color: #64748b; border-left: 4px solid #475569; }
+  .muenzband.erledigt b { color: #94a3b8; }
+
   .card { background: #1e293b; border-radius: 18px; padding: 22px 18px; box-shadow: 0 6px 24px rgba(0,0,0,.35); }
   .bar { height: 8px; background: #334155; border-radius: 99px; overflow: hidden; margin-bottom: 16px; }
   .fill { height: 100%; width: 0; background: linear-gradient(90deg,#38bdf8,#818cf8); transition: width .3s; }
@@ -109,6 +129,7 @@
   <div id="menu" class="setlist"></div>
 
   <div class="card" id="quiz" style="display:none">
+    <div class="muenzband" id="muenzband"></div>
     <div class="bar"><div class="fill" id="fill"></div></div>
     <div class="meta2">
       <span id="zaehler"></span>
@@ -180,10 +201,33 @@
       return;
     }
 
+    /* Kopfzeile: wie viele Übungen zahlen hier noch? */
+    var alleSets = listen.eigene;
+    var nochOffen = alleSets.filter(function (s) {
+      return Insel.muenzStatus(fach, s.id, s.schwierigkeit, who).zahlt;
+    }).length;
+    var legende = document.createElement('div');
+    legende.className = 'legende';
+    legende.innerHTML =
+      '<span class="z"><b>🪙 noch offen</b> — hier kannst du Münzen holen.</span>' +
+      '<span class="z"><b>✔ Münzen abgeholt</b> — Grundlagen gibt es nur einmal.</span>' +
+      '<span class="z"><b>✔ gemeistert</b> — eine Knacknuss ab ' + Insel.oekonomie.meisterAb +
+        ' % zahlt nicht mehr.</span>' +
+      '<span class="z" style="margin-top:6px;color:' + (nochOffen ? '#fbbf24' : '#64748b') + '">' +
+        (alleSets.length
+          ? (nochOffen
+              ? '<b style="color:#fbbf24">' + nochOffen + ' von ' + alleSets.length +
+                '</b> Übungen zahlen hier noch Münzen.'
+              : 'In diesem Fach hast du alle Münzen abgeholt. Üben lohnt sich trotzdem.')
+          : '') +
+      '</span>';
+    box.appendChild(legende);
+
     listen.eigene.forEach(function (s) {
       var st = Insel.uebung(fach, s.id, who);
+      var ms = Insel.muenzStatus(fach, s.id, s.schwierigkeit, who);
       var a = document.createElement('a');
-      a.className = 'set ' + s.schwierigkeit;
+      a.className = 'set ' + s.schwierigkeit + (ms.zahlt ? '' : ' erledigt');
       a.href = '/lernwelt/uebung/?fach=' + fach + '&set=' + s.id;
       var status = '';
       if (st && st.gemeistert) status = '<span class="tag fertig">✔ gemeistert</span>';
@@ -193,19 +237,28 @@
         '<div class="top"><span class="t">' + s.titel + '</span>' + status + '</div>' +
         '<div class="i">' + s.info + '</div>' +
         '<div class="meta">Lehrplan 21: ' + s.lp21 + (st ? ' · Bestwert ' + st.best + ' % · ' + st.versuche + ' Versuche' : '') + '</div>' +
+        '<div class="muenzstatus ' + (ms.zahlt ? 'offen' : 'erledigt') + '">' +
+          '<span>' + ms.kurz + '</span><small>' + ms.text + '</small></div>' +
         (st && st.muenzenTotal ? '<div class="coins">🪙 ' + st.muenzenTotal + ' Münzen verdient</div>' : '');
       box.appendChild(a);
     });
 
     listen.extern.forEach(function (s) {
+      var ms = Insel.muenzStatus(fach, s.id, s.schwierigkeit, who);
+      /* Fremde Seiten melden nicht alle zurück — Status nur zeigen, wenn schon etwas ankam. */
+      var zeigen = ms.versuche > 0;
       var a = document.createElement('a');
-      a.className = 'set ' + s.schwierigkeit;
+      a.className = 'set ' + s.schwierigkeit + (zeigen && !ms.zahlt ? ' erledigt' : '');
       a.href = s.url + '?von=insel';
       a.innerHTML =
         '<div class="top"><span class="t">' + s.titel + ' ↗</span>' +
         '<span class="tag ' + s.schwierigkeit + '">eigene Seite</span></div>' +
         '<div class="i">' + s.info + '</div>' +
-        '<div class="meta">Lehrplan 21: ' + s.lp21 + '</div>';
+        '<div class="meta">Lehrplan 21: ' + s.lp21 + '</div>' +
+        (zeigen
+          ? '<div class="muenzstatus ' + (ms.zahlt ? 'offen' : 'erledigt') + '">' +
+            '<span>' + ms.kurz + '</span><small>' + ms.text + '</small></div>'
+          : '');
       box.appendChild(a);
     });
   }
@@ -256,6 +309,12 @@
     $('titel').textContent = set.titel;
     $('untertitel').textContent = set.info + ' · Lehrplan 21: ' + set.lp21 +
       ' · ' + (set.schwierigkeit === 'leicht' ? 'Grundlagen' : 'Knacknuss');
+
+    /* Vorab sagen, ob diese Runde noch Münzen bringt. */
+    var ms = Insel.muenzStatus(fach, set.id, set.schwierigkeit, who);
+    var band = $('muenzband');
+    band.className = 'muenzband ' + (ms.zahlt ? 'offen' : 'erledigt');
+    band.innerHTML = '<b>' + ms.kurz + '</b> ' + ms.text;
 
     /* Aufgaben zusammenstellen: keine Wiederholung in dieser Runde und
        möglichst keine, die beim letzten Mal schon dran war. */
