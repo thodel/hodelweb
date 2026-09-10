@@ -29,6 +29,20 @@
   }
   function fmt(n) { return String(n).replace('.', ','); }
   function ggT(a, b) { return b ? ggT(b, a % b) : a; }
+  /* Bruch kürzen; ganze Zahlen ohne Nenner schreiben. */
+  function bruch(z, n) {
+    var t = ggT(Math.abs(z), Math.abs(n)) || 1;
+    z = z / t; n = n / t;
+    return { z: z, n: n, text: n === 1 ? String(z) : z + '/' + n,
+             alternativen: n === 1 ? [z + '/1', String(z)] : [z + '/' + n] };
+  }
+  /* Ein zufälliger, bereits gekürzter echter Bruch. */
+  function echterBruch(nenner) {
+    var n = nenner || pick([2, 3, 4, 5, 6, 8, 10]);
+    var z = rint(1, n - 1);
+    var t = ggT(z, n);
+    return { z: z / t, n: n / t };
+  }
 
   /* ============================================================
      MATHEMATIK
@@ -222,12 +236,18 @@
           var z = rint(2, 9), nn = rint(3, 11);
           if (z === nn) nn++;
           var f = rint(2, 6);
-          var zz = z * f, nnn = nn * f, t = ggT(zz, nnn);
+          var zz = z * f, nnn = nn * f;
+          var kurz = bruch(zz, nnn);
           return { typ: 'text', frage: 'Kürze so weit wie möglich: ' + zz + '/' + nnn,
-                   antwort: (zz / t) + '/' + (nnn / t), hinweis: 'Schreibe so: 3/4' };
+                   antwort: kurz.text, alternativen: kurz.alternativen,
+                   hinweis: kurz.n === 1 ? 'Es geht ganz auf — schreibe nur die Zahl.'
+                                         : 'Schreibe so: 3/4' };
         }
         if (art === 'ganzes') {
-          var nenner = pick([2, 3, 4, 5, 8]), zaehler = rint(1, nenner - 1);
+          /* Zähler teilerfremd zum Nenner, damit in der Frage kein 2/8 steht. */
+          var nenner = pick([2, 3, 4, 5, 8]), tf = [];
+          for (var q = 1; q < nenner; q++) if (ggT(q, nenner) === 1) tf.push(q);
+          var zaehler = pick(tf);
           var ganzes = nenner * rint(2, 12);
           var worte = { 2: 'Halbe', 3: 'Drittel', 4: 'Viertel', 5: 'Fünftel', 8: 'Achtel' };
           return { typ: 'zahl',
@@ -240,6 +260,108 @@
         var wert = function (s) { var q = s.split('/'); return +q[0] / +q[1]; };
         var gr = wert(p[0]) > wert(p[1]) ? p[0] : p[1];
         return wahl('Welcher Bruch ist grösser: ' + p[0] + ' oder ' + p[1] + '?', gr, [wert(p[0]) > wert(p[1]) ? p[1] : p[0]]);
+      }
+    },
+    {
+      id: 'bruch-plus', klassen: [5, 6], schwierigkeit: 'schwer',
+      titel: 'Brüche addieren & subtrahieren', lp21: 'MA.1.A.3',
+      info: 'Gleiche und ungleiche Nenner, Ergebnis gekürzt.',
+      gen: function () {
+        var gleich = Math.random() < 0.5, a, b;
+        if (gleich) {
+          /* Zähler teilerfremd zum Nenner wählen, sonst stünde in der Frage
+             ein ungekürzter Bruch wie 2/8. */
+          var n = pick([4, 5, 6, 8, 10, 12]);
+          var moeglich = [];
+          for (var t = 1; t < n; t++) if (ggT(t, n) === 1) moeglich.push(t);
+          a = { z: pick(moeglich), n: n };
+          b = { z: pick(moeglich), n: n };
+        } else {
+          a = echterBruch(pick([2, 3, 4, 5, 6]));
+          b = echterBruch(pick([3, 4, 6, 8, 10]));
+          if (a.n === b.n) b = echterBruch(b.n * 2);
+        }
+        var plus = Math.random() < 0.6;
+        var z = plus ? a.z * b.n + b.z * a.n : a.z * b.n - b.z * a.n;
+        if (z <= 0) { plus = true; z = a.z * b.n + b.z * a.n; }
+        var erg = bruch(z, a.n * b.n);
+        return { typ: 'text',
+                 frage: a.z + '/' + a.n + (plus ? ' + ' : ' − ') + b.z + '/' + b.n + ' =',
+                 antwort: erg.text, alternativen: erg.alternativen,
+                 hinweis: gleich ? 'Gleicher Nenner: nur die Zähler rechnen.'
+                                 : 'Zuerst auf denselben Nenner bringen, am Schluss kürzen.' };
+      }
+    },
+    {
+      id: 'bruch-mal', klassen: [6], schwierigkeit: 'schwer',
+      titel: 'Multiplikation mit Brüchen', lp21: 'MA.1.A.3 (weiterführend)',
+      info: 'Bruch mal ganze Zahl und Bruch mal Bruch.',
+      gen: function () {
+        var art = pick(['ganz', 'ganz', 'bruch', 'anteil']);
+        if (art === 'ganz') {
+          var a = echterBruch(), g = rint(2, 12);
+          var erg = bruch(a.z * g, a.n);
+          return { typ: 'text', frage: a.z + '/' + a.n + ' · ' + g + ' =',
+                   antwort: erg.text, alternativen: erg.alternativen,
+                   hinweis: 'Nur der Zähler wird mit ' + g + ' multipliziert, dann kürzen.' };
+        }
+        if (art === 'bruch') {
+          var b1 = echterBruch(pick([2, 3, 4, 5, 6])), b2 = echterBruch(pick([2, 3, 4, 5, 8]));
+          var e2 = bruch(b1.z * b2.z, b1.n * b2.n);
+          return { typ: 'text', frage: b1.z + '/' + b1.n + ' · ' + b2.z + '/' + b2.n + ' =',
+                   antwort: e2.text, alternativen: e2.alternativen,
+                   hinweis: 'Zähler mal Zähler, Nenner mal Nenner — dann kürzen.' };
+        }
+        var c = echterBruch(pick([2, 3, 4, 5, 8]));
+        var ganzes = c.n * rint(2, 15);
+        return { typ: 'zahl', frage: 'Wie viel sind ' + c.z + '/' + c.n + ' von ' + ganzes + '?',
+                 antwort: String(ganzes / c.n * c.z),
+                 hinweis: 'Durch ' + c.n + ' teilen, dann mal ' + c.z + '.' };
+      }
+    },
+    {
+      id: 'bruch-geteilt', klassen: [6], schwierigkeit: 'schwer',
+      titel: 'Division von Brüchen', lp21: 'MA.1.A.3 (Vorbereitung Oberstufe)',
+      info: 'Durch eine ganze Zahl teilen und durch einen Bruch.',
+      gen: function () {
+        if (Math.random() < 0.6) {
+          var a = echterBruch(pick([2, 3, 4, 5, 6])), g = rint(2, 8);
+          var erg = bruch(a.z, a.n * g);
+          return { typ: 'text', frage: a.z + '/' + a.n + ' : ' + g + ' =',
+                   antwort: erg.text, alternativen: erg.alternativen,
+                   hinweis: 'Durch ' + g + ' teilen heisst: der Nenner wird mal ' + g + '.' };
+        }
+        var b1 = echterBruch(pick([2, 3, 4, 5])), b2 = echterBruch(pick([2, 3, 4, 5]));
+        var e2 = bruch(b1.z * b2.n, b1.n * b2.z);
+        return { typ: 'text', frage: b1.z + '/' + b1.n + ' : ' + b2.z + '/' + b2.n + ' =',
+                 antwort: e2.text, alternativen: e2.alternativen,
+                 hinweis: 'Mit dem Kehrbruch multiplizieren: · ' + b2.n + '/' + b2.z };
+      }
+    },
+    {
+      id: 'bruch-dezimal', klassen: [6], schwierigkeit: 'schwer',
+      titel: 'Bruch, Dezimalzahl, Prozent', lp21: 'MA.1.A.1 (weiterführend)',
+      info: 'Dieselbe Zahl in drei Schreibweisen.',
+      gen: function () {
+        var paare = [
+          ['1/2', '0,5', '50'], ['1/4', '0,25', '25'], ['3/4', '0,75', '75'],
+          ['1/5', '0,2', '20'], ['2/5', '0,4', '40'], ['3/5', '0,6', '60'], ['4/5', '0,8', '80'],
+          ['1/10', '0,1', '10'], ['3/10', '0,3', '30'], ['7/10', '0,7', '70'],
+          ['1/20', '0,05', '5'], ['1/100', '0,01', '1'], ['1/8', '0,125', '12,5'],
+          ['3/8', '0,375', '37,5'], ['1/25', '0,04', '4'], ['9/10', '0,9', '90']
+        ];
+        var p = pick(paare);
+        var art = pick(['zuDezimal', 'zuProzent', 'zuBruch']);
+        if (art === 'zuDezimal') {
+          return { typ: 'text', frage: 'Schreibe ' + p[0] + ' als Dezimalzahl:', antwort: p[1],
+                   alternativen: [p[1].replace(',', '.')], hinweis: 'Zähler durch Nenner teilen.' };
+        }
+        if (art === 'zuProzent') {
+          return { typ: 'text', frage: 'Wie viel Prozent sind ' + p[0] + '?', antwort: p[2],
+                   alternativen: [p[2] + '%', p[2].replace(',', '.')], hinweis: 'Nur die Zahl, ohne %.' };
+        }
+        return wahl('Welcher Bruch entspricht ' + p[1] + '?', p[0],
+          distinct(p[0], paare.map(function (x) { return x[0]; }), 3));
       }
     },
     {

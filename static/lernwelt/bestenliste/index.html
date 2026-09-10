@@ -44,6 +44,22 @@
   .top { background: #0f172a; border-radius: 12px; padding: 12px 14px; margin-top: 12px;
          font-size: 13px; color: #cbd5e1; line-height: 1.8; }
   .top b { color: #fbbf24; }
+  .offenbox { background: #1e293b; border: 2px solid #334155; border-radius: 16px;
+              padding: 16px 18px; margin-top: 20px; }
+  .offenbox h2 { font-size: 17px; margin-bottom: 3px; }
+  .offenbox .lp { font-size: 12px; color: #64748b; margin-bottom: 12px; }
+  .ogruppe { margin-top: 14px; }
+  .ogruppe .kopf { font-size: 13px; font-weight: 700; color: #cbd5e1; margin-bottom: 6px; }
+  .oz { display: flex; justify-content: space-between; gap: 10px; align-items: baseline;
+        padding: 6px 0; border-top: 1px solid #334155; font-size: 13.5px; }
+  .oz .n { color: #e2e8f0; }
+  .oz .s { white-space: nowrap; font-size: 12px; font-weight: 700; }
+  .oz.zahlt .s { color: #fbbf24; }
+  .oz.fertig .n { color: #64748b; }
+  .oz.fertig .s { color: #475569; }
+  .osum { background: #0f172a; border-radius: 12px; padding: 12px 14px; margin-top: 14px;
+          font-size: 13px; line-height: 1.7; color: #cbd5e1; }
+  .osum b { color: #fbbf24; }
   .lnk { display: block; text-align: center; padding: 13px; border-radius: 12px; margin-top: 18px;
          background: #1e3a5f; border: 2px solid #fde68a; color: #fde68a; text-decoration: none; font-weight: 700; }
   footer { text-align: center; margin-top: 24px; font-size: 12px; color: #475569; }
@@ -58,6 +74,7 @@
 
   <div class="gesamt" id="gesamt"></div>
   <div id="faecher"></div>
+  <div class="offenbox" id="offen"></div>
 
   <a class="lnk" href="/lernwelt/">🏝️ Zurück zur Insel</a>
   <footer>hodelweb.ch/lernwelt/bestenliste</footer>
@@ -176,8 +193,59 @@
     });
   }
 
+  /* ---------- Was zahlt noch Münzen? ---------- */
+  function offeneListe() {
+    var box = $('offen');
+    var klasse = Insel.klasse(ich);
+    var zeilen = '', offen = 0, gesamt = 0;
+
+    function zeile(name, ms) {
+      gesamt++;
+      if (ms.zahlt) offen++;
+      return '<div class="oz ' + (ms.zahlt ? 'zahlt' : 'fertig') + '">' +
+             '<span class="n">' + name + '</span>' +
+             '<span class="s">' + ms.kurz + '</span></div>';
+    }
+
+    Object.keys(Insel.faecher).forEach(function (f) {
+      var listen = Uebungen.fuer(f, klasse);
+      if (!listen.eigene.length) return;
+      var inhalt = listen.eigene.map(function (u) {
+        return zeile(u.titel, Insel.muenzStatus(f, u.id, u.schwierigkeit, ich));
+      }).join('');
+      zeilen += '<div class="ogruppe"><div class="kopf">' + Insel.faecher[f].emoji + ' ' +
+                Insel.faecher[f].kurz + '</div>' + inhalt + '</div>';
+    });
+
+    var spiele = Insel.spiele.map(function (sp) {
+      var st = Insel.muenzStatusGruppe(sp.fach, sp.sets, sp.schwierigkeit, ich);
+      var o = st.offen, g = st.gesamt;
+      if (sp.zweit) {
+        var z = Insel.muenzStatusGruppe(sp.fach, sp.zweit.sets, sp.zweit.schwierigkeit, ich);
+        o += z.offen; g += z.gesamt;
+      }
+      gesamt++;
+      if (o > 0) offen++;
+      return '<div class="oz ' + (o > 0 ? 'zahlt' : 'fertig') + '">' +
+             '<span class="n">' + sp.titel + '</span><span class="s">' +
+             (o > 0 ? (g > 1 ? '🪙 ' + o + ' von ' + g + ' offen' : '🪙 noch offen') : '✔ abgeholt') +
+             '</span></div>';
+    }).join('');
+    zeilen += '<div class="ogruppe"><div class="kopf">🎮 Spiele &amp; Puzzles</div>' + spiele + '</div>';
+
+    box.innerHTML = '<h2>🪙 Was bringt noch Münzen?</h2>' +
+      '<div class="lp">Für ' + ich + ', ' + klasse + '. Klasse. Grau heisst: schon abgeholt — ' +
+      'üben darfst du weiter, Münzen gibt es dafür keine mehr.</div>' + zeilen +
+      '<div class="osum">' +
+        (offen
+          ? 'Noch <b>' + offen + ' von ' + gesamt + '</b> Aufgaben zahlen Münzen.'
+          : 'Du hast überall abgeholt, was es gibt — <b>alle ' + gesamt + '</b> sind erledigt.') +
+      '</div>';
+  }
+
   gesamt();
   faecher();
+  offeneListe();
 })();
 </script>
 </body>
