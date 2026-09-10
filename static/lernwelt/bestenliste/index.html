@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bestenliste — Lerninsel</title>
+<link rel="icon" href="/favicon-32x32.png" sizes="32x32">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+         background: #0f172a; color: #e2e8f0; padding: 18px 14px 60px; min-height: 100vh; }
+  .wrap { max-width: 680px; margin: 0 auto; }
+  h1 { font-size: 26px; text-align: center; font-weight: 800; }
+  .sub { text-align: center; font-size: 13px; color: #94a3b8; margin: 6px 0 20px; }
+
+  .gesamt { display: flex; gap: 12px; margin-bottom: 22px; flex-wrap: wrap; }
+  .kind { flex: 1; min-width: 150px; background: #1e293b; border: 2px solid #334155;
+          border-radius: 16px; padding: 16px 12px; text-align: center; }
+  .kind.fuehrt { border-color: #fbbf24; box-shadow: 0 0 0 3px rgba(251,191,36,.15); }
+  .kind .e { font-size: 30px; }
+  .kind .n { font-size: 17px; font-weight: 800; margin-top: 2px; }
+  .kind .kl { font-size: 11px; color: #94a3b8; }
+  .kind .p { font-size: 30px; font-weight: 900; color: #fbbf24; margin-top: 8px; line-height: 1.1; }
+  .kind .pl { font-size: 11px; color: #94a3b8; }
+
+  .fach { background: #1e293b; border: 2px solid #334155; border-left-width: 6px;
+          border-radius: 16px; padding: 16px 18px; margin-bottom: 14px; }
+  .fach.mathe { border-left-color: #7dd3fc; }
+  .fach.deutsch { border-left-color: #a7f3d0; }
+  .fach.englisch { border-left-color: #fca5a5; }
+  .fach.nmg { border-left-color: #fcd34d; }
+  .fach h2 { font-size: 17px; margin-bottom: 3px; }
+  .fach .lp { font-size: 11px; color: #64748b; font-family: ui-monospace, Menlo, monospace;
+              margin-bottom: 12px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  th { text-align: right; font-size: 11px; color: #64748b; font-weight: 600; padding-bottom: 6px; }
+  th:first-child { text-align: left; }
+  td { padding: 8px 0; border-top: 1px solid #334155; text-align: right; }
+  td:first-child { text-align: left; font-weight: 700; }
+  .balken { height: 7px; background: #0f172a; border-radius: 99px; overflow: hidden; margin-top: 5px; }
+  .balken i { display: block; height: 100%; border-radius: 99px; background: linear-gradient(90deg,#38bdf8,#818cf8); }
+  .sieger { color: #fbbf24; }
+  .leer { color: #64748b; font-size: 13px; font-style: italic; }
+  .top { background: #0f172a; border-radius: 12px; padding: 12px 14px; margin-top: 12px;
+         font-size: 13px; color: #cbd5e1; line-height: 1.8; }
+  .top b { color: #fbbf24; }
+  .lnk { display: block; text-align: center; padding: 13px; border-radius: 12px; margin-top: 18px;
+         background: #1e3a5f; border: 2px solid #fde68a; color: #fde68a; text-decoration: none; font-weight: 700; }
+  footer { text-align: center; margin-top: 24px; font-size: 12px; color: #475569; }
+  @media (hover: none) { table { font-size: 15px; } td { padding: 11px 0; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div id="hud"></div>
+  <h1>🏆 Bestenliste</h1>
+  <div class="sub">Wer steht wo? Pro Fach die besten Ergebnisse.</div>
+
+  <div class="gesamt" id="gesamt"></div>
+  <div id="faecher"></div>
+
+  <a class="lnk" href="/lernwelt/">🏝️ Zurück zur Insel</a>
+  <footer>hodelweb.ch/lernwelt/bestenliste</footer>
+</div>
+
+<script src="/lernwelt/insel.js"></script>
+<script src="/lernwelt/uebungen.js"></script>
+<script>
+(function () {
+  'use strict';
+  var $ = function (i) { return document.getElementById(i); };
+  var ich = Insel.who();
+  var kinder = Object.keys(Insel.kinder);
+
+  Insel.hudLeiste($('hud'));
+
+  /* ---------- Zahlen je Kind und Fach ---------- */
+  function fachDaten(who, fach) {
+    var u = Insel.uebungenImFach(fach, who);
+    return {
+      uebungen: u.length,
+      versuche: u.reduce(function (n, x) { return n + (x.versuche || 0); }, 0),
+      gemeistert: u.filter(function (x) { return x.gemeistert; }).length,
+      best: u.reduce(function (m, x) { return Math.max(m, x.best || 0); }, 0),
+      schnitt: u.length ? Math.round(u.reduce(function (n, x) { return n + (x.best || 0); }, 0) / u.length) : 0,
+      sterne: Insel.sterne(fach, who),
+      muenzen: u.reduce(function (n, x) { return n + (x.muenzenTotal || 0); }, 0)
+    };
+  }
+  function punkte(who) {
+    var p = 0;
+    Object.keys(Insel.faecher).forEach(function (f) {
+      var d = fachDaten(who, f);
+      p += d.gemeistert * 10 + d.sterne * 5 + Math.round(d.schnitt / 10);
+    });
+    return p;
+  }
+
+  /* ---------- Gesamtübersicht ---------- */
+  function gesamt() {
+    var box = $('gesamt');
+    box.innerHTML = '';
+    var werte = kinder.map(function (k) { return { name: k, p: punkte(k) }; });
+    var max = Math.max.apply(null, werte.map(function (x) { return x.p; }));
+    werte.sort(function (a, b) { return b.p - a.p; });
+    werte.forEach(function (w) {
+      var k = Insel.kinder[w.name];
+      var d = document.createElement('div');
+      d.className = 'kind' + (w.p === max && max > 0 ? ' fuehrt' : '');
+      d.innerHTML = '<div class="e">' + k.emoji + '</div>' +
+        '<div class="n">' + w.name + (w.name === ich ? ' ·' : '') + '</div>' +
+        '<div class="kl">' + k.klasse + '. Klasse</div>' +
+        '<div class="p">' + w.p + '</div><div class="pl">Punkte</div>';
+      box.appendChild(d);
+    });
+  }
+
+  /* ---------- Tafel je Fach ---------- */
+  function faecher() {
+    var box = $('faecher');
+    box.innerHTML = '';
+    Object.keys(Insel.faecher).forEach(function (f) {
+      var info = Insel.faecher[f];
+      var el = document.createElement('div');
+      el.className = 'fach ' + f;
+
+      var reihen = kinder.map(function (k) {
+        var d = fachDaten(k, f);
+        d.name = k;
+        return d;
+      }).filter(function (d) { return d.uebungen > 0; });
+      reihen.sort(function (a, b) { return (b.gemeistert - a.gemeistert) || (b.best - a.best); });
+
+      var kopf = '<h2>' + info.emoji + ' ' + info.name + '</h2>' +
+                 '<div class="lp">' + info.ort + '</div>';
+
+      if (!reihen.length) {
+        el.innerHTML = kopf + '<div class="leer">Hier hat noch niemand geübt.</div>';
+        box.appendChild(el);
+        return;
+      }
+
+      var tabelle = '<table><tr><th>Kind</th><th>Bestwert</th><th>Schnitt</th>' +
+                    '<th>gemeistert</th><th>Sterne</th><th>🪙</th></tr>';
+      reihen.forEach(function (d, idx) {
+        var medaille = idx === 0 && reihen.length > 1 ? ' 🥇' : '';
+        tabelle += '<tr><td' + (idx === 0 ? ' class="sieger"' : '') + '>' +
+          Insel.kinder[d.name].emoji + ' ' + d.name + medaille + '</td>' +
+          '<td>' + d.best + ' %</td><td>' + d.schnitt + ' %</td>' +
+          '<td>' + d.gemeistert + ' / ' + d.uebungen + '</td>' +
+          '<td>' + '★'.repeat(d.sterne) + '☆'.repeat(3 - d.sterne) + '</td>' +
+          '<td>' + d.muenzen + '</td></tr>';
+      });
+      tabelle += '</table>';
+
+      /* Balken für den Bestwert */
+      var balken = reihen.map(function (d) {
+        return '<div style="font-size:12px;color:#94a3b8;margin-top:10px">' + d.name + '</div>' +
+               '<div class="balken"><i style="width:' + d.best + '%"></i></div>';
+      }).join('');
+
+      /* Beste einzelne Übung im Fach */
+      var beste = null;
+      kinder.forEach(function (k) {
+        Insel.uebungenImFach(f, k).forEach(function (u) {
+          if (!beste || (u.best || 0) > beste.best) beste = { best: u.best || 0, titel: u.titel, wer: k };
+        });
+      });
+      var top = beste && beste.best
+        ? '<div class="top">Beste Einzelübung: <b>' + beste.titel + '</b> mit ' + beste.best +
+          ' % von ' + beste.wer + '.</div>'
+        : '';
+
+      el.innerHTML = kopf + tabelle + balken + top;
+      box.appendChild(el);
+    });
+  }
+
+  gesamt();
+  faecher();
+})();
+</script>
+</body>
+</html>
