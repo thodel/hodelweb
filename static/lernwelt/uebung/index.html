@@ -189,6 +189,7 @@
 </div>
 
 <script src="/lernwelt/insel.js"></script>
+<script src="/lernwelt/musik.js"></script>
 <script src="/lernwelt/uebungen.js"></script>
 <script>
 (function () {
@@ -203,7 +204,7 @@
   var klasse = Insel.klasse(who);
   var fachInfo = Insel.faecher[fach] || { name: fach, emoji: '📘', kurz: fach };
 
-  Insel.hudLeiste($('hud'));
+  Insel.hudLeiste($('hud'), fach);
   /* Kam der Spieler aus einem Innenraum, führt der Rückweg auch wieder dorthin. */
   var ausRaum = Insel.letzterRaum();
   $('zurueck-fach').href = ausRaum || ('/lernwelt/uebung/?fach=' + fach);
@@ -351,12 +352,44 @@
     } catch (e) {}
   }
 
-  function normal(s) {
+  /* Englische Kurzformen und Schreibvarianten, damit beide Seiten des
+     Vergleichs auf derselben Form landen. Nur im Fach Englisch angewendet. */
+  var KURZFORMEN = [
+    [/\bcan't\b/g, 'can not'], [/\bcannot\b/g, 'can not'],
+    [/\bdon't\b/g, 'do not'], [/\bdoesn't\b/g, 'does not'], [/\bdidn't\b/g, 'did not'],
+    [/\bisn't\b/g, 'is not'], [/\baren't\b/g, 'are not'], [/\bwasn't\b/g, 'was not'],
+    [/\bweren't\b/g, 'were not'], [/\bhaven't\b/g, 'have not'], [/\bhasn't\b/g, 'has not'],
+    [/\bwon't\b/g, 'will not'], [/\bwouldn't\b/g, 'would not'],
+    [/\bi'm\b/g, 'i am'], [/\bi've\b/g, 'i have'], [/\bi'll\b/g, 'i will'], [/\bi'd\b/g, 'i would'],
+    [/\byou're\b/g, 'you are'], [/\bwe're\b/g, 'we are'], [/\bthey're\b/g, 'they are'],
+    [/\byou've\b/g, 'you have'], [/\bwe've\b/g, 'we have'], [/\bthey've\b/g, 'they have'],
+    [/\bit's\b/g, 'it is'], [/\bthat's\b/g, 'that is'], [/\bwhat's\b/g, 'what is'],
+    [/\bwhere's\b/g, 'where is'], [/\bhe's\b/g, 'he is'], [/\bshe's\b/g, 'she is'],
+    [/\bthere's\b/g, 'there is'], [/\blet's\b/g, 'let us']
+  ];
+  var SCHREIBWEISEN = [
+    [/colour/g, 'color'], [/favourite/g, 'favorite'], [/favour/g, 'favor'],
+    [/neighbour/g, 'neighbor'], [/behaviour/g, 'behavior'], [/flavour/g, 'flavor'],
+    [/centre/g, 'center'], [/metre/g, 'meter'], [/theatre/g, 'theater'],
+    [/travelling/g, 'traveling'], [/practise/g, 'practice'], [/grey/g, 'gray'],
+    [/organise/g, 'organize'], [/realise/g, 'realize']
+  ];
+  function englischGleichmachen(t) {
+    KURZFORMEN.forEach(function (r) { t = t.replace(r[0], r[1]); });
+    SCHREIBWEISEN.forEach(function (r) { t = t.replace(r[0], r[1]); });
+    return t.replace(/\s+/g, ' ').trim();
+  }
+
+  function normal(s, englisch) {
     var t = String(s).toLowerCase().trim()
-      .replace(/\s+/g, ' ')
-      .replace(/[.!]$/, '')
-      .replace(/^(to|the|a|an)\s+/, '')
-      .replace(/'/g, "'");
+      /* Typografische Apostrophe auf den geraden zurückführen */
+      .replace(/[\u2018\u2019\u02bc\u00b4`]/g, "'")
+      .replace(/\s+/g, ' ');
+    /* Satzzeichen am Schluss zählen nie — auch das Fragezeichen nicht.
+       Einzelne Zeichen bleiben stehen, sonst wäre die Antwort «?» leer. */
+    if (t.length > 1) t = t.replace(/[.!?;:,]+$/, '').trim();
+    t = t.replace(/^(to|the|a|an)\s+/, '');
+    if (englisch) t = englischGleichmachen(t);
     /* Komma und Punkt sind beim Dezimaltrennzeichen gleichwertig (12,50 = 12.50) */
     if (/^-?\d+[.,]\d+$/.test(t)) t = t.replace(',', '.');
     return t;
@@ -501,9 +534,11 @@
     if (feld.disabled) return;
     var eingabe = feld.value;
     if (!eingabe.trim()) { feld.focus(); return; }
-    var korrekt = normal(aktuell.antwort);
-    var alt = (aktuell.alternativen || []).map(normal);
-    var ok = normal(eingabe) === korrekt || alt.indexOf(normal(eingabe)) >= 0;
+    var enFach = fach === 'englisch';
+    var korrekt = normal(aktuell.antwort, enFach);
+    var alt = (aktuell.alternativen || []).map(function (a) { return normal(a, enFach); });
+    var gegebenN = normal(eingabe, enFach);
+    var ok = gegebenN === korrekt || alt.indexOf(gegebenN) >= 0;
     /* Reine Zahlen auch rechnerisch vergleichen — 53.9 und 53,90 sind dasselbe.
        Brüche (3/4) und Uhrzeiten (14:35) sind davon ausgenommen. */
     if (!ok && reinNumerisch(eingabe) && reinNumerisch(aktuell.antwort)) {
@@ -607,7 +642,8 @@
     } else fl.style.display = 'none';
 
     $('summary').classList.add('show');
-    Insel.hudLeiste($('hud').firstChild ? ($('hud').innerHTML = '', $('hud')) : $('hud'));
+    $('hud').innerHTML = '';
+    Insel.hudLeiste($('hud'), fach);
   }
 
   $('nochmal').onclick = starte;

@@ -1168,7 +1168,9 @@
     },
 
     /* ---------------- Kleine Helfer für Übungsseiten ---------------- */
-    hudLeiste: function (parent) {
+    /* 'stueck' ist optional: dann bekommt die Leiste einen Musikknopf für
+       genau dieses Stück, damit jeder Ort seinen eigenen Klang hat. */
+    hudLeiste: function (parent, stueck) {
       var el = document.createElement('div');
       el.style.cssText =
         'display:flex;gap:10px;justify-content:center;align-items:center;flex-wrap:wrap;' +
@@ -1184,6 +1186,23 @@
         '<span style="background:#1e293b;border:2px solid #f9a8d4;border-radius:8px;padding:7px 10px;color:#f9a8d4">🍬 ' +
           this.suessigkeiten(who) + '</span>' +
         '<a href="/lernwelt/" style="background:#1e3a5f;border:2px solid #fde68a;border-radius:8px;padding:7px 10px;color:#fde68a;text-decoration:none">🏝️ Insel</a>';
+
+      if (stueck && global.Musik && Musik.verfuegbar()) {
+        Musik.stueck(stueck);
+        Musik.beiErsterAktion();
+        var knopf = document.createElement('button');
+        knopf.style.cssText =
+          'background:#1e293b;border:2px solid #475569;border-radius:8px;padding:7px 10px;' +
+          'color:#cbd5e1;font:700 12px ui-monospace,Menlo,monospace;cursor:pointer';
+        var malen = function () {
+          knopf.textContent = Musik.laeuft() ? '🎵 ' + Musik.titel() : '🔇 Musik';
+        };
+        knopf.onclick = function () { Musik.umschalten(); malen(); };
+        document.addEventListener('musikwechsel', malen);
+        malen();
+        el.appendChild(knopf);
+      }
+
       if (parent) parent.appendChild(el);
       return el;
     }
