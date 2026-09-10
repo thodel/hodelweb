@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Lernraum — Lerninsel</title>
+<link rel="icon" href="/favicon-32x32.png" sizes="32x32">
+<link rel="stylesheet" href="/lernwelt/raum.css">
+<style>
+  .liste { display: grid; gap: 10px; }
+  .liste a { display: block; background: #0f172a; border: 2px solid #334155; border-left-width: 6px;
+             border-radius: 12px; padding: 12px 14px; text-decoration: none; color: inherit; }
+  .liste a.offen { border-left-color: #fbbf24; }
+  .liste a.fertig { border-left-color: #475569; opacity: .72; }
+  .liste a.auftrag { border-left-color: #38bdf8; }
+  .liste .t { font-size: 15.5px; font-weight: 700; }
+  .liste .i { font-size: 12.5px; color: #94a3b8; margin-top: 3px; line-height: 1.5; }
+  .liste .s { font-size: 12px; font-weight: 700; margin-top: 6px; }
+  .liste .s.offen { color: #fbbf24; }
+  .liste .s.fertig { color: #64748b; }
+  .liste .s.auftrag { color: #7dd3fc; }
+  .tafelzeile { display: flex; gap: 8px; align-items: baseline; padding: 5px 0;
+                border-top: 1px solid #334155; font-size: 13.5px; }
+  .tafelzeile.ok { color: #64748b; }
+  .tafelzeile.ok .n { text-decoration: line-through; }
+  .tafelzeile a { color: #e2e8f0; text-decoration: none; border-bottom: 1px dotted #475569; }
+  .lohn { font-size: 12.5px; color: #94a3b8; margin-top: 10px; line-height: 1.6; }
+  .lohn b { color: #fbbf24; }
+  .knopf { display: block; text-align: center; padding: 12px; border-radius: 12px; margin-top: 12px;
+           background: #1e3a5f; border: 2px solid #fde68a; color: #fde68a;
+           text-decoration: none; font-weight: 700; }
+</style>
+</head>
+<body>
+
+<div id="rahmen">
+  <div id="hud"></div>
+  <canvas id="raum"></canvas>
+  <div id="banner"></div>
+</div>
+
+<div id="steuer">
+  <div class="pad">
+    <button class="leer"></button><button data-dir="up">▲</button><button class="leer"></button>
+    <button data-dir="left">◀</button><button class="leer"></button><button data-dir="right">▶</button>
+    <button class="leer"></button><button data-dir="down">▼</button><button class="leer"></button>
+  </div>
+  <button id="knopf-e">E</button>
+</div>
+
+<div id="fenster">
+  <div class="platte">
+    <button class="zu" id="zu">✕</button>
+    <div class="tafel" id="t-pult" hidden>
+      <h2 id="pult-titel">Pult</h2>
+      <div class="unter" id="pult-unter"></div>
+      <div class="liste" id="pult-liste"></div>
+    </div>
+    <div class="tafel" id="t-auftrag" hidden>
+      <h2>📋 Tagesauftrag</h2>
+      <div class="unter" id="auftrag-unter"></div>
+      <div id="auftrag-liste"></div>
+      <div class="lohn" id="auftrag-lohn"></div>
+    </div>
+    <div class="tafel" id="t-tafel" hidden>
+      <h2 id="tafel-titel">Anschlagbrett</h2>
+      <div class="unter" id="tafel-unter"></div>
+      <div id="tafel-inhalt"></div>
+      <a class="knopf" href="/lernwelt/bestenliste/">🏆 Ganze Bestenliste</a>
+    </div>
+  </div>
+</div>
+
+<script src="/lernwelt/insel.js"></script>
+<script src="/lernwelt/pixel.js"></script>
+<script src="/lernwelt/dialog.js"></script>
+<script src="/lernwelt/raum.js"></script>
+<script src="/lernwelt/uebungen.js"></script>
+<script>
+(function () {
+  'use strict';
+  var $ = function (i) { return document.getElementById(i); };
+  var px = Pixel.px;
+  var TILE = 16, RAUM_W = 30, RAUM_H = 19;
+
+  var q = new URLSearchParams(location.search);
+  var fach = q.get('fach') || 'mathe';
+  if (!Insel.faecher[fach]) fach = 'mathe';
+  var who = Insel.who();
+  var klasse = Insel.klasse(who);
+  var info = Insel.faecher[fach];
+  document.title = info.ort + ' — Lerninsel';
+
+  /* ================= Ausstattung je Fach ================= */
+  var THEMEN = {
+    mathe: {
+      boden: ['#6b7280', '#646b76'], fuge: '#4b5563',
+      wand: '#3f4652', wandD: '#333944', wandL: '#4b5361',
+      moebel: '#7c5341', moebelD: '#5b3a2e', akzent: '#7dd3fc',
+      pult: 'Rechenpult', deko: 'zahlen',
+      willkommen: ['Der Rechenturm. Draussen Wind, drinnen Zahlen.',
+                   'An jedem Pult wartet eine andere Übung. Ein gelber Rand heisst: hier gibt es noch Münzen.'],
+      leute: [
+        { name: 'Meister Modulo', tx: 6, ty: 5, jacke: ['#1d4ed8', '#17399b'], haar: '#e2e8f0', haut: '#e0ac7e',
+          sprueche: [
+            ['Willkommen im Rechenturm. Ich bin Meister Modulo.',
+             'Merk dir eins: Wer den Rest kennt, kennt die halbe Wahrheit. Der Rest ist der Rest.'],
+            'Brüche sind keine kaputten Zahlen. Sie sind nur Zahlen, die geteilt haben gelernt.',
+            'Wenn eine Aufgabe zu schwer aussieht, mach sie kleiner. Das ist der ganze Trick.'
+          ] },
+        { name: 'Zwerg Zehner', tx: 24, ty: 6, jacke: ['#b45309', '#8a3f07'], haar: '#3b2a1a', haut: '#c98d63',
+          sprueche: [
+            'Ich bin für die Stellenwerte zuständig. Einer, Zehner, Hunderter. Vertausch die nie.',
+            ['Einmal habe ich beim Runden geschummelt.', 'Seither heisse ich in manchen Kreisen Zwerg Ungefähr.']
+          ] },
+        { name: 'Frau Winkel', tx: 22, ty: 15, jacke: ['#0f766e', '#0b544e'], haar: '#a8391f', haut: '#f2c8a0',
+          sprueche: [
+            'Umfang ist aussen herum. Fläche ist innen drin. Das verwechselt jeder einmal — du auch.',
+            'Ein Quadrat ist ein Rechteck, das sich sehr entschieden hat.'
+          ] }
+      ]
+    },
+    deutsch: {
+      boden: ['#8a6039', '#825934'], fuge: '#6b4423',
+      wand: '#5b3a2e', wandD: '#4a2e1c', wandL: '#6d4838',
+      moebel: '#9a6a51', moebelD: '#7c5341', akzent: '#a7f3d0',
+      pult: 'Schreibpult', deko: 'buecher',
+      willkommen: ['Die Schreiberhütte riecht nach Tinte und altem Papier.',
+                   'An jedem Pult liegt eine andere Übung. Ein gelber Rand heisst: hier gibt es noch Münzen.'],
+      leute: [
+        { name: 'Schreiber Silbe', tx: 6, ty: 5, jacke: ['#166534', '#0f4a25'], haar: '#5b3a1e', haut: '#f2c8a0',
+          sprueche: [
+            ['Willkommen in der Schreiberhütte.',
+             'Ich zerlege Wörter in Silben. Manchmal auch Sätze. Einmal ein ganzes Buch — das war zu viel.'],
+            'Doppelter Konsonant nach kurzem Vokal. Sag das dreimal schnell. Dann kannst du es.',
+            'Ein Komma ist eine kleine Pause. Kein Komma ist keine Pause. Zu viele Kommas sind Schluckauf.'
+          ] },
+        { name: 'Tante Tinte', tx: 24, ty: 6, jacke: ['#7e22ce', '#5b1899'], haar: '#d9a441', haut: '#e0ac7e',
+          sprueche: [
+            'Gross oder klein? Wenn du „der, die, das“ davorsetzen kannst, schreib gross.',
+            ['Ich habe früher Briefe geschrieben. Richtige, mit Tinte.', 'Heute schreibt man Nachrichten. Die haben keine Anrede und kein Ende.']
+          ] },
+        { name: 'Onkel Otto', tx: 22, ty: 15, jacke: ['#7c2d12', '#5a1f0c'], haar: '#e2e8f0', haut: '#d8a882',
+          sprueche: [
+            'Wortarten. Nomen, Verb, Adjektiv. Der Rest ist Beiwerk und Streit unter Fachleuten.',
+            'Ich sage immer: Lies laut vor. Was falsch klingt, ist meistens auch falsch.'
+          ] }
+      ]
+    },
+    englisch: {
+      boden: ['#8b5a2b', '#7c5024'], fuge: '#5b3a2e',
+      wand: '#2c5289', wandD: '#22406d', wandL: '#3b6fb0',
+      moebel: '#7c5341', moebelD: '#5b3a2e', akzent: '#fca5a5',
+      pult: 'Seekiste', deko: 'seil',
+      willkommen: ['An Deck des Piratenschiffs. Es schaukelt ein bisschen, das gehört dazu.',
+                   'Jede Kiste hält eine Übung bereit. Ein gelber Rand heisst: hier gibt es noch Münzen.'],
+      leute: [
+        { name: 'Captain Cook-ie', tx: 6, ty: 5, jacke: ['#7f1d1d', '#5c1414'], haar: '#1f2937', haut: '#c98d63',
+          sprueche: [
+            ['Welcome aboard! Ich bin der Käpten. Sag einfach "hello", das reicht fürs Erste.',
+             'Englisch ist wie Schwimmen. Man lernt es nicht am Ufer.'],
+            'Wenn du ein Wort nicht kennst, beschreib es. "The thing for the water." Verstehen tut man dich.',
+            'My English is not the best. But it is not the worst either. Und darauf bin ich stolz.'
+          ] },
+        { name: 'Smutje Sam', tx: 24, ty: 6, jacke: ['#0f766e', '#0b544e'], haar: '#a8391f', haut: '#7c4a2d',
+          sprueche: [
+            'Breakfast, lunch, dinner. Drei Wörter, drei Mahlzeiten. Der Rest ist Zwischendurch.',
+            ['Ich koche für zwanzig Leute.', 'Auf Englisch heisst das "cook". Auf Deutsch heisst das "viel Arbeit".']
+          ] },
+        { name: 'Papagei Polly', tx: 22, ty: 15, jacke: ['#166534', '#0f4a25'], haar: '#dc2626', haut: '#f2c8a0',
+          sprueche: [
+            'Polly want a cracker. Polly always wants a cracker. Polly ist nicht kompliziert.',
+            'Ich wiederhole alles. Das ist übrigens die beste Methode, Vokabeln zu lernen.'
+          ] }
+      ]
+    },
+    nmg: {
+      boden: ['#6f8f5a', '#688653'], fuge: '#55703f',
+      wand: '#6b7280', wandD: '#4b5563', wandL: '#8a929c',
+      moebel: '#8b5a2b', moebelD: '#6b4423', akzent: '#fcd34d',
+      pult: 'Kartentisch', deko: 'karte',
+      willkommen: ['Der Aussichtsberg. Von hier sieht man weit — und auf den Tischen liegt die ganze Welt.',
+                   'An jedem Kartentisch wartet eine andere Übung. Ein gelber Rand heisst: hier gibt es noch Münzen.'],
+      leute: [
+        { name: 'Kartograf Kuno', tx: 6, ty: 5, jacke: ['#b45309', '#8a3f07'], haar: '#e2e8f0', haut: '#d8a882',
+          sprueche: [
+            ['Willkommen auf dem Aussichtsberg. Ich zeichne Karten, seit ich denken kann.',
+             'Eine Karte ist immer falsch. Sie ist nur nützlich falsch. Das ist der Unterschied.'],
+            'Sechsundzwanzig Kantone. Ich kenne sie alle. Meistens. An guten Tagen.',
+            'Norden ist oben. Das ist Abmachung, nicht Natur. Die Erde weiss davon nichts.'
+          ] },
+        { name: 'Sternen-Selma', tx: 24, ty: 6, jacke: ['#3730a3', '#2a2580'], haar: '#1f2937', haut: '#b97a4f',
+          sprueche: [
+            ['Acht Planeten. Pluto ist keiner mehr, und ja, das war eine Abstimmung.',
+             'Wenn dich das ärgert: mich auch. Aber die Regeln sind die Regeln.'],
+            'Das Licht der Sonne braucht acht Minuten zu uns. Du siehst also immer die Vergangenheit.'
+          ] },
+        { name: 'Wetterfrosch Willi', tx: 22, ty: 15, jacke: ['#0f766e', '#0b544e'], haar: '#5b3a1e', haut: '#e0ac7e',
+          sprueche: [
+            'Ich sage das Wetter voraus. Zu achtzig Prozent richtig. Die anderen zwanzig merkt sich jeder.',
+            'Flüsse fliessen bergab. Immer. Das ist die verlässlichste Regel der ganzen Geografie.'
+          ] }
+      ]
+    }
+  };
+  var thema = THEMEN[fach];
+
+  /* ================= Pulte aus den Übungen ================= */
+  var sets = Uebungen.fuer(fach, klasse).eigene;
+  var extern = Uebungen.fuer(fach, klasse).extern;
+
+  /* Sechs Pulte pro Reihe, drei Reihen. Reicht für alle Fächer. */
+  var PLATZ = [];
+  for (var reihe = 0; reihe < 3; reihe++) {
+    for (var spalte = 0; spalte < 6; spalte++) {
+      PLATZ.push({ tx: 3 + spalte * 4, ty: 6 + reihe * 4 });
+    }
+  }
+
+  /* Mehrere Übungen an einem Pult, wenn es viele sind. */
+  var proPult = Math.max(1, Math.ceil((sets.length + extern.length) / PLATZ.length));
+  var alleSets = sets.concat(extern.map(function (x) { x.istExtern = true; return x; }));
+  var pulte = [];
+  for (var i = 0; i < alleSets.length; i += proPult) {
+    pulte.push({ nr: pulte.length, sets: alleSets.slice(i, i + proPult) });
+  }
+
+  function pultStatus(p) {
+    var offen = 0, imAuftrag = false;
+    p.sets.forEach(function (u) {
+      if (u.istExtern) {
+        var ms = Insel.muenzStatus(fach, u.id, u.schwierigkeit, who);
+        if (ms.versuche && ms.zahlt) offen++;
+        else if (!ms.versuche) offen++;
+      } else if (Insel.muenzStatus(fach, u.id, u.schwierigkeit, who).zahlt) offen++;
+      if (Insel.imAuftrag(fach, u.id, who)) imAuftrag = true;
+    });
+    return { offen: offen, gesamt: p.sets.length, imAuftrag: imAuftrag };
+  }
+
+  var moebel = [];
+  pulte.forEach(function (p, n) {
+    var pl = PLATZ[n];
+    p.tx = pl.tx; p.ty = pl.ty;
+    moebel.push({ art: 'pult', tx: pl.tx, ty: pl.ty, tw: 2, th: 1, pult: p });
+  });
+
+  /* ================= Raum ================= */
+  var stationen = pulte.map(function (p, n) {
+    return {
+      id: 'pult' + n, name: thema.pult + ' ' + (n + 1), tafel: 't-pult',
+      tx: p.tx, ty: p.ty + 2, farbe: thema.akzent, pult: p, ohneSchild: true, verb: 'ansehen'
+    };
+  });
+  stationen.push({ id: 'auftrag', name: 'Auftragstafel', tafel: 't-auftrag',
+                   tx: 2, ty: 16, farbe: '#7dd3fc', verb: 'lesen' });
+  stationen.push({ id: 'tafel', name: 'Anschlagbrett', tafel: 't-tafel',
+                   tx: 27, ty: 16, farbe: '#fbbf24', verb: 'lesen' });
+  stationen.push({ id: 'tuer', name: 'Tür nach draussen', tafel: null,
+                   tx: 15, ty: 17, farbe: '#fde68a', hinweis: 'zurück auf die Insel' });
+
+  moebel.push({ art: 'brett', tx: 1, ty: 14, tw: 2, th: 1 });
+  moebel.push({ art: 'brett', tx: 27, ty: 14, tw: 2, th: 1 });
+
+  var raum = Raum.starten({
+    canvas: $('raum'), breiteKacheln: RAUM_W, hoeheKacheln: RAUM_H,
+    start: { tx: 15, ty: 16, dir: 'up' },
+    tuerKacheln: [14, 15],
+    who: who,
+    moebel: moebel,
+    stationen: stationen,
+    leute: thema.leute,
+    lichtInnen: 'rgba(255,240,200,.04)',
+    lichtAussen: 'rgba(8,12,24,.34)',
+
+    boden: function (ctx, t) {
+      for (var ty = 3; ty < RAUM_H; ty++) {
+        for (var tx = 0; tx < RAUM_W; tx++) {
+          px(ctx, tx * TILE, ty * TILE, TILE, TILE, thema.boden[(tx + ty) % 2]);
+          px(ctx, tx * TILE, ty * TILE + TILE - 1, TILE, 1, thema.fuge);
+        }
+      }
+      for (var wx = 0; wx < RAUM_W; wx++) {
+        px(ctx, wx * TILE, 0, TILE, 48, thema.wand);
+        px(ctx, wx * TILE, 42, TILE, 6, thema.wandD);
+        if (wx % 3 === 0) px(ctx, wx * TILE + 3, 8, 2, 30, thema.wandL);
+      }
+      px(ctx, 0, 48, RAUM_W * TILE, 2, thema.wandD);
+      for (var sy = 3; sy < RAUM_H; sy++) {
+        px(ctx, 0, sy * TILE, TILE, TILE, thema.wand);
+        px(ctx, (RAUM_W - 1) * TILE, sy * TILE, TILE, TILE, thema.wand);
+      }
+      for (var bx = 0; bx < RAUM_W; bx++) {
+        if (bx >= 14 && bx <= 15) continue;
+        px(ctx, bx * TILE, (RAUM_H - 1) * TILE, TILE, TILE, thema.wand);
+      }
+      var tuy = (RAUM_H - 1) * TILE;
+      px(ctx, 14 * TILE, tuy, 2 * TILE, TILE, '#241a10');
+      px(ctx, 14 * TILE + 3, tuy + 3, 2 * TILE - 6, TILE - 3, thema.moebelD);
+      px(ctx, 15 * TILE + 4, tuy + 8, 2, 2, '#c9a227');
+
+      /* Fenster mit Aussicht */
+      [5, 11, 19, 25].forEach(function (fx) {
+        px(ctx, fx * TILE, 10, 3 * TILE, 28, thema.wandD);
+        px(ctx, fx * TILE + 2, 12, 3 * TILE - 4, 24, fach === 'englisch' ? '#1c6ea4' : '#7cb0e0');
+        if (fach === 'nmg') {
+          px(ctx, fx * TILE + 4, 26, 3 * TILE - 8, 10, '#5aa54a');
+          px(ctx, fx * TILE + 10, 18, 10, 8, '#f8fafc');
+        }
+        if (fach === 'englisch') {
+          px(ctx, fx * TILE + 6, 28, 3 * TILE - 12, 3, '#39a0c9');
+        }
+        px(ctx, fx * TILE + 22, 12, 2, 24, thema.wandD);
+      });
+
+      /* Fachtypische Dekoration */
+      ctx.font = '8px ui-monospace, monospace';
+      ctx.textAlign = 'center';
+      if (thema.deko === 'zahlen') {
+        ctx.fillStyle = 'rgba(226,232,240,.30)';
+        ['7 × 8 = 56', 'π ≈ 3,14', '¾ + ⅛'].forEach(function (txt, n) {
+          ctx.fillText(txt, 8 * TILE + n * 7 * TILE, 30);
+        });
+      } else if (thema.deko === 'karte') {
+        px(ctx, 13 * TILE, 8, 5 * TILE, 32, '#e8dcc0');
+        px(ctx, 14 * TILE, 14, 3 * TILE, 20, '#8fbf6f');
+        px(ctx, 15 * TILE, 20, 12, 8, '#5aa54a');
+        ctx.fillStyle = '#7c2d12';
+        ctx.fillText('KARTE', 15 * TILE + 8, 38);
+      } else if (thema.deko === 'buecher') {
+        for (var b = 0; b < 8; b++) {
+          px(ctx, 12 * TILE + b * 6, 20, 5, 18,
+             ['#7f1d1d', '#166534', '#1d4ed8', '#7e22ce'][b % 4]);
+        }
+      } else if (thema.deko === 'seil') {
+        px(ctx, 12 * TILE, 14, 6 * TILE, 3, '#c9a227');
+        for (var r = 0; r < 6; r++) px(ctx, 12 * TILE + r * 16, 17, 3, 20, '#a67c3d');
+      }
+      ctx.textAlign = 'left';
+    },
+
+    moebelZeichnen: function (ctx, m, t) {
+      var x = m.tx * TILE, y = m.ty * TILE, w = m.tw * TILE;
+      if (m.art === 'brett') {
+        px(ctx, x, y - 18, w, 20, thema.moebelD);
+        px(ctx, x + 2, y - 16, w - 4, 16, '#e8dcc0');
+        px(ctx, x + 4, y - 13, w - 8, 2, '#94a3b8');
+        px(ctx, x + 4, y - 9, w - 10, 2, '#94a3b8');
+        px(ctx, x + 4, y - 5, w - 12, 2, '#94a3b8');
+        return;
+      }
+      /* Pult mit Farbcode: gelb = zahlt noch, blau = Tagesauftrag, grau = erledigt */
+      var st = pultStatus(m.pult);
+      var farbe = st.imAuftrag ? '#38bdf8' : st.offen ? '#fbbf24' : '#64748b';
+      px(ctx, x + 1, y + 12, w - 2, 3, 'rgba(0,0,0,.28)');
+      px(ctx, x, y - 8, w, 20, thema.moebelD);
+      px(ctx, x + 1, y - 10, w - 2, 6, thema.moebel);
+      px(ctx, x + 2, y + 8, 3, 6, thema.moebelD);
+      px(ctx, x + w - 5, y + 8, 3, 6, thema.moebelD);
+      /* Was auf dem Pult liegt */
+      if (thema.deko === 'karte') {
+        px(ctx, x + 4, y - 16, w - 8, 7, '#e8dcc0');
+        px(ctx, x + 6, y - 14, w - 12, 3, '#8fbf6f');
+      } else if (thema.deko === 'buecher') {
+        px(ctx, x + 4, y - 17, 8, 8, farbe);
+        px(ctx, x + 13, y - 15, 7, 6, '#e8dcc0');
+      } else if (thema.deko === 'seil') {
+        px(ctx, x + 4, y - 16, w - 8, 7, thema.moebel);
+        px(ctx, x + 6, y - 14, w - 12, 3, farbe);
+      } else {
+        px(ctx, x + 4, y - 16, w - 8, 7, '#0f172a');
+        px(ctx, x + 6, y - 14, w - 12, 3, farbe);
+      }
+      /* Lämpchen: zeigt von weitem, ob es hier noch Münzen gibt */
+      var puls = 0.55 + 0.45 * Math.abs(Math.sin(t * 2.4 + x));
+      ctx.globalAlpha = st.offen || st.imAuftrag ? puls : 0.35;
+      px(ctx, x + w / 2 - 2, y - 22, 4, 4, farbe);
+      ctx.globalAlpha = 1;
+    },
+
+    stationHinweis: function (s) {
+      if (!s.pult) return s.hinweis;
+      var st = pultStatus(s.pult);
+      var namen = s.pult.sets.map(function (u) { return u.titel; }).join(' · ');
+      return namen + ' — ' + (st.imAuftrag ? '📋 Tagesauftrag'
+        : st.offen ? '🪙 ' + st.offen + ' von ' + st.gesamt + ' zahlt noch'
+                   : '✔ Münzen abgeholt');
+    },
+    stationTun: function (s) {
+      if (s.pult) { pultOeffnen(s.pult); return true; }
+      if (s.id === 'auftrag') { auftragOeffnen(); return true; }
+      if (s.id === 'tafel') { tafelOeffnen(); return true; }
+      return false;
+    },
+    hudZeichnen: function () {
+      var a = Insel.auftragOffen(who);
+      return '<span>🧭 <b>' + who + '</b> · ' + klasse + '. Kl.</span>' +
+             '<span>' + info.emoji + ' ' + info.name + '</span>' +
+             '<span class="z">🪙 ' + Insel.muenzen(who) + '</span>' +
+             '<span>⭐ ' + Insel.sterne(fach, who) + '/3</span>' +
+             (a ? '<span>📋 ' + a.fertig + '/' + a.gesamt + '</span>' : '') +
+             '<span><a href="/lernwelt/">🏝️ Insel</a></span>';
+    }
+  });
+
+  /* ================= Fenster ================= */
+  function losGehen(u) {
+    Insel.merkeRaum(location.pathname + location.search);
+    window.location.href = u.istExtern
+      ? u.url + '?von=raum'
+      : '/lernwelt/uebung/?fach=' + fach + '&set=' + u.id;
+  }
+
+  function pultOeffnen(p) {
+    $('pult-titel').textContent = info.emoji + ' ' + thema.pult + ' ' + (p.nr + 1);
+    $('pult-unter').textContent = p.sets.length === 1
+      ? 'Eine Übung liegt hier bereit.'
+      : p.sets.length + ' Übungen liegen hier bereit.';
+    var box = $('pult-liste');
+    box.innerHTML = '';
+    p.sets.forEach(function (u) {
+      var ms = Insel.muenzStatus(fach, u.id, u.schwierigkeit, who);
+      var auf = Insel.imAuftrag(fach, u.id, who);
+      var klass = auf && !auf.fertig ? 'auftrag' : ms.zahlt ? 'offen' : 'fertig';
+      var a = document.createElement('a');
+      a.className = klass;
+      a.href = '#';
+      a.onclick = function (e) { e.preventDefault(); losGehen(u); };
+      a.innerHTML =
+        '<div class="t">' + u.titel + (u.istExtern ? ' ↗' : '') + '</div>' +
+        '<div class="i">' + u.info + '</div>' +
+        '<div class="s ' + klass + '">' +
+          (auf && !auf.fertig ? '📋 Steht heute auf dem Tagesauftrag · ' : '') +
+          (u.istExtern && !ms.versuche ? '🪙 eigene Seite' : ms.kurz) + '</div>';
+      box.appendChild(a);
+    });
+    Raum.fensterOeffnen('t-pult');
+  }
+
+  function auftragOeffnen() {
+    var a = Insel.tagesauftrag(Insel.katalogAus(window.Uebungen, who), who);
+    var box = $('auftrag-liste');
+    if (!a) { box.innerHTML = '<div class="lohn">Heute gibt es keinen Auftrag.</div>'; }
+    else {
+      var fertig = a.sets.filter(function (x) { return x.fertig; }).length;
+      $('auftrag-unter').textContent = fertig + ' von ' + a.sets.length + ' geschafft.';
+      box.innerHTML = a.sets.map(function (x) {
+        var f = Insel.faecher[x.fach] || { emoji: '📘' };
+        return '<div class="tafelzeile ' + (x.fertig ? 'ok' : '') + '">' +
+               '<span>' + (x.fertig ? '✔' : '○') + '</span>' +
+               '<a class="n" href="/lernwelt/uebung/?fach=' + x.fach + '&set=' + x.set + '">' +
+               f.emoji + ' ' + x.titel + '</a></div>';
+      }).join('');
+      $('auftrag-lohn').innerHTML = fertig === a.sets.length
+        ? (a.bonusAbgeholt ? 'Bonus kassiert. Morgen wartet ein neuer Auftrag.'
+                           : 'Der Bonus kommt beim nächsten Ergebnis.')
+        : 'Jede Übung zählt ab <b>' + Insel.oekonomie.auftragMindest + ' %</b>. Alle zusammen bringen <b>' +
+          Insel.oekonomie.auftragBonus + ' Münzen</b> und einen <b>Schatzhinweis</b>.';
+    }
+    Raum.fensterOeffnen('t-auftrag');
+  }
+
+  function tafelOeffnen() {
+    $('tafel-titel').textContent = '🏆 ' + info.name;
+    $('tafel-unter').textContent = 'Wer steht in diesem Fach wo?';
+    var reihen = Object.keys(Insel.kinder).map(function (k) {
+      var u = Insel.uebungenImFach(fach, k);
+      return {
+        name: k,
+        best: u.reduce(function (m, x) { return Math.max(m, x.best || 0); }, 0),
+        gemeistert: u.filter(function (x) { return x.gemeistert; }).length,
+        uebungen: u.length
+      };
+    }).filter(function (r) { return r.uebungen > 0; });
+    reihen.sort(function (a, b) { return (b.gemeistert - a.gemeistert) || (b.best - a.best); });
+
+    var woche = Insel.wochenTabelle();
+    $('tafel-inhalt').innerHTML = (reihen.length
+      ? reihen.map(function (r, n) {
+          return '<div class="tafelzeile"><span>' + (n + 1) + '.</span>' +
+                 '<span class="n" style="flex:1">' + (Insel.kinder[r.name].emoji || '') + ' ' + r.name +
+                 (n === 0 && reihen.length > 1 ? ' 🥇' : '') + '</span>' +
+                 '<span>' + r.gemeistert + ' gemeistert · Bestwert ' + r.best + ' %</span></div>';
+        }).join('')
+      : '<div class="lohn">In diesem Fach hat noch niemand geübt.</div>') +
+      '<div class="lohn" style="margin-top:12px">🏁 Wochenduell: ' +
+      woche.map(function (r) { return r.name + ' ' + r.punkte; }).join(' · ') +
+      ' — noch ' + Math.max(1, Math.round(Insel.wochenRest() / 3600)) + ' Stunden.</div>';
+    Raum.fensterOeffnen('t-tafel');
+  }
+
+  Raum.reden(info.ort, thema.willkommen);
+})();
+</script>
+</body>
+</html>

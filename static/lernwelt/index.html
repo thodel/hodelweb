@@ -344,13 +344,13 @@
 
   var places = [
     { id: 'mathe',   name: 'Rechenturm',     tx: 10, ty: 8,  kind: 'tower', fach: 'mathe',
-      url: '/lernwelt/uebung/?fach=mathe',   hint: 'Mathematik', color: '#7dd3fc' },
+      url: '/lernwelt/lernraum/?fach=mathe',   hint: 'Mathematik', color: '#7dd3fc' },
     { id: 'deutsch', name: 'Schreiberhütte', tx: 37, ty: 9,  kind: 'hut',   fach: 'deutsch',
-      url: '/lernwelt/uebung/?fach=deutsch', hint: 'Deutsch', color: '#a7f3d0' },
+      url: '/lernwelt/lernraum/?fach=deutsch', hint: 'Deutsch', color: '#a7f3d0' },
     { id: 'englisch', name: 'Piratenschiff', tx: 9,  ty: 27, kind: 'ship',  fach: 'englisch',
-      url: '/lernwelt/uebung/?fach=englisch', hint: 'English', color: '#fca5a5' },
+      url: '/lernwelt/lernraum/?fach=englisch', hint: 'English', color: '#fca5a5' },
     { id: 'nmg',     name: 'Aussichtsberg',  tx: 38, ty: 27, kind: 'peak',  fach: 'nmg',
-      url: '/lernwelt/uebung/?fach=nmg',     hint: 'Länder & Karten', color: '#fcd34d' },
+      url: '/lernwelt/lernraum/?fach=nmg',     hint: 'Länder & Karten', color: '#fcd34d' },
     { id: 'bestenliste', name: 'Anschlagbrett', tx: 21, ty: 22, kind: 'brett',
       url: '/lernwelt/bestenliste/',         hint: 'Bestenliste aller Fächer', color: '#fbbf24' },
     { id: 'haus',    name: 'Inselhaus',      tx: 27, ty: 21, kind: 'haus',
@@ -369,6 +369,15 @@
     { id: 'spelunke', name: 'Alte Spelunke',  tx: 30, ty: 28, kind: 'spelunke', versteckt: true,
       url: '/lernwelt/spelunke/',            hint: 'Glücksspiel — hier verliert man Münzen', color: '#f472b6' }
   ];
+
+  /* Freischaltbare Inselteile: erst verschlossen, dann echte Orte.
+     Die Bedingung steht im Banner, damit klar ist, worauf man hinarbeitet. */
+  if (window.Insel && Insel.inselteile) {
+    Insel.inselteile.forEach(function (t) {
+      places.push({ id: t.id, name: t.name, tx: t.tx, ty: t.ty, kind: t.kind,
+                    url: t.url, hint: t.offenText, color: t.farbe, teil: t });
+    });
+  }
 
   /* Inselbewohner, die mit ihren Resultaten angeben und Wetten anbieten */
   var npcs = [
@@ -502,6 +511,13 @@
       'und dann findest du vor allem Sand. Der Kiosk hat welche.'
     ]
   };
+
+  /* Affen laufen herum: ein zahmer folgt dem Spieler, ein wilder bleibt daheim. */
+  affen.forEach(function (a) {
+    a.hx = a.tx * TILE + 8; a.hy = a.ty * TILE + 14;
+    a.x = a.hx; a.y = a.hy;
+    a.frame = 0; a.animT = 0; a.dir = 'down';
+  });
 
   var props = [];   /* {x,y,kind} in Pixeln (Fusspunkt) */
 
@@ -954,6 +970,87 @@
     px(c, x - 3, y - 12, 6, 4, '#e2e8f0');    /* Bart */
   }
 
+  /* ---- Freischaltbare Teile ---- */
+  function teilOffen(place) {
+    return !!(place && place.teil && window.Insel && Insel.teilOffen(place.teil.id, who));
+  }
+  /* Verschlossene Teile liegen im Nebel und tragen ein Schloss. */
+  function schlossZeichnen(c, x, y) {
+    px(c, x - 5, y - 26, 10, 8, '#cbd5e1');
+    px(c, x - 3, y - 24, 6, 4, '#475569');
+    px(c, x - 3, y - 31, 6, 6, '#94a3b8');
+    px(c, x - 1, y - 29, 2, 4, '#334155');
+  }
+  function nebel(c, x, y, an, zeichnen) {
+    if (an) { zeichnen(); return; }
+    c.globalAlpha = 0.42;
+    zeichnen();
+    c.globalAlpha = 1;
+    px(c, x - 22, y - 44, 44, 46, 'rgba(148,163,184,.20)');
+    schlossZeichnen(c, x, y);
+  }
+
+  function drawLeuchtturm(c, x, y, offen) {
+    nebel(c, x, y, offen, function () {
+      px(c, x - 9, y - 2, 18, 4, COL.stoneD);
+      px(c, x - 7, y - 40, 14, 38, COL.stone);
+      /* Rote Ringe */
+      px(c, x - 7, y - 34, 14, 5, '#b03b3b');
+      px(c, x - 7, y - 22, 14, 5, '#b03b3b');
+      px(c, x - 7, y - 10, 14, 5, '#b03b3b');
+      px(c, x - 9, y - 46, 18, 7, COL.stoneD);
+      px(c, x - 6, y - 45, 12, 5, offen ? '#fde68a' : '#475569');
+      px(c, x - 8, y - 50, 16, 4, COL.stoneL);
+      if (offen) {
+        var strahl = 0.35 + 0.35 * Math.abs(Math.sin(waveT * 1.5));
+        c.globalAlpha = strahl;
+        px(c, x + 8, y - 46, 30, 5, '#fde68a');
+        px(c, x - 38, y - 46, 30, 5, '#fde68a');
+        c.globalAlpha = 1;
+      }
+    });
+  }
+  function drawSternwarte(c, x, y, offen) {
+    nebel(c, x, y, offen, function () {
+      px(c, x - 12, y - 2, 24, 4, COL.stoneD);
+      px(c, x - 11, y - 18, 22, 16, COL.stone);
+      /* Kuppel */
+      px(c, x - 12, y - 26, 24, 8, '#94a3b8');
+      px(c, x - 9, y - 30, 18, 5, '#b9c1cb');
+      px(c, x - 5, y - 33, 10, 4, '#cbd5e1');
+      /* Spalt mit Teleskop */
+      px(c, x - 2, y - 32, 4, 14, '#0f172a');
+      if (offen) {
+        px(c, x, y - 38, 3, 10, '#64748b');
+        px(c, x + 2, y - 41, 4, 5, '#94a3b8');
+        var funkel = Math.abs(Math.sin(waveT * 2.2)) > 0.6;
+        if (funkel) px(c, x + 10, y - 44, 2, 2, '#f8fafc');
+      }
+      px(c, x - 6, y - 14, 5, 7, offen ? '#fcd34d' : '#334155');
+      px(c, x + 2, y - 14, 5, 7, offen ? '#fcd34d' : '#334155');
+    });
+  }
+  function drawBucht(c, x, y, offen) {
+    nebel(c, x, y, offen, function () {
+      /* Steg */
+      px(c, x - 16, y - 4, 32, 5, COL.woodD);
+      for (var i = 0; i < 5; i++) px(c, x - 14 + i * 7, y + 1, 3, 6, COL.woodD);
+      px(c, x - 16, y - 6, 32, 3, COL.wood);
+      /* Boot */
+      px(c, x + 4, y - 12, 16, 7, COL.woodL);
+      px(c, x + 4, y - 6, 16, 3, COL.woodD);
+      px(c, x + 11, y - 24, 2, 13, COL.woodD);
+      px(c, x + 13, y - 23, 9, 9, offen ? '#f8fafc' : '#64748b');
+      /* Angel */
+      if (offen) {
+        px(c, x - 14, y - 20, 2, 12, COL.woodL);
+        px(c, x - 13, y - 21, 12, 1, '#cbd5e1');
+        var zupf = Math.round(Math.sin(waveT * 3) * 2);
+        px(c, x - 2, y - 20 + zupf, 2, 6, '#cbd5e1');
+      }
+    });
+  }
+
   function drawNpc(c, x, y, npc) {
     drawHero(c, x, y, 'down', 0, npc.jacke[0], npc.jacke[1], npc.haar);
     /* Sprechblase, solange die Figur noch wettet */
@@ -1169,7 +1266,7 @@
     }
     for (i = 0; i < affen.length; i++) {
       var af = affen[i];
-      d = Math.hypot(hero.x - (af.tx * TILE + 8), hero.y - (af.ty * TILE + 14));
+      d = Math.hypot(hero.x - af.x, hero.y - af.y);
       if (d < 26 && d < bestD) { best = { istAffe: true, affe: af, name: af.name }; bestD = d; }
     }
     for (i = 0; i < flaneure.length; i++) {
@@ -1246,6 +1343,12 @@
             muenzHinweis(offeneUebungen(p.fach)) + ' — [E] betreten';
     } else if (p.id === 'spielplatz') {
       txt = '<b>' + p.name + '</b> — ' + p.hint + muenzHinweis(offeneSpiele()) + ' — [E] betreten';
+    } else if (p.teil) {
+      var st = Insel.teilStand(p.teil.id, who);
+      txt = st.offen
+        ? '<b>' + p.name + '</b> — ' + p.hint + ' — [E] betreten'
+        : '<b>' + p.name + '</b> 🔒 verschlossen — noch <b>' + st.fehlt + '</b> ' + st.was +
+          ' (' + st.ist + '/' + st.soll + ')';
     } else if (p.id === 'bestenliste') {
       var ao = window.Insel && Insel.auftragOffen(who);
       txt = '<b>' + p.name + '</b> — ' + p.hint +
@@ -1305,6 +1408,15 @@
       }
       showTreasure();
       return;
+    }
+    if (nearest.teil) {
+      var stand = Insel.teilStand(nearest.teil.id, who);
+      if (!stand.offen) {
+        flash(['Verschlossen. ' + nearest.teil.wozu,
+               'Du brauchst noch ' + stand.fehlt + ' ' + stand.was + ' — du hast ' +
+               stand.ist + ' von ' + stand.soll + '. Üben hilft.'], nearest.name);
+        return;
+      }
     }
     /* Wo der Spieler hineingeht, dort kommt er auch wieder heraus. */
     if (window.Insel) {
@@ -1550,7 +1662,7 @@
       items.push({ x: n.tx * TILE + 8, y: n.ty * TILE + 14, kind: 'npc', npc: n });
     });
     affen.forEach(function (a) {
-      items.push({ x: a.tx * TILE + 8, y: a.ty * TILE + 14, kind: 'affe', affe: a });
+      items.push({ x: a.x, y: a.y, kind: 'affe', affe: a });
     });
     baeren.forEach(function (b) {
       items.push({ x: b.x, y: b.y, kind: 'baer', baer: b });
@@ -1594,6 +1706,9 @@
         case 'sport': drawSport(ctx, X, Y); break;
         case 'spelunke': drawSpelunke(ctx, X, Y); break;
         case 'cave': drawCave(ctx, X, Y, treasureOpen()); break;
+        case 'leuchtturm': drawLeuchtturm(ctx, X, Y, teilOffen(it.place)); break;
+        case 'sternwarte': drawSternwarte(ctx, X, Y, teilOffen(it.place)); break;
+        case 'bucht': drawBucht(ctx, X, Y, teilOffen(it.place)); break;
         case 'npc': drawNpc(ctx, X, Y, it.npc); break;
         case 'affe': drawAffe(ctx, X, Y, it.affe); break;
         case 'baer': drawBaer(ctx, X, Y, it.baer); break;
@@ -1654,7 +1769,7 @@
 
     /* Namen der Affen */
     affen.forEach(function (a) {
-      var X = a.tx * TILE + 8 - camX, Y = a.ty * TILE + 14 - camY;
+      var X = a.x - camX, Y = a.y - camY;
       if (X < -40 || X > VIEW_W + 40 || Y < -40 || Y > VIEW_H + 40) return;
       var label = a.name.toUpperCase();
       var w = ctx.measureText(label).width + 6;
@@ -1725,6 +1840,11 @@
      Ein Bär läuft der Nase nach: Süssigkeiten locken ihn an. Er ist langsamer
      als der Spieler — weglaufen ist also immer möglich. */
   function schrittRichtung(e, zielX, zielY, tempo, dt) {
+    /* Steht die Figur in einem Baum oder einer Hauswand, erst einmal herausstellen. */
+    if (blocked(e.x, e.y)) {
+      var raus = freierPlatz(e.x, e.y);
+      e.x = raus.x; e.y = raus.y;
+    }
     var dx = zielX - e.x, dy = zielY - e.y;
     var len = Math.hypot(dx, dy);
     if (len < 1) { e.frame = 0; return false; }
@@ -1742,6 +1862,23 @@
     e.animT += dt;
     if (e.animT > 0.2) { e.animT = 0; e.frame = e.frame === 1 ? 2 : 1; }
     return true;
+  }
+
+  /* Ein zahmer Affe trottet hinter dem Spieler her und bleibt kurz vor ihm stehen.
+     Wird er wild, geht er wieder auf seinen Platz zurück. */
+  function affenBewegen(dt) {
+    if (!window.Insel) return;
+    affen.forEach(function (a) {
+      var zahm = Insel.affeZahm(a.id, who);
+      if (zahm) {
+        var d = Math.hypot(hero.x - a.x, hero.y - a.y);
+        if (d > 26) schrittRichtung(a, hero.x, hero.y, 52, dt);
+        else { a.frame = 0; a.animT = 0; }
+      } else {
+        if (Math.hypot(a.hx - a.x, a.hy - a.y) > 3) schrittRichtung(a, a.hx, a.hy, 26, dt);
+        else { a.frame = 0; a.animT = 0; }
+      }
+    });
   }
 
   var baerSperre = 0;   /* kurze Pause nach einem Fang, damit es nicht doppelt auslöst */
@@ -1842,6 +1979,7 @@
       }
 
       baerenBewegen(dt);
+      affenBewegen(dt);
       flaneureBewegen(dt);
       ansprechenPruefen();
 
@@ -1898,6 +2036,20 @@
     return true;
   }
 
+  /* Ist seit dem letzten Besuch ein Inselteil aufgegangen? */
+  function teileMelden() {
+    if (!window.Insel || !Insel.neueTeile) return;
+    var neu = Insel.neueTeile(who);
+    if (!neu.length) return;
+    var zeilen = neu.map(function (t) {
+      return 'Die ' + t.name + ' ist jetzt offen. ' + t.wozu;
+    });
+    zeilen.unshift(neu.length === 1
+      ? 'Deine Insel ist gewachsen!'
+      : 'Deine Insel ist gleich mehrfach gewachsen!');
+    flash(zeilen, 'Neu auf der Insel');
+  }
+
   function affenAbrechnen() {
     if (!window.Insel) return;
     var m = Insel.affenPruefen(who);
@@ -1926,6 +2078,7 @@
     rauschAnzeigen();
     var imWald = aufwachenPruefen();
     affenAbrechnen();
+    teileMelden();
     if (!stumm && !imWald) {
       var auf = window.Insel && Insel.tagesauftrag(Insel.katalogAus(window.Uebungen, name), name);
       if (flashT <= 0) {
@@ -2107,7 +2260,7 @@
   /* Nur zum Prüfen der Karte: /lernwelt/?debug=1 legt ein paar Innereien offen. */
   if (new URLSearchParams(location.search).get('debug') === '1') {
     window.__insel = { blocked: blocked, at: at, TILE: TILE, WATER: WATER, SHALLOW: SHALLOW,
-                       places: places, hero: hero, baeren: baeren, flaneure: flaneure,
+                       places: places, hero: hero, baeren: baeren, flaneure: flaneure, affen: affen,
                        schaetze: function () { return Insel.offeneSchaetze(who); },
                        fang: function (i) { baerSperre = 0; baerFaengt(baeren[i || 0]); },
                        nah: function () { nearest = findNearest(); return nearest && nearest.name; },

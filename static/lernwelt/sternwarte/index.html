@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Sternwarte — Lerninsel</title>
+<link rel="icon" href="/favicon-32x32.png" sizes="32x32">
+<link rel="stylesheet" href="/lernwelt/raum.css">
+<style>
+  body { background: #070a18; }
+  #raum { border-color: #3730a3; box-shadow: 0 0 0 3px #0b1020, 0 14px 40px rgba(0,0,0,.6); }
+  #hud, #banner, #dialog .kasten { border-color: #3730a3; background: rgba(12,16,36,.94); }
+  #hud b, #banner b, #dialog .wer { color: #c4b5fd; }
+  .platte { background: #141a33; border-color: #4338ca; }
+  .platte h2 { color: #c4b5fd; }
+  .zu { border-color: #4338ca; background: #0b1020; color: #c4b5fd; }
+  .planet { display: flex; gap: 12px; align-items: center; padding: 9px 0;
+            border-top: 1px solid #2a2f52; font-size: 13.5px; }
+  .planet .k { width: 26px; height: 26px; border-radius: 50%; flex: none; }
+  .planet .n { font-weight: 700; }
+  .planet .f { color: #94a3b8; font-size: 12.5px; margin-top: 2px; line-height: 1.5; }
+  .lohn { font-size: 12.5px; color: #94a3b8; margin-top: 12px; line-height: 1.7; }
+  .lohn b { color: #fbbf24; }
+  .knopf { display: block; width: 100%; text-align: center; padding: 13px; border-radius: 12px;
+           margin-top: 12px; background: #6366f1; border: none; color: #0b1020;
+           font: 700 15px -apple-system, BlinkMacSystemFont, sans-serif; cursor: pointer;
+           text-decoration: none; }
+</style>
+</head>
+<body>
+
+<div id="rahmen">
+  <div id="hud"></div>
+  <canvas id="raum"></canvas>
+  <div id="banner"></div>
+</div>
+
+<div id="steuer">
+  <div class="pad">
+    <button class="leer"></button><button data-dir="up">▲</button><button class="leer"></button>
+    <button data-dir="left">◀</button><button class="leer"></button><button data-dir="right">▶</button>
+    <button class="leer"></button><button data-dir="down">▼</button><button class="leer"></button>
+  </div>
+  <button id="knopf-e">E</button>
+</div>
+
+<div id="fenster">
+  <div class="platte">
+    <button class="zu" id="zu">✕</button>
+    <div class="tafel" id="t-tafel" hidden>
+      <h2>🪐 Die Sternentafel</h2>
+      <div class="unter">Acht Planeten, von innen nach aussen.</div>
+      <div id="planetenliste"></div>
+      <div class="lohn">Merkhilfe: <b>M</b>ein <b>V</b>ater <b>e</b>rklärt <b>m</b>ir <b>j</b>eden
+        <b>S</b>onntag <b>u</b>nsere <b>N</b>achbarplaneten.</div>
+    </div>
+    <div class="tafel" id="t-teleskop" hidden>
+      <h2>🔭 Das Teleskop</h2>
+      <div class="unter" id="tel-unter"></div>
+      <div id="tel-status" class="lohn"></div>
+      <a class="knopf" id="tel-los" href="#">Quiz starten</a>
+    </div>
+  </div>
+</div>
+
+<script src="/lernwelt/insel.js"></script>
+<script src="/lernwelt/pixel.js"></script>
+<script src="/lernwelt/dialog.js"></script>
+<script src="/lernwelt/raum.js"></script>
+<script>
+(function () {
+  'use strict';
+  var $ = function (i) { return document.getElementById(i); };
+  var px = Pixel.px;
+  var TILE = 16, RAUM_W = 24, RAUM_H = 17;
+  var who = Insel.who();
+
+  if (!Insel.teilOffen('sternwarte', who)) {
+    var st = Insel.teilStand('sternwarte', who);
+    Dialog.zeigen('Sternwarte', [
+      'Die Kuppel ist zu.',
+      'Du brauchst ' + st.soll + ' gemeisterte Übungen, du hast ' + st.ist + '.'
+    ], function () { window.location.href = '/lernwelt/'; });
+    return;
+  }
+
+  var PLANETEN = [
+    ['Merkur', '#9ca3af', 'Der kleinste und der schnellste. Ein Jahr dauert dort 88 Tage.'],
+    ['Venus', '#e9c46a', 'Etwa gleich gross wie die Erde, aber heisser als ein Backofen.'],
+    ['Erde', '#4ade80', 'Der einzige Planet mit flüssigem Wasser an der Oberfläche. Und mit dir drauf.'],
+    ['Mars', '#c1440e', 'Rot wegen des Eisenrosts im Boden. Hat den höchsten Berg im Sonnensystem.'],
+    ['Jupiter', '#d9a441', 'Der Grösste. Über 1300 Erden hätten darin Platz.'],
+    ['Saturn', '#e8d3a0', 'Die Ringe bestehen aus Eis und Staub — manche Brocken so gross wie ein Haus.'],
+    ['Uranus', '#7dd3fc', 'Liegt auf der Seite. Dreht sich, als wäre er umgekippt.'],
+    ['Neptun', '#3b6fb0', 'Am weitesten weg. Dort wehen die schnellsten Winde des Sonnensystems.']
+  ];
+
+  var moebel = [
+    { art: 'teleskop', tx: 10, ty: 5, tw: 4, th: 4 },
+    { art: 'tafel', tx: 3, ty: 6, tw: 4, th: 1 },
+    { art: 'globus', tx: 19, ty: 7, tw: 2, th: 2 },
+    { art: 'kiste', tx: 20, ty: 13, tw: 1, th: 1 }
+  ];
+
+  Raum.starten({
+    canvas: $('raum'), breiteKacheln: RAUM_W, hoeheKacheln: RAUM_H,
+    start: { tx: 12, ty: 14, dir: 'up' },
+    tuerKacheln: [11, 12],
+    who: who,
+    moebel: moebel,
+    lichtInnen: 'rgba(148,163,255,.05)',
+    lichtAussen: 'rgba(4,6,18,.5)',
+
+    stationen: [
+      { id: 'teleskop', name: 'Teleskop', tafel: 't-teleskop', tx: 12, ty: 10, farbe: '#c4b5fd',
+        hinweis: 'Planeten-Quiz', verb: 'durchschauen' },
+      { id: 'tafel', name: 'Sternentafel', tafel: 't-tafel', tx: 5, ty: 9, farbe: '#fcd34d',
+        hinweis: 'acht Planeten auf einen Blick', verb: 'lesen' },
+      { id: 'tuer', name: 'Tür nach draussen', tafel: null, tx: 12, ty: 15, farbe: '#fde68a',
+        hinweis: 'zurück auf die Insel' }
+    ],
+
+    leute: [
+      { name: 'Sternen-Selma', tx: 16, ty: 10, jacke: ['#3730a3', '#2a2580'],
+        haar: '#1f2937', haut: '#b97a4f',
+        sprueche: [
+          ['Schön, dass du es geschafft hast. Diese Kuppel öffnet sich nicht für jeden.',
+           'Ich bin Selma. Ich zähle Sterne. Ich bin bei etwa viertausend und komme nicht weiter, ' +
+           'weil sie sich bewegen.'],
+          ['Schau durch das Teleskop, dann stelle ich dir ein paar Fragen.',
+           'Keine Sorge, es sind dieselben Planeten wie gestern. Die laufen nicht weg. Nur im Kreis.'],
+          'Ein Lichtjahr ist keine Zeit, sondern eine Strecke. Das verwirrt alle, mich eingeschlossen.',
+          ['Der nächste Stern nach der Sonne ist Proxima Centauri.',
+           'Mit dem Auto wärst du etwa fünfzig Millionen Jahre unterwegs. Nimm etwas zu lesen mit.']
+        ] },
+      { name: 'Assistent Anton', tx: 7, ty: 12, jacke: ['#0f766e', '#0b544e'],
+        haar: '#e2e8f0', haut: '#f2c8a0',
+        sprueche: [
+          'Ich putze die Linse. Das klingt langweilig, ist es auch. Aber ohne mich siehst du nur Flecken.',
+          ['Pluto ist kein Planet mehr, ja.', 'Selma sagt, das sei richtig so. Ich sage nichts dazu. ' +
+           'Ich putze nur die Linse.']
+        ] }
+    ],
+
+    boden: function (ctx, t) {
+      for (var ty = 3; ty < RAUM_H; ty++) {
+        for (var tx = 0; tx < RAUM_W; tx++) {
+          px(ctx, tx * TILE, ty * TILE, TILE, TILE, (tx + ty) % 2 ? '#232a48' : '#1e2542');
+        }
+      }
+      /* Kuppel mit offenem Spalt und Sternenhimmel */
+      for (var wx = 0; wx < RAUM_W; wx++) {
+        px(ctx, wx * TILE, 0, TILE, 48, '#2a3157');
+        px(ctx, wx * TILE, 42, TILE, 6, '#1c2140');
+      }
+      px(ctx, 9 * TILE, 0, 6 * TILE, 44, '#050814');
+      for (var s = 0; s < 26; s++) {
+        var sx = 9 * TILE + ((s * 37) % (6 * TILE));
+        var sy = 3 + ((s * 19) % 38);
+        var hell = 0.35 + 0.65 * Math.abs(Math.sin(t * 1.3 + s));
+        ctx.globalAlpha = hell;
+        px(ctx, sx, sy, s % 5 === 0 ? 2 : 1, s % 5 === 0 ? 2 : 1, '#f8fafc');
+        ctx.globalAlpha = 1;
+      }
+      px(ctx, 0, 48, RAUM_W * TILE, 2, '#151a33');
+      for (var sy2 = 3; sy2 < RAUM_H; sy2++) {
+        px(ctx, 0, sy2 * TILE, TILE, TILE, '#2a3157');
+        px(ctx, (RAUM_W - 1) * TILE, sy2 * TILE, TILE, TILE, '#2a3157');
+      }
+      for (var bx = 0; bx < RAUM_W; bx++) {
+        if (bx >= 11 && bx <= 12) continue;
+        px(ctx, bx * TILE, (RAUM_H - 1) * TILE, TILE, TILE, '#2a3157');
+      }
+      var ty2 = (RAUM_H - 1) * TILE;
+      px(ctx, 11 * TILE, ty2, 2 * TILE, TILE, '#0b1020');
+      px(ctx, 11 * TILE + 3, ty2 + 3, 2 * TILE - 6, TILE - 3, '#3b3f6b');
+
+      /* Planetenbahnen auf dem Boden */
+      ctx.globalAlpha = 0.22;
+      for (var r = 0; r < 4; r++) {
+        var rad = 40 + r * 22;
+        ctx.strokeStyle = '#818cf8';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.ellipse(12 * TILE, 11 * TILE, rad, rad * 0.42, 0, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+      ctx.globalAlpha = 1;
+    },
+
+    moebelZeichnen: function (ctx, m, t) {
+      var x = m.tx * TILE, y = m.ty * TILE, w = m.tw * TILE, h = m.th * TILE;
+      if (m.art === 'teleskop') {
+        px(ctx, x + 6, y + h - 4, w - 12, 6, '#1c2140');
+        px(ctx, x + w / 2 - 3, y - 4, 6, h, '#475569');
+        /* Rohr, zum Spalt gerichtet */
+        var neig = Math.sin(t * 0.5) * 2;
+        px(ctx, x + 4, y - 26 + neig, w - 8, 10, '#94a3b8');
+        px(ctx, x + 2, y - 24 + neig, 5, 7, '#cbd5e1');
+        px(ctx, x + w - 8, y - 28 + neig, 7, 12, '#64748b');
+        px(ctx, x + 6, y - 24 + neig, w - 14, 3, '#e2e8f0');
+        return;
+      }
+      if (m.art === 'tafel') {
+        px(ctx, x, y - 20, w, 22, '#1c2140');
+        px(ctx, x + 2, y - 18, w - 4, 18, '#050814');
+        for (var p = 0; p < 8; p++) {
+          px(ctx, x + 5 + p * 7, y - 12, 4, 4, PLANETEN[p][1]);
+        }
+        px(ctx, x + 4, y - 6, w - 8, 1, '#818cf8');
+        return;
+      }
+      if (m.art === 'globus') {
+        px(ctx, x + 6, y + h - 4, 8, 5, '#3f2a1c');
+        px(ctx, x + 4, y - 14, 16, 16, '#3b6fb0');
+        px(ctx, x + 7, y - 11, 7, 6, '#4ade80');
+        px(ctx, x + 12, y - 6, 5, 4, '#4ade80');
+        px(ctx, x + 3, y - 8, 18, 1, '#c9a227');
+        return;
+      }
+      px(ctx, x + 1, y - 9, TILE - 2, 13, '#3f3f6b');
+      px(ctx, x + 1, y - 6, TILE - 2, 2, '#818cf8');
+    },
+
+    stationTun: function (s) {
+      if (s.id === 'tafel') { tafelOeffnen(); return true; }
+      if (s.id === 'teleskop') { teleskopOeffnen(); return true; }
+      return false;
+    },
+    hudZeichnen: function () {
+      var ms = Insel.muenzStatus('nmg', 'planeten', 'leicht', who);
+      return '<span>🧭 <b>' + who + '</b></span>' +
+             '<span class="z">🪙 ' + Insel.muenzen(who) + '</span>' +
+             '<span>🪐 ' + (ms.zahlt ? 'Quiz offen' : 'Quiz erledigt') + '</span>' +
+             '<span><a href="/lernwelt/">🏝️ Insel</a></span>';
+    }
+  });
+
+  function tafelOeffnen() {
+    $('planetenliste').innerHTML = PLANETEN.map(function (p, n) {
+      return '<div class="planet"><div class="k" style="background:' + p[1] + '"></div>' +
+             '<div><div class="n">' + (n + 1) + '. ' + p[0] + '</div>' +
+             '<div class="f">' + p[2] + '</div></div></div>';
+    }).join('');
+    Raum.fensterOeffnen('t-tafel');
+  }
+
+  function teleskopOeffnen() {
+    var ms = Insel.muenzStatus('nmg', 'planeten', 'leicht', who);
+    $('tel-unter').textContent = 'Selma stellt dir Fragen zu dem, was du siehst.';
+    $('tel-status').innerHTML = ms.kurz + ' — ' + ms.text;
+    $('tel-los').onclick = function (e) {
+      e.preventDefault();
+      Insel.merkeRaum('/lernwelt/sternwarte/');
+      window.location.href = '/lernwelt/uebung/?fach=nmg&set=planeten';
+    };
+    Raum.fensterOeffnen('t-teleskop');
+  }
+
+  Raum.reden('Sternwarte', [
+    'Die Kuppel steht offen. Durch den Spalt sieht man einen Streifen Nachthimmel.',
+    'Links hängt die Sternentafel, in der Mitte steht das Teleskop.'
+  ]);
+})();
+</script>
+</body>
+</html>

@@ -23,9 +23,13 @@
     });
     return out;
   }
-  function wahl(frage, korrekt, falsche, hinweis) {
+  /* 'paar' kennzeichnet die dahinterliegende Tatsache. Zwei Aufgaben mit
+     derselben Kennung gelten als dieselbe — auch wenn sie umgekehrt gefragt
+     werden ("Hauptstadt von X?" und "X ist die Hauptstadt von …"). */
+  function wahl(frage, korrekt, falsche, hinweis, paar) {
     return { typ: 'wahl', frage: frage, antwort: String(korrekt),
-             optionen: shuffle([String(korrekt)].concat(falsche.map(String))), hinweis: hinweis };
+             optionen: shuffle([String(korrekt)].concat(falsche.map(String))),
+             hinweis: hinweis, paar: paar };
   }
   function fmt(n) { return String(n).replace('.', ','); }
   function ggT(a, b) { return b ? ggT(b, a % b) : a; }
@@ -648,11 +652,11 @@
         var v = pick(STARKE_VERBEN);
         if (Math.random() < 0.5) {
           return { typ: 'text', frage: 'Setze «' + v[0] + '» ins Präteritum (Vergangenheit):\ner/sie ___',
-                   antwort: v[1], hinweis: 'Zum Beispiel: gehen → ging' };
+                   antwort: v[1], hinweis: 'Zum Beispiel: gehen → ging', paar: 'verb:' + v[0] };
         }
         return { typ: 'text', frage: 'Setze «' + v[0] + '» ins Perfekt:\ner/sie ___', antwort: v[2],
                  alternativen: [v[2].replace('ist ', '').replace('hat ', '')],
-                 hinweis: 'Mit Hilfsverb: hat … / ist …' };
+                 hinweis: 'Mit Hilfsverb: hat … / ist …', paar: 'verb:' + v[0] };
       }
     },
     {
@@ -920,7 +924,7 @@
         var korrekt = deToEn ? w[1] : w[0];
         var pool = alle.map(function (v) { return deToEn ? v[1] : v[0]; });
         return wahl((deToEn ? 'Was heisst «' + w[0] + '» auf Englisch?' : 'Was heisst «' + w[1] + '» auf Deutsch?'),
-          korrekt, distinct(korrekt, pool, 3));
+          korrekt, distinct(korrekt, pool, 3), null, 'wort:' + w[0]);
       }
     },
     {
@@ -954,9 +958,10 @@
         var v = pick(IRREGULAR);
         if (Math.random() < 0.3) {
           return { typ: 'text', frage: 'Past participle of «' + v[0] + '» (3. Form):', antwort: v[2],
-                   hinweis: '(' + v[3] + ')' };
+                   hinweis: '(' + v[3] + ')', paar: 'irr:' + v[0] };
         }
-        return { typ: 'text', frage: 'Simple past of «' + v[0] + '»:', antwort: v[1], hinweis: '(' + v[3] + ')' };
+        return { typ: 'text', frage: 'Simple past of «' + v[0] + '»:', antwort: v[1],
+                 hinweis: '(' + v[3] + ')', paar: 'irr:' + v[0] };
       }
     },
     {
@@ -1231,12 +1236,13 @@
       info: 'Hauptstädte in Europa.',
       gen: function () {
         var e = pick(EUROPA);
+        var kennung = 'europa:' + e[0];
         if (Math.random() < 0.5) {
           return wahl('Wie heisst die Hauptstadt von ' + e[0] + '?', e[1],
-            distinct(e[1], EUROPA.map(function (x) { return x[1]; }), 3));
+            distinct(e[1], EUROPA.map(function (x) { return x[1]; }), 3), null, kennung);
         }
         return wahl(e[1] + ' ist die Hauptstadt von …', e[0],
-          distinct(e[0], EUROPA.map(function (x) { return x[0]; }), 3));
+          distinct(e[0], EUROPA.map(function (x) { return x[0]; }), 3), null, kennung);
       }
     },
     {
