@@ -1,5 +1,6 @@
 ---
 title: "Publikationen"
+translationKey: "publications"
 ---
 
 # Publikationen
