@@ -212,6 +212,27 @@
 
   /* ---------------- Übungslauf ---------------- */
   var set, aufgaben = [], i = 0, richtig = 0, serie = 0, fehler = [], aktuell = null;
+  var HISTORIE_MAX = 20;
+
+  /* Zwei Aufgaben gelten als gleich, wenn Frage UND Antwort übereinstimmen.
+     Manche Sets stellen immer dieselbe Frage und variieren nur die Auswahl. */
+  function schluessel(a) { return a.frage + '\u241F' + a.antwort; }
+
+  function historieSchluessel(setId) {
+    return 'lerninsel.gesehen.' + who + '.' + fach + ':' + setId;
+  }
+  function historieLaden(setId) {
+    try {
+      var roh = localStorage.getItem(historieSchluessel(setId));
+      return roh ? JSON.parse(roh) : [];
+    } catch (e) { return []; }
+  }
+  function historieSpeichern(setId, neue, alte) {
+    try {
+      var liste = neue.concat(alte).slice(0, HISTORIE_MAX);
+      localStorage.setItem(historieSchluessel(setId), JSON.stringify(liste));
+    } catch (e) {}
+  }
 
   function normal(s) {
     var t = String(s).toLowerCase().trim()
@@ -236,16 +257,27 @@
     $('untertitel').textContent = set.info + ' · Lehrplan 21: ' + set.lp21 +
       ' · ' + (set.schwierigkeit === 'leicht' ? 'Grundlagen' : 'Knacknuss');
 
+    /* Aufgaben zusammenstellen: keine Wiederholung in dieser Runde und
+       möglichst keine, die beim letzten Mal schon dran war. */
+    var historie = historieLaden(set.id);
+    var inRunde = {}, reserve = [];
     aufgaben = [];
-    var versuche = 0;
-    while (aufgaben.length < ANZAHL && versuche < ANZAHL * 12) {
-      versuche++;
+    for (var v = 0; v < ANZAHL * 40 && aufgaben.length < ANZAHL; v++) {
       var a = set.gen();
       if (!a) continue;
-      /* keine identische Frage zweimal */
-      var doppelt = aufgaben.some(function (x) { return x.frage === a.frage; });
-      if (!doppelt) aufgaben.push(a);
+      var k = schluessel(a);
+      if (inRunde[k]) continue;          /* in dieser Runde schon vorgesehen */
+      inRunde[k] = 1;
+      if (historie.indexOf(k) >= 0) {    /* zuletzt schon gestellt — zurücklegen */
+        if (reserve.length < ANZAHL) reserve.push(a);
+        continue;
+      }
+      aufgaben.push(a);
     }
+    /* Reicht der Vorrat nicht, kommen die zurückgelegten wieder zum Zug. */
+    while (aufgaben.length < ANZAHL && reserve.length) aufgaben.push(reserve.shift());
+    historieSpeichern(set.id, aufgaben.map(schluessel), historie);
+
     i = 0; richtig = 0; serie = 0; fehler = [];
     zeige();
   }
