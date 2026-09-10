@@ -123,11 +123,12 @@
 </div>
 
 <script src="/lernwelt/insel.js"></script>
+<script src="/lernwelt/musik.js"></script>
 <script>
 (function () {
   var $ = function (id) { return document.getElementById(id); };
   var who = Insel.who();
-  Insel.hudLeiste($('hud'));
+  Insel.hudLeiste($('hud'), 'laden');
   $('sub').textContent = who + ' · Münzen gegen Marken tauschen';
   $('preis').textContent = Insel.oekonomie.markePreis;
 
@@ -142,7 +143,7 @@
     $('kauf-sch').disabled = hat || Insel.muenzen(who) < Insel.oekonomie.schaufelPreis;
     $('kauf-sch').textContent = hat ? '✔ Schaufel im Gepäck' : 'Schaufel kaufen';
     $('hud').innerHTML = '';
-    Insel.hudLeiste($('hud'));
+    Insel.hudLeiste($('hud'), 'laden');
   }
 
   $('kaufen').onclick = function () {

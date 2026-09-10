@@ -60,12 +60,13 @@
   <footer>hodelweb.ch/lernwelt/spiele</footer>
 </div>
 <script src="/lernwelt/insel.js"></script>
+<script src="/lernwelt/musik.js"></script>
 <script>
 (function () {
   'use strict';
   var $ = function (i) { return document.getElementById(i); };
   var who = Insel.who();
-  Insel.hudLeiste($('hud'));
+  Insel.hudLeiste($('hud'), 'insel');
 
   var SPIELE = Insel.spiele;
 

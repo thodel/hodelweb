@@ -114,6 +114,7 @@
 </div>
 
 <script src="/lernwelt/insel.js"></script>
+<script src="/lernwelt/musik.js"></script>
 <script>
 (function () {
   'use strict';
@@ -121,7 +122,7 @@
   var who = Insel.who();
   var auswahl = Insel.avatar(who);
 
-  Insel.hudLeiste($('hud'));
+  Insel.hudLeiste($('hud'), 'laden');
   $('sub').textContent = who + ' · speichern, umziehen, nachschauen';
 
   /* ---------------- Figur zeichnen ---------------- */
@@ -301,7 +302,7 @@
     $('z-muenzen').textContent = Insel.muenzen(who);
     $('z-marken').textContent = Insel.marken(who);
     $('z-sterne').textContent = Insel.sterneGesamt(who);
-    $('hud').innerHTML = ''; Insel.hudLeiste($('hud'));
+    $('hud').innerHTML = ''; Insel.hudLeiste($('hud'), 'laden');
     schrankBauen(); figurZeichnen(); kostenZeigen();
     sicherungInfo(); standZeigen(); kinderZeigen();
   }

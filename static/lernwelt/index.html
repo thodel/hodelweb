@@ -358,9 +358,9 @@
     { id: 'kiosk',   name: 'Kiosk',          tx: 24, ty: 25, kind: 'kiosk',
       url: '/lernwelt/kiosk/',               hint: 'Münzen tauschen', color: '#fbbf24' },
     { id: 'kino',    name: 'Kino',           tx: 15, ty: 16, kind: 'kino',
-      url: '/lernwelt/raum/?raum=kino',      hint: 'Sport-Videos · 1 Marke', color: '#c4b5fd' },
+      url: '/lernwelt/saal/?raum=kino',      hint: 'Sport-Videos · 1 Marke', color: '#c4b5fd' },
     { id: 'musik',   name: 'Musikhütte',     tx: 33, ty: 16, kind: 'musik',
-      url: '/lernwelt/raum/?raum=musik',     hint: 'Musik-Videos · 1 Marke', color: '#f9a8d4' },
+      url: '/lernwelt/saal/?raum=musik',     hint: 'Musik-Videos · 1 Marke', color: '#f9a8d4' },
     { id: 'spielplatz', name: 'Spielplatz',  tx: 17, ty: 24, kind: 'sport',
       url: '/lernwelt/spiele/',              hint: 'Sportspiele & Puzzles', color: '#86efac' },
     { id: 'schatz',  name: 'Schatzhöhle',    tx: 24, ty: 6,  kind: 'cave',  url: null,
@@ -2272,7 +2272,7 @@
   wetterRest = 45 + Math.random() * 60;
   tropfenAufbauen();
   updateHud();
-  if (window.Musik) { Musik.beiErsterAktion(); musikKnopfZeichnen(); }
+  if (window.Musik) { Musik.stueck('insel'); Musik.beiErsterAktion(); musikKnopfZeichnen(); }
   requestAnimationFrame(function (t) { lastTs = t; step(t); });
 
   /* Kommt der Spieler aus einer Übung, einem Raum oder dem Haus zurück,
