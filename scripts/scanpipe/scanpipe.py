@@ -216,8 +216,9 @@ def fuers_modell(quelle: Path, ziel: Path, breite=1600):
 
 # ---------------------------------------------------------------- Erkennung
 
-PROMPT = """Du bist ein Dokumentenscanner. Im Arbeitsverzeichnis liegt die Bilddatei {datei}.
-Lies sie mit dem Read-Tool und werte sie aus.
+PROMPT = """Du bist ein Dokumentenscanner. Im Arbeitsverzeichnis liegen die Bilddateien
+{datei}. Es sind die Seiten eines einzigen Dokuments, in dieser Reihenfolge.
+Lies jede davon mit dem Read-Tool und werte sie zusammen aus.
 
 Antworte AUSSCHLIESSLICH mit einem einzigen JSON-Objekt, ohne Text davor oder danach,
 ohne Codeblock-Zeichen. Felder:
@@ -247,13 +248,20 @@ Regeln:
 """
 
 
-def erkenne(konfig, bild: Path, arbeitsverzeichnis: Path, sitzung: str):
-    """Fragt openclaw mit einem bildfähigen Modell. Gibt ein dict zurück."""
-    ziel = arbeitsverzeichnis / bild.name
-    if ziel.resolve() != bild.resolve():
-        shutil.copy(bild, ziel)
+def erkenne(konfig, bilder, arbeitsverzeichnis: Path, sitzung: str):
+    """Fragt openclaw mit einem bildfähigen Modell. 'bilder' ist eine Liste von
+    Seiten in der richtigen Reihenfolge. Gibt ein dict zurück."""
+    if isinstance(bilder, Path):
+        bilder = [bilder]
+    kopien = []
+    for b in bilder:
+        ziel = arbeitsverzeichnis / b.name
+        if ziel.resolve() != b.resolve():
+            shutil.copy(b, ziel)
+            kopien.append(ziel)
 
-    prompt = PROMPT.format(datei=bild.name, domaenen=", ".join(konfig["domaenen"]))
+    namen = ", ".join(b.name for b in bilder)
+    prompt = PROMPT.format(datei=namen, domaenen=", ".join(konfig["domaenen"]))
     befehl = [
         konfig.get("openclaw", "openclaw"), "agent",
         "--agent", konfig.get("agent", "main"),
@@ -270,11 +278,11 @@ def erkenne(konfig, bild: Path, arbeitsverzeichnis: Path, sitzung: str):
     except subprocess.TimeoutExpired:
         return None, "Zeitüberschreitung beim Modell"
     finally:
-        try:
-            if ziel.resolve() != bild.resolve():
-                ziel.unlink(missing_ok=True)
-        except OSError:
-            pass
+        for k in kopien:
+            try:
+                k.unlink(missing_ok=True)
+            except OSError:
+                pass
 
     roh = (p.stdout or "") + ("\n" + p.stderr if p.returncode else "")
     daten = json_aus_text(roh)
@@ -471,27 +479,33 @@ def verarbeite(cloud, konfig, zustand, raum, nachricht, arbeitsverzeichnis: Path
 
         if mime.startswith("image/"):
             fuers_modell(original, tmpdir / ("klein-" + name))
-            bild = tmpdir / ("klein-" + name)
+            bilder = [tmpdir / ("klein-" + name)]
         elif mime == "application/pdf":
             if not shutil.which("pdftoppm"):
                 cloud.sende(raum, "⚠️ PDF-Verarbeitung braucht `pdftoppm`, das fehlt noch.",
                             antwortAuf=nachricht["id"])
                 return
-            subprocess.run(["pdftoppm", "-jpeg", "-r", "150", "-f", "1", "-l", "1",
+            maxSeiten = int(konfig.get("pdfSeiten", 3))
+            subprocess.run(["pdftoppm", "-png", "-r", "150", "-f", "1", "-l", str(maxSeiten),
                             str(original), str(tmpdir / "seite")],
-                           capture_output=True, timeout=180)
-            seiten = sorted(tmpdir.glob("seite*.jpg"))
+                           capture_output=True, timeout=240)
+            seiten = sorted(tmpdir.glob("seite*.png"))
             if not seiten:
                 cloud.sende(raum, "⚠️ Aus dem PDF liess sich keine Seite lesen.",
                             antwortAuf=nachricht["id"])
                 return
-            bild = seiten[0]
+            bilder = []
+            for s_ in seiten[:maxSeiten]:
+                klein = tmpdir / ("klein-" + s_.name)
+                fuers_modell(s_, klein)
+                bilder.append(klein)
+            log(f"PDF mit {len(bilder)} Seite(n) für das Modell aufbereitet")
         else:
             cloud.sende(raum, f"⚠️ `{mime}` kann ich nicht lesen. Schick ein Foto oder ein PDF.",
                         antwortAuf=nachricht["id"])
             return
 
-        daten, fehler = erkenne(konfig, bild, arbeitsverzeichnis, f"agent:main:scanpipe-{nid}")
+        daten, fehler = erkenne(konfig, bilder, arbeitsverzeichnis, f"agent:main:scanpipe-{nid}")
         if fehler:
             log("Erkennung fehlgeschlagen:", fehler)
             cloud.sende(raum, f"⚠️ Erkennung fehlgeschlagen: {fehler[:200]}",
