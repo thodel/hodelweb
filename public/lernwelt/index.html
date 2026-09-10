@@ -19,6 +19,8 @@
   #stage {
     position: relative;
     width: 100%; height: 100%;
+    padding: env(safe-area-inset-top) env(safe-area-inset-right)
+             env(safe-area-inset-bottom) env(safe-area-inset-left);
     display: flex; align-items: center; justify-content: center;
     background:
       radial-gradient(circle at 50% 30%, #16224a 0%, #0b1021 70%);
@@ -109,6 +111,20 @@
   #touch.on {
     display: block; position: relative; width: 100%; height: 150px;
     pointer-events: none;
+  }
+  /* Im Querformat (Tablet quer) sitzt sie links und rechts neben dem Spielfeld —
+     dort ist Platz, und die knappe Höhe bleibt dem Spiel. */
+  #frame.quer { position: relative; width: 100%; height: 100%; justify-content: center; }
+  #frame.quer #touch.on { position: absolute; inset: 0; width: 100%; height: 100%; }
+  #frame.quer .pad {
+    top: 50%; bottom: auto; left: max(6px, env(safe-area-inset-left));
+    transform: translateY(-50%);
+    grid-template-columns: repeat(3, 44px); grid-template-rows: repeat(3, 44px);
+    gap: 0;
+  }
+  #frame.quer #btn-a {
+    top: 50%; bottom: auto; right: max(18px, env(safe-area-inset-right));
+    transform: translateY(-50%); width: 100px; height: 100px;
   }
   .pad {
     position: absolute; bottom: 10px; left: 16px;
@@ -1258,8 +1274,9 @@
     musikKnopfZeichnen();
   });
 
-  /* Touch */
-  var isTouch = window.matchMedia('(hover: none)').matches || 'ontouchstart' in window;
+  /* Touch — mit ?touch=1 lässt sich die Tablet-Steuerung auch am Rechner ansehen. */
+  var isTouch = new URLSearchParams(location.search).get('touch') === '1' ||
+                window.matchMedia('(hover: none)').matches || 'ontouchstart' in window;
   if (isTouch) document.getElementById('touch').classList.add('on');
   Array.prototype.forEach.call(document.querySelectorAll('.pad button[data-dir]'), function (b) {
     var d = b.dataset.dir;
@@ -1280,16 +1297,36 @@
   });
 
   /* ================= Skalierung ================= */
+  /* Sichtbare Fläche: auf dem iPad schrumpft sie, wenn Safaris Leiste erscheint. */
+  function sichtbar() {
+    var vv = window.visualViewport;
+    return { b: Math.round(vv ? vv.width : window.innerWidth),
+             h: Math.round(vv ? vv.height : window.innerHeight) };
+  }
+  function stufe(x) { return Math.max(1, Math.min(5, Math.floor(x * 2) / 2)); }
   function resize() {
+    var v = sichtbar();
+    var quer = v.b > v.h;
+    var frame = document.getElementById('frame');
+    frame.classList.toggle('quer', isTouch && quer);
+
     var rand = isTouch ? 10 : 24;
-    var steuerung = isTouch ? 150 : 0;      /* Band unter dem Spielfeld */
-    var sx = (window.innerWidth - rand) / VIEW_W;
-    var sy = (window.innerHeight - rand - steuerung) / VIEW_H;
-    var s = Math.max(1, Math.min(5, Math.floor(Math.min(sx, sy) * 2) / 2));
+    var SEITE_MIN = 140;                        /* Platz für Steuerkreuz und Knopf */
+    var s;
+    if (isTouch && quer) {
+      /* So gross wie möglich, aber links und rechts muss die Steuerung Platz haben. */
+      s = stufe(Math.min((v.b - rand) / VIEW_W, (v.h - rand) / VIEW_H));
+      while (s > 1 && (v.b - VIEW_W * s) / 2 < SEITE_MIN) s -= 0.5;
+    } else {
+      var band = isTouch ? 150 : 0;             /* Steuerband unter dem Spielfeld */
+      s = stufe(Math.min((v.b - rand) / VIEW_W, (v.h - rand - band) / VIEW_H));
+    }
     cv.style.width = (VIEW_W * s) + 'px';
     cv.style.height = (VIEW_H * s) + 'px';
   }
   window.addEventListener('resize', resize);
+  window.addEventListener('orientationchange', function () { setTimeout(resize, 120); });
+  if (window.visualViewport) window.visualViewport.addEventListener('resize', resize);
 
   /* ================= Start ================= */
   buildWorld();
