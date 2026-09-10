@@ -247,6 +247,15 @@
       <div class="keyhint">Eine Wette gewinnst du, wenn du im Fach mehr Prozent schaffst als die Figur behauptet.</div>
     </div>
 
+    <!-- Hafen: wohin soll die Fahrt gehen? -->
+    <div class="overlay" id="scr-hafen" hidden>
+      <div class="title" style="font-size:19px" id="hafen-name">Hafen</div>
+      <div class="panel"><p id="hafen-text"></p></div>
+      <div class="choices" id="hafen-ziele"></div>
+      <button class="choice" id="hafen-nein" style="min-width:auto">Doch lieber laufen</button>
+      <div class="keyhint" id="hafen-hinweis"></div>
+    </div>
+
     <!-- Schatz -->
     <div class="overlay" id="scr-treasure" hidden>
       <div class="title">🏆 SCHATZ GEFUNDEN!</div>
@@ -379,6 +388,14 @@
     { id: 'spelunke', name: 'Alte Spelunke',  tx: 30, ty: 28, kind: 'spelunke', versteckt: true,
       url: '/lernwelt/spelunke/',            hint: 'Glücksspiel — hier verliert man Münzen', color: '#f472b6' }
   ];
+
+  /* Häfen: von hier fahren Boote zu den anderen Stegen. */
+  if (window.Insel && Insel.haefen) {
+    Insel.haefen.forEach(function (h) {
+      places.push({ id: h.id, name: h.name, tx: h.tx, ty: h.ty, kind: 'steg',
+                    url: null, hafen: h, hint: h.nahe, color: '#7dd3fc' });
+    });
+  }
 
   /* Freischaltbare Inselteile: erst verschlossen, dann echte Orte.
      Die Bedingung steht im Banner, damit klar ist, worauf man hinarbeitet. */
@@ -1012,6 +1029,23 @@
     px(c, x - 3, y - 12, 6, 4, '#e2e8f0');    /* Bart */
   }
 
+  /* Anlegesteg mit wartendem Boot. */
+  function drawSteg(c, x, y) {
+    px(c, x - 14, y - 3, 28, 5, COL.woodD);
+    for (var i = 0; i < 4; i++) px(c, x - 12 + i * 8, y + 2, 3, 5, COL.woodD);
+    px(c, x - 14, y - 5, 28, 3, COL.wood);
+    /* Poller */
+    px(c, x - 15, y - 12, 4, 9, COL.woodD);
+    px(c, x + 11, y - 12, 4, 9, COL.woodD);
+    /* Boot, das mit der Dünung schaukelt */
+    var wippe = Math.round(Math.sin(waveT * 1.2 + x * 0.05) * 2);
+    px(c, x + 6, y - 14 + wippe, 18, 8, COL.woodL);
+    px(c, x + 6, y - 7 + wippe, 18, 3, COL.woodD);
+    px(c, x + 14, y - 30 + wippe, 2, 17, COL.woodD);
+    px(c, x + 16, y - 29 + wippe, 10, 11, '#f8fafc');
+    px(c, x + 16, y - 24 + wippe, 10, 2, '#b03b3b');
+  }
+
   /* ---- Freischaltbare Teile ---- */
   function teilOffen(place) {
     return !!(place && place.teil && window.Insel && Insel.teilOffen(place.teil.id, who));
@@ -1385,6 +1419,9 @@
             muenzHinweis(offeneUebungen(p.fach)) + ' — [E] betreten';
     } else if (p.id === 'spielplatz') {
       txt = '<b>' + p.name + '</b> — ' + p.hint + muenzHinweis(offeneSpiele()) + ' — [E] betreten';
+    } else if (p.hafen) {
+      txt = '<b>' + p.name + '</b> — Boot ' + p.hint + ' · ' +
+        Insel.oekonomie.faehrePreis + ' Münzen — [E] ablegen';
     } else if (p.teil) {
       var st = Insel.teilStand(p.teil.id, who);
       txt = st.offen
@@ -1438,6 +1475,7 @@
 
   function interact() {
     if (state !== 'play' || !nearest) return;
+    if (nearest.hafen) { hafenOeffnen(nearest.hafen); return; }
     if (nearest.istGrab) { graben(nearest.schatz); return; }
     if (nearest.istFlaneur) { plaudern(nearest.flaneur); return; }
     if (nearest.istSeebaer) { schatzGeschichte(); return; }
@@ -1465,6 +1503,69 @@
       Insel.merkePosition({ x: Math.round(hero.x), y: Math.round(hero.y), dir: hero.dir, who: who });
     }
     window.location.href = nearest.url + (nearest.url.indexOf('?') >= 0 ? '&' : '?') + 'von=insel';
+  }
+
+  /* ---------------- Häfen und Überfahrten ----------------
+     Eine Fahrt spart den Fussweg, kostet ein paar Münzen und geht manchmal
+     schief: dann kapern Piraten das Boot. */
+  var aktuellerHafen = null;
+  function hafenOeffnen(h) {
+    aktuellerHafen = h;
+    state = 'hafen';
+    document.getElementById('hafen-name').textContent = '⛵ ' + h.name;
+    var fahrten = Insel.stand(who).fahrten || { gesamt: 0, gekapert: 0 };
+    document.getElementById('hafen-text').innerHTML =
+      'Der Bootsmann wartet. Eine Überfahrt kostet <b>' + Insel.oekonomie.faehrePreis +
+      ' Münzen</b>, du hast ' + Insel.muenzen(who) + '.' +
+      (fahrten.gesamt
+        ? '<br><br>Bisher ' + fahrten.gesamt + ' Fahrten, davon ' + fahrten.gekapert +
+          ' von Piraten erwischt.'
+        : '');
+    var box = document.getElementById('hafen-ziele');
+    box.innerHTML = '';
+    Insel.haefen.forEach(function (ziel) {
+      if (ziel.id === h.id) return;
+      var b = document.createElement('button');
+      b.className = 'choice';
+      b.style.minWidth = 'auto';
+      b.innerHTML = 'Nach ' + ziel.name + '<br><small style="opacity:.7">' + ziel.nahe + '</small>';
+      b.onclick = function () { ablegen(h, ziel); };
+      box.appendChild(b);
+    });
+    document.getElementById('hafen-hinweis').textContent =
+      'Draussen sind Piraten unterwegs. Wer gekapert wird, muss sich freiarbeiten.';
+    showScreen('scr-hafen');
+  }
+  document.getElementById('hafen-nein').onclick = function () {
+    state = 'play';
+    showScreen(null);
+  };
+
+  function ablegen(von, ziel) {
+    var r = Insel.reisen(von.id, ziel.id, who);
+    if (!r.ok) {
+      document.getElementById('hafen-text').innerHTML =
+        'Dir fehlen noch <b>' + r.fehlt + ' Münzen</b> für die Überfahrt.';
+      return;
+    }
+    state = 'play';
+    showScreen(null);
+    updateHud();
+    if (r.gekapert) {
+      flash(['Kaum bist du abgelegt, taucht ein zweiter Mast am Horizont auf.',
+             'Schwarze Flagge. Sie sind schneller als ihr.',
+             'Piraten! Sie nehmen dich mit auf ihre Insel.'], 'Auf See',
+            function () { window.location.href = '/lernwelt/piraten/'; });
+      return;
+    }
+    /* Gute Fahrt: der Spieler steht am Zielsteg. */
+    var an = Insel.ankunftAbholen(who);
+    var pos = sichererPlatz((an ? an.tx : ziel.tx) * TILE + 8, (an ? an.ty : ziel.ty) * TILE + 30);
+    hero.x = pos.x; hero.y = pos.y; hero.dir = 'down';
+    nearest = null;
+    updateBanner();
+    flash('Ruhige See. Nach ein paar Minuten legt ihr am ' + ziel.name + ' an, ' +
+          ziel.nahe + '.', 'Bootsmann');
   }
 
   /* ---------------- Graben ---------------- */
@@ -1653,9 +1754,9 @@
   var flashT = 0, flashMsg = '';
   /* Nachrichten bleiben stehen, bis sie weggeklickt werden.
      'wer' ist optional und steht als Sprecher über dem Text. */
-  function flash(msg, wer) {
-    if (window.Dialog) Dialog.zeigen(wer || '', msg);
-    else { flashMsg = msg; flashT = 2.8; }
+  function flash(msg, wer, danach) {
+    if (window.Dialog) Dialog.zeigen(wer || '', msg, danach);
+    else { flashMsg = msg; flashT = 2.8; if (danach) setTimeout(danach, 2800); }
   }
 
   function showTreasure() {
@@ -1748,6 +1849,7 @@
         case 'sport': drawSport(ctx, X, Y); break;
         case 'spelunke': drawSpelunke(ctx, X, Y); break;
         case 'cave': drawCave(ctx, X, Y, treasureOpen()); break;
+        case 'steg': drawSteg(ctx, X, Y); break;
         case 'leuchtturm': drawLeuchtturm(ctx, X, Y, teilOffen(it.place)); break;
         case 'sternwarte': drawSternwarte(ctx, X, Y, teilOffen(it.place)); break;
         case 'bucht': drawBucht(ctx, X, Y, teilOffen(it.place)); break;
@@ -2041,7 +2143,7 @@
 
   /* ================= Screens ================= */
   function showScreen(id) {
-    ['scr-title', 'scr-who', 'scr-treasure', 'scr-npc'].forEach(function (s) {
+    ['scr-title', 'scr-who', 'scr-treasure', 'scr-npc', 'scr-hafen'].forEach(function (s) {
       document.getElementById(s).hidden = (s !== id);
     });
     document.getElementById('hud').hidden = !!id;
@@ -2251,6 +2353,10 @@
     keys[k] = true;
     if (['arrowup', 'arrowdown', 'arrowleft', 'arrowright', ' '].indexOf(k) >= 0) e.preventDefault();
 
+    if (state === 'hafen') {
+      if (k === 'escape' || k === 'e') { state = 'play'; showScreen(null); }
+      return;
+    }
     if (state === 'title' && (k === 'enter' || k === ' ')) { state = 'who'; showScreen('scr-who'); return; }
     if (state === 'who') {
       if (k === '1') startPlay('Andrin');
@@ -2418,6 +2524,14 @@
 
   /* Kommt der Spieler aus einer Übung, einem Raum oder dem Haus zurück,
      steht er wieder genau dort, wo er hineingegangen ist — ohne Titelbild. */
+  /* Wer bei den Piraten sitzt, kommt nicht einfach nach Hause. */
+  if (window.Insel && Insel.gekapert && Insel.gekapert(Insel.who())) {
+    window.location.replace('/lernwelt/piraten/');
+    return;
+  }
+  /* Kommt der Spieler per Boot zurück, steht er am Zielsteg. */
+  var perBoot = window.Insel && Insel.ankunftAbholen ? Insel.ankunftAbholen() : null;
+
   var rueckkehr = window.Insel ? Insel.letztePosition() : null;
   var blackout = window.Insel && Insel.stand().aufwachen && JACKETS[Insel.who()];
   if (blackout) {
@@ -2425,6 +2539,14 @@
        Nicht stumm starten — sonst steht der Spieler ohne Erklärung im Wald. */
     if (window.Insel) Insel.positionVergessen();
     startPlay(Insel.who(), false);
+  } else if (perBoot) {
+    /* Zurück von den Piraten oder aus einer Überfahrt. */
+    var anleger = sichererPlatz(perBoot.tx * TILE + 8, perBoot.ty * TILE + 30);
+    hero.x = anleger.x; hero.y = anleger.y; hero.dir = 'down';
+    if (window.Insel) Insel.positionVergessen();
+    startPlay(Insel.who(), true);
+    flash('Du stehst am ' + perBoot.name + ', ' + perBoot.nahe + '. Fester Boden, endlich.',
+          'An Land');
   } else if (rueckkehr && JACKETS[rueckkehr.who]) {
     /* Gemerkte Positionen stammen aus einer früheren Sitzung — prüfen. */
     var zurueck = sichererPlatz(rueckkehr.x, rueckkehr.y);

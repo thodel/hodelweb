@@ -91,7 +91,12 @@
     auftragMindest: 60,     /* ab diesem Ergebnis zählt eine Übung als erledigt */
     auftragBonus: 20,       /* Münzen, wenn der ganze Tagesauftrag steht */
     wochenBonusMeister: 5,  /* Wochenpunkte extra fürs Meistern einer Übung */
-    verratenWeite: 210      /* so weit leuchtet ein verratener Schatz */
+    verratenWeite: 210,     /* so weit leuchtet ein verratener Schatz */
+    faehrePreis: 2,         /* Münzen für eine Überfahrt */
+    piratenRisiko: 0.28,    /* so oft geht die Fahrt schief */
+    piratenAufgaben: 3,     /* so viele Übungen bis zur Freilassung */
+    piratenMindest: 50,     /* ab diesem Ergebnis zählt eine Übung */
+    loesegeld: 40           /* wer nicht üben mag, kauft sich frei */
   };
 
   /* Zwei Wäldchen — dort wacht man nach einem Blackout auf. */
@@ -99,6 +104,15 @@
     nordwald: { name: 'Nordwald', tx: 17, ty: 8,  x: 280, y: 142 },
     suedwald: { name: 'Südwald',  tx: 30, ty: 24, x: 488, y: 398 }
   };
+
+  /* Häfen. Von jedem Steg fährt ein Boot zu jedem anderen — schneller als
+     zu Fuss, aber draussen auf dem Wasser lauern Piraten. */
+  var HAEFEN = [
+    { id: 'nordkai',  name: 'Nordkai',   tx: 20, ty: 4,  nahe: 'bei der Schatzhöhle' },
+    { id: 'westbucht', name: 'Westbucht', tx: 4,  ty: 22, nahe: 'beim Piratenschiff' },
+    { id: 'ostkai',   name: 'Ostkai',    tx: 43, ty: 20, nahe: 'bei der Schreiberhütte' },
+    { id: 'suedsteg', name: 'Südsteg',   tx: 22, ty: 32, nahe: 'unterhalb vom Kiosk' }
+  ];
 
   /* Freischaltbare Inselteile.
      Wer übt, macht die Insel grösser. Jeder Teil hat eine klare Bedingung,
@@ -238,6 +252,7 @@
     baerenArten: BAEREN,
     schaetze: SCHAETZE,
     inselteile: INSELTEILE,
+    haefen: HAEFEN,
     garderobe: GARDEROBE,
     kinder: KINDER,
     faecher: FAECHER,
@@ -336,6 +351,28 @@
       /* Ein Schatzhinweis für jede neu gemeisterte Übung. */
       if (neuGemeistert) stand.hinweise = (stand.hinweise || 0) + 1;
 
+      /* Sitzt der Spieler bei den Piraten fest, zählt jede geschaffte Übung. */
+      var piraten = null;
+      if (stand.piraten && stand.piraten.aktiv) {
+        if (!stand.piraten.sets) stand.piraten.sets = [];
+        var schonGezaehlt = stand.piraten.sets.indexOf(id) >= 0;
+        var reicht = pct >= OEKONOMIE.piratenMindest;
+        if (reicht && !schonGezaehlt) stand.piraten.sets.push(id);
+        var frei = stand.piraten.sets.length >= OEKONOMIE.piratenAufgaben;
+        piraten = {
+          gezaehlt: reicht && !schonGezaehlt,
+          schonGezaehlt: schonGezaehlt,
+          zuSchwach: !reicht,
+          geschafft: stand.piraten.sets.length,
+          noetig: OEKONOMIE.piratenAufgaben,
+          frei: frei
+        };
+        if (frei) {
+          stand.ankunft = stand.piraten.ziel;
+          stand.piraten = { aktiv: false };
+        }
+      }
+
       /* Tagesauftrag abhaken. */
       var auftrag = null;
       var a = stand.tagesauftrag;
@@ -385,6 +422,7 @@
         gemeistert: e.gemeistert,
         neuGemeistert: neuGemeistert,
         auftrag: auftrag,
+        piraten: piraten,
         hinweise: stand.hinweise || 0,
         wochenPunkte: stand.wochen[iso].punkte,
         ersteMal: e.versuche === 1,
@@ -991,6 +1029,83 @@
       this._speichern(who, stand);
       return { art: art, suessigkeiten: hatte, gefressen: b.gefressen, geschleppt: b.geschleppt,
                name: (BAEREN[id] || {}).name || id };
+    },
+
+    /* ---------------- Schiffe und Piraten ----------------
+       Eine Überfahrt kostet ein paar Münzen und spart einen langen Fussweg.
+       Manchmal kommen Piraten. Wer gekapert wird, muss auf ihrer Insel drei
+       Übungen schaffen — oder sich freikaufen, was deutlich teurer ist. */
+    hafen: function (id) {
+      return HAEFEN.filter(function (h) { return h.id === id; })[0] || null;
+    },
+    piratenStand: function (who) {
+      var p = this.stand(who).piraten;
+      if (!p || !p.aktiv) return { aktiv: false, geschafft: 0, noetig: OEKONOMIE.piratenAufgaben };
+      return {
+        aktiv: true,
+        geschafft: (p.sets || []).length,
+        noetig: OEKONOMIE.piratenAufgaben,
+        sets: (p.sets || []).slice(),
+        ziel: p.ziel || 'westbucht',
+        seit: p.seit || Date.now()
+      };
+    },
+    gekapert: function (who) { return this.piratenStand(who).aktiv; },
+
+    /* Überfahrt buchen. Rückgabe sagt, ob Piraten dazwischenkamen. */
+    reisen: function (vonId, nachId, who) {
+      who = who || this.who();
+      var stand = this.stand(who);
+      var ziel = this.hafen(nachId);
+      if (!ziel) return { ok: false, grund: 'kein Hafen' };
+      if ((stand.muenzen || 0) < OEKONOMIE.faehrePreis) {
+        return { ok: false, grund: 'geld', fehlt: OEKONOMIE.faehrePreis - (stand.muenzen || 0) };
+      }
+      stand.muenzen -= OEKONOMIE.faehrePreis;
+      if (!stand.fahrten) stand.fahrten = { gesamt: 0, gekapert: 0 };
+      stand.fahrten.gesamt++;
+
+      var gekapert = Math.random() < OEKONOMIE.piratenRisiko;
+      if (gekapert) {
+        stand.fahrten.gekapert++;
+        stand.piraten = { aktiv: true, sets: [], ziel: nachId, seit: Date.now() };
+      } else {
+        stand.ankunft = nachId;
+      }
+      this._speichern(who, stand);
+      return { ok: true, gekapert: gekapert, ziel: ziel,
+               muenzen: stand.muenzen, fahrten: stand.fahrten };
+    },
+    /* Wo soll der Spieler auf der Insel auftauchen? Wird beim Abholen gelöscht. */
+    ankunftAbholen: function (who) {
+      who = who || this.who();
+      var stand = this.stand(who);
+      var a = stand.ankunft;
+      if (a) { delete stand.ankunft; this._speichern(who, stand); }
+      return a ? this.hafen(a) : null;
+    },
+    /* Freilassung: entweder drei Übungen oder Lösegeld. */
+    piratenLoskaufen: function (who) {
+      who = who || this.who();
+      var stand = this.stand(who);
+      if (!stand.piraten || !stand.piraten.aktiv) return { ok: false, grund: 'frei' };
+      if ((stand.muenzen || 0) < OEKONOMIE.loesegeld) {
+        return { ok: false, grund: 'geld', fehlt: OEKONOMIE.loesegeld - (stand.muenzen || 0) };
+      }
+      stand.muenzen -= OEKONOMIE.loesegeld;
+      stand.ankunft = stand.piraten.ziel;
+      stand.piraten = { aktiv: false };
+      this._speichern(who, stand);
+      return { ok: true, muenzen: stand.muenzen, bezahlt: OEKONOMIE.loesegeld };
+    },
+    piratenFreilassen: function (who) {
+      who = who || this.who();
+      var stand = this.stand(who);
+      if (!stand.piraten || !stand.piraten.aktiv) return { ok: false };
+      stand.ankunft = stand.piraten.ziel;
+      stand.piraten = { aktiv: false };
+      this._speichern(who, stand);
+      return { ok: true };
     },
 
     /* ---------------- Freischaltbare Inselteile ---------------- */

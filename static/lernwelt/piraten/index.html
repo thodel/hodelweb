@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Pirateninsel — Lerninsel</title>
+<link rel="icon" href="/favicon-32x32.png" sizes="32x32">
+<link rel="stylesheet" href="/lernwelt/raum.css">
+<style>
+  body { background: #0b1220; }
+  #raum { border-color: #7f1d1d; box-shadow: 0 0 0 3px #0b1220, 0 14px 40px rgba(0,0,0,.6); }
+  #hud, #banner, #dialog .kasten { border-color: #7f1d1d; background: rgba(20,12,12,.94); }
+  #hud b, #banner b, #dialog .wer { color: #fca5a5; }
+  .platte { background: #1c1414; border-color: #991b1b; }
+  .platte h2 { color: #fca5a5; }
+  .zu { border-color: #991b1b; background: #0f0a0a; color: #fca5a5; }
+
+  .fortschritt { display: flex; gap: 8px; justify-content: center; margin: 4px 0 14px; }
+  .fortschritt span { width: 36px; height: 36px; border-radius: 10px; border: 2px solid #7f1d1d;
+                      background: #0f0a0a; display: flex; align-items: center;
+                      justify-content: center; font-size: 18px; color: #7f1d1d; }
+  .fortschritt span.ok { border-color: #4ade80; color: #4ade80; background: #052e16; }
+  .liste { display: grid; gap: 10px; }
+  .liste a { display: block; background: #0f0a0a; border: 2px solid #3f2222; border-left-width: 6px;
+             border-radius: 12px; padding: 12px 14px; text-decoration: none; color: inherit; }
+  .liste a.offen { border-left-color: #fbbf24; }
+  .liste a.fertig { border-left-color: #4ade80; opacity: .7; }
+  .liste .t { font-size: 15.5px; font-weight: 700; }
+  .liste .i { font-size: 12.5px; color: #a89090; margin-top: 3px; line-height: 1.5; }
+  .liste .s { font-size: 12px; font-weight: 700; margin-top: 6px; }
+  .liste .s.offen { color: #fbbf24; }
+  .liste .s.fertig { color: #4ade80; }
+  .lohn { font-size: 12.5px; color: #a89090; margin-top: 12px; line-height: 1.7; }
+  .lohn b { color: #fbbf24; }
+  .knopf { display: block; width: 100%; text-align: center; padding: 13px; border-radius: 12px;
+           margin-top: 12px; background: #b91c1c; border: none; color: #fee2e2;
+           font: 700 15px -apple-system, BlinkMacSystemFont, sans-serif; cursor: pointer; }
+  .knopf:disabled { background: #2a1a1a; color: #6b4a4a; cursor: not-allowed; }
+  .knopf.gruen { background: #16a34a; color: #052e16; }
+</style>
+</head>
+<body>
+
+<div id="rahmen">
+  <div id="hud"></div>
+  <canvas id="raum"></canvas>
+  <div id="banner"></div>
+</div>
+
+<div id="steuer">
+  <div class="pad">
+    <button class="leer"></button><button data-dir="up">▲</button><button class="leer"></button>
+    <button data-dir="left">◀</button><button class="leer"></button><button data-dir="right">▶</button>
+    <button class="leer"></button><button data-dir="down">▼</button><button class="leer"></button>
+  </div>
+  <button id="knopf-e">E</button>
+</div>
+
+<div id="fenster">
+  <div class="platte">
+    <button class="zu" id="zu">✕</button>
+    <div class="tafel" id="t-pfosten" hidden>
+      <h2 id="pf-titel">Aufgabenpfahl</h2>
+      <div class="unter" id="pf-unter"></div>
+      <div class="fortschritt" id="pf-fortschritt"></div>
+      <div class="liste" id="pf-liste"></div>
+      <div class="lohn" id="pf-lohn"></div>
+    </div>
+    <div class="tafel" id="t-kapitaen" hidden>
+      <h2>🏴‍☠️ Käptin Schwarzzahn</h2>
+      <div class="unter">Sie hat dich gekapert. Sie hat auch einen Preis.</div>
+      <div class="fortschritt" id="kap-fortschritt"></div>
+      <div class="lohn" id="kap-text"></div>
+      <button class="knopf" id="kap-kauf">Freikaufen</button>
+      <div class="lohn" id="kap-msg"></div>
+    </div>
+    <div class="tafel" id="t-schiff" hidden>
+      <h2>⛵ Das Boot</h2>
+      <div class="unter" id="schiff-unter"></div>
+      <div class="fortschritt" id="schiff-fortschritt"></div>
+      <div class="lohn" id="schiff-text"></div>
+      <button class="knopf gruen" id="schiff-los" hidden>Ablegen und heimfahren</button>
+    </div>
+  </div>
+</div>
+
+<script src="/lernwelt/insel.js"></script>
+<script src="/lernwelt/pixel.js"></script>
+<script src="/lernwelt/dialog.js"></script>
+<script src="/lernwelt/raum.js"></script>
+<script src="/lernwelt/uebungen.js"></script>
+<script src="/lernwelt/musik.js"></script>
+<script>
+(function () {
+  'use strict';
+  var $ = function (i) { return document.getElementById(i); };
+  var px = Pixel.px;
+  var TILE = 16, RAUM_W = 28, RAUM_H = 18;
+  var who = Insel.who();
+  var klasse = Insel.klasse(who);
+
+  /* Wer nicht gekapert ist, hat hier nichts verloren. */
+  if (!Insel.gekapert(who)) {
+    Dialog.zeigen('Pirateninsel', [
+      'Hier ist niemand mehr. Nur kalte Asche und ein paar Fussspuren im Sand.',
+      'Die Piraten sind weitergezogen. Du kannst nach Hause.'
+    ], function () { window.location.href = '/lernwelt/'; });
+    return;
+  }
+
+  var F = {
+    sand: ['#e8d3a0', '#e0c891'], nass: '#dcc38f',
+    wasser: '#1c6ea4', brandung: '#39a0c9',
+    holz: '#7c5341', holzD: '#5b3a2e', holzL: '#9a6a51',
+    fels: '#6b7280', felsD: '#4b5563',
+    feuer: '#f59e0b', glut: '#fde68a'
+  };
+
+  /* ================= Die drei Aufgaben ================= */
+  /* Die Auswahl hängt am Zeitpunkt der Kaperung — sie bleibt also gleich,
+     solange man gefangen ist, wechselt aber bei der nächsten Fahrt. */
+  function saat(text) {
+    var h = 2166136261;
+    for (var i = 0; i < text.length; i++) { h ^= text.charCodeAt(i); h = (h * 16777619) >>> 0; }
+    return h >>> 0;
+  }
+  function wuerfel(start) {
+    var z = start >>> 0;
+    return function () { z = (z * 1664525 + 1013904223) >>> 0; return z / 4294967296; };
+  }
+  var stand = Insel.piratenStand(who);
+  var katalog = Insel.katalogAus(window.Uebungen, who);
+  var rnd = wuerfel(saat('piraten|' + who + '|' + stand.seit));
+  var aufgaben = [];
+  var pool = katalog.slice();
+  var faecherDrin = {};
+  for (var runde = 0; runde < 2 && aufgaben.length < 3 && pool.length; runde++) {
+    for (var i = pool.length - 1; i >= 0 && aufgaben.length < 3; i--) {
+      var idx = Math.floor(rnd() * pool.length);
+      var k = pool[idx];
+      if (!k) continue;
+      if (runde === 0 && faecherDrin[k.fach]) continue;
+      faecherDrin[k.fach] = 1;
+      aufgaben.push(k);
+      pool.splice(idx, 1);
+    }
+  }
+
+  function geschafft(u) {
+    return Insel.piratenStand(who).sets.indexOf(u.fach + ':' + u.set) >= 0;
+  }
+  function anzahlGeschafft() { return Insel.piratenStand(who).sets.length; }
+
+  function fortschrittMalen(el) {
+    var n = anzahlGeschafft();
+    el.innerHTML = '';
+    for (var i = 0; i < Insel.oekonomie.piratenAufgaben; i++) {
+      var s = document.createElement('span');
+      s.className = i < n ? 'ok' : '';
+      s.textContent = i < n ? '✔' : '•';
+      el.appendChild(s);
+    }
+  }
+
+  /* ================= Raum ================= */
+  var moebel = [
+    { art: 'zelt',  tx: 4,  ty: 6,  tw: 4, th: 2 },
+    { art: 'feuer', tx: 13, ty: 7,  tw: 2, th: 2 },
+    { art: 'fels',  tx: 22, ty: 5,  tw: 3, th: 2 },
+    { art: 'fass',  tx: 9,  ty: 12, tw: 1, th: 1 },
+    { art: 'fass',  tx: 19, ty: 12, tw: 1, th: 1 },
+    { art: 'pfahl', tx: 6,  ty: 11, tw: 1, th: 1 },
+    { art: 'pfahl', tx: 11, ty: 11, tw: 1, th: 1 },
+    { art: 'pfahl', tx: 22, ty: 11, tw: 1, th: 1 },
+    { art: 'boot',  tx: 13, ty: 15, tw: 4, th: 2 }
+  ];
+
+  Raum.starten({
+    canvas: $('raum'), breiteKacheln: RAUM_W, hoeheKacheln: RAUM_H,
+    start: { tx: 17, ty: 13, dir: 'left' },
+    /* Kein begehbarer Ausgang: das Boot ist der einzige Weg zurück. */
+    tuerKacheln: [13, 14],
+    wandOben: 4,
+    who: who,
+    musik: 'englisch',
+    moebel: moebel,
+    lichtInnen: 'rgba(255,220,150,.05)',
+    lichtAussen: 'rgba(10,16,32,.30)',
+
+    stationen: [
+      { id: 'pfahl1', name: 'Erster Pfahl',  tafel: null, tx: 6,  ty: 13, farbe: '#fbbf24', verb: 'lesen' },
+      { id: 'pfahl2', name: 'Zweiter Pfahl', tafel: null, tx: 11, ty: 13, farbe: '#fbbf24', verb: 'lesen' },
+      { id: 'pfahl3', name: 'Dritter Pfahl', tafel: null, tx: 22, ty: 13, farbe: '#fbbf24', verb: 'lesen' },
+      { id: 'kapitaen', name: 'Verhandeln', tafel: 't-kapitaen', tx: 10, ty: 10,
+        farbe: '#fca5a5', verb: 'verhandeln', hinweis: 'die Käptin handelt gern' },
+      { id: 'schiff', name: 'Das Boot', tafel: 't-schiff', tx: 15, ty: 14, farbe: '#7dd3fc',
+        verb: 'ansehen', hinweis: 'der einzige Weg nach Hause' }
+    ],
+
+    leute: [
+      { name: 'Käptin Schwarzzahn', tx: 10, ty: 7, kapitaen: true,
+        jacke: ['#7f1d1d', '#5c1414'], haar: '#1f2937', haut: '#d8a882',
+        sprueche: [
+          ['Da bist du ja. Setz dich, iss etwas, und dann an die Arbeit.',
+           'Drei Aufgaben. Danach fährt dich Kai zurück. So machen wir das hier.'],
+          ['Gold interessiert mich nicht mehr. Zu schwer, zu langweilig.',
+           'Aber jemandem beim Rechnen zuschauen — das ist Unterhaltung.'],
+          'Wenn es dir zu lange dauert, kannst du dich freikaufen. Steh einfach vor mir und sag es.'
+        ] },
+      { name: 'Smutje Sülz', tx: 5, ty: 8, jacke: ['#166534', '#0f4a25'], haar: '#a8391f', haut: '#c98d63',
+        sprueche: [
+          ['Keine Sorge, wir tun dir nichts. Wir sind schlechte Piraten.',
+           'Wir nehmen kein Gold. Wir nehmen Hausaufgaben. Die Käptin hat da so eine Idee.'],
+          'Drei Übungen, dann darfst du gehen. Das ist die ganze Abmachung.',
+          ['Der Letzte hat sich freigekauft. Vierzig Münzen.', 'Er hat es bereut. Nicht wegen des Geldes.']
+        ] },
+      { name: 'Klabauter Kai', tx: 19, ty: 8, jacke: ['#7c2d12', '#5a1f0c'], haar: '#1f2937', haut: '#7c4a2d',
+        sprueche: [
+          'An jedem Pfahl hängt eine Aufgabe. Mach sie. Dann ist Schluss.',
+          ['Ich passe auf das Boot auf.', 'Nicht besonders gut, aber ich passe auf.'],
+          'Wenn du unter fünfzig Prozent bleibst, zählt es nicht. Das hat die Käptin so festgelegt.'
+        ] },
+      { name: 'Papagei Pumpernickel', tx: 24, ty: 9,
+        jacke: ['#166534', '#0f4a25'], haar: '#dc2626', haut: '#fcd34d',
+        sprueche: [
+          'Drei Aufgaben! Drei Aufgaben! Kreisch.',
+          ['Ich kann nur diesen einen Satz.', 'Die Käptin sagt, das reicht für meinen Posten.']
+        ] }
+    ],
+
+    boden: function (ctx, t) {
+      /* Meer oben, Strand unten */
+      for (var ty = 0; ty < RAUM_H; ty++) {
+        for (var tx = 0; tx < RAUM_W; tx++) {
+          var farbe;
+          if (ty < 3) farbe = (Math.sin(t * 1.1 + tx * 0.6 + ty) > 0.6) ? '#1f76ad' : F.wasser;
+          else if (ty === 3) farbe = F.brandung;
+          else farbe = F.sand[(tx + ty) % 2];
+          px(ctx, tx * TILE, ty * TILE, TILE, TILE, farbe);
+        }
+      }
+      /* Schaumkante */
+      for (var sx = 0; sx < RAUM_W * TILE; sx += 6) {
+        var h = Math.sin(t * 2 + sx * 0.12) > 0 ? 3 : 1;
+        px(ctx, sx, 4 * TILE - h, 4, h, '#cfe8f5');
+      }
+      /* Wasser unten am Bildrand (dort liegt das Boot) */
+      for (var bx = 0; bx < RAUM_W; bx++) {
+        px(ctx, bx * TILE, (RAUM_H - 1) * TILE, TILE, TILE, F.wasser);
+      }
+      for (var sx2 = 0; sx2 < RAUM_W * TILE; sx2 += 6) {
+        var h2 = Math.sin(t * 1.7 + sx2 * 0.1) > 0 ? 2 : 1;
+        px(ctx, sx2, (RAUM_H - 1) * TILE, 4, h2, '#cfe8f5');
+      }
+      /* Ein paar Palmen am Rand */
+      [1, 26].forEach(function (tx) {
+        var x = tx * TILE + 8, y = 7 * TILE;
+        px(ctx, x - 2, y - 26, 4, 26, F.holzD);
+        var w = Math.round(Math.sin(t * 1.3 + tx) * 2);
+        px(ctx, x - 14 + w, y - 32, 12, 4, '#2f7d3a');
+        px(ctx, x + 2 + w, y - 32, 12, 4, '#2f7d3a');
+        px(ctx, x - 8 + w, y - 36, 16, 4, '#3d9c49');
+      });
+      /* Totenkopfflagge auf dem Felsen */
+      px(ctx, 23 * TILE + 4, 3 * TILE, 2, 34, F.holzD);
+      var flatter = Math.round(Math.sin(t * 2.6) * 2);
+      px(ctx, 23 * TILE + 6, 3 * TILE + 2 + flatter, 16, 12, '#111827');
+      px(ctx, 23 * TILE + 11, 3 * TILE + 5 + flatter, 6, 5, '#f8fafc');
+      px(ctx, 23 * TILE + 12, 3 * TILE + 10 + flatter, 4, 2, '#f8fafc');
+    },
+
+    moebelZeichnen: function (ctx, m, t) {
+      var x = m.tx * TILE, y = m.ty * TILE, w = m.tw * TILE, h = m.th * TILE;
+      if (m.art === 'zelt') {
+        px(ctx, x, y - 4, w, h + 2, '#b45309');
+        px(ctx, x + 2, y - 16, w - 4, 14, '#d97706');
+        px(ctx, x + w / 2 - 5, y - 6, 10, 8, '#4a2e1c');
+        px(ctx, x - 2, y - 18, w + 4, 3, F.holzD);
+        return;
+      }
+      if (m.art === 'feuer') {
+        px(ctx, x + 2, y + 4, w - 4, 5, '#3f3f46');
+        for (var s = 0; s < 3; s++) {
+          px(ctx, x + 3 + s * 8, y + 2, 8, 3, F.holzD);
+        }
+        var hoch = 8 + Math.round(Math.abs(Math.sin(t * 4)) * 6);
+        px(ctx, x + 6, y + 4 - hoch, w - 12, hoch, F.feuer);
+        px(ctx, x + 9, y + 2 - Math.round(hoch * 0.7), 6, Math.round(hoch * 0.7), F.glut);
+        ctx.globalAlpha = 0.14;
+        px(ctx, x - 14, y - 20, w + 28, h + 30, F.glut);
+        ctx.globalAlpha = 1;
+        return;
+      }
+      if (m.art === 'fels') {
+        px(ctx, x, y - 12, w, h + 10, F.fels);
+        px(ctx, x + 3, y - 16, w - 8, 6, F.felsD);
+        return;
+      }
+      if (m.art === 'boot') {
+        var wippe = Math.round(Math.sin(t * 1.4) * 2);
+        px(ctx, x, y - 6 + wippe, w, 11, F.holzL);
+        px(ctx, x, y + 4 + wippe, w, 4, F.holzD);
+        px(ctx, x + w / 2 - 1, y - 30 + wippe, 2, 25, F.holzD);
+        px(ctx, x + w / 2 + 1, y - 29 + wippe, 14, 14, '#f8fafc');
+        var frei = !Insel.gekapert(who);
+        px(ctx, x + w / 2 + 1, y - 24 + wippe, 14, 2, frei ? '#16a34a' : '#b91c1c');
+        if (!frei) {
+          /* Kette am Poller */
+          px(ctx, x - 6, y + 2 + wippe, 10, 3, '#94a3b8');
+          px(ctx, x - 8, y - 6, 4, 12, F.holzD);
+        }
+        return;
+      }
+      if (m.art === 'fass') {
+        px(ctx, x + 2, y - 10, TILE - 4, 14, F.holzD);
+        px(ctx, x + 1, y - 7, TILE - 2, 3, '#c9a227');
+        return;
+      }
+      /* Aufgabenpfahl mit angenageltem Zettel */
+      var nr = m.tx < 9 ? 0 : m.tx < 18 ? 1 : 2;
+      var fertig = aufgaben[nr] && geschafft(aufgaben[nr]);
+      px(ctx, x + 6, y - 28, 4, 32, F.holzD);
+      px(ctx, x - 2, y - 30, 20, 16, fertig ? '#dcfce7' : '#e8dcc0');
+      px(ctx, x, y - 27, 16, 2, '#8a7a5a');
+      px(ctx, x, y - 23, 12, 2, '#8a7a5a');
+      px(ctx, x, y - 19, 14, 2, '#8a7a5a');
+      if (fertig) {
+        px(ctx, x + 2, y - 24, 3, 3, '#16a34a');
+        px(ctx, x + 5, y - 21, 3, 3, '#16a34a');
+        px(ctx, x + 8, y - 27, 3, 3, '#16a34a');
+      }
+    },
+
+    leuteZeichnen: function (ctx, g, t) {
+      if (!g.kapitaen) return false;
+      Pixel.drawHero(ctx, g.x, g.y, g.blick, 0, g.jacke[0], g.jacke[1], g.haar, { haut: g.haut });
+      /* Dreispitz, Augenklappe und Säbel */
+      px(ctx, g.x - 8, g.y - 19, 16, 3, '#111827');
+      px(ctx, g.x - 6, g.y - 22, 12, 4, '#1f2937');
+      px(ctx, g.x - 2, g.y - 21, 4, 2, '#f8fafc');
+      px(ctx, g.x + 1, g.y - 14, 3, 2, '#111827');
+      px(ctx, g.x + 7, g.y - 12, 2, 9, '#cbd5e1');
+      px(ctx, g.x + 6, g.y - 4, 4, 2, '#c9a227');
+      return true;
+    },
+
+    stationHinweis: function (s) {
+      var n = anzahlGeschafft();
+      if (s.id === 'schiff') {
+        return Insel.gekapert(who)
+          ? 'angekettet · ' + n + ' von ' + Insel.oekonomie.piratenAufgaben + ' Aufgaben'
+          : 'frei — ab nach Hause';
+      }
+      if (s.id === 'kapitaen') return 'Lösegeld: ' + Insel.oekonomie.loesegeld + ' Münzen';
+      var nr = s.id === 'pfahl1' ? 0 : s.id === 'pfahl2' ? 1 : 2;
+      var u = aufgaben[nr];
+      if (!u) return 'leer';
+      return u.titel + (geschafft(u) ? ' — ✔ erledigt' : ' — offen');
+    },
+    stationTun: function (s) {
+      if (s.id === 'kapitaen') { kapitaenOeffnen(); return true; }
+      if (s.id === 'schiff') { schiffOeffnen(); return true; }
+      var nr = s.id === 'pfahl1' ? 0 : s.id === 'pfahl2' ? 1 : 2;
+      pfostenOeffnen(nr);
+      return true;
+    },
+    hudZeichnen: function () {
+      var n = anzahlGeschafft();
+      return '<span>🧭 <b>' + who + '</b></span>' +
+             '<span class="z">🪙 ' + Insel.muenzen(who) + '</span>' +
+             '<span>🏴‍☠️ gefangen</span>' +
+             '<span>Aufgaben: <b>' + n + '/' + Insel.oekonomie.piratenAufgaben + '</b></span>';
+    }
+  });
+
+  /* ================= Fenster ================= */
+  function losGehen(u) {
+    Insel.merkeRaum('/lernwelt/piraten/');
+    window.location.href = '/lernwelt/uebung/?fach=' + u.fach + '&set=' + u.set;
+  }
+
+  function pfostenOeffnen(nr) {
+    var u = aufgaben[nr];
+    $('pf-titel').textContent = '📜 Pfahl ' + (nr + 1) + ' von ' + Insel.oekonomie.piratenAufgaben;
+    $('pf-unter').textContent = 'An diesem Pfahl hängt ein Zettel. Darauf steht eine Aufgabe.';
+    fortschrittMalen($('pf-fortschritt'));
+    var box = $('pf-liste');
+    box.innerHTML = '';
+    if (!u) {
+      box.innerHTML = '<div class="lohn">Der Zettel ist leer. Frag die Käptin.</div>';
+    } else {
+      var fertig = geschafft(u);
+      var f = Insel.faecher[u.fach] || { emoji: '📘', kurz: u.fach };
+      var a = document.createElement('a');
+      a.className = fertig ? 'fertig' : 'offen';
+      a.href = '#';
+      a.onclick = function (e) { e.preventDefault(); losGehen(u); };
+      a.innerHTML = '<div class="t">' + f.emoji + ' ' + u.titel + '</div>' +
+        '<div class="i">' + (u.info || '') + '</div>' +
+        '<div class="s ' + (fertig ? 'fertig' : 'offen') + '">' +
+        (fertig ? '✔ geschafft' : 'noch offen — ab ' + Insel.oekonomie.piratenMindest +
+                  ' % zählt sie') + '</div>';
+      box.appendChild(a);
+    }
+    $('pf-lohn').innerHTML = 'Münzen gibt es dafür wie immer. Die Piraten nehmen dir nichts weg — ' +
+      'sie wollen nur, dass du übst.';
+    Raum.fensterOeffnen('t-pfosten');
+  }
+
+  function kapitaenOeffnen() {
+    fortschrittMalen($('kap-fortschritt'));
+    var n = anzahlGeschafft();
+    var fehlt = Insel.oekonomie.piratenAufgaben - n;
+    $('kap-text').innerHTML =
+      '„Drei Aufgaben, dann bist du frei. Du hast <b>' + n + '</b>, es fehlen noch <b>' + fehlt +
+      '</b>.“<br><br>„Oder du zahlst <b>' + Insel.oekonomie.loesegeld +
+      ' Münzen</b>. Dann fährst du sofort. Ich verdiene lieber am Lösegeld, ' +
+      'aber ich schaue auch gern beim Rechnen zu.“<br><br>Du hast ' + Insel.muenzen(who) + ' Münzen.';
+    $('kap-kauf').disabled = Insel.muenzen(who) < Insel.oekonomie.loesegeld;
+    $('kap-msg').textContent = '';
+    Raum.fensterOeffnen('t-kapitaen');
+  }
+  $('kap-kauf').onclick = function () {
+    var r = Insel.piratenLoskaufen(who);
+    if (!r.ok) {
+      $('kap-msg').textContent = 'Dir fehlen ' + r.fehlt + ' Münzen.';
+      return;
+    }
+    Raum.reden('Käptin Schwarzzahn', [
+      'Sie zählt die Münzen zweimal nach. Dann nickt sie.',
+      '„Kette los. Gute Fahrt. Und komm ruhig wieder — beim nächsten Mal übst du.“'
+    ], function () { window.location.href = '/lernwelt/'; });
+  };
+
+  function schiffOeffnen() {
+    var frei = !Insel.gekapert(who);
+    var n = anzahlGeschafft();
+    fortschrittMalen($('schiff-fortschritt'));
+    $('schiff-unter').textContent = frei
+      ? 'Die Kette liegt im Sand. Du kannst fahren.'
+      : 'Eine schwere Kette hält das Boot am Poller.';
+    $('schiff-text').innerHTML = frei
+      ? 'Du hast alle Aufgaben geschafft. Die Piraten winken sogar.'
+      : 'Du hast <b>' + n + ' von ' + Insel.oekonomie.piratenAufgaben +
+        '</b> Aufgaben erledigt. Die Pfähle stehen im Sand, such sie dir aus.';
+    $('schiff-los').hidden = !frei;
+    Raum.fensterOeffnen('t-schiff');
+  }
+  $('schiff-los').onclick = function () { window.location.href = '/lernwelt/'; };
+
+  /* ================= Ankunft ================= */
+  var n = anzahlGeschafft();
+  Raum.reden('Pirateninsel', n === 0
+    ? ['Sand, ein Feuer und drei Piraten, die dich freundlich anschauen.',
+       '„Willkommen“, sagt die Käptin. „Wir nehmen kein Gold. Wir nehmen Übungen.“',
+       'An drei Pfählen hängen Zettel. Schaff alle drei, dann bringt dich das Boot zurück.']
+    : ['Du bist wieder auf der Pirateninsel.',
+       'Erledigt: ' + n + ' von ' + Insel.oekonomie.piratenAufgaben + '. Noch ein Stück.']);
+})();
+</script>
+</body>
+</html>
