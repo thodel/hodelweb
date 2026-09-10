@@ -1,5 +1,4 @@
 {
-  "raum": "jgf7ptuf",
   "zielOrdner": "Documents/scans",
   "modell": "custom-api-qwen/qwen3-vl-plus",
   "agent": "main",
@@ -25,5 +24,17 @@
   ],
   "sendeUeberOpenclaw": true,
   "botBenutzer": "nc-bot",
-  "besitzer": "th"
+  "besitzer": "th",
+  "raeume": [
+    {
+      "token": "4cavkg2r",
+      "name": "Dokumente",
+      "aktiv": true
+    },
+    {
+      "token": "jgf7ptuf",
+      "name": "Research Bot",
+      "aktiv": false
+    }
+  ]
 }
