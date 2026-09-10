@@ -1,24 +1,52 @@
 {
-  "_hinweis": "Videoliste für die Lerninsel. Neue Videos einfach hier eintragen: id = der Teil nach ?v= in der YouTube-Adresse. Danach 'hugo' laufen lassen und public/ committen.",
+  "_hinweis": "Videoliste für die Lerninsel. 'id' ist der Teil nach ?v= in der YouTube-Adresse. 'modus': 'embed' spielt das Video auf der Seite ab, 'link' öffnet es in einem neuen Tab auf YouTube. UEFA sperrt die Anzeige ihrer Videos auf fremden Seiten, darum stehen die Champions-League-Videos auf 'link'. Nach dem Ändern: hugo laufen lassen und public/ committen.",
   "kino": {
     "titel": "Kino",
     "emoji": "🎬",
     "beschreibung": "Sport-Videos",
-    "videos": []
+    "gruppen": [
+      {
+        "titel": "🏀 NBA",
+        "videos": [
+          { "id": "o6uZg1OXn0U", "titel": "Die verrücktesten Schlussphasen", "info": "NBA · Saison 2025/26, Teil 1", "modus": "embed" },
+          { "id": "CNIn4OxYQU4", "titel": "Nuggets vs. Lakers", "info": "NBA · eines der wildesten Spielenden", "modus": "embed" },
+          { "id": "EjHtV2jSCx4", "titel": "Jokics Buzzerbeater", "info": "NBA · Siegwurf gegen die Spurs", "modus": "embed" },
+          { "id": "E03UVgs1_UE", "titel": "Donovan Mitchell: Top 30", "info": "NBA · die besten Aktionen seiner Karriere", "modus": "embed" },
+          { "id": "xMPJ3LAMyws", "titel": "KD zieht an Michael Jordan vorbei", "info": "NBA · in der ewigen Korbjägerliste", "modus": "embed" },
+          { "id": "2MTM9I00Bpo", "titel": "Die besten Dribblings der Liga", "info": "NBA · Donovan Mitchell", "modus": "embed" }
+        ]
+      },
+      {
+        "titel": "⚽ Champions League",
+        "hinweis": "Die UEFA erlaubt das Abspielen ihrer Videos nur auf YouTube. Diese Videos öffnen darum in einem neuen Tab.",
+        "videos": [
+          { "id": "UKTwc5Gm1NI", "titel": "Alle Tore des 1. Spieltags", "info": "UEFA · Saison 2025/26", "modus": "link" },
+          { "id": "3iekg1KgZ8E", "titel": "Jedes Führungstor", "info": "UEFA · Champions League", "modus": "link" },
+          { "id": "jQvmTzobbnY", "titel": "Liverpool gegen Atlético", "info": "UEFA · klassische Tore, Highlights", "modus": "link" },
+          { "id": "AhJjGSJZ5rE", "titel": "Haalands Ballwissen im Test", "info": "UEFA · Erling Haaland", "modus": "link" },
+          { "id": "LaADHznVSNg", "titel": "Die Champions-League-Hymne", "info": "UEFA · offizielle Version", "modus": "link" }
+        ]
+      }
+    ]
   },
   "musik": {
     "titel": "Musikhütte",
     "emoji": "🎵",
     "beschreibung": "Musik-Videos",
-    "videos": [
-      { "id": "Zi_XLOBDo_Y", "titel": "Billie Jean", "info": "Michael Jackson · Official Video" },
-      { "id": "oRdxUFDoQe0", "titel": "Beat It", "info": "Michael Jackson · Official 4K Video" },
-      { "id": "h_D3VFfhvs4", "titel": "Smooth Criminal", "info": "Michael Jackson · Official Video" },
-      { "id": "sOnqjkJTMaA", "titel": "Thriller", "info": "Michael Jackson · Official 4K Video" },
-      { "id": "dsUXAEzaC3Q", "titel": "Bad", "info": "Michael Jackson · Shortened Version" },
-      { "id": "F2AitTPI5U0", "titel": "Black Or White", "info": "Michael Jackson · Shortened Version" },
-      { "id": "QNJL6nfu__Q", "titel": "They Don't Care About Us", "info": "Michael Jackson" },
-      { "id": "LeiFF0gvqcc", "titel": "Remember the Time", "info": "Michael Jackson · Upscaled" }
+    "gruppen": [
+      {
+        "titel": "🕺 Michael Jackson",
+        "videos": [
+          { "id": "Zi_XLOBDo_Y", "titel": "Billie Jean", "info": "Official Video", "modus": "embed" },
+          { "id": "oRdxUFDoQe0", "titel": "Beat It", "info": "Official 4K Video", "modus": "embed" },
+          { "id": "h_D3VFfhvs4", "titel": "Smooth Criminal", "info": "Official Video", "modus": "embed" },
+          { "id": "sOnqjkJTMaA", "titel": "Thriller", "info": "Official 4K Video", "modus": "embed" },
+          { "id": "dsUXAEzaC3Q", "titel": "Bad", "info": "Shortened Version", "modus": "embed" },
+          { "id": "F2AitTPI5U0", "titel": "Black Or White", "info": "Shortened Version", "modus": "embed" },
+          { "id": "QNJL6nfu__Q", "titel": "They Don't Care About Us", "info": "Official Video", "modus": "embed" },
+          { "id": "LeiFF0gvqcc", "titel": "Remember the Time", "info": "Upscaled", "modus": "embed" }
+        ]
+      }
     ]
   }
 }
