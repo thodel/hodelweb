@@ -228,7 +228,8 @@
 <body>
 
 <div class="header">
-  <h1>🏀 Kommaregeln üben</h1>
+  <h1>🏀 Kommaregeln üben</h1><div style="text-align:center;margin:10px 0 4px"><a href="/lernwelt/" style="display:inline-block;font:700 13px/1 ui-monospace,Menlo,monospace;color:#fde68a;background:#1e3a5f;border:2px solid #fde68a;border-radius:8px;padding:8px 12px;text-decoration:none">&#127965; Zurück zur Lerninsel</a></div>
+
   <p>Basketball-Sätze — Setze die Kommas richtig!</p>
 </div>
 
@@ -306,6 +307,7 @@
   <div class="gif-dismiss">Tippen zum Schließen</div>
 </div>
 
+<script src="/lernwelt/insel.js"></script>
 <script>
 // ═══════════════════════════════════════════════════
 //  Constants
@@ -861,6 +863,23 @@ function showSummary() {
   document.getElementById('sum-of').textContent     = `von ${scoreTotal} richtig (${pct}\u00a0%)`;
   document.getElementById('sum-rating').textContent = rating;
   document.getElementById('summary-card').classList.add('show');
+  try {
+    if (window.Insel) {
+      var _r = Insel.melden({ fach: 'deutsch', set: 'kommaregeln', titel: 'Kommaregeln', schwierigkeit: 'schwer', pct: pct });
+      var _b = document.getElementById('summary-card');
+      if (_b && !document.getElementById('insel-muenzen')) {
+        var _d = document.createElement('div');
+        _d.id = 'insel-muenzen';
+        _d.style.cssText = 'margin:14px auto;max-width:340px;padding:12px;border:2px solid #fbbf24;' +
+          'border-radius:12px;background:rgba(15,23,42,.6);font:700 15px/1.5 system-ui;color:#fbbf24';
+        _d.innerHTML = (_r.muenzen > 0 ? '+ ' + _r.muenzen + ' \uD83E\uDE99 M\u00fcnzen' : 'Keine M\u00fcnzen') +
+          '<div style="font-weight:400;font-size:12.5px;color:#94a3b8;margin-top:5px">' + _r.grund +
+          ' \u00b7 <a href="/lernwelt/kiosk/" style="color:#fbbf24">Kiosk</a></div>';
+        _b.appendChild(_d);
+      }
+    }
+  } catch (e) {}
+
 
   // 🎉 Perfect score → GIF celebration!
   if (pct === 100) {
