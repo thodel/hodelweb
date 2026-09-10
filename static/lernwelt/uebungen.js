@@ -568,7 +568,13 @@
           ['Die Kinder spielen im Garten.', 'Die Kinder', 'Subjekt'],
           ['Am Abend liest mein Vater die Zeitung.', 'liest', 'Prädikat'],
           ['Der Zug erreicht den Bahnhof pünktlich.', 'den Bahnhof', 'Objekt'],
-          ['Unsere Nachbarn haben einen neuen Hund.', 'Unsere Nachbarn', 'Subjekt']
+          ['Unsere Nachbarn haben einen neuen Hund.', 'Unsere Nachbarn', 'Subjekt'],
+          ['Der Postbote bringt ein Paket.', 'ein Paket', 'Objekt'],
+          ['Meine Katze fängt eine Maus.', 'Meine Katze', 'Subjekt'],
+          ['Wir besuchen morgen das Museum.', 'besuchen', 'Prädikat'],
+          ['Die Sonne wärmt den Boden.', 'den Boden', 'Objekt'],
+          ['Der Trainer lobt die Mannschaft.', 'Der Trainer', 'Subjekt'],
+          ['Im Sommer pflücken wir Kirschen.', 'pflücken', 'Prädikat']
         ]);
         return wahl('Welches Satzglied ist «' + s[1] + '»?\n' + s[0], s[2],
           distinct(s[2], ['Subjekt', 'Prädikat', 'Objekt'], 2),
@@ -608,7 +614,13 @@
           [['spielen', 'Spieler', 'Spielzeug', 'verspielt'], 'Spiegel'],
           [['Wald', 'Waldweg', 'bewaldet', 'Waldrand'], 'Wand'],
           [['schreiben', 'Schrift', 'Schreiber', 'abschreiben'], 'Schrank'],
-          [['wohnen', 'Wohnung', 'Bewohner', 'gewohnt'], 'Wolke']
+          [['wohnen', 'Wohnung', 'Bewohner', 'gewohnt'], 'Wolke'],
+          [['fliegen', 'Flug', 'Flieger', 'Flügel'], 'Fliese'],
+          [['sprechen', 'Sprache', 'Gespräch', 'Sprecher'], 'Sprung'],
+          [['bauen', 'Bauer', 'Gebäude', 'Bauarbeiter'], 'Bauch'],
+          [['lesen', 'Leser', 'Lesebuch', 'vorlesen'], 'Leiter'],
+          [['singen', 'Sänger', 'Gesang', 'Singvogel'], 'Sinken'],
+          [['rechnen', 'Rechnung', 'Rechner', 'ausrechnen'], 'Recht']
         ];
         var g = pick(gruppen);
         return wahl('Welches Wort gehört NICHT in diese Wortfamilie?\n' + g[0].join(', ') + ', ' + g[1],
@@ -691,7 +703,14 @@
           ['Sie mag Lesen Schwimmen Turnen und Malen.', 2],
           ['Auf dem Tisch liegen ein Buch ein Heft und ein Stift.', 1],
           ['Er hat einen Hund und eine Katze.', 0],
-          ['Wir brauchen Mehl Zucker Butter Eier und Milch.', 3]
+          ['Wir brauchen Mehl Zucker Butter Eier und Milch.', 3],
+          ['Auf dem Bauernhof leben Kühe Schweine Hühner und Schafe.', 2],
+          ['Ich habe einen Bruder und eine Schwester.', 0],
+          ['Sie packt Turnschuhe T-Shirt Hose und Trinkflasche ein.', 2],
+          ['Der Zug hält in Bern Thun und Interlaken.', 1],
+          ['Wir haben Deutsch Mathe Turnen und Musik.', 2],
+          ['Im Zoo sahen wir Löwen Elefanten Affen Giraffen und Pinguine.', 3],
+          ['Heute ist es warm und sonnig.', 0]
         ]);
         return wahl('Wie viele Kommas fehlen in diesem Satz?\n«' + s[0] + '»', s[1],
           distinct(s[1], [0, 1, 2, 3, 4], 3),
@@ -908,7 +927,12 @@
           ['My sister is often late.', ['My sister often is late.', 'Often my sister is late.']],
           ['They live in a small house.', ['They in a small house live.', 'They live in a house small.']],
           ['I did not see him.', ['I saw not him.', 'I not did see him.']],
-          ['Where does your friend live?', ['Where lives your friend?', 'Where your friend does live?']]
+          ['Where does your friend live?', ['Where lives your friend?', 'Where your friend does live?']],
+          ['She has got a new bike.', ['She has a new bike got.', 'Got she a new bike.']],
+          ['We are going to the cinema tonight.', ['We are going tonight to the cinema.', 'Tonight going we are to the cinema.']],
+          ['He can play the guitar very well.', ['He can very well play the guitar.', 'He can play very well the guitar.']],
+          ['My parents work in a hospital.', ['My parents in a hospital work.', 'Work my parents in a hospital.']],
+          ['I have never been to London.', ['I never have been to London.', 'I have been never to London.']]
         ]);
         return wahl('Which sentence is correct?', s[0], s[1],
           'Subjekt – Verb – Objekt; Häufigkeitswörter stehen vor dem Vollverb.');
@@ -927,7 +951,12 @@
           ['Du willst wissen, wie spät es ist.', 'What time is it?', ['How is the time?', 'When is the clock?']],
           ['Du stellst dich vor.', "My name is Joris.", ['I am called by Joris.', 'Me Joris.']],
           ['Du fragst nach dem Weg.', 'Excuse me, where is the station?', ['Where go station?', 'Say me the station.']],
-          ['Du möchtest wissen, wie alt jemand ist.', 'How old are you?', ['How many years you?', 'What age have you?']]
+          ['Du möchtest wissen, wie alt jemand ist.', 'How old are you?', ['How many years you?', 'What age have you?']],
+          ['Du entschuldigst dich.', "I'm sorry.", ['I am sad.', 'Excuse it.']],
+          ['Du wünschst jemandem eine gute Nacht.', 'Good night!', ['Good evening!', 'Have a night!']],
+          ['Du fragst, wie viel etwas kostet.', 'How much is it?', ['How many costs?', 'What price have it?']],
+          ['Du möchtest auf die Toilette.', 'Can I go to the toilet, please?', ['I must toilet.', 'Where I go toilet?']],
+          ['Du gratulierst zum Geburtstag.', 'Happy birthday!', ['Good birthday!', 'Congratulation day!']]
         ]);
         return wahl(s[0], s[1], s[2]);
       }
@@ -956,7 +985,61 @@
     ['Grossbritannien', 'London'], ['Irland', 'Dublin'], ['Kroatien', 'Zagreb'], ['Slowenien', 'Ljubljana']
   ];
 
+  var PLANETEN = [
+    ['Merkur', 1, 'der sonnennächste Planet'],
+    ['Venus', 2, 'etwa so gross wie die Erde, sehr heiss'],
+    ['Erde', 3, 'unser Planet'],
+    ['Mars', 4, 'der rote Planet'],
+    ['Jupiter', 5, 'der grösste Planet'],
+    ['Saturn', 6, 'der Planet mit den auffälligen Ringen'],
+    ['Uranus', 7, 'liegt fast auf der Seite'],
+    ['Neptun', 8, 'der sonnenfernste Planet']
+  ];
+
   var NMG = [
+    {
+      id: 'planeten', klassen: [4, 5, 6], schwierigkeit: 'leicht',
+      titel: 'Planeten & Weltall', lp21: 'NMG.4 (Sonnensystem)',
+      info: 'Unser Sonnensystem, Mond und Sterne.',
+      gen: function () {
+        var art = pick(['reihenfolge', 'reihenfolge', 'nummer', 'beschreibung', 'wissen', 'wissen']);
+        if (art === 'reihenfolge') {
+          var i = rint(0, PLANETEN.length - 2);
+          return wahl('Welcher Planet kommt nach ' + PLANETEN[i][0] + '?', PLANETEN[i + 1][0],
+            distinct(PLANETEN[i + 1][0], PLANETEN.map(function (p) { return p[0]; }), 3),
+            'Von der Sonne aus nach aussen gezählt.');
+        }
+        if (art === 'nummer') {
+          var p = pick(PLANETEN);
+          return { typ: 'zahl', frage: 'Der wievielte Planet von der Sonne ist ' + p[0] + '?',
+                   antwort: String(p[1]), hinweis: 'Merkur ist der erste.' };
+        }
+        if (art === 'beschreibung') {
+          var q = pick(PLANETEN.filter(function (x) { return x[2]; }));
+          return wahl('Welcher Planet ist gemeint: ' + q[2] + '?', q[0],
+            distinct(q[0], PLANETEN.map(function (x) { return x[0]; }), 3));
+        }
+        var f = pick([
+          ['Wie viele Planeten hat unser Sonnensystem?', '8', ['7', '9', '10']],
+          ['Was steht im Mittelpunkt unseres Sonnensystems?', 'die Sonne', ['die Erde', 'der Mond', 'der Jupiter']],
+          ['Was ist die Sonne?', 'ein Stern', ['ein Planet', 'ein Mond', 'eine Galaxie']],
+          ['Wie heisst unsere Galaxie?', 'Milchstrasse', ['Andromeda', 'Orion', 'Sonnensystem']],
+          ['Wie lange braucht die Erde für eine Runde um die Sonne?', 'ein Jahr', ['einen Tag', 'einen Monat', 'zehn Jahre']],
+          ['Wie lange braucht die Erde für eine Drehung um sich selbst?', 'einen Tag', ['ein Jahr', 'einen Monat', 'eine Stunde']],
+          ['Warum gibt es Tag und Nacht?', 'weil sich die Erde dreht', ['weil die Sonne wandert', 'weil der Mond die Sonne verdeckt', 'weil Wolken kommen']],
+          ['Wie viele Monde hat die Erde?', '1', ['0', '2', '4']],
+          ['Welcher Planet hat die auffälligsten Ringe?', 'Saturn', ['Jupiter', 'Mars', 'Venus']],
+          ['Wer betrat 1969 als Erster den Mond?', 'Neil Armstrong', ['Juri Gagarin', 'Buzz Aldrin', 'Claude Nicollier']],
+          ['Wie heisst der erste Schweizer Astronaut?', 'Claude Nicollier', ['Bertrand Piccard', 'Auguste Piccard', 'Jacques Piccard']],
+          ['Was ist ein Lichtjahr?', 'eine Strecke', ['eine Zeitspanne', 'ein Planet', 'ein Stern']],
+          ['Welcher Planet ist der grösste?', 'Jupiter', ['Saturn', 'Erde', 'Neptun']],
+          ['Was zieht uns auf der Erde nach unten?', 'die Schwerkraft', ['die Luft', 'der Magnetismus', 'die Sonne']],
+          ['Wie heisst der rote Planet?', 'Mars', ['Venus', 'Merkur', 'Jupiter']],
+          ['Was kreist um einen Planeten?', 'ein Mond', ['ein Stern', 'eine Galaxie', 'eine Sonne']]
+        ]);
+        return wahl(f[0], f[1], f[2]);
+      }
+    },
     {
       id: 'kantone', klassen: [4, 5, 6], schwierigkeit: 'leicht',
       titel: 'Kantone der Schweiz', lp21: 'NMG.8.4 (Schulpraxis)',
@@ -1009,7 +1092,13 @@
           ['In welchem Kanton spricht man Rätoromanisch?', 'Graubünden', ['Tessin', 'Wallis', 'Uri']],
           ['Welche Sprache spricht man im Tessin?', 'Italienisch', ['Französisch', 'Rätoromanisch', 'Deutsch']],
           ['Welches kleine Land liegt zwischen der Schweiz und Österreich?', 'Liechtenstein', ['Luxemburg', 'Andorra', 'Monaco']],
-          ['Wie heisst die Schweiz auf Latein (auf den Münzen)?', 'Helvetia', ['Helvetica', 'Suisse', 'Confoederatio']]
+          ['Wie heisst die Schweiz auf Latein (auf den Münzen)?', 'Helvetia', ['Helvetica', 'Suisse', 'Confoederatio']],
+          ['Welches Land liegt südlich der Schweiz?', 'Italien', ['Deutschland', 'Frankreich', 'Österreich']],
+          ['Welches Land liegt nördlich der Schweiz?', 'Deutschland', ['Italien', 'Frankreich', 'Slowenien']],
+          ['Wie heisst die Hauptstadt von Österreich?', 'Wien', ['Salzburg', 'Graz', 'Innsbruck']],
+          ['In welchem Landesteil spricht man Französisch?', 'in der Westschweiz', ['im Tessin', 'im Wallis nur', 'in Graubünden']],
+          ['Welche Sprache sprechen die meisten Menschen in der Schweiz?', 'Deutsch', ['Französisch', 'Italienisch', 'Rätoromanisch']],
+          ['Wie viele Menschen leben ungefähr in der Schweiz?', 'rund 9 Millionen', ['rund 3 Millionen', 'rund 20 Millionen', 'rund 50 Millionen']]
         ]);
         return wahl(f[0], f[1], f[2]);
       }
@@ -1070,7 +1159,7 @@
     { fach: 'deutsch', id: 'kommaregeln', titel: 'Kommaregeln (grosse Übung)', schwierigkeit: 'schwer',
       lp21: 'D.5.E.1', info: 'Kommas im Satz setzen.', url: '/andrin/kommasetzung/', klassen: [5, 6] },
     { fach: 'nmg', id: 'geo-quiz', titel: 'Geo-Quiz (Kahoot-Style)', schwierigkeit: 'leicht',
-      lp21: 'NMG.8.4', info: 'Schnelles Quiz mit Zeitdruck.', url: '/andrin/geo-quiz/', klassen: [4, 5, 6] }
+      lp21: 'NMG.8.4', info: 'Schnelles Quiz mit Zeitdruck.', url: '/lernwelt/geo-blitz/', klassen: [4, 5, 6] }
   ];
 
   global.Uebungen = {

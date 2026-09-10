@@ -334,6 +334,8 @@
       url: '/lernwelt/uebung/?fach=englisch', hint: 'English', color: '#fca5a5' },
     { id: 'nmg',     name: 'Aussichtsberg',  tx: 38, ty: 27, kind: 'peak',  fach: 'nmg',
       url: '/lernwelt/uebung/?fach=nmg',     hint: 'Länder & Karten', color: '#fcd34d' },
+    { id: 'bestenliste', name: 'Anschlagbrett', tx: 21, ty: 22, kind: 'brett',
+      url: '/lernwelt/bestenliste/',         hint: 'Bestenliste aller Fächer', color: '#fbbf24' },
     { id: 'haus',    name: 'Inselhaus',      tx: 27, ty: 21, kind: 'haus',
       url: '/lernwelt/haus/',                hint: 'speichern & umziehen', color: '#93c5fd' },
     { id: 'kiosk',   name: 'Kiosk',          tx: 24, ty: 25, kind: 'kiosk',
@@ -584,6 +586,20 @@
     px(c, x - 1, y - 28, 2, 6, COL.woodD);
     px(c, x - 5, y - 12, 10, 12, COL.dark);         /* Höhleneingang */
     px(c, x - 4, y - 11, 8, 11, '#241f33');
+  }
+  function drawBrett(c, x, y) {                      /* Anschlagbrett mit der Bestenliste */
+    px(c, x - 8, y - 12, 3, 12, COL.woodD);
+    px(c, x + 5, y - 12, 3, 12, COL.woodD);
+    px(c, x - 13, y - 30, 26, 19, COL.wood);
+    px(c, x - 13, y - 30, 26, 2, COL.woodL);
+    px(c, x - 15, y - 32, 30, 3, COL.roofRD);        /* Dächlein */
+    px(c, x - 11, y - 27, 22, 14, '#f1e6cf');        /* Blatt */
+    for (var i = 0; i < 4; i++) {
+      px(c, x - 9, y - 25 + i * 3, 12 - i * 2, 1, '#8a7a63');
+      px(c, x + 6, y - 25 + i * 3, 3, 1, i === 0 ? COL.gold : '#8a7a63');
+    }
+    px(c, x - 10, y - 26, 3, 3, COL.gold);           /* Pokal */
+    px(c, x - 3, y - 1, 6, 2, 'rgba(0,0,0,.2)');
   }
   function drawHaus(c, x, y) {                       /* Inselhaus: speichern */
     px(c, x - 15, y - 22, 30, 22, '#c8b190');
@@ -1062,6 +1078,7 @@
         case 'hut': drawHut(ctx, X, Y); break;
         case 'ship': drawShip(ctx, X, Y); break;
         case 'peak': drawPeak(ctx, X, Y); break;
+        case 'brett': drawBrett(ctx, X, Y); break;
         case 'haus': drawHaus(ctx, X, Y); break;
         case 'kiosk': drawKiosk(ctx, X, Y); break;
         case 'kino': drawKino(ctx, X, Y); break;
