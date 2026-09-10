@@ -29,7 +29,7 @@ Digitale Geisteswissenschaften, Anwendung und Theorie maschineller Lernverfahren
 
 **2017–2019** — Projektleiter, «Die Akten und Urkunden des Klosters und der Hofmeisterei Königsfelden (1300–1656)» (digitales Editionsprojekt), [Universität Zürich](https://www.uzh.ch/).
 
-**2016–2019** — Wissenschaftlicher Mitarbeiter, Projekt [READ (Recognition and Enrichment of Archival Documents)](https://readcoop.eu/), [Staatsarchiv Zürich](https://www.staatsarchiv.zh.ch/).
+**2016–2019** — Wissenschaftlicher Mitarbeiter, Projekt [READ (Recognition and Enrichment of Archival Documents)](https://readcoop.eu/), [Staatsarchiv Zürich](https://www.zh.ch/de/direktion-der-justiz-und-des-innern/staatsarchiv.html).
 
 **2015–2019** — Projektleiter, [Ad fontes](https://www.adfontes.uzh.ch/), Einführung in den Umgang mit Quellen, [Universität Zürich](https://www.uzh.ch/).
 
@@ -37,7 +37,7 @@ Digitale Geisteswissenschaften, Anwendung und Theorie maschineller Lernverfahren
 
 **2012–2016** — Doktorand, SNF-Projekt «Königsfelden und sein Adel», [Universität Zürich](https://www.uzh.ch/).
 
-**Seit 2011** — Dozent, Grund- und Aufbaustudium Geschichte, Bachelor- und Masterstufe, [Universität Zürich](https://www.uzh.ch/).
+**2011–2019** — Dozent, Grund- und Aufbaustudium Geschichte, Bachelor- und Masterstufe, [Universität Zürich](https://www.uzh.ch/).
 
 **2011–2012** — Wissenschaftlicher Mitarbeiter, Projekt «Königsfelden vom Mittelalter bis zur Gegenwart», [Universität Zürich](https://www.uzh.ch/).
 
@@ -48,7 +48,7 @@ Digitale Geisteswissenschaften, Anwendung und Theorie maschineller Lernverfahren
 ## Gremien, Herausgeberschaften und institutionelle Aufgaben
 
 **Seit 2024**
-- Editor-in-Chief [«Digital Medievalist Journal»](https://digitalmedievalist.github.io/)
+- Editor-in-Chief [«Digital Medievalist Journal»](https://digitalmedievalist.org/)
 - Vertreter der phil.-hist. Fakultät im Steering Committee der [Core Facilities](https://www.unibe.ch/research/services/infrastructure_and_facilities/ucf/index_eng.html) der [Universität Bern](https://www.unibe.ch/)
 - Mitglied Kommission [Dodis – Diplomatische Dokumente der Schweiz](https://www.dodis.ch/)
 - Mitglied «AI Research Expert Group», [The Guild](https://www.the-guild.eu/), Brüssel
@@ -56,7 +56,7 @@ Digitale Geisteswissenschaften, Anwendung und Theorie maschineller Lernverfahren
 **Seit 2022**
 - Vorstand der [Schweizerischen Akademie der Geisteswissenschaften](https://sagw.ch/) (ad personam)
 - Wissenschaftlicher Beirat des [DaSCH](https://www.dasch.swiss/)
-- Programmleitung [MAS in Extended Intelligence](https://www.unibe.ch/weiterbildung/mas_extended_intelligence/) inkl. CAS in Applied Data Science, Advanced Machine Learning, Natural Language Processing ([Universität Bern](https://www.unibe.ch/))
+- Programmleitung [MAS in Extended Intelligence](https://www.unibe.ch/continuing_education_programs/mas_in_extended_intelligence/index_eng.html) inkl. CAS in Applied Data Science, Advanced Machine Learning, Natural Language Processing ([Universität Bern](https://www.unibe.ch/))
 
 **Seit 2021**
 - Gründungsmitglied der [Bern Data Science Initiative (BeDSI)](https://www.bedsi.unibe.ch/)
@@ -66,8 +66,8 @@ Digitale Geisteswissenschaften, Anwendung und Theorie maschineller Lernverfahren
 
 **Seit 2020**
 - Mitherausgeber der Reihe [«Digital Humanities Research»](https://www.transcript-verlag.de/reihen/digital-humanities-research/), University of Bielefeld Press/Transcript
-- Programmleitung [MAS in Archiv-, Bibliotheks- und Informationswissenschaft](https://www.unibe.ch/weiterbildung/mas_archiv_bibliotheks_und_informationswissenschaft/) ([Universität Bern](https://www.unibe.ch/))
-- Executive Board der [Digital Medievalist Community](https://digitalmedievalist.github.io/)
+- Programmleitung [MAS in Archiv-, Bibliotheks- und Informationswissenschaft](https://www.unibe.ch/weiterbildungsangebote/mas_alis/index_ger.html) ([Universität Bern](https://www.unibe.ch/))
+- Executive Board der [Digital Medievalist Community](https://digitalmedievalist.org/)
 
 **Seit 2019**
 - Vertreter der [Universität Bern](https://www.unibe.ch/) in [DARIAH-CH](https://www.dariah.ch/), 2022–2024 Präsident des Konsortiums
@@ -78,4 +78,4 @@ Digitale Geisteswissenschaften, Anwendung und Theorie maschineller Lernverfahren
 
 **2024 & 2025** — Mitglied «Open Research Data Taskforce SSH», [swissuniversities Open Research Data](https://www.swissuniversities.ch/en/topics/open-science/open-research-data).
 
-**2023 & 2024** — Evaluationsgremium des [BMBF](https://www.bmbf.de/), Rahmenprogramm [«Gesellschaft verstehen – Zukunft gestalten»](https://www.geistes-und-sozialwissenschaften-bmbf.de/de/Uber-das-Programm.html).
+**2023 & 2024** — Evaluationsgremium des [BMBF (heute BMFTR)](https://www.bmftr.bund.de/), Rahmenprogramm [«Gesellschaft verstehen – Zukunft gestalten»](https://www.geistes-und-sozialwissenschaften-bmftr.de/de/Uber-das-Programm.html).

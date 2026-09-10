@@ -20,4 +20,4 @@ summary: "Lehrveranstaltungen"
 
 ## Einführung in die Digital Humanities (FS2026)
 
-Kursrepository: [DHBern/einf_2026](https://github.com/DHBern/einf_2026)
+Kursrepository: [Einführung in die Digital Humanities (DHBern)](https://dhbern.github.io/introduction-to-dh/)

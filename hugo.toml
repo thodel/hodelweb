@@ -1,4 +1,6 @@
-baseURL = "https://hodelweb.ch/"
+baseURL = "https://www.hodelweb.ch/"
+enableRobotsTXT = true
+disableKinds = ["taxonomy", "term"]
 title = "Tobias Hodel"
 theme = "PaperMod"
 paginate = 20

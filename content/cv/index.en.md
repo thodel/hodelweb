@@ -29,7 +29,7 @@ Digital Humanities, application and theory of machine learning in the humanities
 
 **2017–2019** — Project leader, digital edition of the Königsfelden monastery records (1300–1656), [University of Zurich](https://www.uzh.ch/).
 
-**2016–2019** — Research associate, [READ project (Recognition and Enrichment of Archival Documents)](https://readcoop.eu/), [State Archives of Zurich](https://www.staatsarchiv.zh.ch/).
+**2016–2019** — Research associate, [READ project (Recognition and Enrichment of Archival Documents)](https://readcoop.eu/), [State Archives of Zurich](https://www.zh.ch/de/direktion-der-justiz-und-des-innern/staatsarchiv.html).
 
 **2015–2019** — Project leader, [Ad fontes](https://www.adfontes.uzh.ch/) (introduction to working with historical sources), [University of Zurich](https://www.uzh.ch/).
 
@@ -39,12 +39,12 @@ Digital Humanities, application and theory of machine learning in the humanities
 
 ## Service & Editorial Roles
 
-- Editor-in-Chief, [*Digital Medievalist Journal*](https://digitalmedievalist.github.io/) (since 2024)
+- Editor-in-Chief, [*Digital Medievalist Journal*](https://digitalmedievalist.org/) (since 2024)
 - Board member, [Swiss Academy of Humanities and Social Sciences](https://sagw.ch/) (since 2022)
 - Scientific Advisory Board, [DaSCH](https://www.dasch.swiss/) (since 2022)
 - AI Research Expert Group, [The Guild](https://www.the-guild.eu/), Brussels (since 2024)
 - [OECD](https://www.oecd.org/) [Global Science Forum](https://www.oecd.org/en/networks/global-science-forum.html), Research Infrastructure expert (2023–2025)
 - Representative of the [University of Bern](https://www.unibe.ch/) in [DARIAH-CH](https://www.dariah.ch/); President of the consortium 2022–2024
 - Co-editor, book series [*Digital Humanities Research*](https://www.transcript-verlag.de/reihen/digital-humanities-research/), Bielefeld University Press/Transcript
-- Programme director, [MAS in Extended Intelligence](https://www.unibe.ch/weiterbildung/mas_extended_intelligence/) & [MAS in Archival, Library and Information Science](https://www.unibe.ch/weiterbildung/mas_archiv_bibliotheks_und_informationswissenschaft/) ([University of Bern](https://www.unibe.ch/))
+- Programme director, [MAS in Extended Intelligence](https://www.unibe.ch/continuing_education_programs/mas_in_extended_intelligence/index_eng.html) & [MAS in Archival, Library and Information Science](https://www.unibe.ch/weiterbildungsangebote/mas_alis/index_ger.html) ([University of Bern](https://www.unibe.ch/))
 - Founding member, [Bern Data Science Initiative (BeDSI)](https://www.bedsi.unibe.ch/)

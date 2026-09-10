@@ -20,4 +20,4 @@ summary: "Teaching"
 
 ## Introduction to Digital Humanities (Spring 2026)
 
-Course repository: [DHBern/einf_2026](https://github.com/DHBern/einf_2026)
+Course repository: [Introduction to Digital Humanities (DHBern)](https://dhbern.github.io/introduction-to-dh/)
