@@ -110,6 +110,12 @@
     padding: 5px 9px; color: #e2e8f0; letter-spacing: .06em;
   }
   #hud-stars { color: #fde68a; }
+  #hud-rettung { color: #fecaca; border-color: #b91c1c; background: rgba(90,15,15,.85);
+                 font-weight: 700; letter-spacing: .12em; }
+  #hud-rettung:hover { background: #7f1d1d; color: #fee2e2; }
+  @media (hover: none) {
+    #hud-rettung, #hud-musik { padding: 9px 12px; font-size: 13px; }
+  }
   #banner {
     position: absolute; left: 50%; bottom: 12px; transform: translateX(-50%);
     background: rgba(9,14,33,.92); border: 3px solid #fde68a;
@@ -174,7 +180,11 @@
     <canvas id="game" width="320" height="240"></canvas>
 
     <div id="hud" hidden>
-      <div class="hud-box" id="hud-who">🧭 —</div>
+      <div style="display:flex;gap:8px;align-items:flex-start">
+        <div class="hud-box" id="hud-who">🧭 —</div>
+        <button class="hud-box" id="hud-rettung" title="Zurück zum Dorfplatz (Taste H)"
+                style="pointer-events:auto;cursor:pointer;font:inherit">HILFE</button>
+      </div>
       <div style="display:flex;gap:8px;align-items:flex-start">
         <button class="hud-box" id="hud-musik" title="Musik an/aus"
                 style="pointer-events:auto;cursor:pointer;font:inherit">♪</button>
@@ -2235,6 +2245,8 @@
   /* ================= Eingabe ================= */
   window.addEventListener('keydown', function (e) {
     var k = e.key.toLowerCase();
+    /* H rettet immer, sogar mitten im Gespräch. */
+    if (k === 'h') { e.preventDefault(); zumDorfplatz(); return; }
     if (window.Dialog && Dialog.offen()) { keys = Object.create(null); return; }
     keys[k] = true;
     if (['arrowup', 'arrowdown', 'arrowleft', 'arrowright', ' '].indexOf(k) >= 0) e.preventDefault();
@@ -2294,6 +2306,32 @@
     b.textContent = an ? '♪' : '♪̸';
     b.style.color = an ? '#fde68a' : '#64748b';
   }
+  /* ---------------- Rettungsknopf ----------------
+     Wer sich heillos verlaufen hat, kommt damit zum Dorfplatz zurück.
+     Kostet nichts und geht immer — auch wenn gerade ein Gespräch offen ist. */
+  function zumDorfplatz() {
+    if (state !== 'play') return;
+    if (window.Dialog && Dialog.offen()) Dialog.schliessen();
+    var weit = Math.round(Math.hypot(hero.x - (HUB.x * TILE + 8), hero.y - (HUB.y * TILE + 14)) / TILE);
+    var ziel = sichererPlatz(HUB.x * TILE + 8, HUB.y * TILE + 22);
+    hero.x = ziel.x; hero.y = ziel.y; hero.dir = 'down';
+    nearest = null;
+    updateBanner();
+    flash(weit > 6
+      ? ['Kein Problem, so etwas passiert.',
+         'Du warst ' + weit + ' Felder vom Dorfplatz weg. Jetzt stehst du wieder mitten im Dorf, ' +
+         'beim Anschlagbrett und dem Wegweiser.']
+      : 'Du warst schon fast da. Jetzt stehst du genau auf dem Dorfplatz.', 'Wegweiser');
+  }
+  document.getElementById('hud-rettung').addEventListener('click', function (e) {
+    e.stopPropagation();
+    zumDorfplatz();
+  });
+  document.getElementById('hud-rettung').addEventListener('touchstart', function (e) {
+    e.stopPropagation(); e.preventDefault();
+    zumDorfplatz();
+  }, { passive: false });
+
   document.getElementById('hud-musik').addEventListener('click', function (e) {
     e.stopPropagation();
     if (!window.Musik || !Musik.verfuegbar()) return;

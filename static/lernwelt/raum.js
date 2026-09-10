@@ -237,6 +237,20 @@
     window.location.href = cfg.zurueck || '/lernwelt/';
   }
 
+  /* Stellt den Spieler vor die Tür. Nützlich, wenn man den Ausgang nicht findet. */
+  function zurTuer() {
+    if (Dialog.offen()) Dialog.schliessen();
+    if (fensterAuf()) fensterSchliessen();
+    var tuer = cfg.tuerKacheln || [1, 2];
+    var mitte = (tuer[0] + tuer[1]) / 2;
+    var p = sichererPlatz(mitte * TILE + 8, (cfg.hoeheKacheln - 2) * TILE + 14);
+    held.x = p.x; held.y = p.y; held.dir = 'down';
+    nah = null;
+    bannerZeigen();
+    Dialog.zeigen('Wegweiser',
+      'Du stehst jetzt direkt vor der Tür. Ein Schritt nach unten und du bist wieder draussen.');
+  }
+
   /* ---------------- Schleife ---------------- */
   function schritt(ts) {
     var dt = Math.min(0.05, (ts - letzteZeit) / 1000 || 0);
@@ -327,6 +341,8 @@
     window.addEventListener('keydown', function (e) {
       var k = e.key.toLowerCase();
       if (['arrowup', 'arrowdown', 'arrowleft', 'arrowright', ' '].indexOf(k) >= 0) e.preventDefault();
+      /* H bringt immer zur Tür, auch mitten im Gespräch oder im Fenster. */
+      if (k === 'h') { e.preventDefault(); zurTuer(); return; }
       if (Dialog.offen()) return;
       if (k === 'escape') { if (fensterAuf()) fensterSchliessen(); else hinaus(); return; }
       if (fensterAuf()) return;
@@ -380,6 +396,13 @@
     var h = $('hud');
     if (!h || !cfg || !cfg.hudZeichnen) return;
     h.innerHTML = cfg.hudZeichnen();
+    /* Rettungsknopf: bringt zurück vor die Tür, falls jemand nicht mehr weiterweiss. */
+    var r = document.createElement('button');
+    r.className = 'rettungsknopf';
+    r.title = 'Zurück zur Tür (Taste H)';
+    r.textContent = 'HILFE';
+    r.onclick = function () { zurTuer(); };
+    h.appendChild(r);
     /* Musikknopf: jeder Raum hat sein eigenes Stück. */
     if (global.Musik && Musik.verfuegbar()) {
       var b = document.createElement('button');

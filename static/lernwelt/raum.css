@@ -47,6 +47,15 @@ body {
   cursor: pointer;
 }
 #hud .musikknopf:hover { border-color: #7dd3fc; color: #7dd3fc; }
+#hud .rettungsknopf {
+  border: 2px solid #7f1d1d; background: rgba(40,10,10,.6); color: #fca5a5;
+  border-radius: 8px; padding: 3px 9px; font: 700 10.5px ui-monospace, monospace;
+  cursor: pointer;
+}
+#hud .rettungsknopf:hover { background: #7f1d1d; color: #fee2e2; }
+@media (hover: none) {
+  #hud .musikknopf, #hud .rettungsknopf { padding: 7px 11px; font-size: 12px; }
+}
 
 #banner {
   min-height: 22px; margin-top: 7px; font-size: 11.5px; text-align: center; color: #cbd5e1;
