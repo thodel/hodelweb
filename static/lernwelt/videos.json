@@ -1,30 +1,33 @@
 {
-  "_hinweis": "Videoliste für die Lerninsel. 'id' ist der Teil nach ?v= in der YouTube-Adresse. 'modus': 'embed' spielt das Video auf der Seite ab, 'link' öffnet es in einem neuen Tab auf YouTube. UEFA sperrt die Anzeige ihrer Videos auf fremden Seiten, darum stehen die Champions-League-Videos auf 'link'. Nach dem Ändern: hugo laufen lassen und public/ committen.",
+  "_hinweis": "Videoliste der Lerninsel. 'id' = der Teil nach ?v= in der YouTube-Adresse. 'sekunden' = Länge; Videos über 'maxSekunden' werden nicht angezeigt. 'modus': 'embed' spielt auf der Seite, 'link' öffnet YouTube in einem neuen Tab (nötig, weil die UEFA das Einbetten ihrer Videos sperrt). Nach dem Ändern: hugo laufen lassen und public/ committen.",
   "kino": {
     "titel": "Kino",
     "emoji": "🎬",
-    "beschreibung": "Sport-Videos",
+    "beschreibung": "Kurze Sport-Videos",
+    "maxSekunden": 120,
     "gruppen": [
       {
         "titel": "🏀 NBA",
         "videos": [
-          { "id": "o6uZg1OXn0U", "titel": "Die verrücktesten Schlussphasen", "info": "NBA · Saison 2025/26, Teil 1", "modus": "embed" },
-          { "id": "CNIn4OxYQU4", "titel": "Nuggets vs. Lakers", "info": "NBA · eines der wildesten Spielenden", "modus": "embed" },
-          { "id": "EjHtV2jSCx4", "titel": "Jokics Buzzerbeater", "info": "NBA · Siegwurf gegen die Spurs", "modus": "embed" },
-          { "id": "E03UVgs1_UE", "titel": "Donovan Mitchell: Top 30", "info": "NBA · die besten Aktionen seiner Karriere", "modus": "embed" },
-          { "id": "xMPJ3LAMyws", "titel": "KD zieht an Michael Jordan vorbei", "info": "NBA · in der ewigen Korbjägerliste", "modus": "embed" },
-          { "id": "2MTM9I00Bpo", "titel": "Die besten Dribblings der Liga", "info": "NBA · Donovan Mitchell", "modus": "embed" }
+          { "id": "EjHtV2jSCx4", "titel": "Jokics Siegwurf", "info": "gegen die Spurs", "sekunden": 21, "modus": "embed" },
+          { "id": "xMPJ3LAMyws", "titel": "KD zieht an Jordan vorbei", "info": "in der ewigen Korbjägerliste", "sekunden": 27, "modus": "embed" },
+          { "id": "2MTM9I00Bpo", "titel": "Die besten Dribblings", "info": "Donovan Mitchell", "sekunden": 58, "modus": "embed" },
+          { "id": "8qBnImszKbg", "titel": "Siegwurf gegen den Bruder", "info": "Dylan Harper", "sekunden": 22, "modus": "embed" },
+          { "id": "SGDuc5aoW7A", "titel": "Anthony Blacks Dunk", "info": "der Dunk, über den alle reden", "sekunden": 23, "modus": "embed" },
+          { "id": "R8R9leQIJhQ", "titel": "Mitchell dunkt", "info": "NBA", "sekunden": 16, "modus": "embed" }
         ]
       },
       {
         "titel": "⚽ Champions League",
-        "hinweis": "Die UEFA erlaubt das Abspielen ihrer Videos nur auf YouTube. Diese Videos öffnen darum in einem neuen Tab.",
+        "hinweis": "Die UEFA erlaubt das Abspielen ihrer Videos nur auf YouTube. Diese öffnen darum in einem neuen Tab.",
         "videos": [
-          { "id": "UKTwc5Gm1NI", "titel": "Alle Tore des 1. Spieltags", "info": "UEFA · Saison 2025/26", "modus": "link" },
-          { "id": "3iekg1KgZ8E", "titel": "Jedes Führungstor", "info": "UEFA · Champions League", "modus": "link" },
-          { "id": "jQvmTzobbnY", "titel": "Liverpool gegen Atlético", "info": "UEFA · klassische Tore, Highlights", "modus": "link" },
-          { "id": "AhJjGSJZ5rE", "titel": "Haalands Ballwissen im Test", "info": "UEFA · Erling Haaland", "modus": "link" },
-          { "id": "LaADHznVSNg", "titel": "Die Champions-League-Hymne", "info": "UEFA · offizielle Version", "modus": "link" }
+          { "id": "7q74-tAdGoY", "titel": "Traumtor von Raphinha", "info": "FC Barcelona", "sekunden": 10, "modus": "link" },
+          { "id": "mRDqzhONH3Q", "titel": "Lautaro trifft", "info": "Inter Mailand", "sekunden": 13, "modus": "link" },
+          { "id": "dUQcUqTNF7U", "titel": "Luis Díaz nicht zu stoppen", "info": "Champions League", "sekunden": 8, "modus": "link" },
+          { "id": "FgynBIGwDxU", "titel": "Kvaratskhelia", "info": "unhaltbar", "sekunden": 6, "modus": "link" },
+          { "id": "NihJdjB9wz8", "titel": "Strike von Yıldız", "info": "Juventus Turin", "sekunden": 8, "modus": "link" },
+          { "id": "26Sv59IxZxY", "titel": "Doku trifft Poku", "info": "Champions League", "sekunden": 7, "modus": "link" },
+          { "id": "LaADHznVSNg", "titel": "Die Champions-League-Hymne", "info": "offizielle Version", "sekunden": 62, "modus": "link" }
         ]
       }
     ]
@@ -32,19 +35,21 @@
   "musik": {
     "titel": "Musikhütte",
     "emoji": "🎵",
-    "beschreibung": "Musik-Videos",
+    "beschreibung": "Kurze Musik-Videos",
+    "maxSekunden": 120,
+    "_hinweis_musik": "Alle offiziellen Michael-Jackson-Videos sind zwischen 4 und 14 Minuten lang und fallen damit unter der Grenze von 120 Sekunden heraus. Wer sie freigeben will, setzt maxSekunden für diesen Raum zum Beispiel auf 900.",
     "gruppen": [
       {
         "titel": "🕺 Michael Jackson",
         "videos": [
-          { "id": "Zi_XLOBDo_Y", "titel": "Billie Jean", "info": "Official Video", "modus": "embed" },
-          { "id": "oRdxUFDoQe0", "titel": "Beat It", "info": "Official 4K Video", "modus": "embed" },
-          { "id": "h_D3VFfhvs4", "titel": "Smooth Criminal", "info": "Official Video", "modus": "embed" },
-          { "id": "sOnqjkJTMaA", "titel": "Thriller", "info": "Official 4K Video", "modus": "embed" },
-          { "id": "dsUXAEzaC3Q", "titel": "Bad", "info": "Shortened Version", "modus": "embed" },
-          { "id": "F2AitTPI5U0", "titel": "Black Or White", "info": "Shortened Version", "modus": "embed" },
-          { "id": "QNJL6nfu__Q", "titel": "They Don't Care About Us", "info": "Official Video", "modus": "embed" },
-          { "id": "LeiFF0gvqcc", "titel": "Remember the Time", "info": "Upscaled", "modus": "embed" }
+          { "id": "Zi_XLOBDo_Y", "titel": "Billie Jean", "info": "Official Video", "sekunden": 296, "modus": "embed" },
+          { "id": "oRdxUFDoQe0", "titel": "Beat It", "info": "Official 4K Video", "sekunden": 299, "modus": "embed" },
+          { "id": "dsUXAEzaC3Q", "titel": "Bad", "info": "Shortened Version", "sekunden": 260, "modus": "embed" },
+          { "id": "QNJL6nfu__Q", "titel": "They Don't Care About Us", "info": "Official Video", "sekunden": 282, "modus": "embed" },
+          { "id": "F2AitTPI5U0", "titel": "Black Or White", "info": "Shortened Version", "sekunden": 383, "modus": "embed" },
+          { "id": "h_D3VFfhvs4", "titel": "Smooth Criminal", "info": "Official Video", "sekunden": 566, "modus": "embed" },
+          { "id": "LeiFF0gvqcc", "titel": "Remember the Time", "info": "Upscaled", "sekunden": 558, "modus": "embed" },
+          { "id": "sOnqjkJTMaA", "titel": "Thriller", "info": "Official 4K Video", "sekunden": 822, "modus": "embed" }
         ]
       }
     ]
