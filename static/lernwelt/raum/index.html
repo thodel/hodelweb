@@ -77,7 +77,6 @@
   </div>
 
   <a class="lnk" href="/lernwelt/">🏝️ Zurück zur Insel</a>
-  <a class="lnk" href="/lernwelt/kiosk/" style="border-color:#a78bfa;color:#c4b5fd;background:#1e1b4b">🏪 Kiosk</a>
   <footer>hodelweb.ch/lernwelt</footer>
 </div>
 
@@ -113,8 +112,8 @@
     $('tuer-h').textContent = 'Die Tür ist zu';
     $('tuer-p').innerHTML = 'Um den Raum zu öffnen, brauchst du <b>1 Marke</b>.<br>' +
       'Du hast im Moment <b>' + marken + ' Marke(n)</b> und ' + Insel.muenzen(who) + ' Münzen.<br>' +
-      'Marken gibt es im <a href="/lernwelt/kiosk/" style="color:#c4b5fd">Kiosk</a> für je ' +
-      Insel.oekonomie.markePreis + ' Münzen.';
+      'Marken gibt es beim Kiosk auf der Insel für je ' +
+      Insel.oekonomie.markePreis + ' Münzen — dorthin musst du laufen.';
     $('oeffnen').disabled = marken < 1;
   }
 

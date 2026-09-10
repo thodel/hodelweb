@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alte Spelunke — Lerninsel</title>
+<link rel="icon" href="/favicon-32x32.png" sizes="32x32">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+         background: #150d16; color: #e2e8f0; padding: 18px 14px 60px; min-height: 100vh;
+         background-image: radial-gradient(circle at 50% 0%, #2c1526 0%, #150d16 60%); }
+  .wrap { max-width: 620px; margin: 0 auto; }
+  h1 { font-size: 26px; text-align: center; font-weight: 800; color: #f9a8d4; }
+  .sub { text-align: center; font-size: 13px; color: #a78295; margin: 6px 0 18px; }
+
+  .bank { background: #2a1020; border: 3px solid #f472b6; border-radius: 16px;
+          padding: 16px; text-align: center; margin-bottom: 16px; }
+  .bank .l { font-size: 12px; color: #f9a8d4; letter-spacing: .06em; text-transform: uppercase; }
+  .bank .z { font-size: 44px; font-weight: 900; color: #fda4af; line-height: 1.15; }
+  .bank .k { font-size: 12.5px; color: #cbb0be; margin-top: 6px; line-height: 1.6; }
+
+  .karte { background: #221024; border: 2px solid #4a2440; border-radius: 16px;
+           padding: 18px; margin-bottom: 16px; }
+  h2 { font-size: 15px; margin-bottom: 10px; color: #f9a8d4; }
+
+  .muscheln { display: flex; gap: 12px; justify-content: center; margin: 18px 0; }
+  .muschel { width: 92px; height: 92px; border-radius: 14px; cursor: pointer;
+             background: linear-gradient(160deg,#5b3a2e,#3a251d); border: 3px solid #7c5341;
+             display: flex; align-items: center; justify-content: center; font-size: 40px;
+             transition: transform .12s; padding: 0; }
+  .muschel:hover:not(:disabled) { transform: translateY(-4px); border-color: #f472b6; }
+  .muschel:disabled { cursor: default; }
+  .muschel.treffer { background: linear-gradient(160deg,#166534,#14532d); border-color: #4ade80; }
+  .muschel.daneben { background: linear-gradient(160deg,#4c0519,#2a0410); border-color: #f43f5e; opacity: .75; }
+
+  .einsatz { display: flex; gap: 8px; justify-content: center; margin-bottom: 6px; }
+  .einsatz button { padding: 10px 16px; border-radius: 10px; border: 2px solid #4a2440;
+                    background: #2a1020; color: #e2e8f0; font-size: 15px; font-weight: 700; cursor: pointer; }
+  .einsatz button.aktiv { background: #f472b6; color: #4a0f2e; border-color: #f9a8d4; }
+  .chance { text-align: center; font-size: 12.5px; color: #cbb0be; line-height: 1.7; }
+  .erg { text-align: center; font-size: 17px; font-weight: 800; min-height: 30px; margin-top: 12px; }
+  .erg.win { color: #4ade80; } .erg.lose { color: #fda4af; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  td { padding: 7px 0; border-bottom: 1px solid #3d1f36; }
+  td:last-child { text-align: right; color: #cbb0be; }
+  tr:last-child td { border-bottom: 0; }
+
+  .warnung { background: #2a1020; border-left: 5px solid #f43f5e; border-radius: 12px;
+             padding: 14px 16px; font-size: 13.5px; line-height: 1.75; color: #f1d4e0; }
+  .warnung b { color: #fda4af; }
+  .rechnung { background: #16121c; border-radius: 12px; padding: 14px; font-size: 13px;
+              line-height: 1.9; color: #cbb0be; margin-top: 10px; font-family: ui-monospace, Menlo, monospace; }
+  .rechnung b { color: #f9a8d4; }
+  .lnk { display: block; text-align: center; padding: 13px; border-radius: 12px; margin-top: 18px;
+         background: #1e3a5f; border: 2px solid #fde68a; color: #fde68a; text-decoration: none; font-weight: 700; }
+  footer { text-align: center; margin-top: 24px; font-size: 12px; color: #6b4a5e; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div id="hud"></div>
+  <h1>🎲 Alte Spelunke</h1>
+  <div class="sub">Unter einer Muschel liegt die Perle. Wer richtig tippt, gewinnt.</div>
+
+  <div class="bank">
+    <div class="l">So viel hat die Bank bei dir gewonnen</div>
+    <div class="z" id="bank">0 🪙</div>
+    <div class="k" id="bank-k">Noch hast du hier nicht gespielt.</div>
+  </div>
+
+  <div class="karte">
+    <h2>Einsatz wählen</h2>
+    <div class="einsatz" id="einsatz"></div>
+    <div class="chance" id="chance"></div>
+    <div class="muscheln" id="muscheln"></div>
+    <div class="erg" id="erg"></div>
+  </div>
+
+  <div class="karte">
+    <h2>📊 Deine Bilanz</h2>
+    <table id="stats"></table>
+  </div>
+
+  <div class="karte">
+    <h2>🧮 Warum die Bank immer gewinnt</h2>
+    <div class="warnung" id="warnung"></div>
+    <div class="rechnung" id="rechnung"></div>
+  </div>
+
+  <a class="lnk" href="/lernwelt/">🏝️ Zurück zur Insel</a>
+  <footer>hodelweb.ch/lernwelt/spelunke · Wahrscheinlichkeit — Lehrplan 21: MA.3.B.2</footer>
+</div>
+
+<script src="/lernwelt/insel.js"></script>
+<script>
+(function () {
+  'use strict';
+  var $ = function (i) { return document.getElementById(i); };
+  var who = Insel.who();
+
+  var EINSAETZE = [5, 10, 20];
+  var CHANCE = 1 / 3;          /* eine von drei Muscheln */
+  var FAKTOR = 2.5;            /* Auszahlung des Einsatzes bei einem Treffer */
+  var einsatz = 5, laeuft = false;
+
+  Insel.hudLeiste($('hud'));
+
+  function einsatzLeiste() {
+    var box = $('einsatz');
+    box.innerHTML = '';
+    EINSAETZE.forEach(function (e) {
+      var b = document.createElement('button');
+      b.textContent = e + ' 🪙';
+      if (e === einsatz) b.className = 'aktiv';
+      b.onclick = function () { einsatz = e; einsatzLeiste(); chanceText(); };
+      box.appendChild(b);
+    });
+  }
+
+  function chanceText() {
+    var gewinn = Math.round(einsatz * FAKTOR);
+    $('chance').innerHTML =
+      'Trefferchance <b>1 von 3</b> (33 %) · Auszahlung <b>' + gewinn + ' 🪙</b> bei ' + einsatz + ' 🪙 Einsatz' +
+      '<br>Im Schnitt bekommst du pro 3 Spiele ' + gewinn + ' zurück und zahlst ' + (einsatz * 3) + ' ein.';
+  }
+
+  function muschelnBauen(gesperrt) {
+    var box = $('muscheln');
+    box.innerHTML = '';
+    for (var i = 0; i < 3; i++) {
+      (function (n) {
+        var b = document.createElement('button');
+        b.className = 'muschel';
+        b.textContent = '🐚';
+        b.disabled = !!gesperrt;
+        b.onclick = function () { spielen(n); };
+        box.appendChild(b);
+      })(i);
+    }
+  }
+
+  function spielen(gewaehlt) {
+    if (laeuft) return;
+    if (Insel.muenzen(who) < einsatz) {
+      $('erg').textContent = 'Du hast nicht genug Münzen. Geh üben!';
+      $('erg').className = 'erg lose';
+      return;
+    }
+    laeuft = true;
+    var perle = Math.floor(Math.random() * 3);
+    var gewonnen = gewaehlt === perle;
+    var auszahlung = gewonnen ? Math.round(einsatz * FAKTOR) : 0;
+
+    var r = Insel.spelunkeSpielen(einsatz, auszahlung, who);
+    if (!r.ok) { laeuft = false; return; }
+
+    var knoepfe = $('muscheln').children;
+    for (var i = 0; i < 3; i++) {
+      knoepfe[i].disabled = true;
+      if (i === perle) { knoepfe[i].textContent = '🦪'; knoepfe[i].className = 'muschel treffer'; }
+      else if (i === gewaehlt) { knoepfe[i].className = 'muschel daneben'; }
+    }
+    $('erg').textContent = gewonnen
+      ? '🎉 Treffer! + ' + auszahlung + ' 🪙 (netto + ' + (auszahlung - einsatz) + ')'
+      : '💸 Daneben. − ' + einsatz + ' 🪙';
+    $('erg').className = 'erg ' + (gewonnen ? 'win' : 'lose');
+
+    alles();
+    setTimeout(function () { laeuft = false; muschelnBauen(false); $('erg').textContent = ''; }, 1900);
+  }
+
+  function alles() {
+    var sp = Insel.spelunkeStand(who);
+    var bilanz = Insel.bankBilanz(who);
+    $('bank').textContent = (bilanz >= 0 ? bilanz : bilanz) + ' 🪙';
+    $('bank').style.color = bilanz > 0 ? '#fda4af' : bilanz < 0 ? '#4ade80' : '#cbb0be';
+    $('bank-k').textContent = !sp.spiele
+      ? 'Noch hast du hier nicht gespielt.'
+      : bilanz > 0
+        ? 'So viele Münzen hast du in ' + sp.spiele + ' Spielen an die Bank verloren.'
+        : bilanz < 0
+          ? 'Du liegst gerade ' + (-bilanz) + ' Münzen vorne. Das hält selten lange.'
+          : 'Im Moment steht es unentschieden.';
+
+    var t = $('stats');
+    t.innerHTML =
+      '<tr><td>Spiele</td><td>' + sp.spiele + '</td></tr>' +
+      '<tr><td>Eingesetzt</td><td>' + sp.eingesetzt + ' 🪙</td></tr>' +
+      '<tr><td>Ausbezahlt</td><td>' + sp.ausbezahlt + ' 🪙</td></tr>' +
+      '<tr><td>Grösster Gewinn</td><td>' + (sp.groesserGewinn || 0) + ' 🪙</td></tr>' +
+      '<tr><td>Grösster Verlust</td><td>' + (sp.groesserVerlust || 0) + ' 🪙</td></tr>' +
+      '<tr><td>Deine Münzen</td><td>' + Insel.muenzen(who) + ' 🪙</td></tr>';
+
+    var w = $('warnung');
+    if (!sp.spiele) {
+      w.innerHTML = 'Rechne nach, bevor du spielst: Du gewinnst nur in <b>einem von drei</b> Spielen, ' +
+        'bekommst dann aber nur das <b>2,5-fache</b> zurück. Fair wäre das <b>3-fache</b>.';
+    } else if (sp.eingesetzt > 0) {
+      var quote = Math.round(sp.ausbezahlt / sp.eingesetzt * 100);
+      w.innerHTML = 'Du hast <b>' + sp.eingesetzt + '</b> Münzen eingesetzt und <b>' + sp.ausbezahlt +
+        '</b> zurückbekommen — das sind <b>' + quote + ' %</b>. ' +
+        (sp.spiele < 10
+          ? 'Bei wenigen Spielen schwankt das stark. Spiel weiter und schau, wohin es sich bewegt.'
+          : 'Je länger du spielst, desto näher kommt der Wert bei <b>83 %</b> — dem Anteil, den die Bank auszahlt. ' +
+            'Die übrigen 17 % behält sie. <b>Auf Dauer verlierst du hier immer.</b>');
+    }
+
+    var erwartet = Math.round(sp.eingesetzt * FAKTOR * CHANCE);
+    $('rechnung').innerHTML =
+      'Chance auf einen Treffer &nbsp;=&nbsp; 1 : 3 &nbsp;=&nbsp; <b>33,3 %</b><br>' +
+      'Auszahlung bei Treffer &nbsp;=&nbsp; Einsatz · 2,5<br>' +
+      'Erwartung pro Münze &nbsp;=&nbsp; 0,333 · 2,5 &nbsp;=&nbsp; <b>0,83 Münzen</b><br>' +
+      'Die Bank behält also im Schnitt <b>17 Rappen von jedem Franken</b>.<br>' +
+      (sp.eingesetzt
+        ? '<br>Bei deinen ' + sp.eingesetzt + ' eingesetzten Münzen wären rechnerisch <b>' + erwartet +
+          '</b> zurückgekommen — tatsächlich waren es <b>' + sp.ausbezahlt + '</b>.'
+        : '');
+
+    $('hud').innerHTML = ''; Insel.hudLeiste($('hud'));
+  }
+
+  einsatzLeiste();
+  chanceText();
+  muschelnBauen(false);
+  alles();
+})();
+</script>
+</body>
+</html>
