@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kiosk — Lerninsel</title>
+<link rel="icon" href="/favicon-32x32.png" sizes="32x32">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+         background: #0f172a; color: #e2e8f0; padding: 18px 14px 60px; min-height: 100vh; }
+  .wrap { max-width: 560px; margin: 0 auto; }
+  h1 { font-size: 26px; text-align: center; font-weight: 800; }
+  .sub { text-align: center; font-size: 13px; color: #94a3b8; margin: 6px 0 20px; }
+  .konto { display: flex; gap: 12px; margin-bottom: 20px; }
+  .konto > div { flex: 1; background: #1e293b; border-radius: 16px; padding: 18px 12px; text-align: center;
+                 border: 2px solid #334155; }
+  .konto .zahl { font-size: 38px; font-weight: 900; line-height: 1.1; }
+  .konto .lbl { font-size: 12px; color: #94a3b8; margin-top: 4px; }
+  .muenzen .zahl { color: #fbbf24; } .muenzen { border-color: #fbbf24 !important; }
+  .marken .zahl { color: #c4b5fd; } .marken { border-color: #a78bfa !important; }
+
+  .card { background: #1e293b; border-radius: 18px; padding: 20px 18px; margin-bottom: 16px; border: 2px solid #334155; }
+  .card h2 { font-size: 17px; margin-bottom: 6px; }
+  .card p { font-size: 13.5px; color: #94a3b8; line-height: 1.6; }
+  .btn { display: block; width: 100%; padding: 15px; border: none; border-radius: 12px; margin-top: 14px;
+         font-size: 17px; font-weight: 700; cursor: pointer; background: #fbbf24; color: #451a03; }
+  .btn:hover { background: #fcd34d; }
+  .btn:disabled { background: #334155; color: #64748b; cursor: not-allowed; }
+  .raeume { display: grid; gap: 12px; }
+  .raum { display: block; background: #1e293b; border: 2px solid #334155; border-radius: 16px;
+          padding: 16px; text-decoration: none; color: inherit; }
+  .raum:hover { border-color: #a78bfa; }
+  .raum .t { font-size: 18px; font-weight: 700; }
+  .raum .i { font-size: 13px; color: #94a3b8; margin-top: 4px; }
+  .raum .p { font-size: 12px; color: #c4b5fd; margin-top: 8px; font-weight: 700; }
+  .msg { text-align: center; font-size: 15px; font-weight: 700; min-height: 24px; margin: 10px 0; }
+  .msg.ok { color: #4ade80; } .msg.no { color: #fda4af; }
+  .lnk { display: block; text-align: center; padding: 13px; border-radius: 12px; margin-top: 18px;
+         background: #1e3a5f; border: 2px solid #fde68a; color: #fde68a; text-decoration: none; font-weight: 700; }
+  .liste { font-size: 13px; color: #94a3b8; line-height: 1.8; margin-top: 10px; }
+  .liste b { color: #e2e8f0; }
+  footer { text-align: center; margin-top: 24px; font-size: 12px; color: #475569; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div id="hud"></div>
+  <h1>🏪 Inselkiosk</h1>
+  <div class="sub" id="sub"></div>
+
+  <div class="konto">
+    <div class="muenzen"><div class="zahl" id="m">0</div><div class="lbl">Münzen</div></div>
+    <div class="marken"><div class="zahl" id="t">0</div><div class="lbl">Marken</div></div>
+  </div>
+
+  <div class="card">
+    <h2>🎟️ Marke kaufen</h2>
+    <p>Eine Marke kostet <b id="preis">25</b> Münzen. Mit einer Marke kannst du einmal das Kino
+       oder die Musikhütte öffnen.</p>
+    <div class="msg" id="msg"></div>
+    <button class="btn" id="kaufen">1 Marke kaufen</button>
+  </div>
+
+  <div class="card">
+    <h2>🎬 Räume</h2>
+    <p>Räume kosten je 1 Marke. Der Raum bleibt offen, bis du den Tab schliesst.</p>
+    <div class="raeume" style="margin-top:14px">
+      <a class="raum" href="/lernwelt/raum/?raum=kino">
+        <div class="t">🎬 Kino</div>
+        <div class="i">Sport-Videos anschauen</div>
+        <div class="p">1 Marke</div>
+      </a>
+      <a class="raum" href="/lernwelt/raum/?raum=musik">
+        <div class="t">🎵 Musikhütte</div>
+        <div class="i">Musik-Videos anschauen</div>
+        <div class="p">1 Marke</div>
+      </a>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>💡 Wie verdiene ich Münzen?</h2>
+    <div class="liste">
+      <b>Grundlagen-Übungen (grün):</b> geben einmalig 5 Münzen, wenn du sie schaffst.<br>
+      <b>Knacknüsse (orange):</b> geben 8 Münzen bei jedem Versuch — solange, bis du 80 % erreichst.
+      Beim Meistern gibt es 15 Münzen Bonus, danach nichts mehr.<br>
+      <b>Unter 50 %</b> gibt es keine Münzen.
+    </div>
+  </div>
+
+  <a class="lnk" href="/lernwelt/">🏝️ Zurück zur Insel</a>
+  <footer>hodelweb.ch/lernwelt/kiosk</footer>
+</div>
+
+<script src="/lernwelt/insel.js"></script>
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var who = Insel.who();
+  Insel.hudLeiste($('hud'));
+  $('sub').textContent = who + ' · Münzen gegen Marken tauschen';
+  $('preis').textContent = Insel.oekonomie.markePreis;
+
+  function zeichne() {
+    $('m').textContent = Insel.muenzen(who);
+    $('t').textContent = Insel.marken(who);
+    $('kaufen').disabled = Insel.muenzen(who) < Insel.oekonomie.markePreis;
+    $('hud').innerHTML = '';
+    Insel.hudLeiste($('hud'));
+  }
+
+  $('kaufen').onclick = function () {
+    var r = Insel.markeKaufen(1, who);
+    var msg = $('msg');
+    if (r.ok) {
+      msg.textContent = '✔ Gekauft! Du hast jetzt ' + r.marken + ' Marke(n).';
+      msg.className = 'msg ok';
+    } else {
+      msg.textContent = 'Dir fehlen noch ' + r.fehlt + ' Münzen.';
+      msg.className = 'msg no';
+    }
+    zeichne();
+  };
+
+  zeichne();
+})();
+</script>
+</body>
+</html>

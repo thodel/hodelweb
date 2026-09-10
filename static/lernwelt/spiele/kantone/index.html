@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kantone-Puzzle — Lerninsel</title>
+<link rel="icon" href="/favicon-32x32.png" sizes="32x32">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+         background: #0f172a; color: #e2e8f0; padding: 16px 12px 50px; min-height: 100vh; }
+  .wrap { max-width: 760px; margin: 0 auto; }
+  h1 { font-size: 24px; text-align: center; font-weight: 800; }
+  .sub { text-align: center; font-size: 13px; color: #94a3b8; margin: 5px 0 16px; }
+
+  .modes { display: flex; gap: 8px; justify-content: center; margin-bottom: 14px; flex-wrap: wrap; }
+  .mode { padding: 9px 14px; border: 2px solid #334155; background: #1e293b; color: #cbd5e1;
+          border-radius: 10px; font-size: 13.5px; font-weight: 700; cursor: pointer; }
+  .mode.active { background: #a16207; border-color: #fcd34d; color: #fff; }
+
+  .frage { text-align: center; font-size: 20px; font-weight: 800; margin-bottom: 4px; min-height: 28px; }
+  .frage b { color: #fcd34d; }
+  .stand { text-align: center; font-size: 12.5px; color: #94a3b8; margin-bottom: 12px; }
+
+  .karte {
+    position: relative; width: 100%; aspect-ratio: 100 / 66;
+    background: #12203f; border: 2px solid #334155; border-radius: 16px; overflow: hidden;
+  }
+  .karte .land { position: absolute; font-size: 11px; color: #475569; font-weight: 700; letter-spacing: .1em; }
+  .dot {
+    position: absolute; transform: translate(-50%, -50%);
+    width: 26px; height: 26px; border-radius: 50%;
+    background: #1e293b; border: 2px solid #64748b; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 9px; font-weight: 800; color: #94a3b8; padding: 0;
+  }
+  .dot:hover { border-color: #fcd34d; background: #334155; }
+  .dot.gesetzt { background: #14532d; border-color: #4ade80; color: #dcfce7; cursor: default; }
+  .dot.falsch { animation: wack .4s; border-color: #f43f5e; background: #4c0519; }
+  .dot.tipp { border-color: #fcd34d; box-shadow: 0 0 0 4px rgba(252,211,77,.25); }
+  @keyframes wack { 25% { transform: translate(-58%,-50%);} 75% { transform: translate(-42%,-50%);} }
+
+  .fb { text-align: center; font-size: 15px; font-weight: 700; min-height: 26px; margin: 12px 0 4px; }
+  .fb.ok { color: #4ade80; } .fb.no { color: #fda4af; }
+  .aktionen { display: flex; gap: 10px; justify-content: center; margin-top: 8px; flex-wrap: wrap; }
+  .btn { padding: 11px 18px; border: none; border-radius: 10px; font-size: 14px; font-weight: 700;
+         background: #38bdf8; color: #082f49; cursor: pointer; }
+  .btn.grau { background: #334155; color: #cbd5e1; }
+  .fertig { display: none; text-align: center; background: #1e293b; border: 2px solid #fcd34d;
+            border-radius: 16px; padding: 20px; margin-top: 16px; }
+  .fertig.show { display: block; }
+  .fertig .gross { font-size: 40px; font-weight: 900; color: #fcd34d; }
+  .lnk { display: block; text-align: center; padding: 12px; border-radius: 12px; margin-top: 16px;
+         background: #1e3a5f; border: 2px solid #fde68a; color: #fde68a; text-decoration: none; font-weight: 700; }
+  footer { text-align: center; margin-top: 22px; font-size: 12px; color: #475569; }
+  @media (max-width: 520px) { .dot { width: 22px; height: 22px; font-size: 8px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div id="hud"></div>
+  <h1>🧩 Kantone-Puzzle</h1>
+  <div class="sub">Wo liegt welcher Kanton? Klicke auf den richtigen Punkt.</div>
+
+  <div class="modes">
+    <button class="mode active" data-mode="gross">12 grosse Kantone</button>
+    <button class="mode" data-mode="alle">Alle 26</button>
+  </div>
+
+  <div class="frage" id="frage">—</div>
+  <div class="stand" id="stand"></div>
+
+  <div class="karte" id="karte"></div>
+
+  <div class="fb" id="fb"></div>
+  <div class="aktionen">
+    <button class="btn grau" id="tipp">💡 Tipp</button>
+    <button class="btn grau" id="neu">🔄 Nochmal</button>
+  </div>
+
+  <div class="fertig" id="fertig">
+    <div style="font-size:44px">🏆</div>
+    <div class="gross" id="f-zeit">—</div>
+    <div style="font-size:14px;color:#94a3b8" id="f-info"></div>
+    <div id="f-muenzen" style="margin-top:10px;font-weight:700;color:#fbbf24"></div>
+  </div>
+
+  <a class="lnk" href="/lernwelt/spiele/">← Zurück zum Spielplatz</a>
+  <footer>hodelweb.ch/lernwelt/spiele/kantone · Lehrplan 21: NMG.8.3</footer>
+</div>
+
+<script src="/lernwelt/insel.js"></script>
+<script>
+(function () {
+  'use strict';
+  var $ = function (i) { return document.getElementById(i); };
+
+  /* Ungefähre Lage der Kantonshauptorte auf einer 100 × 62 grossen Karte */
+  var K = [
+    ['Genf', 'GE', 5, 53, 1], ['Waadt', 'VD', 15, 43, 1], ['Wallis', 'VS', 31, 52, 1],
+    ['Freiburg', 'FR', 25, 38, 1], ['Neuenburg', 'NE', 20, 31, 0], ['Jura', 'JU', 24, 17, 0],
+    ['Bern', 'BE', 35, 34, 1], ['Solothurn', 'SO', 33, 22, 0], ['Basel-Landschaft', 'BL', 32, 13, 0],
+    ['Basel-Stadt', 'BS', 30, 8, 0], ['Aargau', 'AG', 42, 17, 1], ['Luzern', 'LU', 45, 30, 1],
+    ['Obwalden', 'OW', 47, 39, 0], ['Nidwalden', 'NW', 51, 36, 0], ['Uri', 'UR', 54, 43, 0],
+    ['Schwyz', 'SZ', 54, 31, 0], ['Zug', 'ZG', 50, 26, 0], ['Zürich', 'ZH', 52, 19, 1],
+    ['Schaffhausen', 'SH', 54, 7, 0], ['Thurgau', 'TG', 62, 13, 1], ['St. Gallen', 'SG', 69, 22, 1],
+    ['Appenzell A.Rh.', 'AR', 67, 18, 0], ['Appenzell I.Rh.', 'AI', 70, 21, 0],
+    ['Glarus', 'GL', 62, 30, 0], ['Graubünden', 'GR', 77, 38, 1], ['Tessin', 'TI', 57, 53, 1]
+  ];
+
+  var modus = 'gross', reihe = [], i = 0, fehler = 0, tipps = 0, start = 0, fertig = false;
+
+  function liste() {
+    return modus === 'gross' ? K.filter(function (k) { return k[4]; }) : K.slice();
+  }
+
+  function baueKarte() {
+    var karte = $('karte');
+    karte.innerHTML = '';
+    ['DEUTSCHLAND:50:2', 'FRANKREICH:6:26', 'ITALIEN:56:62', 'ÖSTERREICH:88:14'].forEach(function (s) {
+      var t = s.split(':'), el = document.createElement('div');
+      el.className = 'land'; el.textContent = t[0];
+      el.style.left = t[1] + '%'; el.style.top = t[2] + '%';
+      el.style.transform = 'translate(-50%,-50%)';
+      karte.appendChild(el);
+    });
+    liste().forEach(function (k) {
+      var b = document.createElement('button');
+      b.className = 'dot';
+      b.style.left = k[2] + '%';
+      b.style.top = (k[3] / 62 * 100) + '%';
+      b.dataset.kuerzel = k[1];
+      b.onclick = function () { klick(k, b); };
+      karte.appendChild(b);
+    });
+  }
+
+  function neu() {
+    reihe = liste().slice().sort(function () { return Math.random() - 0.5; });
+    i = 0; fehler = 0; tipps = 0; fertig = false; start = Date.now();
+    $('fertig').classList.remove('show');
+    baueKarte();
+    zeige();
+  }
+
+  function zeige() {
+    if (i >= reihe.length) return abschluss();
+    $('frage').innerHTML = 'Wo liegt <b>' + reihe[i][0] + '</b>?';
+    $('stand').textContent = (i + 1) + ' von ' + reihe.length + ' · ' + fehler + ' Fehler';
+    $('fb').textContent = '';
+  }
+
+  function klick(k, b) {
+    if (fertig || b.classList.contains('gesetzt')) return;
+    var soll = reihe[i];
+    if (k[1] === soll[1]) {
+      b.classList.add('gesetzt');
+      b.classList.remove('tipp');
+      b.textContent = k[1];
+      b.title = k[0];
+      $('fb').textContent = '✔ Richtig — ' + k[0];
+      $('fb').className = 'fb ok';
+      i++;
+      setTimeout(zeige, 500);
+    } else {
+      fehler++;
+      b.classList.add('falsch');
+      setTimeout(function () { b.classList.remove('falsch'); }, 400);
+      $('fb').textContent = 'Das ist ' + k[0] + '. Versuch es nochmal.';
+      $('fb').className = 'fb no';
+      $('stand').textContent = (i + 1) + ' von ' + reihe.length + ' · ' + fehler + ' Fehler';
+    }
+  }
+
+  $('tipp').onclick = function () {
+    if (fertig || i >= reihe.length) return;
+    tipps++;
+    var soll = reihe[i];
+    var b = document.querySelector('.dot[data-kuerzel="' + soll[1] + '"]');
+    if (b) { b.classList.add('tipp'); setTimeout(function () { b.classList.remove('tipp'); }, 1400); }
+  };
+  $('neu').onclick = neu;
+
+  function abschluss() {
+    fertig = true;
+    var sek = Math.round((Date.now() - start) / 1000);
+    var n = reihe.length;
+    var pct = Math.max(0, Math.round(100 * (n - fehler * 0.5 - tipps * 0.5) / n));
+    $('frage').innerHTML = 'Alle ' + n + ' Kantone gesetzt!';
+    $('stand').textContent = '';
+    $('f-zeit').textContent = sek + ' Sekunden';
+    $('f-info').textContent = fehler + ' Fehler · ' + tipps + ' Tipps · ' + pct + ' % Punkte';
+    if (window.Insel) {
+      var res = Insel.melden({
+        fach: 'nmg', set: 'kantone-puzzle-' + modus, titel: 'Kantone-Puzzle (' + modus + ')',
+        schwierigkeit: modus === 'alle' ? 'schwer' : 'leicht', pct: pct
+      });
+      $('f-muenzen').textContent = res.muenzen > 0
+        ? '+ ' + res.muenzen + ' 🪙 — ' + res.grund
+        : res.grund;
+      $('hud').innerHTML = ''; Insel.hudLeiste($('hud'));
+    }
+    $('fertig').classList.add('show');
+  }
+
+  Array.prototype.forEach.call(document.querySelectorAll('.mode'), function (m) {
+    m.onclick = function () {
+      Array.prototype.forEach.call(document.querySelectorAll('.mode'), function (x) { x.classList.remove('active'); });
+      m.classList.add('active');
+      modus = m.dataset.mode;
+      neu();
+    };
+  });
+
+  Insel.hudLeiste($('hud'));
+  neu();
+})();
+</script>
+</body>
+</html>

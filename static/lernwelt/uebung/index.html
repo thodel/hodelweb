@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Übungen — Lerninsel</title>
+<meta name="description" content="Übungen zu Mathematik, Deutsch und Englisch, orientiert am Lehrplan 21 (Zyklus 2).">
+<link rel="icon" href="/favicon-32x32.png" sizes="32x32">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #0f172a; color: #e2e8f0; padding: 18px 14px 60px; min-height: 100vh;
+  }
+  .wrap { max-width: 620px; margin: 0 auto; }
+  h1 { font-size: 25px; font-weight: 800; text-align: center; }
+  .sub { text-align: center; font-size: 13px; color: #94a3b8; margin: 6px 0 18px; }
+
+  .setlist { display: grid; gap: 12px; }
+  .set {
+    display: block; width: 100%; text-align: left; cursor: pointer;
+    background: #1e293b; border: 2px solid #334155; border-left-width: 6px;
+    border-radius: 14px; padding: 14px 16px; color: inherit; text-decoration: none;
+  }
+  .set:hover { border-color: #64748b; transform: translateX(3px); }
+  .set.leicht { border-left-color: #4ade80; }
+  .set.schwer { border-left-color: #fb923c; }
+  .set .top { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+  .set .t { font-size: 17px; font-weight: 700; }
+  .set .i { font-size: 13px; color: #94a3b8; margin-top: 4px; }
+  .set .meta { font-size: 11px; color: #64748b; margin-top: 8px; font-family: ui-monospace, Menlo, monospace; }
+  .tag { font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
+  .tag.leicht { background: #14532d; color: #86efac; }
+  .tag.schwer { background: #7c2d12; color: #fdba74; }
+  .tag.fertig { background: #422006; color: #fbbf24; }
+  .coins { font-size: 12px; color: #fbbf24; margin-top: 6px; font-weight: 700; }
+
+  .card { background: #1e293b; border-radius: 18px; padding: 22px 18px; box-shadow: 0 6px 24px rgba(0,0,0,.35); }
+  .bar { height: 8px; background: #334155; border-radius: 99px; overflow: hidden; margin-bottom: 16px; }
+  .fill { height: 100%; width: 0; background: linear-gradient(90deg,#38bdf8,#818cf8); transition: width .3s; }
+  .meta2 { display: flex; justify-content: space-between; font-size: 12px; color: #94a3b8; margin-bottom: 16px; }
+  .streak { color: #fbbf24; font-weight: 700; }
+  .frage { font-size: 23px; font-weight: 700; text-align: center; margin: 10px 0 6px; white-space: pre-line; line-height: 1.45; }
+  .frage.klein { font-size: 18px; }
+  .hinweis { text-align: center; font-size: 13px; color: #7dd3fc; min-height: 20px; margin-bottom: 18px; }
+  .opts { display: grid; gap: 10px; }
+  .opt {
+    padding: 14px 16px; border-radius: 12px; border: 2px solid #334155; background: #0f172a;
+    color: #e2e8f0; font-size: 17px; font-weight: 600; cursor: pointer; text-align: left;
+  }
+  .opt:hover:not(:disabled) { border-color: #64748b; }
+  .opt.ok { background: #14532d; border-color: #22c55e; color: #dcfce7; }
+  .opt.no { background: #4c0519; border-color: #f43f5e; color: #ffe4e6; }
+  .eingabe { display: flex; flex-direction: column; gap: 12px; }
+  .eingabe input {
+    padding: 14px; font-size: 26px; text-align: center; font-weight: 700;
+    border-radius: 12px; border: 2px solid #334155; background: #0f172a; color: #f8fafc;
+  }
+  .eingabe input:focus { outline: none; border-color: #38bdf8; }
+  .btn { padding: 14px; border: none; border-radius: 12px; font-size: 17px; font-weight: 700;
+         background: #38bdf8; color: #082f49; cursor: pointer; }
+  .btn:hover { background: #7dd3fc; }
+  .btn.gross { width: 100%; }
+  .fb { text-align: center; font-size: 15px; font-weight: 700; min-height: 46px; margin-top: 12px; line-height: 1.5; }
+  .fb.ok { color: #4ade80; }
+  .fb.no { color: #fda4af; }
+
+  .pad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 12px; }
+  .pad button {
+    padding: 14px 0; font-size: 20px; font-weight: 700; border-radius: 10px;
+    border: 2px solid #334155; background: #0f172a; color: #e2e8f0; cursor: pointer;
+  }
+  .pad button:active { background: #38bdf8; color: #082f49; }
+
+  .summary { display: none; text-align: center; }
+  .summary.show { display: block; }
+  .trophy { font-size: 62px; }
+  .big { font-size: 46px; font-weight: 900; color: #38bdf8; }
+  .of { font-size: 16px; color: #94a3b8; }
+  .rating { font-size: 17px; margin: 14px 0; }
+  .muenzbox {
+    background: #0f172a; border: 2px solid #fbbf24; border-radius: 14px;
+    padding: 14px; margin: 16px 0; font-size: 15px;
+  }
+  .muenzbox .gross2 { font-size: 30px; font-weight: 900; color: #fbbf24; }
+  .muenzbox .warum { font-size: 13px; color: #94a3b8; margin-top: 6px; }
+  .fehlerliste { text-align: left; background: #0f172a; border-radius: 12px; padding: 12px 14px;
+                 margin: 14px 0; font-size: 13.5px; line-height: 1.7; }
+  .fehlerliste b { color: #fca5a5; }
+  .zeile { display: flex; gap: 10px; margin-top: 12px; }
+  .zeile > * { flex: 1; }
+  .lnk { display: inline-block; padding: 13px; border-radius: 12px; text-align: center;
+         background: #1e3a5f; border: 2px solid #fde68a; color: #fde68a; text-decoration: none; font-weight: 700; }
+  footer { text-align: center; margin-top: 26px; font-size: 12px; color: #475569; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div id="hud"></div>
+  <h1 id="titel">Übungen</h1>
+  <div class="sub" id="untertitel"></div>
+
+  <div id="menu" class="setlist"></div>
+
+  <div class="card" id="quiz" style="display:none">
+    <div class="bar"><div class="fill" id="fill"></div></div>
+    <div class="meta2">
+      <span id="zaehler"></span>
+      <span class="streak" id="serie"></span>
+    </div>
+    <div class="frage" id="frage">—</div>
+    <div class="hinweis" id="hinweis"></div>
+    <div class="opts" id="opts"></div>
+    <div class="eingabe" id="eingabe" style="display:none">
+      <input id="feld" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+      <button class="btn" id="pruefen">Prüfen ✓</button>
+      <div class="pad" id="pad"></div>
+    </div>
+    <div class="fb" id="fb"></div>
+  </div>
+
+  <div class="card summary" id="summary">
+    <div class="trophy" id="s-trophy">🏆</div>
+    <div class="big" id="s-score">0</div>
+    <div class="of" id="s-of"></div>
+    <div class="rating" id="s-rating"></div>
+    <div class="muenzbox" id="s-muenzen"></div>
+    <div class="fehlerliste" id="s-fehler" style="display:none"></div>
+    <button class="btn gross" id="nochmal">Nochmal 🔄</button>
+    <div class="zeile">
+      <a class="lnk" id="zurueck-fach" href="#">← Andere Übung</a>
+      <a class="lnk" href="/lernwelt/?von=uebung">🏝️ Insel</a>
+    </div>
+  </div>
+
+  <footer>hodelweb.ch/lernwelt · Übungen nach Lehrplan 21, Zyklus 2</footer>
+</div>
+
+<script src="/lernwelt/insel.js"></script>
+<script src="/lernwelt/uebungen.js"></script>
+<script>
+(function () {
+  'use strict';
+  var $ = function (id) { return document.getElementById(id); };
+  var q = new URLSearchParams(location.search);
+  var fach = q.get('fach') || 'mathe';
+  var setId = q.get('set');
+  var ANZAHL = 10;
+
+  var who = Insel.who();
+  var klasse = Insel.klasse(who);
+  var fachInfo = Insel.faecher[fach] || { name: fach, emoji: '📘', kurz: fach };
+
+  Insel.hudLeiste($('hud'));
+  $('zurueck-fach').href = '/lernwelt/uebung/?fach=' + fach;
+
+  /* ---------------- Menü ---------------- */
+  function zeigeMenue() {
+    document.title = fachInfo.kurz + ' — Lerninsel';
+    $('titel').textContent = fachInfo.emoji + ' ' + fachInfo.name;
+    $('untertitel').textContent = who + ', ' + klasse + '. Klasse — wähle eine Übung. ' +
+      'Grün = Grundlagen (Münzen einmalig), Orange = Knacknuss (Münzen bis du sie meisterst).';
+    $('quiz').style.display = 'none';
+    $('summary').classList.remove('show');
+
+    var box = $('menu');
+    box.style.display = 'grid';
+    box.innerHTML = '';
+
+    var listen = Uebungen.fuer(fach, klasse);
+    if (!listen.eigene.length && !listen.extern.length) {
+      box.innerHTML = '<div class="set"><div class="t">Noch keine Übungen</div>' +
+        '<div class="i">Für dieses Fach und diese Klasse ist noch nichts vorbereitet.</div></div>';
+      return;
+    }
+
+    listen.eigene.forEach(function (s) {
+      var st = Insel.uebung(fach, s.id, who);
+      var a = document.createElement('a');
+      a.className = 'set ' + s.schwierigkeit;
+      a.href = '/lernwelt/uebung/?fach=' + fach + '&set=' + s.id;
+      var status = '';
+      if (st && st.gemeistert) status = '<span class="tag fertig">✔ gemeistert</span>';
+      else status = '<span class="tag ' + s.schwierigkeit + '">' +
+        (s.schwierigkeit === 'leicht' ? 'Grundlagen' : 'Knacknuss') + '</span>';
+      a.innerHTML =
+        '<div class="top"><span class="t">' + s.titel + '</span>' + status + '</div>' +
+        '<div class="i">' + s.info + '</div>' +
+        '<div class="meta">Lehrplan 21: ' + s.lp21 + (st ? ' · Bestwert ' + st.best + ' % · ' + st.versuche + ' Versuche' : '') + '</div>' +
+        (st && st.muenzenTotal ? '<div class="coins">🪙 ' + st.muenzenTotal + ' Münzen verdient</div>' : '');
+      box.appendChild(a);
+    });
+
+    listen.extern.forEach(function (s) {
+      var a = document.createElement('a');
+      a.className = 'set ' + s.schwierigkeit;
+      a.href = s.url + '?von=insel';
+      a.innerHTML =
+        '<div class="top"><span class="t">' + s.titel + ' ↗</span>' +
+        '<span class="tag ' + s.schwierigkeit + '">eigene Seite</span></div>' +
+        '<div class="i">' + s.info + '</div>' +
+        '<div class="meta">Lehrplan 21: ' + s.lp21 + '</div>';
+      box.appendChild(a);
+    });
+  }
+
+  /* ---------------- Übungslauf ---------------- */
+  var set, aufgaben = [], i = 0, richtig = 0, serie = 0, fehler = [], aktuell = null;
+
+  function normal(s) {
+    return String(s).toLowerCase().trim()
+      .replace(/\s+/g, ' ')
+      .replace(/[.!]$/, '')
+      .replace(/^(to|the|a|an)\s+/, '')
+      .replace(/'/g, "'");
+  }
+
+  function starte() {
+    set = Uebungen.set(fach, setId);
+    if (!set) { zeigeMenue(); return; }
+    document.title = set.titel + ' — Lerninsel';
+    $('menu').style.display = 'none';
+    $('summary').classList.remove('show');
+    $('quiz').style.display = '';
+    $('titel').textContent = set.titel;
+    $('untertitel').textContent = set.info + ' · Lehrplan 21: ' + set.lp21 +
+      ' · ' + (set.schwierigkeit === 'leicht' ? 'Grundlagen' : 'Knacknuss');
+
+    aufgaben = [];
+    var versuche = 0;
+    while (aufgaben.length < ANZAHL && versuche < ANZAHL * 12) {
+      versuche++;
+      var a = set.gen();
+      if (!a) continue;
+      /* keine identische Frage zweimal */
+      var doppelt = aufgaben.some(function (x) { return x.frage === a.frage; });
+      if (!doppelt) aufgaben.push(a);
+    }
+    i = 0; richtig = 0; serie = 0; fehler = [];
+    zeige();
+  }
+
+  function zeige() {
+    aktuell = aufgaben[i];
+    $('zaehler').textContent = 'Aufgabe ' + (i + 1) + ' von ' + aufgaben.length;
+    $('fill').style.width = (i / aufgaben.length * 100) + '%';
+    $('serie').textContent = serie >= 3 ? '🔥 ' + serie + ' in Folge' : '';
+    $('fb').textContent = ''; $('fb').className = 'fb';
+    var f = $('frage');
+    f.textContent = aktuell.frage;
+    f.className = 'frage' + (aktuell.frage.length > 60 ? ' klein' : '');
+    $('hinweis').textContent = aktuell.hinweis || '';
+
+    if (aktuell.typ === 'wahl') zeigeWahl(); else zeigeEingabe();
+  }
+
+  function zeigeWahl() {
+    $('eingabe').style.display = 'none';
+    var box = $('opts');
+    box.style.display = 'grid';
+    box.innerHTML = '';
+    aktuell.optionen.forEach(function (o) {
+      var b = document.createElement('button');
+      b.className = 'opt';
+      b.textContent = o;
+      b.onclick = function () {
+        Array.prototype.forEach.call(box.children, function (c) { c.disabled = true; });
+        var ok = String(o) === String(aktuell.antwort);
+        b.classList.add(ok ? 'ok' : 'no');
+        if (!ok) Array.prototype.forEach.call(box.children, function (c) {
+          if (c.textContent === String(aktuell.antwort)) c.classList.add('ok');
+        });
+        bewerte(ok, o);
+      };
+      box.appendChild(b);
+    });
+  }
+
+  function zeigeEingabe() {
+    $('opts').style.display = 'none';
+    $('eingabe').style.display = 'flex';
+    var feld = $('feld');
+    feld.value = '';
+    feld.disabled = false;
+    feld.type = 'text';
+    feld.inputMode = aktuell.typ === 'zahl' ? 'numeric' : 'text';
+    feld.placeholder = aktuell.typ === 'zahl' ? (aktuell.einheit ? 'Zahl in ' + aktuell.einheit : 'Zahl') : 'Antwort';
+    feld.focus();
+    $('pruefen').onclick = pruefe;
+    feld.onkeydown = function (e) { if (e.key === 'Enter') pruefe(); };
+    baueNumPad(aktuell.typ === 'zahl');
+  }
+
+  function baueNumPad(an) {
+    var pad = $('pad');
+    pad.style.display = an ? 'grid' : 'none';
+    if (!an || pad.dataset.fertig) return;
+    pad.innerHTML = '';
+    ['7','8','9','4','5','6','1','2','3','0','⌫','✓'].forEach(function (t) {
+      var b = document.createElement('button');
+      b.textContent = t;
+      b.onclick = function () {
+        var feld = $('feld');
+        if (t === '⌫') feld.value = feld.value.slice(0, -1);
+        else if (t === '✓') pruefe();
+        else feld.value += t;
+        feld.focus();
+      };
+      pad.appendChild(b);
+    });
+    pad.dataset.fertig = '1';
+  }
+
+  function pruefe() {
+    var feld = $('feld');
+    if (feld.disabled) return;
+    var eingabe = feld.value;
+    if (!eingabe.trim()) { feld.focus(); return; }
+    var korrekt = normal(aktuell.antwort);
+    var alt = (aktuell.alternativen || []).map(normal);
+    var ok = normal(eingabe) === korrekt || alt.indexOf(normal(eingabe)) >= 0;
+    if (!ok && aktuell.typ === 'zahl') {
+      var a = parseFloat(String(eingabe).replace(',', '.'));
+      var b = parseFloat(String(aktuell.antwort).replace(',', '.'));
+      if (!isNaN(a) && !isNaN(b) && Math.abs(a - b) < 1e-9) ok = true;
+    }
+    feld.disabled = true;
+    bewerte(ok, eingabe);
+  }
+
+  function bewerte(ok, gegeben) {
+    var fb = $('fb');
+    if (ok) {
+      richtig++; serie++;
+      fb.textContent = ['Richtig!', 'Super!', 'Genau!', 'Stimmt!', 'Perfekt!'][Math.floor(Math.random() * 5)];
+      fb.className = 'fb ok';
+    } else {
+      serie = 0;
+      fb.innerHTML = 'Richtig wäre: <b>' + aktuell.antwort + '</b>' +
+        (aktuell.hinweis ? '<br><span style="color:#94a3b8;font-weight:400">' + aktuell.hinweis + '</span>' : '');
+      fb.className = 'fb no';
+      fehler.push({ frage: aktuell.frage, richtig: aktuell.antwort, gegeben: gegeben });
+    }
+    setTimeout(function () {
+      i++;
+      if (i >= aufgaben.length) abschluss(); else zeige();
+    }, ok ? 750 : 2200);
+  }
+
+  function abschluss() {
+    $('quiz').style.display = 'none';
+    var pct = Math.round(richtig / aufgaben.length * 100);
+    $('s-score').textContent = richtig;
+    $('s-of').textContent = 'von ' + aufgaben.length + ' richtig (' + pct + ' %)';
+
+    var trophy, rating;
+    if (pct === 100) { trophy = '🏆'; rating = 'Alles richtig — perfekt!'; }
+    else if (pct >= 80) { trophy = '🥇'; rating = 'Sehr gut gemacht!'; }
+    else if (pct >= 60) { trophy = '🥈'; rating = 'Gut — fast geschafft.'; }
+    else if (pct >= 40) { trophy = '🥉'; rating = 'Das wird schon. Nochmal!'; }
+    else { trophy = '💪'; rating = 'Schau dir die Fehler an und probier es nochmal.'; }
+    $('s-trophy').textContent = trophy;
+    $('s-rating').textContent = rating;
+
+    var res = Insel.melden({
+      fach: fach, set: set.id, titel: set.titel,
+      schwierigkeit: set.schwierigkeit, pct: pct, who: who
+    });
+    var mb = $('s-muenzen');
+    mb.innerHTML = res.muenzen > 0
+      ? '<div class="gross2">+ ' + res.muenzen + ' 🪙</div>' +
+        '<div class="warum">' + res.grund + '</div>' +
+        '<div class="warum">Insgesamt: ' + res.gesamtMuenzen + ' Münzen · ' +
+        '<a href="/lernwelt/kiosk/" style="color:#fbbf24">Zum Kiosk</a></div>'
+      : '<div class="gross2" style="color:#64748b">+ 0 🪙</div>' +
+        '<div class="warum">' + res.grund + '</div>' +
+        '<div class="warum">Du hast ' + res.gesamtMuenzen + ' Münzen.</div>';
+    if (res.neuGemeistert) {
+      mb.innerHTML += '<div style="margin-top:8px;color:#4ade80;font-weight:700">⭐ Übung gemeistert!</div>';
+    }
+
+    var fl = $('s-fehler');
+    if (fehler.length) {
+      fl.style.display = 'block';
+      fl.innerHTML = '<div style="color:#94a3b8;margin-bottom:6px">Zum Anschauen:</div>' +
+        fehler.map(function (f) {
+          return '<div>' + f.frage.replace(/\n/g, ' ') + ' → <b>' + f.richtig + '</b></div>';
+        }).join('');
+    } else fl.style.display = 'none';
+
+    $('summary').classList.add('show');
+    Insel.hudLeiste($('hud').firstChild ? ($('hud').innerHTML = '', $('hud')) : $('hud'));
+  }
+
+  $('nochmal').onclick = starte;
+
+  if (setId) starte(); else zeigeMenue();
+})();
+</script>
+</body>
+</html>
