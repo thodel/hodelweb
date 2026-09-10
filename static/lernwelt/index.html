@@ -1955,7 +1955,7 @@
       /* Nichts zu holen: dann eben ab in den Rechenturm. */
       var turm = places.filter(function (p) { return p.id === 'mathe'; })[0];
       if (turm) {
-        var ziel = freierPlatz(turm.tx * TILE + 8, turm.ty * TILE + 34);
+        var ziel = sichererPlatz(turm.tx * TILE + 8, turm.ty * TILE + 34);
         hero.x = ziel.x; hero.y = ziel.y; hero.dir = 'up';
       }
       b.x = b.hx; b.y = b.hy;
@@ -1983,6 +1983,10 @@
   function step(ts) {
     var dt = Math.min(0.05, (ts - lastTs) / 1000 || 0);
     lastTs = ts;
+
+    /* Das Sicherheitsnetz läuft immer — auch während eines Gesprächs,
+       sonst könnte es sich mit seiner eigenen Meldung selbst blockieren. */
+    if (state === 'play') nichtSteckenBleiben();
 
     if (state === 'play' && !(window.Dialog && Dialog.offen())) {
       var dx = 0, dy = 0;
@@ -2057,11 +2061,106 @@
     return { x: HUB.x * TILE + 8, y: HUB.y * TILE + 14 };
   }
 
+  /* ---------------- Niemand soll stranden ----------------
+     Ein Punkt, der nicht blockiert ist, kann trotzdem eine Sandbank
+     mitten im Meer sein. Darum merken wir uns einmal, welche Kacheln
+     vom Dorfplatz aus überhaupt erreichbar sind, und setzen den Spieler
+     nur dorthin. */
+  var erreichbareKacheln = null;
+
+  function kachelBegehbar(tx, ty) {
+    if (tx < 0 || ty < 0 || tx >= MAPW || ty >= MAPH) return false;
+    return !blocked(tx * TILE + 8, ty * TILE + 14);
+  }
+  function erreichbarkeitBerechnen() {
+    erreichbareKacheln = Object.create(null);
+    var start = HUB.x + ',' + HUB.y;
+    if (!kachelBegehbar(HUB.x, HUB.y)) return;
+    erreichbareKacheln[start] = 1;
+    var stapel = [[HUB.x, HUB.y]];
+    while (stapel.length) {
+      var p = stapel.pop(), x = p[0], y = p[1];
+      var nachbarn = [[x + 1, y], [x - 1, y], [x, y + 1], [x, y - 1]];
+      for (var i = 0; i < 4; i++) {
+        var nx = nachbarn[i][0], ny = nachbarn[i][1], k = nx + ',' + ny;
+        if (erreichbareKacheln[k]) continue;
+        if (!kachelBegehbar(nx, ny)) continue;
+        erreichbareKacheln[k] = 1;
+        stapel.push([nx, ny]);
+      }
+    }
+  }
+  function istErreichbar(x, y) {
+    if (!erreichbareKacheln) return !blocked(x, y);
+    return !!erreichbareKacheln[Math.floor(x / TILE) + ',' + Math.floor(y / TILE)];
+  }
+  /* Liefert immer einen Punkt, von dem aus man wieder zum Dorfplatz kommt. */
+  function sichererPlatz(x, y) {
+    if (!blocked(x, y) && istErreichbar(x, y)) return { x: x, y: y };
+    for (var r = 1; r <= 12; r++) {
+      for (var a = 0; a < r * 8; a++) {
+        var w = a / (r * 8) * Math.PI * 2;
+        var nx = x + Math.cos(w) * r * TILE;
+        var ny = y + Math.sin(w) * r * TILE;
+        if (!blocked(nx, ny) && istErreichbar(nx, ny)) return { x: nx, y: ny };
+      }
+    }
+    return { x: HUB.x * TILE + 8, y: HUB.y * TILE + 14 };
+  }
+  /* Sicherheitsnetz: steckt der Spieler fest, stellen wir ihn frei. */
+  /* Bäume wachsen bei jeder Änderung an der Karte anderswo. Statt jeden Punkt
+     von Hand nachzuziehen, rücken Bewohner und Wegpunkte automatisch auf das
+     nächste freie Feld. So steht nie jemand im Baum. */
+  function bewohnerFreistellen() {
+    flaneure.forEach(function (f) {
+      f.route = f.route.map(function (p) {
+        var x = p[0] * TILE + 8, y = p[1] * TILE + 14;
+        if (!blocked(x, y) && istErreichbar(x, y)) return p;
+        var frei = sichererPlatz(x, y);
+        return [Math.floor(frei.x / TILE), Math.floor(frei.y / TILE)];
+      });
+      var erster = f.route[0];
+      f.x = erster[0] * TILE + 8;
+      f.y = erster[1] * TILE + 14;
+    });
+    baeren.forEach(function (b) {
+      var frei = sichererPlatz(b.hx, b.hy);
+      b.hx = frei.x; b.hy = frei.y;
+      b.x = frei.x; b.y = frei.y;
+    });
+    affen.forEach(function (a) {
+      var frei = sichererPlatz(a.hx, a.hy);
+      a.hx = frei.x; a.hy = frei.y;
+      a.x = frei.x; a.y = frei.y;
+    });
+    /* Der Seebär steht am Dorfplatz — auch er soll erreichbar bleiben. */
+    var sx = seebaer.tx * TILE + 8, sy = seebaer.ty * TILE + 14;
+    if (blocked(sx, sy) || !istErreichbar(sx, sy)) {
+      var sfrei = sichererPlatz(sx, sy);
+      seebaer.tx = Math.floor(sfrei.x / TILE);
+      seebaer.ty = Math.floor(sfrei.y / TILE);
+    }
+  }
+
+  var letzteRettung = 0;
+  function nichtSteckenBleiben() {
+    if (state !== 'play') return;
+    if (!blocked(hero.x, hero.y) && istErreichbar(hero.x, hero.y)) return;
+    var p = sichererPlatz(hero.x, hero.y);
+    hero.x = p.x; hero.y = p.y;
+    /* Nicht bei jedem Bild eine Meldung — höchstens alle zehn Sekunden. */
+    if (Date.now() - letzteRettung > 10000) {
+      letzteRettung = Date.now();
+      flash('Du bist irgendwie festgesteckt. Ich habe dich auf festen Boden zurückgestellt.',
+            'Die Insel');
+    }
+  }
+
   function aufwachenPruefen() {
     if (!window.Insel) return false;
     var w = Insel.aufwachenAbholen(who);
     if (!w) return false;
-    var frei = freierPlatz(w.x, w.y);
+    var frei = sichererPlatz(w.x, w.y);
     hero.x = frei.x; hero.y = frei.y; hero.dir = 'down';
     flash('Du wachst mit brummendem Schädel im ' + w.name + ' auf. ' +
           'Die Hälfte deiner Münzen ist weg. Das war wohl ein Glas zu viel.');
@@ -2260,6 +2359,10 @@
   buildWorld();
   drawTerrain();
   buildSolids();
+  /* Einmal ausrechnen, welche Kacheln vom Dorfplatz aus erreichbar sind.
+     Danach wird der Spieler nie mehr irgendwohin gesetzt, wo er strandet. */
+  erreichbarkeitBerechnen();
+  bewohnerFreistellen();
   resize();
   if (window.Insel) {
     var last = Insel.who();
@@ -2285,7 +2388,9 @@
     if (window.Insel) Insel.positionVergessen();
     startPlay(Insel.who(), false);
   } else if (rueckkehr && JACKETS[rueckkehr.who]) {
-    hero.x = rueckkehr.x; hero.y = rueckkehr.y; hero.dir = rueckkehr.dir || 'down';
+    /* Gemerkte Positionen stammen aus einer früheren Sitzung — prüfen. */
+    var zurueck = sichererPlatz(rueckkehr.x, rueckkehr.y);
+    hero.x = zurueck.x; hero.y = zurueck.y; hero.dir = rueckkehr.dir || 'down';
     startPlay(rueckkehr.who, true);
   }
 
@@ -2303,7 +2408,10 @@
   var q = new URLSearchParams(location.search);
   if (q.get('ort')) {
     var target = places.filter(function (p) { return p.id === q.get('ort'); })[0];
-    if (target) { hero.x = target.tx * TILE + 8; hero.y = target.ty * TILE + 30; }
+    if (target) {
+      var sicher = sichererPlatz(target.tx * TILE + 8, target.ty * TILE + 30);
+      hero.x = sicher.x; hero.y = sicher.y;
+    }
   }
 
 })();

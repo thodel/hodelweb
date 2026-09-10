@@ -32,6 +32,53 @@
     return false;
   }
 
+  /* ---------------- Niemand soll feststecken ----------------
+     Möbel und Leute stehen an festen Plätzen. Steht der Spieler durch
+     einen Fehler mitten in einem Tisch, käme er nie wieder heraus. */
+  var erreichbar = null;
+  function kachelFrei(tx, ty) {
+    if (tx < 1 || ty < 1 || tx >= cfg.breiteKacheln - 1 || ty >= cfg.hoeheKacheln) return false;
+    return !blockiert(tx * TILE + 8, ty * TILE + 14);
+  }
+  function erreichbarkeit(startTx, startTy) {
+    erreichbar = Object.create(null);
+    if (!kachelFrei(startTx, startTy)) return;
+    erreichbar[startTx + ',' + startTy] = 1;
+    var stapel = [[startTx, startTy]];
+    while (stapel.length) {
+      var p = stapel.pop(), x = p[0], y = p[1];
+      var n = [[x + 1, y], [x - 1, y], [x, y + 1], [x, y - 1]];
+      for (var i = 0; i < 4; i++) {
+        var nx = n[i][0], ny = n[i][1], k = nx + ',' + ny;
+        if (erreichbar[k] || !kachelFrei(nx, ny)) continue;
+        erreichbar[k] = 1;
+        stapel.push([nx, ny]);
+      }
+    }
+  }
+  function istErreichbar(x, y) {
+    if (!erreichbar) return !blockiert(x, y);
+    return !!erreichbar[Math.floor(x / TILE) + ',' + Math.floor(y / TILE)];
+  }
+  function sichererPlatz(x, y) {
+    if (!blockiert(x, y) && istErreichbar(x, y)) return { x: x, y: y };
+    for (var r = 1; r <= 14; r++) {
+      for (var a = 0; a < r * 8; a++) {
+        var w = a / (r * 8) * Math.PI * 2;
+        var nx = x + Math.cos(w) * r * TILE, ny = y + Math.sin(w) * r * TILE;
+        if (!blockiert(nx, ny) && istErreichbar(nx, ny)) return { x: nx, y: ny };
+      }
+    }
+    /* Notausgang: vor die Tür. */
+    var tuer = (cfg.tuerKacheln || [1, 2])[0];
+    return { x: tuer * TILE + 8, y: (cfg.hoeheKacheln - 2) * TILE + 14 };
+  }
+  function nichtSteckenBleiben() {
+    if (!blockiert(held.x, held.y) && istErreichbar(held.x, held.y)) return;
+    var p = sichererPlatz(held.x, held.y);
+    held.x = p.x; held.y = p.y;
+  }
+
   /* ---------------- Zeichnen ---------------- */
   function zeichnen(dt) {
     wellT += dt;
@@ -102,7 +149,7 @@
     for (i = 0; i < cfg.leute.length; i++) {
       var g = cfg.leute[i];
       d = Math.hypot(held.x - g.x, held.y - g.y);
-      if (d < 28 && d < bestD) { best = { art: 'gast', gast: g, name: g.name }; bestD = d; }
+      if (d < (g.reichweite || 28) && d < bestD) { best = { art: 'gast', gast: g, name: g.name }; bestD = d; }
     }
     return best;
   }
@@ -147,7 +194,7 @@
       var g = cfg.leute[i];
       if (g.stumm) continue;
       var d = Math.hypot(held.x - g.x, held.y - g.y);
-      if (d > 30) continue;
+      if (d > (g.reichweite || 28) + 2) continue;
       if (g.zuletztGeredet && Date.now() - g.zuletztGeredet < 75000) continue;
       ansprechen(g, true);
       return;
@@ -194,6 +241,9 @@
   function schritt(ts) {
     var dt = Math.min(0.05, (ts - letzteZeit) / 1000 || 0);
     letzteZeit = ts;
+
+    /* Auch hier läuft das Netz immer, nicht nur wenn gerade niemand redet. */
+    nichtSteckenBleiben();
 
     if (!fensterAuf() && !Dialog.offen()) {
       var dx = 0, dy = 0;
@@ -259,12 +309,17 @@
       g.x = g.tx * TILE + 8; g.y = g.ty * TILE + 14;
       g.spruchNr = 0;
       g.blick = g.blick || 'down';
-      /* Leute stehen im Weg — ausser sie stehen hinter einem Tresen. */
+      /* Wer hinter einem Tresen steht, ist weiter weg — dafür reicht die
+         Stimme über die Theke. Sonst könnte man ihn nie ansprechen. */
+      g.reichweite = g.reichweite || (g.hinterTresen ? 46 : 28);
       if (!g.hinterTresen) block(g.tx, g.ty - 1, 1, 1);
     });
 
-    held.x = (opts.start.tx) * TILE + 8;
-    held.y = (opts.start.ty) * TILE + 14;
+    /* Erreichbarkeit vom Startfeld aus — danach landet niemand mehr im Tisch. */
+    erreichbarkeit(opts.start.tx, opts.start.ty);
+    var los = sichererPlatz(opts.start.tx * TILE + 8, opts.start.ty * TILE + 14);
+    held.x = los.x;
+    held.y = los.y;
     held.dir = opts.start.dir || 'up';
     aussehen = Pixel.avatarTeile(opts.who);
 
@@ -348,7 +403,39 @@
     fensterSchliessen: fensterSchliessen,
     TILE: TILE,
     /* Für Räume, die selber etwas blockieren wollen. */
-    block: block
+    block: block,
+    /* Selbstprüfung: kommt man vom Startfeld zu allem, was man braucht?
+       Gibt eine Liste der Stellen zurück, die nicht erreichbar sind. */
+    pruefen: function () {
+      var probleme = [];
+      if (blockiert(held.x, held.y)) probleme.push('Startfeld blockiert');
+      cfg.stationen.forEach(function (st) {
+        var nah = false;
+        for (var r = 0; r <= 2 && !nah; r++) {
+          for (var a = 0; a < Math.max(1, r * 8); a++) {
+            var w = a / Math.max(1, r * 8) * Math.PI * 2;
+            var x = st.x + Math.cos(w) * r * TILE, y = st.y + Math.sin(w) * r * TILE;
+            if (!blockiert(x, y) && istErreichbar(x, y) &&
+                Math.hypot(x - st.x, y - st.y) < 34) { nah = true; break; }
+          }
+        }
+        if (!nah) probleme.push('Station ' + st.id + ' nicht erreichbar');
+      });
+      cfg.leute.forEach(function (g) {
+        var nah = false;
+        var reich = g.reichweite || 28;
+        for (var r = 1; r <= 3 && !nah; r++) {
+          for (var a = 0; a < r * 8; a++) {
+            var w = a / (r * 8) * Math.PI * 2;
+            var x = g.x + Math.cos(w) * r * TILE, y = g.y + Math.sin(w) * r * TILE;
+            if (!blockiert(x, y) && istErreichbar(x, y) &&
+                Math.hypot(x - g.x, y - g.y) < reich) { nah = true; break; }
+          }
+        }
+        if (!nah) probleme.push('Person ' + g.name + ' nicht erreichbar');
+      });
+      return { probleme: probleme, ok: probleme.length === 0 };
+    }
   };
   global.Raum = Raum;
 })(window);
