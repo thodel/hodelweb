@@ -11,7 +11,8 @@
     font-family: ui-monospace, Menlo, Consolas, monospace; }
   #stage { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
            background: radial-gradient(circle at 50% 25%, #17263f 0%, #0b1021 70%); }
-  #frame { position: relative; }
+  #frame { display: flex; flex-direction: column; align-items: center; }
+  #spielfeld { position: relative; line-height: 0; }
   canvas { display: block; image-rendering: pixelated; border: 4px solid #1e293b; border-radius: 4px;
            box-shadow: 0 0 0 2px #0b1021, 0 12px 40px rgba(0,0,0,.6); background: #7ec0ee; touch-action: none; }
   .ov { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center;
@@ -37,11 +38,12 @@
   #hud { position: absolute; top: 0; left: 0; right: 0; display: flex; justify-content: space-between;
          padding: 8px 10px; font-size: 11px; pointer-events: none; }
   #hud div { background: rgba(9,14,33,.78); border: 2px solid #334155; padding: 4px 8px; }
-  #tap { position: absolute; inset: 0; display: none; }
-  #tap.on { display: block; }
-  #jump { position: absolute; right: 16px; bottom: 16px; width: 84px; height: 84px; border-radius: 50%;
-          background: rgba(56,189,248,.85); border: 3px solid #0ea5e9; color: #082f49;
-          font: 900 14px inherit; }
+  /* Auf Touchgeräten liegt der Sprungknopf unter dem Spielfeld. */
+  #tap { display: none; }
+  #tap.on { display: flex; width: 100%; height: 130px; align-items: center; justify-content: center; }
+  #jump { width: 190px; height: 96px; border-radius: 48px;
+          background: rgba(56,189,248,.9); border: 3px solid #0ea5e9; color: #082f49;
+          font: 900 18px inherit; letter-spacing: .08em; }
   #jump:active { background: #fde68a; }
   a.back { position: absolute; top: 8px; left: 50%; transform: translateX(-50%); font-size: 10.5px;
            color: #cbd5e1; text-decoration: none; background: rgba(9,14,33,.8);
@@ -50,9 +52,9 @@
 </head>
 <body>
 <div id="stage"><div id="frame">
+ <div id="spielfeld">
   <canvas id="c" width="320" height="180"></canvas>
   <div id="hud" hidden><div id="h1">—</div><div id="h2">—</div></div>
-  <div id="tap"><button id="jump">SPRUNG</button></div>
 
   <div class="ov" id="menu">
     <div class="t">SPORT-SPIELE</div>
@@ -73,6 +75,8 @@
     </div>
   </div>
   <a class="back" href="/lernwelt/spiele/">← Spiele</a>
+ </div>
+ <div id="tap"><button id="jump">SPRUNG</button></div>
 </div></div>
 
 <script src="/lernwelt/insel.js"></script>
@@ -317,7 +321,7 @@
   cv.addEventListener('pointerdown', function (e) { e.preventDefault(); springen(); });
   $('jump').addEventListener('touchstart', function (e) { e.preventDefault(); springen(); }, { passive: false });
   $('jump').addEventListener('mousedown', function (e) { e.preventDefault(); springen(); });
-  if (window.matchMedia('(hover: none)').matches || 'ontouchstart' in window) $('tap').classList.add('on');
+
 
   $('e-nochmal').onclick = function () { $('ende').hidden = true; start(level); };
   $('e-menu').onclick = function () { $('ende').hidden = true; $('menu').hidden = false; level = null; };
@@ -336,9 +340,12 @@
   });
 
   function resize() {
-    var s = Math.max(1, Math.min(5, Math.floor(Math.min((innerWidth - 16) / W, (innerHeight - 16) / H) * 2) / 2));
+    var steuerung = $('tap').classList.contains('on') ? 130 : 0;
+    var s = Math.max(1, Math.min(5, Math.floor(Math.min(
+      (innerWidth - 16) / W, (innerHeight - 16 - steuerung) / H) * 2) / 2));
     cv.style.width = (W * s) + 'px'; cv.style.height = (H * s) + 'px';
   }
+  if (window.matchMedia('(hover: none)').matches || 'ontouchstart' in window) $('tap').classList.add('on');
   addEventListener('resize', resize); resize();
   requestAnimationFrame(function (t) { letzteZeit = t; schleife(t); });
 })();
