@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Sportspiele — Lerninsel</title>
+<link rel="icon" href="/favicon-32x32.png" sizes="32x32">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; background: #0b1021; color: #e2e8f0; overflow: hidden;
+    font-family: ui-monospace, Menlo, Consolas, monospace; }
+  #stage { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
+           background: radial-gradient(circle at 50% 25%, #17263f 0%, #0b1021 70%); }
+  #frame { position: relative; }
+  canvas { display: block; image-rendering: pixelated; border: 4px solid #1e293b; border-radius: 4px;
+           box-shadow: 0 0 0 2px #0b1021, 0 12px 40px rgba(0,0,0,.6); background: #7ec0ee; touch-action: none; }
+  .ov { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center;
+        justify-content: center; text-align: center; background: rgba(9,14,33,.93); padding: 14px; gap: 12px; }
+  .ov[hidden] { display: none !important; }
+  .t { font-size: clamp(19px,4.5vw,30px); font-weight: 900; color: #fde68a; letter-spacing: .1em;
+       text-shadow: 3px 3px 0 #b45309; }
+  .p { font-size: 12px; color: #cbd5e1; line-height: 1.8; max-width: 420px; }
+  .lvls { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+  .lvl { cursor: pointer; border: 3px solid #38bdf8; background: #0f2745; color: #e2e8f0;
+         padding: 10px 14px; font: 700 13px/1.3 inherit; display: flex; flex-direction: column;
+         align-items: center; gap: 5px; min-width: 104px; }
+  .lvl:hover { background: #17406e; }
+  .lvl .e { font-size: 26px; }
+  .lvl small { font-weight: 400; color: #94a3b8; font-size: 10px; }
+  .lvl .best { color: #fbbf24; font-size: 10px; }
+  .btn { cursor: pointer; border: 3px solid #fde68a; background: #12203f; color: #fde68a;
+         padding: 11px 20px; font: 700 14px inherit; }
+  .btn:hover { background: #1e3a5f; }
+  .kh { font-size: 10.5px; color: #64748b; line-height: 1.9; }
+  kbd { background: #1e293b; border: 1px solid #475569; border-bottom-width: 3px; border-radius: 4px;
+        padding: 1px 6px; font: inherit; font-size: 10px; }
+  #hud { position: absolute; top: 0; left: 0; right: 0; display: flex; justify-content: space-between;
+         padding: 8px 10px; font-size: 11px; pointer-events: none; }
+  #hud div { background: rgba(9,14,33,.78); border: 2px solid #334155; padding: 4px 8px; }
+  #tap { position: absolute; inset: 0; display: none; }
+  #tap.on { display: block; }
+  #jump { position: absolute; right: 16px; bottom: 16px; width: 84px; height: 84px; border-radius: 50%;
+          background: rgba(56,189,248,.85); border: 3px solid #0ea5e9; color: #082f49;
+          font: 900 14px inherit; }
+  #jump:active { background: #fde68a; }
+  a.back { position: absolute; top: 8px; left: 50%; transform: translateX(-50%); font-size: 10.5px;
+           color: #cbd5e1; text-decoration: none; background: rgba(9,14,33,.8);
+           border: 2px solid #334155; padding: 3px 8px; }
+</style>
+</head>
+<body>
+<div id="stage"><div id="frame">
+  <canvas id="c" width="320" height="180"></canvas>
+  <div id="hud" hidden><div id="h1">—</div><div id="h2">—</div></div>
+  <div id="tap"><button id="jump">SPRUNG</button></div>
+
+  <div class="ov" id="menu">
+    <div class="t">SPORT-SPIELE</div>
+    <div class="p">Renne, springe über die Hürden und sammle die Bälle.<br>
+      Wer ins Ziel kommt, bekommt beim ersten Mal Münzen für den Kiosk.</div>
+    <div class="lvls" id="lvls"></div>
+    <div class="kh">Springen: <kbd>Leertaste</kbd> <kbd>W</kbd> <kbd>↑</kbd> · Doppelsprung möglich ·
+      Ducken: <kbd>S</kbd> <kbd>↓</kbd></div>
+    <a class="btn" href="/lernwelt/spiele/" style="text-decoration:none">← Spiele</a>
+  </div>
+
+  <div class="ov" id="ende" hidden>
+    <div class="t" id="e-t">ZIEL!</div>
+    <div class="p" id="e-p"></div>
+    <div class="lvls">
+      <button class="btn" id="e-nochmal">Nochmal</button>
+      <button class="btn" id="e-menu">Menü</button>
+    </div>
+  </div>
+  <a class="back" href="/lernwelt/spiele/">← Spiele</a>
+</div></div>
+
+<script src="/lernwelt/insel.js"></script>
+<script>
+(function () {
+  'use strict';
+  var W = 320, H = 180, GROUND = 148;
+  var cv = document.getElementById('c'), ctx = cv.getContext('2d');
+  ctx.imageSmoothingEnabled = false;
+  var $ = function (i) { return document.getElementById(i); };
+
+  var LEVELS = [
+    { id: 'huerden', name: 'Hürdenlauf', emoji: '🏃', laenge: 2600, tempo: 88, dichte: 0.78,
+      himmel: ['#7ec0ee', '#bfe3ff'], boden: '#c2703f', bodenD: '#a35a30', deko: 'bahn' },
+    { id: 'fussball', name: 'Fussball', emoji: '⚽', laenge: 3200, tempo: 96, dichte: 0.66,
+      himmel: ['#6fb4e8', '#a9dcff'], boden: '#3f8f45', bodenD: '#347a39', deko: 'rasen' },
+    { id: 'basket', name: 'Basketball', emoji: '🏀', laenge: 3800, tempo: 104, dichte: 0.58,
+      himmel: ['#4a4a6a', '#7a6a92'], boden: '#b5763c', bodenD: '#95602f', deko: 'halle' }
+  ];
+
+  function mulberry32(a) {
+    return function () {
+      a |= 0; a = a + 0x6D2B79F5 | 0;
+      var t = Math.imul(a ^ a >>> 15, 1 | a);
+      t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    };
+  }
+  function px(x, y, w, h, col) { ctx.fillStyle = col; ctx.fillRect(x | 0, y | 0, w | 0, h | 0); }
+
+  var level = null, hindernisse = [], baelle = [], wolken = [];
+  var spieler, kamera, zeit, laufend = false, treffer, gesammelt, letzteZeit = 0, blink = 0;
+
+  function baueLevel(L) {
+    var r = mulberry32(L.id.length * 7919 + 12345);
+    hindernisse = []; baelle = [];
+    var x = 300;
+    while (x < L.laenge - 200) {
+      var typ = r() < 0.72 ? 'huerde' : 'block';
+      var h = typ === 'huerde' ? 20 : 28;
+      hindernisse.push({ x: x, y: GROUND - h, w: typ === 'huerde' ? 10 : 16, h: h, typ: typ });
+      if (r() < 0.55) baelle.push({ x: x + 30 + r() * 40, y: GROUND - 40 - r() * 30, weg: false });
+      if (r() < 0.22) {
+        var x2 = x + 46 + r() * 14;
+        hindernisse.push({ x: x2, y: GROUND - 20, w: 10, h: 20, typ: 'huerde' });
+        x = x2;
+      }
+      x += 90 + r() * 110 * L.dichte;
+    }
+    for (var i = 0; i < 14; i++) wolken.push({ x: r() * L.laenge, y: 12 + r() * 46, s: 0.3 + r() * 0.4, b: 16 + r() * 22 });
+  }
+
+  function start(L) {
+    level = L;
+    baueLevel(L);
+    spieler = { x: 40, y: GROUND - 22, vy: 0, w: 12, h: 22, spruenge: 0, duck: false, lauf: 0, tot: 0 };
+    kamera = 0; zeit = 0; treffer = 0; gesammelt = 0; laufend = true;
+    $('menu').hidden = true; $('ende').hidden = true; $('hud').hidden = false;
+  }
+
+  /* ---------- Zeichnen ---------- */
+  function himmel() {
+    var g = ctx.createLinearGradient(0, 0, 0, GROUND);
+    g.addColorStop(0, level.himmel[0]); g.addColorStop(1, level.himmel[1]);
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, GROUND);
+    wolken.forEach(function (w) {
+      var sx = w.x - kamera * w.s;
+      sx = ((sx % (level.laenge + 400)) + level.laenge + 400) % (level.laenge + 400) - 200;
+      if (sx < -60 || sx > W + 60) return;
+      px(sx, w.y, w.b, 5, 'rgba(255,255,255,.75)');
+      px(sx + 5, w.y - 4, w.b - 12, 5, 'rgba(255,255,255,.75)');
+    });
+  }
+  function boden() {
+    px(0, GROUND, W, H - GROUND, level.boden);
+    px(0, GROUND, W, 3, 'rgba(255,255,255,.22)');
+    px(0, GROUND + 3, W, 2, level.bodenD);
+    for (var i = 0; i < 24; i++) {
+      var x = ((i * 40 - (kamera % 40)) | 0);
+      if (level.deko === 'bahn') px(x, GROUND + 9, 22, 2, 'rgba(255,255,255,.55)');
+      else if (level.deko === 'rasen') px(x, GROUND + 8, 3, 4, 'rgba(255,255,255,.18)');
+      else px(x, GROUND + 10, 40, 1, 'rgba(0,0,0,.18)');
+    }
+  }
+  function zeichneHindernis(o) {
+    var x = o.x - kamera;
+    if (x < -30 || x > W + 30) return;
+    if (o.typ === 'huerde') {
+      px(x, o.y, 2, o.h, '#f8fafc'); px(x + o.w - 2, o.y, 2, o.h, '#f8fafc');
+      px(x, o.y, o.w, 3, '#e11d48'); px(x, o.y + 7, o.w, 2, '#f8fafc');
+      px(x - 2, GROUND - 2, o.w + 4, 2, 'rgba(0,0,0,.25)');
+    } else {
+      px(x, o.y, o.w, o.h, '#475569'); px(x, o.y, o.w, 3, '#64748b');
+      px(x + 2, o.y + 6, o.w - 4, 2, '#334155');
+      px(x - 1, GROUND - 2, o.w + 2, 2, 'rgba(0,0,0,.25)');
+    }
+  }
+  function zeichneBall(b) {
+    var x = b.x - kamera;
+    if (b.weg || x < -20 || x > W + 20) return;
+    var wobble = Math.sin(zeit * 4 + b.x) * 2;
+    px(x, b.y + wobble, 8, 8, level.id === 'basket' ? '#e07b28' : level.id === 'fussball' ? '#f8fafc' : '#fbbf24');
+    px(x + 1, b.y + 1 + wobble, 6, 2, 'rgba(255,255,255,.55)');
+    px(x + 2, b.y + 3 + wobble, 4, 3, level.id === 'fussball' ? '#1f2937' : 'rgba(0,0,0,.2)');
+  }
+  function zeichneSpieler() {
+    var x = spieler.x, y = spieler.y, h = spieler.duck ? 14 : 22;
+    var top = y + (spieler.h - h);
+    if (spieler.tot > 0 && Math.floor(spieler.tot * 12) % 2) return;
+    px(x - 1, GROUND - 2, 14, 2, 'rgba(0,0,0,.25)');
+    /* Beine */
+    var lauf = Math.floor(spieler.lauf) % 2;
+    if (spieler.vy !== 0) { px(x + 1, top + h - 6, 4, 6, '#1e3a8a'); px(x + 7, top + h - 4, 4, 4, '#1e3a8a'); }
+    else if (lauf) { px(x, top + h - 6, 5, 6, '#1e3a8a'); px(x + 7, top + h - 6, 4, 6, '#1e40af'); }
+    else { px(x + 2, top + h - 6, 4, 6, '#1e40af'); px(x + 6, top + h - 6, 5, 6, '#1e3a8a'); }
+    /* Körper */
+    px(x + 1, top + 6, 10, h - 12, '#dc2626');
+    px(x + 1, top + 6, 10, 2, '#f87171');
+    /* Arme */
+    px(x - 1, top + 8, 2, 5, '#f2c8a0');
+    px(x + 11, top + 7, 2, 5, '#f2c8a0');
+    /* Kopf */
+    px(x + 2, top, 8, 7, '#f2c8a0');
+    px(x + 2, top, 8, 2, '#3b2a1a');
+    px(x + 7, top + 3, 1, 2, '#141824');
+  }
+  function zeichneZiel() {
+    var x = level.laenge - kamera;
+    if (x < -40 || x > W + 40) return;
+    px(x, GROUND - 62, 2, 62, '#e2e8f0');
+    for (var r = 0; r < 6; r++) for (var c = 0; c < 4; c++)
+      px(x + 2 + c * 5, GROUND - 60 + r * 5, 5, 5, (r + c) % 2 ? '#f8fafc' : '#111827');
+  }
+
+  /* ---------- Schleife ---------- */
+  function schleife(ts) {
+    var dt = Math.min(0.05, (ts - letzteZeit) / 1000 || 0);
+    letzteZeit = ts;
+    if (laufend) schritt(dt);
+    if (level) zeichne(dt);
+    requestAnimationFrame(schleife);
+  }
+
+  function schritt(dt) {
+    zeit += dt;
+    var tempo = level.tempo + Math.min(40, zeit * 1.6);
+    spieler.x = 40;
+    kamera += tempo * dt;
+    spieler.lauf += dt * 12;
+
+    spieler.vy += 620 * dt;
+    spieler.y += spieler.vy * dt;
+    if (spieler.y >= GROUND - spieler.h) {
+      spieler.y = GROUND - spieler.h; spieler.vy = 0; spieler.spruenge = 0;
+    }
+    if (spieler.tot > 0) spieler.tot -= dt;
+
+    var box = { x: kamera + spieler.x, y: spieler.y + (spieler.duck ? 8 : 0),
+                w: spieler.w, h: spieler.duck ? 14 : spieler.h };
+
+    hindernisse.forEach(function (o) {
+      if (o.getroffen) return;
+      if (box.x < o.x + o.w && box.x + box.w > o.x && box.y < o.y + o.h && box.y + box.h > o.y) {
+        if (spieler.tot > 0) return;
+        o.getroffen = true; treffer++; spieler.tot = 0.9;
+        spieler.vy = -120;
+      }
+    });
+    baelle.forEach(function (b) {
+      if (b.weg) return;
+      if (box.x < b.x + 8 && box.x + box.w > b.x && box.y < b.y + 8 && box.y + box.h > b.y) {
+        b.weg = true; gesammelt++;
+      }
+    });
+
+    if (kamera >= level.laenge) ende(true);
+    else if (treffer >= 5) ende(false);
+  }
+
+  function zeichne(dt) {
+    himmel();
+    hindernisse.forEach(zeichneHindernis);
+    baelle.forEach(zeichneBall);
+    zeichneZiel();
+    boden();
+    zeichneSpieler();
+    if (laufend) {
+      $('h1').textContent = level.emoji + ' ' + Math.round(kamera / level.laenge * 100) + ' %';
+      $('h2').textContent = '⚽ ' + gesammelt + '   ❤️ ' + (5 - treffer);
+      /* Fortschrittsbalken */
+      px(6, 26, W - 12, 4, 'rgba(9,14,33,.55)');
+      px(6, 26, (W - 12) * Math.min(1, kamera / level.laenge), 4, '#fbbf24');
+    }
+  }
+
+  function ende(geschafft) {
+    laufend = false;
+    $('hud').hidden = true;
+    var punkte = gesammelt * 10 + (geschafft ? 50 : 0) - treffer * 5;
+    var text = geschafft
+      ? 'Geschafft! Du hast <b>' + gesammelt + ' Bälle</b> gesammelt und <b>' + treffer + '</b> Hürden gerissen.'
+      : 'Zu viele Hürden gerissen. Probier es nochmal!';
+    var muenzText = '';
+    if (geschafft && window.Insel) {
+      var res = Insel.melden({
+        fach: 'sport', set: 'sprint-' + level.id, titel: 'Sportspiel: ' + level.name,
+        schwierigkeit: 'leicht', pct: Math.max(50, Math.min(100, 60 + gesammelt * 4 - treffer * 6))
+      });
+      muenzText = res.muenzen > 0
+        ? '<br><br><span style="color:#fbbf24;font-weight:700">+ ' + res.muenzen + ' 🪙</span> ' + res.grund
+        : '<br><br><span style="color:#64748b">' + res.grund + '</span>';
+      try {
+        var key = 'lerninsel.sprint.' + level.id;
+        var best = +(localStorage.getItem(key) || 0);
+        if (punkte > best) { localStorage.setItem(key, String(punkte)); text += '<br>Neuer Rekord: ' + punkte + ' Punkte!'; }
+        else text += '<br>Punkte: ' + punkte + ' (Rekord: ' + best + ')';
+      } catch (e) {}
+    }
+    $('e-t').textContent = geschafft ? 'ZIEL!' : 'AUS!';
+    $('e-p').innerHTML = text + muenzText;
+    $('ende').hidden = false;
+  }
+
+  /* ---------- Steuerung ---------- */
+  function springen() {
+    if (!laufend) return;
+    if (spieler.spruenge < 2) { spieler.vy = -215; spieler.spruenge++; }
+  }
+  window.addEventListener('keydown', function (e) {
+    var k = e.key.toLowerCase();
+    if ([' ', 'arrowup', 'w', 'arrowdown', 's'].indexOf(k) >= 0) e.preventDefault();
+    if (k === ' ' || k === 'arrowup' || k === 'w') springen();
+    if (k === 's' || k === 'arrowdown') spieler && (spieler.duck = true);
+    if (!laufend && (k === 'enter' || k === ' ')) {
+      if (!$('ende').hidden) { $('ende').hidden = true; start(level); }
+    }
+  });
+  window.addEventListener('keyup', function (e) {
+    var k = e.key.toLowerCase();
+    if ((k === 's' || k === 'arrowdown') && spieler) spieler.duck = false;
+  });
+  cv.addEventListener('pointerdown', function (e) { e.preventDefault(); springen(); });
+  $('jump').addEventListener('touchstart', function (e) { e.preventDefault(); springen(); }, { passive: false });
+  $('jump').addEventListener('mousedown', function (e) { e.preventDefault(); springen(); });
+  if (window.matchMedia('(hover: none)').matches || 'ontouchstart' in window) $('tap').classList.add('on');
+
+  $('e-nochmal').onclick = function () { $('ende').hidden = true; start(level); };
+  $('e-menu').onclick = function () { $('ende').hidden = true; $('menu').hidden = false; level = null; };
+
+  /* ---------- Menü ---------- */
+  LEVELS.forEach(function (L) {
+    var b = document.createElement('button');
+    b.className = 'lvl';
+    var best = 0;
+    try { best = +(localStorage.getItem('lerninsel.sprint.' + L.id) || 0); } catch (e) {}
+    b.innerHTML = '<span class="e">' + L.emoji + '</span>' + L.name +
+      '<small>' + Math.round(L.laenge / 100) + ' m</small>' +
+      (best ? '<span class="best">★ ' + best + '</span>' : '');
+    b.onclick = function () { start(L); };
+    $('lvls').appendChild(b);
+  });
+
+  function resize() {
+    var s = Math.max(1, Math.min(5, Math.floor(Math.min((innerWidth - 16) / W, (innerHeight - 16) / H) * 2) / 2));
+    cv.style.width = (W * s) + 'px'; cv.style.height = (H * s) + 'px';
+  }
+  addEventListener('resize', resize); resize();
+  requestAnimationFrame(function (t) { letzteZeit = t; schleife(t); });
+})();
+</script>
+</body>
+</html>

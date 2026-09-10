@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Die Lerninsel</title>
+<meta name="description" content="Lerninsel — ein kleines Abenteuerspiel mit Übungen in Mathe, Deutsch, Englisch und Geografie.">
+<link rel="icon" href="/favicon-32x32.png" sizes="32x32">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    height: 100%;
+    background: #0b1021;
+    color: #e2e8f0;
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, "Courier New", monospace;
+    overflow: hidden;
+    -webkit-text-size-adjust: 100%;
+  }
+  #stage {
+    position: relative;
+    width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    background:
+      radial-gradient(circle at 50% 30%, #16224a 0%, #0b1021 70%);
+  }
+  #frame { position: relative; image-rendering: pixelated; }
+  canvas {
+    display: block;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    border: 4px solid #1e293b;
+    border-radius: 4px;
+    box-shadow: 0 0 0 2px #0b1021, 0 12px 40px rgba(0,0,0,.6);
+    background: #1c6ea4;
+    touch-action: none;
+  }
+
+  /* ---------- Overlays ---------- */
+  .overlay {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center;
+    background: rgba(9, 14, 33, .92);
+    padding: 16px;
+    gap: 14px;
+  }
+  .overlay[hidden] { display: none !important; }
+  .title {
+    font-size: clamp(20px, 5vw, 34px);
+    font-weight: 900;
+    letter-spacing: .12em;
+    color: #fde68a;
+    text-shadow: 3px 3px 0 #b45309, 6px 6px 0 rgba(0,0,0,.35);
+  }
+  .subtitle { font-size: 12px; color: #94a3b8; letter-spacing: .18em; }
+  .panel {
+    border: 3px solid #fde68a;
+    background: #12203f;
+    padding: 14px 16px;
+    box-shadow: 0 6px 0 rgba(0,0,0,.35);
+    max-width: 460px;
+  }
+  .panel h2 { font-size: 14px; color: #7dd3fc; margin-bottom: 10px; letter-spacing: .1em; }
+  .panel p  { font-size: 12px; line-height: 1.7; color: #cbd5e1; }
+  .choices { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+  .choice {
+    cursor: pointer; border: 3px solid #38bdf8; background: #0f2745;
+    color: #e2e8f0; padding: 12px 18px; font: 700 14px/1.3 inherit;
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    min-width: 120px;
+  }
+  .choice:hover, .choice:focus { background: #17406e; outline: none; transform: translateY(-2px); }
+  .choice .big { font-size: 30px; }
+  .choice small { font-weight: 400; color: #94a3b8; font-size: 11px; }
+  .blink { animation: blink 1.1s steps(2, start) infinite; color: #fde68a; font-size: 13px; letter-spacing: .1em; }
+  @keyframes blink { to { visibility: hidden; } }
+  .keyhint { font-size: 11px; color: #64748b; line-height: 1.9; }
+  kbd {
+    background: #1e293b; border: 1px solid #475569; border-bottom-width: 3px;
+    border-radius: 4px; padding: 1px 6px; font: inherit; font-size: 11px; color: #e2e8f0;
+  }
+
+  /* ---------- HUD ---------- */
+  #hud {
+    position: absolute; left: 0; right: 0; top: 0;
+    display: flex; justify-content: space-between; align-items: flex-start;
+    padding: 10px 12px; pointer-events: none; font-size: 12px;
+  }
+  #hud[hidden] { display: none !important; }
+  .hud-box {
+    background: rgba(9,14,33,.82); border: 2px solid #334155;
+    padding: 5px 9px; color: #e2e8f0; letter-spacing: .06em;
+  }
+  #hud-stars { color: #fde68a; }
+  #banner {
+    position: absolute; left: 50%; bottom: 12px; transform: translateX(-50%);
+    background: rgba(9,14,33,.92); border: 3px solid #fde68a;
+    padding: 9px 14px; font-size: 12px; color: #fff; white-space: nowrap;
+    display: none; pointer-events: none; letter-spacing: .04em;
+  }
+  #banner.show { display: block; }
+  #banner b { color: #fde68a; }
+
+  /* ---------- Touch controls ---------- */
+  #touch { position: absolute; inset: 0; display: none; pointer-events: none; }
+  #touch.on { display: block; }
+  .pad {
+    position: absolute; bottom: 14px; left: 14px;
+    display: grid; grid-template-columns: repeat(3, 52px); grid-template-rows: repeat(3, 52px);
+    pointer-events: auto;
+  }
+  .pad button, #btn-a {
+    background: rgba(30,41,59,.85); color: #e2e8f0; border: 2px solid #64748b;
+    font: 700 18px/1 inherit; -webkit-user-select: none; user-select: none;
+    touch-action: none;
+  }
+  .pad button:active, #btn-a:active { background: #38bdf8; color: #0b1021; }
+  .pad .sp { visibility: hidden; }
+  #btn-a {
+    position: absolute; right: 18px; bottom: 34px; width: 74px; height: 74px;
+    border-radius: 50%; font-size: 15px; pointer-events: auto;
+  }
+  .credits { position: absolute; bottom: 6px; right: 10px; font-size: 10px; color: #475569; }
+  a.exit {
+    position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
+    font-size: 11px; color: #cbd5e1; text-decoration: none; pointer-events: auto;
+    background: rgba(9,14,33,.82); border: 2px solid #334155; padding: 4px 9px;
+  }
+  a.exit:hover { color: #fde68a; border-color: #fde68a; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="frame">
+    <canvas id="game" width="320" height="240"></canvas>
+
+    <div id="hud" hidden>
+      <div class="hud-box" id="hud-who">🧭 —</div>
+      <div class="hud-box" id="hud-stars">⭐ 0</div>
+    </div>
+    <div id="banner"></div>
+
+    <div id="touch">
+      <div class="pad">
+        <button class="sp"></button><button data-dir="up">▲</button><button class="sp"></button>
+        <button data-dir="left">◀</button><button class="sp"></button><button data-dir="right">▶</button>
+        <button class="sp"></button><button data-dir="down">▼</button><button class="sp"></button>
+      </div>
+      <button id="btn-a">BETRETEN</button>
+    </div>
+
+    <!-- Titel -->
+    <div class="overlay" id="scr-title">
+      <div class="title">DIE LERNINSEL</div>
+      <div class="subtitle">EIN ABENTEUER IN VIER FÄCHERN</div>
+      <div class="panel">
+        <p>Vier Lernorte liegen auf der Insel: <b>Rechenturm</b> (Mathe),
+        <b>Schreiberhütte</b> (Deutsch), <b>Piratenschiff</b> (English) und
+        <b>Aussichtsberg</b> (Länder &amp; Karten).</p>
+        <p style="margin-top:8px">Für geschaffte Übungen gibt es <b>Münzen</b> 🪙. Im <b>Kiosk</b>
+        werden daraus <b>Marken</b> 🎟️ — und damit öffnest du das <b>Kino</b> und die
+        <b>Musikhütte</b>.</p>
+      </div>
+      <div class="blink">DRÜCKE ENTER ODER TIPPE</div>
+      <div class="keyhint">
+        Laufen: <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> oder Pfeiltasten ·
+        Betreten: <kbd>E</kbd> / <kbd>Enter</kbd>
+      </div>
+    </div>
+
+    <!-- Charakterwahl -->
+    <div class="overlay" id="scr-who" hidden>
+      <div class="title" style="font-size:20px">WER GEHT AN LAND?</div>
+      <div class="choices" id="who-choices">
+        <button class="choice" data-who="Andrin"><span class="big">🧑‍🚀</span>Andrin<small>6. Klasse</small></button>
+        <button class="choice" data-who="Joris"><span class="big">🧑‍🎤</span>Joris<small>4. Klasse</small></button>
+        <button class="choice" data-who="Gast"><span class="big">🐵</span>Gast<small>5. Klasse</small></button>
+      </div>
+      <div class="keyhint">Der Fortschritt wird nur in diesem Browser gespeichert.</div>
+    </div>
+
+    <!-- Schatz -->
+    <div class="overlay" id="scr-treasure" hidden>
+      <div class="title">🏆 SCHATZ GEFUNDEN!</div>
+      <div class="panel">
+        <p id="treasure-text"></p>
+      </div>
+      <button class="choice" id="treasure-ok" style="min-width:auto">Weiter</button>
+    </div>
+
+    <a class="exit" href="/andrin/">← andere Seiten</a>
+    <div class="credits">hodelweb.ch</div>
+  </div>
+</div>
+
+<script src="/lernwelt/insel.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  /* ================= Konstanten ================= */
+  var TILE = 16, MAPW = 48, MAPH = 36;
+  var VIEW_W = 320, VIEW_H = 240;
+
+  var WATER = 0, SHALLOW = 1, SAND = 2, GRASS = 3, PATH = 4, DARKGRASS = 5;
+
+  var COL = {
+    water:  ['#1c6ea4', '#1a6299'],
+    shallow:['#39a0c9', '#3497bf'],
+    sand:   ['#e8d3a0', '#e0c891'],
+    grass:  ['#5aa54a', '#549c45'],
+    grass2: ['#4a8f3d', '#458738'],
+    path:   ['#c3a878', '#bba070'],
+    wood:   '#8b5a2b', woodD: '#6b4423', woodL: '#a9713a',
+    stone:  '#9aa3ae', stoneD: '#6f7885', stoneL: '#b9c1cb',
+    roofR:  '#b03b3b', roofRD: '#8a2c2c',
+    roofB:  '#3b6fb0', roofBD: '#2c5289',
+    leaf:   '#2f7d3a', leafD: '#25642e', leafL: '#3d9c49',
+    dark:   '#1a1626', gold: '#f2c14e', goldD: '#c99a2e',
+    white:  '#f8fafc', black: '#141824'
+  };
+
+  /* ================= Utils ================= */
+  function px(c, x, y, w, h, col) { c.fillStyle = col; c.fillRect(x | 0, y | 0, w | 0, h | 0); }
+  function mulberry32(a) {
+    return function () {
+      a |= 0; a = a + 0x6D2B79F5 | 0;
+      var t = Math.imul(a ^ a >>> 15, 1 | a);
+      t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    };
+  }
+  var rnd = mulberry32(20260910);
+
+  /* ================= Karte ================= */
+  var map = new Uint8Array(MAPW * MAPH);
+  function at(x, y) {
+    if (x < 0 || y < 0 || x >= MAPW || y >= MAPH) return WATER;
+    return map[y * MAPW + x];
+  }
+  function set(x, y, v) {
+    if (x < 0 || y < 0 || x >= MAPW || y >= MAPH) return;
+    map[y * MAPW + x] = v;
+  }
+
+  function shoreDist(x, y) {
+    var cx = MAPW / 2, cy = MAPH / 2;
+    var dx = (x - cx) / (MAPW * 0.46), dy = (y - cy) / (MAPH * 0.44);
+    var d = Math.sqrt(dx * dx + dy * dy);
+    d += 0.055 * Math.sin(x * 0.42) + 0.05 * Math.cos(y * 0.36)
+       + 0.035 * Math.sin((x + y) * 0.25) + 0.03 * Math.cos((x - y) * 0.31);
+    return d;
+  }
+
+  function genTerrain() {
+    for (var y = 0; y < MAPH; y++) {
+      for (var x = 0; x < MAPW; x++) {
+        var d = shoreDist(x, y), t;
+        if (d > 1.0) t = WATER;
+        else if (d > 0.90) t = SHALLOW;
+        else if (d > 0.78) t = SAND;
+        else {
+          /* weiche Flecken statt Rauschen */
+          var patch = Math.sin(x * 0.31) * Math.cos(y * 0.27) + Math.sin((x + y * 2) * 0.19) * 0.6;
+          t = patch > 0.55 ? DARKGRASS : GRASS;
+        }
+        set(x, y, t);
+      }
+    }
+  }
+
+  function carvePath(x0, y0, x1, y1) {
+    var x = x0, y = y0, guard = 0;
+    while ((x !== x1 || y !== y1) && guard++ < 400) {
+      if (at(x, y) === GRASS || at(x, y) === DARKGRASS || at(x, y) === SAND) set(x, y, PATH);
+      if (x !== x1) x += x < x1 ? 1 : -1;
+      else if (y !== y1) y += y < y1 ? 1 : -1;
+    }
+    if (at(x1, y1) !== WATER && at(x1, y1) !== SHALLOW) set(x1, y1, PATH);
+  }
+
+  /* ================= Orte ================= */
+  var HUB = { x: 24, y: 19 };
+
+  var places = [
+    { id: 'mathe',   name: 'Rechenturm',     tx: 10, ty: 8,  kind: 'tower', fach: 'mathe',
+      url: '/lernwelt/uebung/?fach=mathe',   hint: 'Mathematik', color: '#7dd3fc' },
+    { id: 'deutsch', name: 'Schreiberhütte', tx: 37, ty: 9,  kind: 'hut',   fach: 'deutsch',
+      url: '/lernwelt/uebung/?fach=deutsch', hint: 'Deutsch', color: '#a7f3d0' },
+    { id: 'englisch', name: 'Piratenschiff', tx: 9,  ty: 27, kind: 'ship',  fach: 'englisch',
+      url: '/lernwelt/uebung/?fach=englisch', hint: 'English', color: '#fca5a5' },
+    { id: 'nmg',     name: 'Aussichtsberg',  tx: 38, ty: 27, kind: 'peak',  fach: 'nmg',
+      url: '/lernwelt/uebung/?fach=nmg',     hint: 'Länder & Karten', color: '#fcd34d' },
+    { id: 'kiosk',   name: 'Kiosk',          tx: 24, ty: 25, kind: 'kiosk',
+      url: '/lernwelt/kiosk/',               hint: 'Münzen tauschen', color: '#fbbf24' },
+    { id: 'kino',    name: 'Kino',           tx: 15, ty: 16, kind: 'kino',
+      url: '/lernwelt/raum/?raum=kino',      hint: 'Sport-Videos · 1 Marke', color: '#c4b5fd' },
+    { id: 'musik',   name: 'Musikhütte',     tx: 33, ty: 16, kind: 'musik',
+      url: '/lernwelt/raum/?raum=musik',     hint: 'Musik-Videos · 1 Marke', color: '#f9a8d4' },
+    { id: 'spielplatz', name: 'Spielplatz',  tx: 17, ty: 24, kind: 'sport',
+      url: '/lernwelt/spiele/',              hint: 'Sportspiele & Puzzles', color: '#86efac' },
+    { id: 'schatz',  name: 'Schatzhöhle',    tx: 24, ty: 6,  kind: 'cave',  url: null,
+      hint: 'braucht alle 4 Fächer', color: '#f2c14e' }
+  ];
+
+  var props = [];   /* {x,y,kind} in Pixeln (Fusspunkt) */
+
+  function buildWorld() {
+    genTerrain();
+    /* Der Boden unter jedem Ort wird Land, damit das Schiff am Strand liegt usw. */
+    places.forEach(function (p) {
+      for (var dy = -1; dy <= 1; dy++) for (var dx = -2; dx <= 2; dx++) {
+        var t = at(p.tx + dx, p.ty + dy);
+        if (t === WATER || t === SHALLOW) set(p.tx + dx, p.ty + dy, SAND);
+      }
+      carvePath(HUB.x, HUB.y, p.tx, p.ty + 1);
+    });
+    /* Dorfplatz */
+    for (var dy = -2; dy <= 2; dy++) for (var dx = -3; dx <= 3; dx++) {
+      if (at(HUB.x + dx, HUB.y + dy) !== WATER) set(HUB.x + dx, HUB.y + dy, PATH);
+    }
+
+    /* Deko */
+    var kinds = ['palm', 'palm', 'tree', 'tree', 'bush', 'rock'];
+    for (var y = 1; y < MAPH - 1; y++) {
+      for (var x = 1; x < MAPW - 1; x++) {
+        var t = at(x, y);
+        if (t !== GRASS && t !== DARKGRASS && t !== SAND) continue;
+        if (nearPlace(x, y, 3)) continue;
+        if (Math.abs(x - HUB.x) < 5 && Math.abs(y - HUB.y) < 4) continue;
+        var chance = t === SAND ? 0.06 : 0.10;
+        if (rnd() < chance) {
+          var k = t === SAND ? 'palm' : kinds[(rnd() * kinds.length) | 0];
+          props.push({ x: x * TILE + 8, y: y * TILE + 14, kind: k, solid: k !== 'bush' });
+        }
+      }
+    }
+    props.push({ x: (HUB.x - 2) * TILE + 8, y: (HUB.y - 1) * TILE + 14, kind: 'sign', solid: true });
+    props.push({ x: (HUB.x + 2) * TILE + 8, y: (HUB.y - 1) * TILE + 14, kind: 'bush', solid: false });
+  }
+
+  function nearPlace(x, y, r) {
+    for (var i = 0; i < places.length; i++) {
+      if (Math.abs(places[i].tx - x) <= r + 1 && Math.abs(places[i].ty - y) <= r) return true;
+    }
+    return false;
+  }
+
+  /* ================= Terrain-Layer ================= */
+  var terrain = document.createElement('canvas');
+  terrain.width = MAPW * TILE; terrain.height = MAPH * TILE;
+  var tctx = terrain.getContext('2d');
+
+  function drawTerrain() {
+    for (var y = 0; y < MAPH; y++) {
+      for (var x = 0; x < MAPW; x++) {
+        var t = at(x, y), X = x * TILE, Y = y * TILE;
+        var pair = t === WATER ? COL.water : t === SHALLOW ? COL.shallow
+                 : t === SAND ? COL.sand : t === PATH ? COL.path
+                 : t === DARKGRASS ? COL.grass2 : COL.grass;
+        var r = mulberry32(x * 7919 + y * 104729);
+        /* Kein Schachbrett: Schattierung deterministisch, aber unregelmässig */
+        px(tctx, X, Y, TILE, TILE, pair[r() < 0.3 ? 1 : 0]);
+        if (t === GRASS || t === DARKGRASS) {
+          for (var i = 0; i < 3; i++) {
+            var gx = X + (r() * 14) | 0, gy = Y + (r() * 14) | 0;
+            px(tctx, gx, gy, 1, 2, r() < .5 ? '#4c8f3f' : '#66b455');
+          }
+        } else if (t === SAND) {
+          for (var j = 0; j < 3; j++) px(tctx, X + (r() * 15) | 0, Y + (r() * 15) | 0, 1, 1, '#d3bb84');
+        } else if (t === PATH) {
+          for (var k = 0; k < 4; k++) px(tctx, X + (r() * 15) | 0, Y + (r() * 15) | 0, 1, 1, r() < .5 ? '#d9c294' : '#a98f62');
+        }
+        /* Küstenkante */
+        if (t === SAND && (at(x, y + 1) === SHALLOW || at(x, y + 1) === WATER)) {
+          px(tctx, X, Y + TILE - 2, TILE, 2, '#efe0b8');
+        }
+        if (t === SHALLOW && at(x, y - 1) === SAND) px(tctx, X, Y, TILE, 1, '#7fc6e0');
+      }
+    }
+  }
+
+  /* ================= Sprites ================= */
+  function drawPalm(c, x, y) {
+    px(c, x - 1, y - 12, 3, 12, COL.wood);
+    px(c, x, y - 12, 1, 12, COL.woodL);
+    px(c, x - 7, y - 15, 6, 2, COL.leaf);  px(c, x + 2, y - 15, 6, 2, COL.leaf);
+    px(c, x - 9, y - 13, 5, 2, COL.leafD); px(c, x + 4, y - 13, 5, 2, COL.leafD);
+    px(c, x - 4, y - 17, 8, 3, COL.leafL);
+    px(c, x - 1, y - 18, 3, 2, COL.leaf);
+    px(c, x - 3, y - 1, 6, 2, 'rgba(0,0,0,.18)');
+  }
+  function drawTree(c, x, y) {
+    px(c, x - 2, y - 8, 4, 8, COL.woodD);
+    px(c, x - 1, y - 8, 1, 8, COL.wood);
+    px(c, x - 7, y - 17, 14, 10, COL.leafD);
+    px(c, x - 6, y - 19, 12, 4, COL.leaf);
+    px(c, x - 4, y - 21, 8, 3, COL.leaf);
+    px(c, x - 4, y - 18, 5, 3, COL.leafL);
+    px(c, x - 5, y - 1, 10, 2, 'rgba(0,0,0,.18)');
+  }
+  function drawBush(c, x, y) {
+    px(c, x - 6, y - 7, 12, 7, COL.leafD);
+    px(c, x - 5, y - 9, 10, 3, COL.leaf);
+    px(c, x - 3, y - 8, 4, 2, COL.leafL);
+  }
+  function drawRock(c, x, y) {
+    px(c, x - 6, y - 6, 12, 6, COL.stoneD);
+    px(c, x - 5, y - 9, 9, 4, COL.stone);
+    px(c, x - 3, y - 8, 4, 2, COL.stoneL);
+  }
+  function drawSign(c, x, y) {
+    px(c, x - 1, y - 10, 2, 10, COL.woodD);
+    px(c, x - 9, y - 18, 18, 8, COL.wood);
+    px(c, x - 9, y - 18, 18, 1, COL.woodL);
+    px(c, x - 7, y - 15, 5, 1, COL.dark);
+    px(c, x - 7, y - 13, 11, 1, COL.dark);
+    px(c, x + 1, y - 15, 6, 1, COL.dark);
+  }
+
+  function drawTower(c, x, y) {                     /* Mathe */
+    px(c, x - 12, y - 34, 24, 34, COL.stone);
+    px(c, x - 12, y - 34, 3, 34, COL.stoneL);
+    px(c, x + 9, y - 34, 3, 34, COL.stoneD);
+    for (var i = 0; i < 4; i++) px(c, x - 12, y - 30 + i * 8, 24, 1, COL.stoneD);
+    px(c, x - 14, y - 40, 28, 6, COL.stoneD);       /* Zinnen */
+    for (var j = 0; j < 5; j++) px(c, x - 14 + j * 6, y - 44, 4, 5, COL.stone);
+    px(c, x - 5, y - 14, 10, 14, COL.woodD);        /* Tür */
+    px(c, x - 4, y - 13, 8, 13, COL.wood);
+    px(c, x + 2, y - 7, 2, 2, COL.gold);
+    px(c, x - 4, y - 26, 8, 7, '#1b3a5c');          /* Fenster */
+    px(c, x - 3, y - 25, 3, 3, '#5fa8d3');
+    px(c, x - 3, y - 47, 2, 4, COL.woodD);          /* Fahne */
+    px(c, x - 1, y - 47, 8, 4, '#7dd3fc');
+  }
+  function drawHut(c, x, y) {                       /* Deutsch */
+    px(c, x - 14, y - 20, 28, 20, COL.wood);
+    for (var i = 0; i < 4; i++) px(c, x - 14, y - 17 + i * 5, 28, 1, COL.woodD);
+    px(c, x - 17, y - 28, 34, 9, COL.roofR);        /* Dach */
+    px(c, x - 15, y - 32, 30, 5, COL.roofR);
+    px(c, x - 12, y - 35, 24, 4, COL.roofRD);
+    px(c, x - 17, y - 20, 34, 2, COL.roofRD);
+    px(c, x - 5, y - 14, 10, 14, COL.woodD);        /* Tür */
+    px(c, x - 4, y - 13, 8, 13, '#a9713a');
+    px(c, x + 2, y - 7, 2, 2, COL.gold);
+    px(c, x - 12, y - 16, 7, 6, '#1b3a5c');
+    px(c, x + 6, y - 16, 7, 6, '#1b3a5c');
+    px(c, x - 11, y - 15, 3, 2, '#8ec9e8');
+    px(c, x + 7, y - 15, 3, 2, '#8ec9e8');
+    px(c, x + 8, y - 40, 3, 12, COL.stoneD);        /* Kamin */
+    px(c, x + 7, y - 42, 5, 3, COL.stone);
+  }
+  function drawShip(c, x, y) {                      /* Englisch */
+    px(c, x - 20, y - 10, 40, 8, COL.woodD);        /* Rumpf */
+    px(c, x - 17, y - 2, 34, 3, COL.woodD);
+    px(c, x - 20, y - 10, 40, 2, COL.woodL);
+    for (var i = 0; i < 5; i++) px(c, x - 15 + i * 7, y - 7, 4, 3, COL.dark);
+    px(c, x - 1, y - 46, 3, 36, COL.wood);          /* Mast */
+    px(c, x - 14, y - 44, 26, 18, '#f1f5f9');       /* Segel */
+    px(c, x - 14, y - 44, 26, 2, '#cbd5e1');
+    px(c, x - 14, y - 28, 26, 2, '#cbd5e1');
+    px(c, x - 8, y - 42, 1, 14, '#dbe2ea');
+    px(c, x + 6, y - 42, 1, 14, '#dbe2ea');
+    px(c, x + 9, y - 44, 3, 18, '#dbe2ea');
+    px(c, x - 5, y - 39, 8, 8, COL.dark);           /* Totenkopf */
+    px(c, x - 3, y - 37, 2, 2, '#f1f5f9');
+    px(c, x + 0, y - 37, 2, 2, '#f1f5f9');
+    px(c, x - 3, y - 33, 5, 1, '#f1f5f9');
+    px(c, x + 2, y - 50, 10, 5, '#b03b3b');         /* Wimpel */
+    px(c, x - 16, y - 22, 4, 12, COL.woodD);        /* Steg */
+    px(c, x - 24, y - 12, 10, 3, COL.wood);
+  }
+  function drawPeak(c, x, y) {                      /* Geografie */
+    px(c, x - 18, y - 6, 36, 6, COL.stoneD);
+    px(c, x - 14, y - 14, 28, 8, COL.stone);
+    px(c, x - 9, y - 22, 18, 8, COL.stone);
+    px(c, x - 5, y - 28, 10, 6, COL.stoneL);
+    px(c, x - 11, y - 20, 5, 3, COL.stoneL);
+    px(c, x + 4, y - 12, 6, 3, COL.stoneL);
+    /* Globus auf der Spitze */
+    px(c, x - 5, y - 38, 10, 10, '#2f7dbb');
+    px(c, x - 4, y - 37, 3, 3, COL.leafL);
+    px(c, x + 1, y - 34, 3, 4, COL.leaf);
+    px(c, x - 5, y - 34, 10, 1, '#8ec9e8');
+    px(c, x - 1, y - 28, 2, 6, COL.woodD);
+    px(c, x - 5, y - 12, 10, 12, COL.dark);         /* Höhleneingang */
+    px(c, x - 4, y - 11, 8, 11, '#241f33');
+  }
+  function drawKiosk(c, x, y) {                     /* Kiosk */
+    px(c, x - 13, y - 16, 26, 16, COL.wood);
+    px(c, x - 13, y - 16, 26, 2, COL.woodL);
+    px(c, x - 11, y - 12, 22, 7, '#2b3a55');        /* Verkaufsfenster */
+    px(c, x - 10, y - 11, 20, 5, '#4a6285');
+    px(c, x - 16, y - 24, 32, 5, COL.roofB);        /* Dach */
+    px(c, x - 14, y - 27, 28, 3, COL.roofBD);
+    for (var i = 0; i < 6; i++)                     /* Markise */
+      px(c, x - 16 + i * 6, y - 19, 3, 3, i % 2 ? '#f8fafc' : '#e11d48');
+    px(c, x - 3, y - 30, 2, 4, COL.woodD);
+    px(c, x - 1, y - 31, 9, 5, COL.gold);           /* Schild */
+    px(c, x + 1, y - 30, 2, 2, COL.dark);
+    px(c, x - 13, y - 4, 26, 2, COL.woodD);
+  }
+  function drawKino(c, x, y) {                      /* Kino */
+    px(c, x - 16, y - 26, 32, 26, '#2b2438');
+    px(c, x - 16, y - 26, 32, 2, '#41364f');
+    px(c, x - 18, y - 33, 36, 8, '#4c1d95');        /* Marquee */
+    px(c, x - 18, y - 33, 36, 2, '#7c3aed');
+    for (var i = 0; i < 8; i++)
+      px(c, x - 16 + i * 4.6, y - 25, 2, 2, i % 2 ? '#fde68a' : '#fbbf24');
+    px(c, x - 12, y - 31, 24, 4, '#1e1b4b');
+    px(c, x - 9, y - 30, 3, 2, '#c4b5fd');
+    px(c, x - 4, y - 30, 3, 2, '#c4b5fd');
+    px(c, x + 2, y - 30, 3, 2, '#c4b5fd');
+    px(c, x - 6, y - 16, 12, 16, '#171226');        /* Eingang */
+    px(c, x - 5, y - 15, 10, 15, '#241c3a');
+    px(c, x + 2, y - 8, 2, 2, COL.gold);
+    px(c, x - 14, y - 20, 6, 5, '#3b3050');
+    px(c, x + 8, y - 20, 6, 5, '#3b3050');
+  }
+  function drawMusik(c, x, y) {                     /* Musikhütte */
+    px(c, x - 14, y - 20, 28, 20, COL.wood);
+    for (var i = 0; i < 4; i++) px(c, x - 14, y - 17 + i * 5, 28, 1, COL.woodD);
+    px(c, x - 17, y - 29, 34, 10, '#be185d');       /* Dach */
+    px(c, x - 14, y - 33, 28, 5, '#9d174d');
+    px(c, x - 17, y - 20, 34, 2, '#831843');
+    px(c, x - 5, y - 14, 10, 14, COL.woodD);
+    px(c, x - 4, y - 13, 8, 13, '#a9713a');
+    px(c, x + 2, y - 7, 2, 2, COL.gold);
+    /* Note am Giebel */
+    px(c, x + 1, y - 31, 2, 8, '#fce7f3');
+    px(c, x - 3, y - 25, 5, 4, '#fce7f3');
+    px(c, x + 3, y - 32, 5, 2, '#fce7f3');
+    /* Lautsprecher */
+    px(c, x - 12, y - 16, 7, 12, '#3f2a1c');
+    px(c, x - 11, y - 14, 5, 5, '#1f1610');
+    px(c, x + 6, y - 16, 7, 12, '#3f2a1c');
+    px(c, x + 7, y - 14, 5, 5, '#1f1610');
+  }
+  function drawSport(c, x, y) {                      /* Spielplatz */
+    px(c, x - 20, y - 4, 40, 4, '#c2703f');           /* Laufbahn */
+    px(c, x - 20, y - 3, 40, 1, 'rgba(255,255,255,.5)');
+    px(c, x - 14, y - 22, 28, 18, '#3f8f45');         /* Rasen */
+    px(c, x - 14, y - 22, 28, 1, '#57a95c');
+    /* Tor */
+    px(c, x - 11, y - 34, 2, 13, '#f1f5f9');
+    px(c, x + 9, y - 34, 2, 13, '#f1f5f9');
+    px(c, x - 11, y - 35, 22, 2, '#f1f5f9');
+    for (var i = 0; i < 5; i++) px(c, x - 9 + i * 4, y - 33, 1, 11, 'rgba(255,255,255,.45)');
+    for (var j = 0; j < 3; j++) px(c, x - 10, y - 31 + j * 4, 20, 1, 'rgba(255,255,255,.45)');
+    /* Ball & Korb */
+    px(c, x - 3, y - 12, 6, 6, '#f8fafc');
+    px(c, x - 2, y - 11, 3, 3, '#1f2937');
+    px(c, x + 14, y - 30, 2, 26, '#64748b');
+    px(c, x + 12, y - 31, 7, 2, '#e07b28');
+  }
+  function drawCave(c, x, y, open) {                /* Schatz */
+    px(c, x - 20, y - 8, 40, 8, COL.stoneD);
+    px(c, x - 17, y - 18, 34, 10, COL.stone);
+    px(c, x - 12, y - 26, 24, 8, COL.stone);
+    px(c, x - 6, y - 31, 12, 5, COL.stoneL);
+    px(c, x - 9, y - 20, 18, 20, COL.dark);
+    px(c, x - 8, y - 18, 16, 18, '#241f33');
+    if (open) {
+      px(c, x - 7, y - 12, 14, 10, COL.woodD);      /* Truhe */
+      px(c, x - 7, y - 16, 14, 5, COL.wood);
+      px(c, x - 7, y - 12, 14, 1, COL.gold);
+      px(c, x - 2, y - 10, 4, 4, COL.gold);
+      px(c, x - 5, y - 20, 3, 3, COL.gold);
+      px(c, x + 2, y - 22, 2, 2, '#fff7cc');
+      px(c, x - 1, y - 24, 2, 2, '#fff7cc');
+    } else {
+      px(c, x - 5, y - 14, 10, 12, COL.stoneD);     /* Felsblock davor */
+      px(c, x - 4, y - 13, 8, 10, COL.stone);
+      px(c, x - 2, y - 10, 4, 5, COL.goldD);        /* Schloss */
+      px(c, x - 1, y - 8, 2, 2, COL.dark);
+    }
+  }
+
+  /* Spielfigur: 16x18, 3 Richtungen, 2 Laufphasen */
+  var SKIN = '#f2c8a0', SKIN_D = '#d9a97e', HAIR = '#5b3a1e', HAIR_L = '#7a5029';
+  function drawHero(c, x, y, dir, frame, jacket, jacketD) {
+    var top = y - 18, left = x - 6;
+    /* Schatten */
+    px(c, x - 6, y - 1, 12, 2, 'rgba(0,0,0,.22)');
+    /* Beine */
+    var swing = frame === 1 ? 1 : frame === 2 ? -1 : 0;
+    px(c, left + 1, top + 14, 4, 4, '#2f4d7a');
+    px(c, left + 7, top + 14, 4, 4, '#2f4d7a');
+    px(c, left + 1, top + 17 + (swing > 0 ? 1 : 0), 4, 1, '#1f2937');
+    px(c, left + 7, top + 17 + (swing < 0 ? 1 : 0), 4, 1, '#1f2937');
+    /* Körper */
+    px(c, left + 1, top + 7, 10, 8, jacket);
+    px(c, left + 1, top + 7, 10, 1, jacketD);
+    px(c, left + 1, top + 14, 10, 1, jacketD);
+    /* Arme */
+    px(c, left - 1, top + 8, 2, 5, jacketD);
+    px(c, left + 11, top + 8, 2, 5, jacketD);
+    px(c, left - 1, top + 12, 2, 2, SKIN);
+    px(c, left + 11, top + 12, 2, 2, SKIN);
+    /* Kopf */
+    px(c, left + 2, top + 1, 8, 7, SKIN);          /* Gesicht */
+    px(c, left + 2, top + 7, 8, 1, SKIN_D);        /* Kinnschatten */
+    px(c, left + 2, top, 8, 2, HAIR);              /* Haarkappe */
+    px(c, left + 1, top + 1, 1, 4, HAIR);          /* Koteletten */
+    px(c, left + 10, top + 1, 1, 4, HAIR);
+    px(c, left + 3, top, 3, 1, HAIR_L);
+    if (dir === 'down') {
+      px(c, left + 4, top + 4, 1, 2, COL.black);
+      px(c, left + 7, top + 4, 1, 2, COL.black);
+      px(c, left + 5, top + 6, 2, 1, '#c98d76');   /* Mund */
+    } else if (dir === 'up') {
+      px(c, left + 2, top, 8, 6, HAIR);            /* Hinterkopf */
+      px(c, left + 3, top + 1, 3, 1, HAIR_L);
+    } else {
+      var right = dir === 'right';
+      px(c, right ? left + 7 : left + 4, top + 4, 1, 2, COL.black);
+      px(c, right ? left + 9 : left + 2, top + 6, 1, 1, '#c98d76');
+      px(c, right ? left + 2 : left + 7, top + 1, 3, 4, HAIR);  /* Hinterkopf seitlich */
+    }
+  }
+
+  /* ================= Zustand ================= */
+  var cv = document.getElementById('game');
+  var ctx = cv.getContext('2d');
+  ctx.imageSmoothingEnabled = false;
+
+  var hero = {
+    x: HUB.x * TILE + 8, y: HUB.y * TILE + 20,
+    dir: 'down', moving: false, frame: 0, animT: 0,
+    speed: 62,
+    jacket: '#3b6fb0', jacketD: '#2c5289'
+  };
+  var keys = Object.create(null);
+  var touchDir = null;
+  var state = 'title';            /* title | who | play | treasure */
+  var nearest = null;
+  var who = 'Gast';
+  var lastTs = 0;
+  var waveT = 0;
+
+  var JACKETS = {
+    Andrin: ['#3b6fb0', '#2c5289'],
+    Joris:  ['#b03b3b', '#8a2c2c'],
+    Gast:   ['#3d8f57', '#2d6f42']
+  };
+  if (window.Insel && Insel.kinder) {
+    Object.keys(Insel.kinder).forEach(function (k) { JACKETS[k] = Insel.kinder[k].jacke; });
+  }
+
+  /* ================= Kollision ================= */
+  var solids = [];  /* {x,y,w,h} in Pixeln */
+  function buildSolids() {
+    solids.length = 0;
+    for (var y = 0; y < MAPH; y++) for (var x = 0; x < MAPW; x++) {
+      if (at(x, y) === WATER || at(x, y) === SHALLOW) solids.push({ x: x * TILE, y: y * TILE, w: TILE, h: TILE });
+    }
+    props.forEach(function (p) {
+      if (p.solid) solids.push({ x: p.x - 4, y: p.y - 6, w: 8, h: 6 });
+    });
+    places.forEach(function (p) {
+      var cx = p.tx * TILE + 8, cy = p.ty * TILE + 16;
+      var w = p.kind === 'ship' ? 40 : p.kind === 'cave' ? 40 : 28;
+      solids.push({ x: cx - w / 2, y: cy - 20, w: w, h: 18 });
+    });
+  }
+  function blocked(nx, ny) {
+    var bx = nx - 4, by = ny - 5, bw = 8, bh = 5;   /* Fusspunkt-Box */
+    if (bx < 2 || by < 2 || bx + bw > MAPW * TILE - 2 || by + bh > MAPH * TILE - 2) return true;
+    for (var i = 0; i < solids.length; i++) {
+      var s = solids[i];
+      if (bx < s.x + s.w && bx + bw > s.x && by < s.y + s.h && by + bh > s.y) return true;
+    }
+    return false;
+  }
+
+  /* ================= Fortschritt ================= */
+  function starsOf(id) { return window.Insel ? Insel.stars(id, who) : 0; }
+  function totalStars() { return window.Insel ? Insel.totalStars(who) : 0; }
+  function treasureOpen() { return window.Insel ? Insel.alleFaecherGeschafft(who) : false; }
+
+  function updateHud() {
+    var kl = window.Insel ? Insel.klasse(who) : '';
+    document.getElementById('hud-who').textContent = '🧭 ' + who + (kl ? ' · ' + kl + '. Kl.' : '');
+    var m = window.Insel ? Insel.muenzen(who) : 0;
+    var mk = window.Insel ? Insel.marken(who) : 0;
+    document.getElementById('hud-stars').innerHTML =
+      '⭐ ' + totalStars() + '/12 &nbsp; <span style="color:#fbbf24">🪙 ' + m +
+      '</span> &nbsp; <span style="color:#c4b5fd">🎟️ ' + mk + '</span>';
+  }
+
+  /* ================= Interaktion ================= */
+  function findNearest() {
+    var best = null, bestD = 1e9;
+    for (var i = 0; i < places.length; i++) {
+      var p = places[i];
+      var cx = p.tx * TILE + 8, cy = p.ty * TILE + 16;
+      var d = Math.hypot(hero.x - cx, hero.y - cy);
+      if (d < 30 && d < bestD) { best = p; bestD = d; }
+    }
+    return best;
+  }
+
+  var bannerEl = document.getElementById('banner');
+  function updateBanner() {
+    var p = nearest;
+    if (!p || state !== 'play') { bannerEl.classList.remove('show'); return; }
+    var txt;
+    if (p.id === 'schatz') {
+      txt = treasureOpen()
+        ? '<b>Schatzhöhle</b> — [E] öffnen'
+        : '<b>Schatzhöhle</b> — verschlossen (' + geschaffteFaecher() + '/4 Fächer geschafft)';
+    } else if (p.fach) {
+      var s = starsOf(p.fach);
+      txt = '<b>' + p.name + '</b> — ' + p.hint + ' ' + '★'.repeat(s) + '☆'.repeat(3 - s) + ' — [E] betreten';
+    } else {
+      txt = '<b>' + p.name + '</b> — ' + p.hint + ' — [E] betreten';
+    }
+    bannerEl.innerHTML = txt;
+    bannerEl.classList.add('show');
+  }
+  function geschaffteFaecher() {
+    var n = 0;
+    ['mathe', 'deutsch', 'englisch', 'nmg'].forEach(function (k) { if (starsOf(k) > 0) n++; });
+    return n;
+  }
+
+  function interact() {
+    if (state !== 'play' || !nearest) return;
+    if (nearest.id === 'schatz') {
+      if (!treasureOpen()) {
+        flash('Die Höhle ist verschlossen. Du brauchst aus jedem Fach mindestens einen Stern!');
+        return;
+      }
+      showTreasure();
+      return;
+    }
+    window.location.href = nearest.url + (nearest.url.indexOf('?') >= 0 ? '&' : '?') + 'von=insel';
+  }
+
+  var flashT = 0, flashMsg = '';
+  function flash(msg) { flashMsg = msg; flashT = 2.8; }
+
+  function showTreasure() {
+    var el = document.getElementById('scr-treasure');
+    document.getElementById('treasure-text').innerHTML =
+      'Du hast alle vier Orte der Insel geschafft, <b>' + who + '</b>!<br><br>' +
+      'Insgesamt: <b>' + totalStars() + ' von 12 Sternen</b>.<br>' +
+      (totalStars() === 12
+        ? 'Perfekt — mehr geht nicht. 🏆'
+        : 'Für alle 12 Sterne musst du in jeder Übung über 90 % schaffen.');
+    el.hidden = false;
+    state = 'treasure';
+  }
+
+  /* ================= Rendering ================= */
+  function draw(dt) {
+    waveT += dt;
+    var camX = Math.max(0, Math.min(MAPW * TILE - VIEW_W, hero.x - VIEW_W / 2)) | 0;
+    var camY = Math.max(0, Math.min(MAPH * TILE - VIEW_H, hero.y - VIEW_H / 2 - 8)) | 0;
+
+    ctx.drawImage(terrain, camX, camY, VIEW_W, VIEW_H, 0, 0, VIEW_W, VIEW_H);
+
+    /* Wellen */
+    var w0 = Math.floor(camX / TILE), w1 = w0 + 21, h0 = Math.floor(camY / TILE), h1 = h0 + 16;
+    var phase = Math.floor(waveT * 2) % 2;
+    for (var y = h0; y <= h1; y++) {
+      for (var x = w0; x <= w1; x++) {
+        var t = at(x, y);
+        if (t !== WATER && t !== SHALLOW) continue;
+        if ((x * 3 + y * 5 + phase) % 4 !== 0) continue;
+        px(ctx, x * TILE - camX + 3, y * TILE - camY + 6 + phase, 6, 1, t === WATER ? '#3f9bd0' : '#79c6e4');
+      }
+    }
+
+    /* y-sortierte Objekte */
+    var items = [];
+    props.forEach(function (p) {
+      if (p.x < camX - 24 || p.x > camX + VIEW_W + 24 || p.y < camY - 48 || p.y > camY + VIEW_H + 24) return;
+      items.push(p);
+    });
+    places.forEach(function (p) {
+      items.push({ x: p.tx * TILE + 8, y: p.ty * TILE + 16, kind: p.kind, place: p });
+    });
+    items.push({ x: hero.x, y: hero.y, kind: 'hero' });
+    items.sort(function (a, b) { return a.y - b.y; });
+
+    items.forEach(function (it) {
+      var X = it.x - camX, Y = it.y - camY;
+      if (X < -60 || X > VIEW_W + 60 || Y < -60 || Y > VIEW_H + 60) return;
+      switch (it.kind) {
+        case 'palm': drawPalm(ctx, X, Y); break;
+        case 'tree': drawTree(ctx, X, Y); break;
+        case 'bush': drawBush(ctx, X, Y); break;
+        case 'rock': drawRock(ctx, X, Y); break;
+        case 'sign': drawSign(ctx, X, Y); break;
+        case 'tower': drawTower(ctx, X, Y); break;
+        case 'hut': drawHut(ctx, X, Y); break;
+        case 'ship': drawShip(ctx, X, Y); break;
+        case 'peak': drawPeak(ctx, X, Y); break;
+        case 'kiosk': drawKiosk(ctx, X, Y); break;
+        case 'kino': drawKino(ctx, X, Y); break;
+        case 'musik': drawMusik(ctx, X, Y); break;
+        case 'sport': drawSport(ctx, X, Y); break;
+        case 'cave': drawCave(ctx, X, Y, treasureOpen()); break;
+        case 'hero': drawHero(ctx, X, Y, hero.dir, hero.frame, hero.jacket, hero.jacketD); break;
+      }
+      /* Sterne über den Fach-Orten */
+      if (it.place && it.place.fach) {
+        var s = starsOf(it.place.fach);
+        var hoehe = it.place.kind === 'ship' ? 56 : it.place.kind === 'tower' ? 54 : 46;
+        for (var i = 0; i < 3; i++) drawStar(ctx, X - 10 + i * 8, Y - hoehe, i < s);
+      }
+    });
+
+    /* Ortsnamen */
+    ctx.font = '7px ui-monospace, monospace';
+    ctx.textAlign = 'center';
+    places.forEach(function (p) {
+      var X = p.tx * TILE + 8 - camX, Y = p.ty * TILE + 16 - camY;
+      if (X < -40 || X > VIEW_W + 40) return;
+      var label = p.name.toUpperCase();
+      var w = ctx.measureText(label).width + 6;
+      px(ctx, X - w / 2, Y + 14, w, 9, 'rgba(9,14,33,.75)');
+      ctx.fillStyle = p.color;
+      ctx.fillText(label, X, Y + 21);
+    });
+
+    /* Hinweis-Flash */
+    if (flashT > 0) {
+      flashT -= dt;
+      ctx.font = '8px ui-monospace, monospace';
+      var lines = wrap(flashMsg, 44);
+      var bh = lines.length * 10 + 8;
+      px(ctx, 12, VIEW_H - bh - 34, VIEW_W - 24, bh, 'rgba(9,14,33,.92)');
+      ctx.strokeStyle = '#fde68a'; ctx.lineWidth = 2;
+      ctx.strokeRect(13, VIEW_H - bh - 33, VIEW_W - 26, bh - 2);
+      ctx.fillStyle = '#f8fafc';
+      lines.forEach(function (l, i) { ctx.fillText(l, VIEW_W / 2, VIEW_H - bh - 34 + 14 + i * 10); });
+    }
+    ctx.textAlign = 'left';
+  }
+
+  function drawStar(c, x, y, filled) {
+    var col = filled ? COL.gold : 'rgba(0,0,0,.30)';
+    px(c, x + 2, y, 2, 6, col);
+    px(c, x, y + 2, 6, 2, col);
+    px(c, x + 1, y + 1, 4, 4, col);
+    if (filled) px(c, x + 2, y + 1, 1, 1, '#fff7cc');
+  }
+
+  function wrap(text, n) {
+    var words = text.split(' '), lines = [], cur = '';
+    words.forEach(function (w) {
+      if ((cur + ' ' + w).trim().length > n) { lines.push(cur.trim()); cur = w; }
+      else cur += ' ' + w;
+    });
+    if (cur.trim()) lines.push(cur.trim());
+    return lines;
+  }
+
+  /* ================= Loop ================= */
+  function step(ts) {
+    var dt = Math.min(0.05, (ts - lastTs) / 1000 || 0);
+    lastTs = ts;
+
+    if (state === 'play') {
+      var dx = 0, dy = 0;
+      if (keys['w'] || keys['arrowup'] || touchDir === 'up') dy -= 1;
+      if (keys['s'] || keys['arrowdown'] || touchDir === 'down') dy += 1;
+      if (keys['a'] || keys['arrowleft'] || touchDir === 'left') dx -= 1;
+      if (keys['d'] || keys['arrowright'] || touchDir === 'right') dx += 1;
+
+      hero.moving = !!(dx || dy);
+      if (hero.moving) {
+        if (dy < 0) hero.dir = 'up';
+        else if (dy > 0) hero.dir = 'down';
+        else if (dx < 0) hero.dir = 'left';
+        else if (dx > 0) hero.dir = 'right';
+
+        var len = Math.hypot(dx, dy) || 1;
+        var stepX = (dx / len) * hero.speed * dt;
+        var stepY = (dy / len) * hero.speed * dt;
+        if (!blocked(hero.x + stepX, hero.y)) hero.x += stepX;
+        if (!blocked(hero.x, hero.y + stepY)) hero.y += stepY;
+
+        hero.animT += dt;
+        if (hero.animT > 0.16) { hero.animT = 0; hero.frame = hero.frame === 1 ? 2 : 1; }
+      } else {
+        hero.frame = 0; hero.animT = 0;
+      }
+
+      var n = findNearest();
+      if (n !== nearest) { nearest = n; updateBanner(); }
+      else if (nearest) updateBanner();
+    }
+
+    draw(dt);
+    requestAnimationFrame(step);
+  }
+
+  /* ================= Screens ================= */
+  function showScreen(id) {
+    ['scr-title', 'scr-who', 'scr-treasure'].forEach(function (s) {
+      document.getElementById(s).hidden = (s !== id);
+    });
+    document.getElementById('hud').hidden = !!id;
+    if (!id) updateBanner();
+  }
+
+  function startPlay(name) {
+    who = name;
+    if (window.Insel) Insel.setWho(name);
+    var j = JACKETS[name] || JACKETS.Gast;
+    hero.jacket = j[0]; hero.jacketD = j[1];
+    state = 'play';
+    showScreen(null);
+    updateHud();
+    flash('Willkommen auf der Lerninsel, ' + name + '! Laufe mit WASD zu einem der vier Orte.');
+  }
+
+  /* ================= Eingabe ================= */
+  window.addEventListener('keydown', function (e) {
+    var k = e.key.toLowerCase();
+    keys[k] = true;
+    if (['arrowup', 'arrowdown', 'arrowleft', 'arrowright', ' '].indexOf(k) >= 0) e.preventDefault();
+
+    if (state === 'title' && (k === 'enter' || k === ' ')) { state = 'who'; showScreen('scr-who'); return; }
+    if (state === 'who') {
+      if (k === '1') startPlay('Andrin');
+      if (k === '2') startPlay('Joris');
+      if (k === '3') startPlay('Gast');
+      return;
+    }
+    if (state === 'treasure' && (k === 'enter' || k === 'e' || k === ' ')) { closeTreasure(); return; }
+    if (state === 'play' && (k === 'e' || k === 'enter')) interact();
+  });
+  window.addEventListener('keyup', function (e) { keys[e.key.toLowerCase()] = false; });
+  window.addEventListener('blur', function () { keys = Object.create(null); touchDir = null; });
+
+  document.getElementById('scr-title').addEventListener('click', function () {
+    state = 'who'; showScreen('scr-who');
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('#who-choices .choice'), function (b) {
+    b.addEventListener('click', function () { startPlay(b.dataset.who); });
+  });
+  function closeTreasure() {
+    document.getElementById('scr-treasure').hidden = true;
+    document.getElementById('hud').hidden = false;
+    state = 'play';
+  }
+  document.getElementById('treasure-ok').addEventListener('click', closeTreasure);
+
+  /* Touch */
+  var isTouch = window.matchMedia('(hover: none)').matches || 'ontouchstart' in window;
+  if (isTouch) document.getElementById('touch').classList.add('on');
+  Array.prototype.forEach.call(document.querySelectorAll('.pad button[data-dir]'), function (b) {
+    var d = b.dataset.dir;
+    var on = function (e) { e.preventDefault(); touchDir = d; };
+    var off = function (e) { e.preventDefault(); if (touchDir === d) touchDir = null; };
+    b.addEventListener('touchstart', on, { passive: false });
+    b.addEventListener('touchend', off, { passive: false });
+    b.addEventListener('touchcancel', off, { passive: false });
+    b.addEventListener('mousedown', on);
+    b.addEventListener('mouseup', off);
+    b.addEventListener('mouseleave', off);
+  });
+  document.getElementById('btn-a').addEventListener('click', function (e) {
+    e.preventDefault();
+    if (state === 'title') { state = 'who'; showScreen('scr-who'); }
+    else if (state === 'treasure') closeTreasure();
+    else interact();
+  });
+
+  /* ================= Skalierung ================= */
+  function resize() {
+    var pad = isTouch ? 8 : 24;
+    var sx = (window.innerWidth - pad) / VIEW_W;
+    var sy = (window.innerHeight - pad) / VIEW_H;
+    var s = Math.max(1, Math.min(5, Math.floor(Math.min(sx, sy) * 2) / 2));
+    cv.style.width = (VIEW_W * s) + 'px';
+    cv.style.height = (VIEW_H * s) + 'px';
+  }
+  window.addEventListener('resize', resize);
+
+  /* ================= Start ================= */
+  buildWorld();
+  drawTerrain();
+  buildSolids();
+  resize();
+  if (window.Insel) {
+    var last = Insel.who();
+    if (last && JACKETS[last]) {
+      /* Bekannter Spieler: Titel überspringen wir nicht, aber vorauswählen */
+      who = last;
+    }
+  }
+  updateHud();
+  requestAnimationFrame(function (t) { lastTs = t; step(t); });
+
+  /* Direkt in ein Fach springen: /lernwelt/?ort=mathe */
+  var q = new URLSearchParams(location.search);
+  if (q.get('ort')) {
+    var target = places.filter(function (p) { return p.id === q.get('ort'); })[0];
+    if (target) { hero.x = target.tx * TILE + 8; hero.y = target.ty * TILE + 30; }
+  }
+  if (q.get('von') === 'uebung' && window.Insel && JACKETS[Insel.who()]) {
+    startPlay(Insel.who());
+  }
+})();
+</script>
+</body>
+</html>

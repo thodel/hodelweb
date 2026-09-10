@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>English üben</title>
+<meta name="description" content="Englisch üben: Wörter, Schreiben und unregelmässige Verben.">
+<link rel="icon" href="/favicon-32x32.png" sizes="32x32">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #0f172a; color: #e2e8f0;
+    padding: 20px 14px 60px; min-height: 100vh;
+  }
+  .wrap { max-width: 560px; margin: 0 auto; }
+  header { text-align: center; margin-bottom: 20px; }
+  h1 { font-size: 26px; font-weight: 800; color: #fca5a5; }
+  header p { font-size: 13px; color: #94a3b8; margin-top: 6px; }
+  .backrow { text-align: center; margin-bottom: 14px; }
+  .backrow a {
+    display: inline-block; font: 700 13px/1 ui-monospace, Menlo, monospace;
+    color: #fde68a; background: #1e3a5f; border: 2px solid #fde68a;
+    border-radius: 8px; padding: 8px 12px; text-decoration: none; margin: 0 4px;
+  }
+
+  .modes { display: flex; gap: 8px; margin-bottom: 14px; }
+  .mode-btn {
+    flex: 1; padding: 11px 6px; border: 2px solid #334155; background: #1e293b;
+    color: #cbd5e1; border-radius: 12px; font-size: 14px; font-weight: 700; cursor: pointer;
+  }
+  .mode-btn.active { background: #7f1d1d; border-color: #fca5a5; color: #fff; }
+
+  .pills { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+  .pill {
+    padding: 6px 12px; border-radius: 999px; border: 1px solid #334155;
+    background: #1e293b; color: #cbd5e1; font-size: 12.5px; cursor: pointer;
+  }
+  .pill.active { background: #fca5a5; color: #450a0a; border-color: #fca5a5; font-weight: 700; }
+
+  .card {
+    background: #1e293b; border-radius: 18px; padding: 22px 18px;
+    box-shadow: 0 6px 24px rgba(0,0,0,.35);
+  }
+  .progressbar { height: 8px; background: #334155; border-radius: 99px; overflow: hidden; margin-bottom: 18px; }
+  .progressfill { height: 100%; width: 0; background: linear-gradient(90deg,#fca5a5,#f87171); transition: width .3s; }
+  .meta { display: flex; justify-content: space-between; font-size: 12px; color: #94a3b8; margin-bottom: 14px; }
+  .streak { color: #fbbf24; font-weight: 700; }
+
+  .prompt { text-align: center; margin-bottom: 22px; }
+  .prompt .lang { font-size: 12px; letter-spacing: .1em; color: #64748b; text-transform: uppercase; }
+  .prompt .word { font-size: 34px; font-weight: 800; margin-top: 6px; color: #f8fafc; word-break: break-word; }
+  .prompt .hint { font-size: 13px; color: #94a3b8; margin-top: 8px; min-height: 18px; }
+
+  .options { display: grid; gap: 10px; }
+  .opt {
+    padding: 14px 16px; border-radius: 12px; border: 2px solid #334155;
+    background: #0f172a; color: #e2e8f0; font-size: 17px; font-weight: 600;
+    cursor: pointer; text-align: left; transition: transform .1s;
+  }
+  .opt:hover:not(:disabled) { transform: translateX(3px); border-color: #64748b; }
+  .opt.correct { background: #14532d; border-color: #22c55e; color: #dcfce7; }
+  .opt.wrong { background: #4c0519; border-color: #f43f5e; color: #ffe4e6; }
+  .opt:disabled { cursor: default; }
+
+  .typing { display: flex; flex-direction: column; gap: 12px; }
+  .typing input {
+    padding: 14px 16px; font-size: 22px; border-radius: 12px; text-align: center;
+    border: 2px solid #334155; background: #0f172a; color: #f8fafc; font-weight: 700;
+  }
+  .typing input:focus { outline: none; border-color: #fca5a5; }
+  .btn {
+    padding: 14px; border: none; border-radius: 12px; font-size: 17px; font-weight: 700;
+    background: #f87171; color: #450a0a; cursor: pointer;
+  }
+  .btn:hover { background: #fca5a5; }
+  .feedback { text-align: center; font-size: 15px; min-height: 26px; font-weight: 700; }
+  .feedback.ok { color: #4ade80; }
+  .feedback.no { color: #fda4af; }
+
+  .summary { display: none; text-align: center; }
+  .summary.show { display: block; }
+  .summary .trophy { font-size: 64px; }
+  .summary .big { font-size: 48px; font-weight: 900; color: #fca5a5; }
+  .summary .of { font-size: 16px; color: #94a3b8; margin-bottom: 6px; }
+  .summary .rating { font-size: 17px; margin: 12px 0 22px; }
+  .summary .stars { font-size: 30px; letter-spacing: 6px; margin-bottom: 14px; }
+  .wronglist { text-align: left; font-size: 13px; color: #cbd5e1; background: #0f172a;
+    border-radius: 12px; padding: 12px 14px; margin-bottom: 18px; }
+  .wronglist div { padding: 3px 0; }
+  .wronglist b { color: #fca5a5; }
+  footer { text-align: center; margin-top: 26px; font-size: 12px; color: #475569; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>🏴‍☠️ English üben</h1>
+    <p>Wörter, Schreiben und unregelmässige Verben</p>
+  </header>
+  <div class="backrow">
+    <a href="/lernwelt/">🏝️ Zurück zur Lerninsel</a>
+  </div>
+
+  <div class="modes">
+    <button class="mode-btn active" data-mode="choice">🇬🇧 Wörter</button>
+    <button class="mode-btn" data-mode="type">⌨️ Schreiben</button>
+    <button class="mode-btn" data-mode="verbs">⚡ Verben</button>
+  </div>
+
+  <div class="pills" id="pills"></div>
+
+  <div class="card" id="quiz-card">
+    <div class="progressbar"><div class="progressfill" id="fill"></div></div>
+    <div class="meta">
+      <span id="counter">Frage 1 von 10</span>
+      <span class="streak" id="streak"></span>
+    </div>
+    <div class="prompt">
+      <div class="lang" id="lang">Deutsch</div>
+      <div class="word" id="word">—</div>
+      <div class="hint" id="hint"></div>
+    </div>
+    <div class="options" id="options"></div>
+    <div class="typing" id="typing" style="display:none">
+      <input id="answer" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="English…">
+      <button class="btn" id="check">Prüfen ✓</button>
+    </div>
+    <div class="feedback" id="feedback"></div>
+  </div>
+
+  <div class="card summary" id="summary">
+    <div class="trophy" id="s-trophy">🏆</div>
+    <div class="big" id="s-score">0</div>
+    <div class="of" id="s-of">von 10 richtig</div>
+    <div class="stars" id="s-stars">☆☆☆</div>
+    <div class="rating" id="s-rating"></div>
+    <div class="wronglist" id="s-wrong" style="display:none"></div>
+    <button class="btn" id="again" style="width:100%">Nochmal! 🔄</button>
+    <div style="margin-top:12px"><a href="/lernwelt/?von=uebung" style="color:#fde68a;font-size:14px">🏝️ Zurück zur Lerninsel</a></div>
+  </div>
+
+  <footer>hodelweb.ch/lernwelt/englisch</footer>
+</div>
+
+<script src="/lernwelt/insel.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  var VOCAB = {
+    tiere: { label: '🐶 Tiere', words: [
+      ['der Hund','dog'],['die Katze','cat'],['das Pferd','horse'],['der Vogel','bird'],
+      ['der Fisch','fish'],['die Maus','mouse'],['das Schaf','sheep'],['die Kuh','cow'],
+      ['das Schwein','pig'],['der Bär','bear'],['der Fuchs','fox'],['das Kaninchen','rabbit'],
+      ['die Spinne','spider'],['der Frosch','frog'],['die Schlange','snake'],['das Pferd','horse']
+    ]},
+    schule: { label: '🎒 Schule', words: [
+      ['das Buch','book'],['der Stift','pen'],['der Bleistift','pencil'],['das Heft','exercise book'],
+      ['die Tafel','blackboard'],['der Lehrer','teacher'],['die Schülerin','pupil'],['die Aufgabe','task'],
+      ['die Frage','question'],['die Antwort','answer'],['die Pause','break'],['die Schultasche','schoolbag'],
+      ['das Lineal','ruler'],['die Schere','scissors'],['die Klasse','class']
+    ]},
+    essen: { label: '🍎 Essen', words: [
+      ['der Apfel','apple'],['das Brot','bread'],['die Milch','milk'],['das Wasser','water'],
+      ['der Käse','cheese'],['das Ei','egg'],['die Kartoffel','potato'],['der Kuchen','cake'],
+      ['die Suppe','soup'],['das Fleisch','meat'],['die Erdbeere','strawberry'],['der Saft','juice'],
+      ['die Butter','butter'],['der Zucker','sugar'],['das Frühstück','breakfast']
+    ]},
+    zuhause: { label: '🏠 Zuhause', words: [
+      ['das Haus','house'],['die Küche','kitchen'],['das Zimmer','room'],['das Bett','bed'],
+      ['der Tisch','table'],['der Stuhl','chair'],['die Tür','door'],['das Fenster','window'],
+      ['der Garten','garden'],['die Treppe','stairs'],['der Schlüssel','key'],['die Lampe','lamp'],
+      ['der Schrank','cupboard'],['das Bad','bathroom'],['der Boden','floor']
+    ]},
+    alltag: { label: '🌤️ Alltag', words: [
+      ['heute','today'],['morgen','tomorrow'],['gestern','yesterday'],['immer','always'],
+      ['manchmal','sometimes'],['nie','never'],['schnell','fast'],['langsam','slow'],
+      ['glücklich','happy'],['müde','tired'],['schwierig','difficult'],['einfach','easy'],
+      ['der Freund','friend'],['die Woche','week'],['der Sommer','summer'],['der Winter','winter']
+    ]},
+    zahlen: { label: '🔢 Zahlen & Farben', words: [
+      ['eins','one'],['zwei','two'],['drei','three'],['vier','four'],['fünf','five'],
+      ['sechs','six'],['sieben','seven'],['acht','eight'],['neun','nine'],['zehn','ten'],
+      ['rot','red'],['blau','blue'],['grün','green'],['gelb','yellow'],['schwarz','black'],
+      ['weiss','white'],['braun','brown'],['orange','orange']
+    ]}
+  };
+
+  /* [Infinitiv, Simple Past, Past Participle, deutsch] */
+  var VERBS = [
+    ['go','went','gone','gehen'],['see','saw','seen','sehen'],['eat','ate','eaten','essen'],
+    ['drink','drank','drunk','trinken'],['write','wrote','written','schreiben'],
+    ['read','read','read','lesen'],['speak','spoke','spoken','sprechen'],
+    ['take','took','taken','nehmen'],['give','gave','given','geben'],
+    ['come','came','come','kommen'],['run','ran','run','rennen'],
+    ['swim','swam','swum','schwimmen'],['sing','sang','sung','singen'],
+    ['find','found','found','finden'],['buy','bought','bought','kaufen'],
+    ['bring','brought','brought','bringen'],['think','thought','thought','denken'],
+    ['make','made','made','machen'],['do','did','done','tun'],['have','had','had','haben'],
+    ['be','was','been','sein'],['get','got','got','bekommen'],['know','knew','known','wissen'],
+    ['sleep','slept','slept','schlafen'],['drive','drove','driven','fahren'],
+    ['fly','flew','flown','fliegen'],['catch','caught','caught','fangen'],
+    ['teach','taught','taught','lehren'],['begin','began','begun','beginnen'],
+    ['win','won','won','gewinnen']
+  ];
+
+  var TOTAL = 10;
+  var mode = 'choice', cat = 'alle';
+  var queue = [], idx = 0, correct = 0, streak = 0, best = 0, wrongs = [];
+
+  var $ = function (id) { return document.getElementById(id); };
+
+  function shuffle(a) {
+    a = a.slice();
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a;
+  }
+
+  function pool() {
+    if (mode === 'verbs') return VERBS.slice();
+    var out = [];
+    Object.keys(VOCAB).forEach(function (k) {
+      if (cat === 'alle' || cat === k) out = out.concat(VOCAB[k].words);
+    });
+    /* Doppelte entfernen */
+    var seen = {}, uniq = [];
+    out.forEach(function (w) {
+      var key = w[0] + '|' + w[1];
+      if (!seen[key]) { seen[key] = 1; uniq.push(w); }
+    });
+    return uniq;
+  }
+
+  function buildPills() {
+    var el = $('pills');
+    el.innerHTML = '';
+    if (mode === 'verbs') { el.style.display = 'none'; return; }
+    el.style.display = 'flex';
+    var cats = [['alle', '⭐ Alle']].concat(Object.keys(VOCAB).map(function (k) { return [k, VOCAB[k].label]; }));
+    cats.forEach(function (c) {
+      var b = document.createElement('button');
+      b.className = 'pill' + (c[0] === cat ? ' active' : '');
+      b.textContent = c[1];
+      b.onclick = function () { cat = c[0]; buildPills(); start(); };
+      el.appendChild(b);
+    });
+  }
+
+  function start() {
+    var p = shuffle(pool());
+    queue = p.slice(0, TOTAL);
+    while (queue.length < TOTAL && p.length) queue = queue.concat(p.slice(0, TOTAL - queue.length));
+    idx = 0; correct = 0; streak = 0; best = 0; wrongs = [];
+    $('summary').classList.remove('show');
+    $('quiz-card').style.display = '';
+    show();
+  }
+
+  function show() {
+    var q = queue[idx];
+    $('counter').textContent = 'Frage ' + (idx + 1) + ' von ' + TOTAL;
+    $('fill').style.width = (idx / TOTAL * 100) + '%';
+    $('streak').textContent = streak >= 3 ? '🔥 ' + streak + ' in Folge' : '';
+    $('feedback').textContent = '';
+    $('feedback').className = 'feedback';
+
+    if (mode === 'verbs') {
+      $('lang').textContent = 'Simple Past von';
+      $('word').textContent = q[0];
+      $('hint').textContent = '(' + q[3] + ')';
+      typingUI(q[1]);
+    } else if (mode === 'type') {
+      $('lang').textContent = 'Deutsch → English';
+      $('word').textContent = q[0];
+      $('hint').textContent = q[1].length + ' Buchstaben';
+      typingUI(q[1]);
+    } else {
+      var deToEn = Math.random() < 0.6;
+      $('lang').textContent = deToEn ? 'Deutsch → English' : 'English → Deutsch';
+      $('word').textContent = deToEn ? q[0] : q[1];
+      $('hint').textContent = '';
+      choiceUI(q, deToEn);
+    }
+  }
+
+  function typingUI(expected) {
+    $('options').innerHTML = '';
+    $('options').style.display = 'none';
+    $('typing').style.display = 'flex';
+    var inp = $('answer');
+    inp.value = '';
+    inp.disabled = false;
+    inp.focus();
+    $('check').textContent = 'Prüfen ✓';
+    $('check').onclick = function () { judgeTyped(expected); };
+    inp.onkeydown = function (e) { if (e.key === 'Enter') judgeTyped(expected); };
+  }
+
+  function norm(s) {
+    return String(s).toLowerCase().trim().replace(/\s+/g, ' ')
+      .replace(/^(to|the|a|an|der|die|das)\s+/, '');
+  }
+
+  function judgeTyped(expected) {
+    var inp = $('answer');
+    if (inp.disabled) return;
+    var given = inp.value;
+    if (!given.trim()) { inp.focus(); return; }
+    var ok = norm(given) === norm(expected);
+    inp.disabled = true;
+    finishQuestion(ok, expected, given);
+  }
+
+  function choiceUI(q, deToEn) {
+    $('typing').style.display = 'none';
+    var box = $('options');
+    box.style.display = 'grid';
+    box.innerHTML = '';
+    var answer = deToEn ? q[1] : q[0];
+    var all = pool().map(function (w) { return deToEn ? w[1] : w[0]; })
+      .filter(function (w) { return w !== answer; });
+    var opts = shuffle(all).slice(0, 3).concat([answer]);
+    opts = shuffle(opts);
+    opts.forEach(function (o) {
+      var b = document.createElement('button');
+      b.className = 'opt';
+      b.textContent = o;
+      b.onclick = function () {
+        Array.prototype.forEach.call(box.children, function (c) { c.disabled = true; });
+        var ok = o === answer;
+        b.classList.add(ok ? 'correct' : 'wrong');
+        if (!ok) {
+          Array.prototype.forEach.call(box.children, function (c) {
+            if (c.textContent === answer) c.classList.add('correct');
+          });
+        }
+        finishQuestion(ok, answer, o);
+      };
+      box.appendChild(b);
+    });
+  }
+
+  function finishQuestion(ok, expected, given) {
+    var fb = $('feedback');
+    if (ok) {
+      correct++; streak++; best = Math.max(best, streak);
+      fb.textContent = ['Great!', 'Well done!', 'Perfect!', 'Excellent!', 'Nice one!'][Math.floor(Math.random() * 5)];
+      fb.className = 'feedback ok';
+    } else {
+      streak = 0;
+      fb.textContent = 'Richtig wäre: ' + expected;
+      fb.className = 'feedback no';
+      wrongs.push({ q: $('word').textContent, right: expected, given: given });
+    }
+    setTimeout(function () {
+      idx++;
+      if (idx >= TOTAL) summary(); else show();
+    }, ok ? 700 : 1600);
+  }
+
+  function summary() {
+    $('quiz-card').style.display = 'none';
+    var pct = Math.round(correct / TOTAL * 100);
+    var stars = pct >= 90 ? 3 : pct >= 70 ? 2 : pct > 0 ? 1 : 0;
+    $('s-score').textContent = correct;
+    $('s-of').textContent = 'von ' + TOTAL + ' richtig (' + pct + ' %)';
+    $('s-stars').textContent = '★'.repeat(stars) + '☆'.repeat(3 - stars);
+    var trophy, rating;
+    if (pct === 100) { trophy = '🏆'; rating = 'Perfect! Alles richtig.'; }
+    else if (pct >= 90) { trophy = '🥇'; rating = 'Fantastic — drei Sterne für die Insel!'; }
+    else if (pct >= 70) { trophy = '🥈'; rating = 'Well done! Zwei Sterne.'; }
+    else if (pct >= 40) { trophy = '🥉'; rating = 'Ganz ok — nochmal üben lohnt sich.'; }
+    else { trophy = '💪'; rating = 'Keep going — beim nächsten Mal klappt es besser!'; }
+    $('s-trophy').textContent = trophy;
+    $('s-rating').textContent = rating;
+
+    var wl = $('s-wrong');
+    if (wrongs.length) {
+      wl.style.display = 'block';
+      wl.innerHTML = '<div style="color:#94a3b8;margin-bottom:6px">Zum Merken:</div>' +
+        wrongs.map(function (w) { return '<div>' + w.q + ' → <b>' + w.right + '</b></div>'; }).join('');
+    } else {
+      wl.style.display = 'none';
+    }
+
+    if (window.Insel) Insel.award('englisch', pct);
+    $('summary').classList.add('show');
+  }
+
+  /* Modus-Buttons */
+  Array.prototype.forEach.call(document.querySelectorAll('.mode-btn'), function (b) {
+    b.onclick = function () {
+      Array.prototype.forEach.call(document.querySelectorAll('.mode-btn'), function (x) { x.classList.remove('active'); });
+      b.classList.add('active');
+      mode = b.dataset.mode;
+      buildPills();
+      start();
+    };
+  });
+  $('again').onclick = start;
+
+  buildPills();
+  start();
+})();
+</script>
+</body>
+</html>
