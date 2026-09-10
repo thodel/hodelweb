@@ -1,0 +1,11 @@
+[Unit]
+Description=scanpipe — Dokumente aus dem Nextcloud-Talk-Chat einsortieren
+After=network-online.target openclaw-gateway.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=%h/scanpipe
+Environment=PATH=%h/.npm-global/bin:/usr/local/bin:/usr/bin:/bin
+ExecStart=/usr/bin/python3 %h/scanpipe/scanpipe.py
+TimeoutStartSec=900
