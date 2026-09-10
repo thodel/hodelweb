@@ -1,0 +1,7 @@
+<script>
+  document.querySelectorAll('a.mail-link').forEach(function (a) {
+    var addr = a.dataset.u + '@' + a.dataset.d;
+    a.href = 'mailto:' + addr;
+    if (!a.dataset.keepLabel) { a.textContent = addr; }
+  });
+</script>

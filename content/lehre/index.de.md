@@ -18,6 +18,8 @@ summary: "Lehrveranstaltungen"
 - **Herbst 2019** — Dozent, «Machine Learning in Digital History: Texterkennung und Dokumentenanalyse mit Transkribus», Universität Basel
 - **Seit 2016** — Regelmässige Mitwirkung an der Veranstaltung «Einführung in die Kulturwissenschaften» (Blockveranstaltung: Einführung in die Digital Humanities), Universität Luzern
 
-## Einführung in die Digital Humanities (FS2026)
+## Kurswebsites
 
-Kursrepository: [Einführung in die Digital Humanities (DHBern)](https://dhbern.github.io/introduction-to-dh/)
+- [Einführung in die Digital Humanities](https://dhbern.github.io/introduction-to-dh/)
+- [DH Lab](https://dhbern.github.io/dh-lab/) — praktischer Begleitkurs zur Einführung
+- [DH Ringvorlesung](https://dhbern.github.io/dh-lecture-series/)
