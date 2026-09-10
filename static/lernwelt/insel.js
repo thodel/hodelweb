@@ -32,8 +32,29 @@
     meisterAb: 80,          /* ab diesem Prozentwert gilt eine Übung als gemeistert */
     mindestensFuerMuenzen: 50, /* darunter gibt es keine Münzen */
     markePreis: 25,         /* Münzen pro Marke */
-    raumKosten: 1           /* Marken pro Raumbesuch */
+    raumKosten: 1,          /* Marken pro Raumbesuch */
+    wettEinsatz: 10,        /* Münzen, die eine Wette kostet */
+    wettGewinn: 25,         /* Münzen bei gewonnener Wette */
+    wettSiegeMax: 3         /* so oft lässt sich eine Figur schlagen */
   };
+
+  /* ---- Aussehen: erste Zusammenstellung gratis, jedes weitere Teil kostet ---- */
+  var GARDEROBE = {
+    haut:   { name: 'Hautfarbe', preis: 0, werte: [
+      ['#f2c8a0', 'hell'], ['#e0ac7e', 'mittel'], ['#b97a4f', 'goldbraun'], ['#7c4a2d', 'dunkel'] ] },
+    haar:   { name: 'Haarfarbe', preis: 5, werte: [
+      ['#5b3a1e', 'braun'], ['#1f2937', 'schwarz'], ['#d9a441', 'blond'], ['#a8391f', 'rot'],
+      ['#8b5cf6', 'lila'], ['#e2e8f0', 'weiss'] ] },
+    shirt:  { name: 'Shirt', preis: 5, werte: [
+      ['#3b6fb0', 'blau'], ['#b03b3b', 'rot'], ['#3d8f57', 'grün'], ['#b45309', 'orange'],
+      ['#7e22ce', 'lila'], ['#0f766e', 'türkis'], ['#1f2937', 'schwarz'], ['#e2e8f0', 'weiss'] ] },
+    hose:   { name: 'Hose', preis: 5, werte: [
+      ['#2f4d7a', 'jeans'], ['#374151', 'grau'], ['#4d3b2a', 'braun'], ['#166534', 'oliv'],
+      ['#7f1d1d', 'dunkelrot'], ['#111827', 'schwarz'] ] },
+    schuhe: { name: 'Schuhe', preis: 5, werte: [
+      ['#1f2937', 'schwarz'], ['#f8fafc', 'weiss'], ['#b45309', 'braun'], ['#dc2626', 'rot'] ] }
+  };
+  var AVATAR_STANDARD = { haut: '#f2c8a0', haar: '#5b3a1e', shirt: '#3b6fb0', hose: '#2f4d7a', schuhe: '#1f2937' };
 
   var RAEUME = {
     kino:  { name: 'Kino', emoji: '🎬', beschreibung: 'Sport-Videos' },
@@ -56,10 +77,11 @@
   function save(data) { return writeRaw(KEY_DATA, JSON.stringify(data)); }
 
   function leererSpielstand() {
-    return { muenzen: 0, marken: 0, uebungen: {}, besuche: {}, seit: Date.now() };
+    return { muenzen: 0, marken: 0, uebungen: {}, besuche: {}, npc: {}, wette: null, seit: Date.now() };
   }
 
   var Insel = {
+    garderobe: GARDEROBE,
     kinder: KINDER,
     faecher: FAECHER,
     raeume: RAEUME,
@@ -141,6 +163,27 @@
 
       e.muenzenTotal += verdient;
       stand.muenzen = (stand.muenzen || 0) + verdient;
+
+      /* Läuft eine Wette in diesem Fach? */
+      var wettErgebnis = null;
+      var w = stand.wette;
+      if (w && w.fach === opts.fach) {
+        var gewonnen = pct > w.ziel;
+        if (!stand.npc) stand.npc = {};
+        if (!stand.npc[w.npc]) stand.npc[w.npc] = { siege: 0, niederlagen: 0 };
+        if (gewonnen) {
+          stand.muenzen += w.gewinn;
+          stand.npc[w.npc].siege++;
+        } else {
+          stand.npc[w.npc].niederlagen++;
+        }
+        wettErgebnis = {
+          gewonnen: gewonnen, name: w.name, npc: w.npc, ziel: w.ziel,
+          einsatz: w.einsatz, gewinn: gewonnen ? w.gewinn : 0, erreicht: pct
+        };
+        stand.wette = null;
+      }
+
       this._speichern(who, stand);
 
       return {
@@ -150,7 +193,8 @@
         neuGemeistert: e.gemeistert && !warGemeistert,
         ersteMal: e.versuche === 1,
         best: e.best,
-        grund: grund
+        grund: grund,
+        wette: wettErgebnis
       };
     },
 
@@ -195,6 +239,191 @@
       return { ok: true, marken: stand.marken, muenzen: stand.muenzen };
     },
 
+    /* ---------------- Wetten gegen die Inselbewohner ---------------- */
+    npcStand: function (npcId, who) {
+      var stand = this.stand(who);
+      if (!stand.npc) stand.npc = {};
+      if (!stand.npc[npcId]) stand.npc[npcId] = { siege: 0, niederlagen: 0 };
+      return stand.npc[npcId];
+    },
+
+    /* Zielwert, den die Figur behauptet — steigt mit jeder Niederlage. */
+    npcZiel: function (npcId, basis, who) {
+      var n = this.npcStand(npcId, who);
+      return Math.min(95, basis + 5 * n.siege);
+    },
+    npcWettetNoch: function (npcId, who) {
+      return this.npcStand(npcId, who).siege < OEKONOMIE.wettSiegeMax;
+    },
+
+    offeneWette: function (who) {
+      return this.stand(who).wette || null;
+    },
+
+    /* w = { npc, name, fach, ziel } */
+    wetteAnnehmen: function (w, who) {
+      var stand = this.stand(who);
+      if (stand.wette) return { ok: false, grund: 'Du hast schon eine Wette laufen.' };
+      if ((stand.muenzen || 0) < OEKONOMIE.wettEinsatz) {
+        return { ok: false, grund: 'Dir fehlen Münzen für den Einsatz.',
+                 fehlt: OEKONOMIE.wettEinsatz - (stand.muenzen || 0) };
+      }
+      stand.muenzen -= OEKONOMIE.wettEinsatz;
+      stand.wette = {
+        npc: w.npc, name: w.name, fach: w.fach, ziel: w.ziel,
+        einsatz: OEKONOMIE.wettEinsatz, gewinn: OEKONOMIE.wettGewinn, seit: Date.now()
+      };
+      this._speichern(who, stand);
+      return { ok: true, wette: stand.wette, muenzen: stand.muenzen };
+    },
+
+    wetteAufgeben: function (who) {
+      var stand = this.stand(who);
+      if (!stand.wette) return false;
+      if (!stand.npc) stand.npc = {};
+      var id = stand.wette.npc;
+      if (!stand.npc[id]) stand.npc[id] = { siege: 0, niederlagen: 0 };
+      stand.npc[id].niederlagen++;
+      stand.wette = null;
+      this._speichern(who, stand);
+      return true;
+    },
+
+    /* ---------------- Spelunke: Glücksspiel ----------------
+       Die Bankbilanz wird mitgeführt, damit sichtbar wird, wohin die Münzen
+       auf Dauer wandern. */
+    spelunkeStand: function (who) {
+      var stand = this.stand(who);
+      if (!stand.spelunke) {
+        stand.spelunke = { spiele: 0, eingesetzt: 0, ausbezahlt: 0, groesserVerlust: 0, groesserGewinn: 0 };
+      }
+      return stand.spelunke;
+    },
+    bankBilanz: function (who) {
+      var sp = this.spelunkeStand(who);
+      return (sp.eingesetzt || 0) - (sp.ausbezahlt || 0);
+    },
+    /* einsatz wird abgezogen, auszahlung gutgeschrieben (0 = verloren) */
+    spelunkeSpielen: function (einsatz, auszahlung, who) {
+      var stand = this.stand(who);
+      if ((stand.muenzen || 0) < einsatz) return { ok: false, fehlt: einsatz - (stand.muenzen || 0) };
+      /* Wichtig: derselbe stand, der gleich gespeichert wird — sonst gehen die Zähler verloren. */
+      if (!stand.spelunke) {
+        stand.spelunke = { spiele: 0, eingesetzt: 0, ausbezahlt: 0, groesserVerlust: 0, groesserGewinn: 0 };
+      }
+      var sp = stand.spelunke;
+      stand.muenzen = stand.muenzen - einsatz + auszahlung;
+      sp.spiele++;
+      sp.eingesetzt += einsatz;
+      sp.ausbezahlt += auszahlung;
+      var netto = auszahlung - einsatz;
+      if (netto > (sp.groesserGewinn || 0)) sp.groesserGewinn = netto;
+      if (-netto > (sp.groesserVerlust || 0)) sp.groesserVerlust = -netto;
+      this._speichern(who, stand);
+      return { ok: true, muenzen: stand.muenzen, netto: netto,
+               bank: (sp.eingesetzt || 0) - (sp.ausbezahlt || 0) };
+    },
+
+    /* ---------------- Aussehen ---------------- */
+    avatar: function (who) {
+      var stand = this.stand(who);
+      if (!stand.avatar) stand.avatar = null;
+      var a = {};
+      Object.keys(AVATAR_STANDARD).forEach(function (t) {
+        a[t] = (stand.avatar && stand.avatar[t]) || AVATAR_STANDARD[t];
+      });
+      return a;
+    },
+    avatarErstellt: function (who) {
+      return !!this.stand(who).avatar;
+    },
+    besitz: function (who) {
+      var stand = this.stand(who);
+      if (!stand.besitz) stand.besitz = {};
+      return stand.besitz;
+    },
+    besitzt: function (teil, wert, who) {
+      if (!GARDEROBE[teil]) return false;
+      if (GARDEROBE[teil].preis === 0) return true;
+      /* Was gerade getragen wird, gehört einem. */
+      if (this.avatar(who)[teil] === wert) return true;
+      var b = this.besitz(who)[teil] || [];
+      return b.indexOf(wert) >= 0;
+    },
+    /* Ganze Zusammenstellung setzen. Beim ersten Mal gratis. */
+    avatarSetzen: function (neu, who) {
+      who = who || this.who();
+      var stand = this.stand(who);
+      var ersteMal = !stand.avatar;
+      var alt = this.avatar(who);
+      var kosten = 0, gekauft = [];
+
+      if (!ersteMal) {
+        Object.keys(GARDEROBE).forEach(function (teil) {
+          var wert = neu[teil];
+          if (!wert || wert === alt[teil]) return;
+          if (GARDEROBE[teil].preis === 0) return;
+          var b = stand.besitz && stand.besitz[teil] ? stand.besitz[teil] : [];
+          if (b.indexOf(wert) < 0) { kosten += GARDEROBE[teil].preis; gekauft.push(teil + ':' + wert); }
+        });
+      }
+      if (kosten > (stand.muenzen || 0)) {
+        return { ok: false, kosten: kosten, fehlt: kosten - (stand.muenzen || 0) };
+      }
+      if (!stand.besitz) stand.besitz = {};
+      Object.keys(GARDEROBE).forEach(function (teil) {
+        var wert = neu[teil] || alt[teil];
+        if (GARDEROBE[teil].preis > 0) {
+          if (!stand.besitz[teil]) stand.besitz[teil] = [];
+          if (stand.besitz[teil].indexOf(wert) < 0) stand.besitz[teil].push(wert);
+        }
+      });
+      stand.muenzen = (stand.muenzen || 0) - kosten;
+      stand.avatar = {};
+      Object.keys(GARDEROBE).forEach(function (teil) { stand.avatar[teil] = neu[teil] || alt[teil]; });
+      this._speichern(who, stand);
+      return { ok: true, kosten: kosten, gratis: ersteMal, gekauft: gekauft, muenzen: stand.muenzen };
+    },
+
+    /* ---------------- Inselhaus: sichern und wiederherstellen ---------------- */
+    sichern: function (who) {
+      who = who || this.who();
+      var stand = this.stand(who);
+      try {
+        localStorage.setItem('lerninsel.sicherung.' + who,
+          JSON.stringify({ wann: Date.now(), stand: stand }));
+        return { ok: true, wann: Date.now() };
+      } catch (e) { return { ok: false }; }
+    },
+    letzteSicherung: function (who) {
+      try {
+        var raw = localStorage.getItem('lerninsel.sicherung.' + (who || this.who()));
+        return raw ? JSON.parse(raw).wann : null;
+      } catch (e) { return null; }
+    },
+    wiederherstellen: function (who) {
+      who = who || this.who();
+      try {
+        var raw = localStorage.getItem('lerninsel.sicherung.' + who);
+        if (!raw) return { ok: false };
+        var sic = JSON.parse(raw);
+        this._speichern(who, sic.stand);
+        return { ok: true, wann: sic.wann };
+      } catch (e) { return { ok: false }; }
+    },
+    exportieren: function (who) {
+      who = who || this.who();
+      return JSON.stringify({ v: 2, who: who, stand: this.stand(who) });
+    },
+    importieren: function (text) {
+      try {
+        var d = JSON.parse(text);
+        if (!d || !d.who || !d.stand) return { ok: false };
+        this._speichern(d.who, d.stand);
+        return { ok: true, who: d.who };
+      } catch (e) { return { ok: false }; }
+    },
+
     /* ---------------- Räume ---------------- */
     /* Marke einlösen: öffnet den Raum für diesen Besuch (Tab-Sitzung). */
     raumOeffnen: function (raum, who) {
@@ -212,6 +441,22 @@
     },
     raumSchliessen: function (raum) {
       try { sessionStorage.removeItem('lerninsel.offen.' + raum); } catch (e) {}
+    },
+
+    /* ---------------- Rückkehr auf die Insel ----------------
+       Die Position wird für die Dauer des Tabs gemerkt, damit man nach einer
+       Übung wieder dort steht, wo man hineingegangen ist. */
+    merkePosition: function (pos) {
+      try { sessionStorage.setItem('lerninsel.pos', JSON.stringify(pos)); } catch (e) {}
+    },
+    letztePosition: function () {
+      try {
+        var raw = sessionStorage.getItem('lerninsel.pos');
+        return raw ? JSON.parse(raw) : null;
+      } catch (e) { return null; }
+    },
+    positionVergessen: function () {
+      try { sessionStorage.removeItem('lerninsel.pos'); } catch (e) {}
     },
 
     zuruecksetzen: function (who) {
