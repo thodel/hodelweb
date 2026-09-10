@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Leuchtturm — Lerninsel</title>
+<link rel="icon" href="/favicon-32x32.png" sizes="32x32">
+<link rel="stylesheet" href="/lernwelt/raum.css">
+<style>
+  body { background: #0a1020; }
+  .karte { background: #0f172a; border: 2px solid #334155; border-radius: 14px;
+           padding: 12px; margin-bottom: 12px; }
+  .karte canvas { width: 100%; image-rendering: pixelated; border-radius: 8px; }
+  .zeile { display: flex; gap: 9px; align-items: baseline; padding: 6px 0;
+           border-top: 1px solid #334155; font-size: 13.5px; }
+  .zeile.weg { color: #64748b; }
+  .zeile.weg .n { text-decoration: line-through; }
+  .zeile .p { margin-left: auto; color: #fbbf24; font-weight: 700; white-space: nowrap; }
+  .zeile.weg .p { color: #475569; }
+  .lohn { font-size: 12.5px; color: #94a3b8; margin-top: 10px; line-height: 1.7; }
+  .lohn b { color: #fbbf24; }
+  .knopf { display: block; width: 100%; text-align: center; padding: 13px; border-radius: 12px;
+           margin-top: 12px; background: #38bdf8; border: none; color: #082f49;
+           font: 700 15px -apple-system, BlinkMacSystemFont, sans-serif; cursor: pointer; }
+  .knopf:disabled { background: #334155; color: #64748b; cursor: not-allowed; }
+</style>
+</head>
+<body>
+
+<div id="rahmen">
+  <div id="hud"></div>
+  <canvas id="raum"></canvas>
+  <div id="banner"></div>
+</div>
+
+<div id="steuer">
+  <div class="pad">
+    <button class="leer"></button><button data-dir="up">▲</button><button class="leer"></button>
+    <button data-dir="left">◀</button><button class="leer"></button><button data-dir="right">▶</button>
+    <button class="leer"></button><button data-dir="down">▼</button><button class="leer"></button>
+  </div>
+  <button id="knopf-e">E</button>
+</div>
+
+<div id="fenster">
+  <div class="platte">
+    <button class="zu" id="zu">✕</button>
+    <div class="tafel" id="t-karte" hidden>
+      <h2>🗺️ Die Seekarte</h2>
+      <div class="unter">Von hier oben sieht man die ganze Insel — und wo noch etwas liegt.</div>
+      <div class="karte"><canvas id="mini" width="192" height="144"></canvas></div>
+      <div id="schatzliste"></div>
+      <div class="lohn" id="karte-lohn"></div>
+      <button class="knopf" id="tipp">Heutigen Tipp holen</button>
+    </div>
+    <div class="tafel" id="t-fernrohr" hidden>
+      <h2>🔭 Das grosse Fernrohr</h2>
+      <div class="unter">Der Wärter hat es auf alles Mögliche gerichtet.</div>
+      <div id="fernrohr-text" class="lohn"></div>
+    </div>
+  </div>
+</div>
+
+<script src="/lernwelt/insel.js"></script>
+<script src="/lernwelt/pixel.js"></script>
+<script src="/lernwelt/dialog.js"></script>
+<script src="/lernwelt/raum.js"></script>
+<script>
+(function () {
+  'use strict';
+  var $ = function (i) { return document.getElementById(i); };
+  var px = Pixel.px;
+  var TILE = 16, RAUM_W = 22, RAUM_H = 17;
+  var who = Insel.who();
+
+  /* Wer nicht freigeschaltet hat, kommt hier gar nicht rein. */
+  if (!Insel.teilOffen('leuchtturm', who)) {
+    var st = Insel.teilStand('leuchtturm', who);
+    Dialog.zeigen('Leuchtturm', [
+      'Die Tür ist verschlossen.',
+      'Du brauchst ' + st.soll + ' Sterne, du hast ' + st.ist + '. Übe weiter, dann öffnet sie sich.'
+    ], function () { window.location.href = '/lernwelt/'; });
+    return;
+  }
+
+  var F = {
+    boden: ['#7b8794', '#737f8c'], fuge: '#5b6672',
+    wand: '#4a5462', wandD: '#3a4350', wandL: '#5b6675',
+    holz: '#7c5341', holzD: '#5b3a2e', messing: '#c9a227'
+  };
+
+  var moebel = [
+    { art: 'tisch', tx: 8, ty: 6, tw: 5, th: 2 },   /* Kartentisch */
+    { art: 'lampe', tx: 17, ty: 5, tw: 3, th: 3 },  /* die grosse Laterne */
+    { art: 'rohr',  tx: 3, ty: 6, tw: 2, th: 2 },   /* Fernrohr */
+    { art: 'kiste', tx: 19, ty: 13, tw: 1, th: 1 },
+    { art: 'kiste', tx: 2, ty: 13, tw: 1, th: 1 }
+  ];
+
+  Raum.starten({
+    canvas: $('raum'), breiteKacheln: RAUM_W, hoeheKacheln: RAUM_H,
+    start: { tx: 11, ty: 14, dir: 'up' },
+    tuerKacheln: [10, 11],
+    who: who,
+    moebel: moebel,
+    lichtInnen: 'rgba(253,230,138,.07)',
+    lichtAussen: 'rgba(8,14,30,.42)',
+
+    stationen: [
+      { id: 'karte', name: 'Seekarte', tafel: 't-karte', tx: 10, ty: 9, farbe: '#fbbf24',
+        hinweis: 'wo noch etwas vergraben liegt', verb: 'ansehen' },
+      { id: 'fernrohr', name: 'Fernrohr', tafel: 't-fernrohr', tx: 4, ty: 9, farbe: '#7dd3fc',
+        hinweis: 'weit hinausschauen', verb: 'durchschauen' },
+      { id: 'tuer', name: 'Treppe nach unten', tafel: null, tx: 11, ty: 15, farbe: '#fde68a',
+        hinweis: 'zurück auf die Insel' }
+    ],
+
+    leute: [
+      { name: 'Wärter Wilhelm', tx: 15, ty: 9, jacke: ['#1d4ed8', '#17399b'],
+        haar: '#e2e8f0', haut: '#d8a882',
+        sprueche: [
+          ['Da bist du ja. Ich sehe dich schon den ganzen Weg heraufkommen.',
+           'Ich bin Wilhelm. Ich putze die Linse, drehe die Lampe und schaue aufs Meer. ' +
+           'Seit dreiunddreissig Jahren.'],
+          ['Die Seekarte auf dem Tisch zeigt dir, wo noch Kisten liegen.',
+           'Einmal am Tag verrate ich dir eine. Öfter nicht — sonst wird es langweilig für dich.'],
+          'Ein Leuchtturm zeigt nicht den Weg. Er zeigt, wo es gefährlich ist. Das ist ein Unterschied.',
+          ['Weisst du, warum das Licht dreht?', 'Damit man von weitem zählen kann, wie oft es blinkt. ' +
+           'Jeder Turm blinkt anders. So weiss man, welcher es ist.']
+        ] },
+      { name: 'Möwe Mia', tx: 18, ty: 12, stumm: false,
+        jacke: ['#e2e8f0', '#cbd5e1'], haar: '#f8fafc', haut: '#fcd34d',
+        sprueche: [
+          'Kreisch.',
+          ['Kreisch. Kreisch.', 'Das heisst so viel wie: hast du etwas zu essen dabei?'],
+          'Ich wohne hier oben. Miete zahle ich in Federn.'
+        ] }
+    ],
+
+    boden: function (ctx, t) {
+      for (var ty = 3; ty < RAUM_H; ty++) {
+        for (var tx = 0; tx < RAUM_W; tx++) {
+          px(ctx, tx * TILE, ty * TILE, TILE, TILE, F.boden[(tx + ty) % 2]);
+          px(ctx, tx * TILE, ty * TILE + TILE - 1, TILE, 1, F.fuge);
+        }
+      }
+      for (var wx = 0; wx < RAUM_W; wx++) {
+        px(ctx, wx * TILE, 0, TILE, 48, F.wand);
+        px(ctx, wx * TILE, 42, TILE, 6, F.wandD);
+      }
+      /* Rote Ringe wie aussen am Turm */
+      px(ctx, 0, 14, RAUM_W * TILE, 6, '#b03b3b');
+      px(ctx, 0, 48, RAUM_W * TILE, 2, F.wandD);
+      for (var sy = 3; sy < RAUM_H; sy++) {
+        px(ctx, 0, sy * TILE, TILE, TILE, F.wand);
+        px(ctx, (RAUM_W - 1) * TILE, sy * TILE, TILE, TILE, F.wand);
+      }
+      for (var bx = 0; bx < RAUM_W; bx++) {
+        if (bx >= 10 && bx <= 11) continue;
+        px(ctx, bx * TILE, (RAUM_H - 1) * TILE, TILE, TILE, F.wand);
+      }
+      /* Treppe */
+      var ty2 = (RAUM_H - 1) * TILE;
+      px(ctx, 10 * TILE, ty2, 2 * TILE, TILE, '#1f2937');
+      for (var st = 0; st < 3; st++) px(ctx, 10 * TILE + 2, ty2 + 2 + st * 4, 2 * TILE - 4, 2, F.wandL);
+
+      /* Rundfenster mit Meer */
+      [3, 9, 15].forEach(function (fx) {
+        px(ctx, fx * TILE, 20, 3 * TILE, 24, F.wandD);
+        px(ctx, fx * TILE + 3, 23, 3 * TILE - 6, 18, '#1c6ea4');
+        px(ctx, fx * TILE + 3, 33, 3 * TILE - 6, 3, '#39a0c9');
+        var wolke = Math.round(Math.sin(t * 0.4 + fx) * 4);
+        px(ctx, fx * TILE + 8 + wolke, 26, 9, 3, '#cbd5e1');
+      });
+    },
+
+    moebelZeichnen: function (ctx, m, t) {
+      var x = m.tx * TILE, y = m.ty * TILE, w = m.tw * TILE, h = m.th * TILE;
+      if (m.art === 'tisch') {
+        px(ctx, x + 2, y + h - 2, w - 4, 4, 'rgba(0,0,0,.3)');
+        px(ctx, x, y - 6, w, h + 4, F.holzD);
+        px(ctx, x + 3, y - 8, w - 6, h, '#e8dcc0');
+        /* Karte auf dem Tisch */
+        px(ctx, x + 8, y - 5, w - 16, h - 6, '#8fbf6f');
+        px(ctx, x + 14, y - 3, 10, 5, '#5aa54a');
+        px(ctx, x + w - 18, y - 6, 3, 3, '#b91c1c');
+        return;
+      }
+      if (m.art === 'lampe') {
+        px(ctx, x + 4, y + h - 4, w - 8, 5, F.wandD);
+        px(ctx, x + 2, y - 22, w - 4, h + 20, '#334155');
+        var puls = 0.55 + 0.45 * Math.abs(Math.sin(t * 1.4));
+        ctx.globalAlpha = puls;
+        px(ctx, x + 6, y - 18, w - 12, 20, '#fde68a');
+        ctx.globalAlpha = 0.18 * puls;
+        px(ctx, x - 20, y - 16, w + 40, 16, '#fde68a');
+        ctx.globalAlpha = 1;
+        px(ctx, x + 2, y - 26, w - 4, 5, F.messing);
+        return;
+      }
+      if (m.art === 'rohr') {
+        px(ctx, x + 6, y + h - 3, 6, 4, F.wandD);
+        px(ctx, x + 7, y - 10, 4, h + 8, '#64748b');
+        px(ctx, x + 2, y - 20, 14, 6, '#94a3b8');
+        px(ctx, x + 14, y - 24, 6, 8, '#cbd5e1');
+        return;
+      }
+      px(ctx, x + 1, y - 9, TILE - 2, 13, F.holzD);
+      px(ctx, x + 1, y - 6, TILE - 2, 2, F.messing);
+    },
+
+    stationTun: function (s) {
+      if (s.id === 'karte') { karteOeffnen(); return true; }
+      if (s.id === 'fernrohr') { fernrohrOeffnen(); return true; }
+      return false;
+    },
+    hudZeichnen: function () {
+      return '<span>🧭 <b>' + who + '</b></span>' +
+             '<span class="z">🪙 ' + Insel.muenzen(who) + '</span>' +
+             '<span>🗺️ ' + Insel.hinweisGuthaben(who) + '</span>' +
+             '<span>💎 ' + Insel.offeneSchaetze(who).length + ' vergraben</span>' +
+             '<span><a href="/lernwelt/">🏝️ Insel</a></span>';
+    }
+  });
+
+  /* ================= Seekarte ================= */
+  function miniKarte() {
+    var c = $('mini'), g = c.getContext('2d');
+    g.imageSmoothingEnabled = false;
+    /* Grobe Inselform: Rand Wasser, Mitte Land. */
+    var MW = 48, MH = 36, s = 4;
+    for (var y = 0; y < MH; y++) {
+      for (var x = 0; x < MW; x++) {
+        var dx = (x - MW / 2) / (MW / 2), dy = (y - MH / 2) / (MH / 2);
+        var d = Math.sqrt(dx * dx + dy * dy);
+        var farbe = d > 0.92 ? '#1c6ea4' : d > 0.82 ? '#39a0c9' : d > 0.72 ? '#e8d3a0' : '#5aa54a';
+        g.fillStyle = farbe;
+        g.fillRect(x * s, y * s, s, s);
+      }
+    }
+    /* Schätze eintragen */
+    Insel.schaetze.forEach(function (sc) {
+      var gehoben = Insel.schatzGehoben(sc.id, who);
+      var verraten = Insel.schatzVerraten(sc.id, who);
+      var x = sc.tx * s, y = sc.ty * s;
+      g.fillStyle = gehoben ? 'rgba(71,85,105,.85)' : verraten ? '#dc2626' : '#fbbf24';
+      g.fillRect(x - 2, y - 2, 5, 5);
+      if (!gehoben && verraten) {
+        g.fillStyle = '#dc2626';
+        g.fillRect(x - 5, y - 1, 11, 2);
+        g.fillRect(x - 1, y - 5, 2, 11);
+      }
+    });
+  }
+
+  function karteOeffnen() {
+    miniKarte();
+    var offen = Insel.offeneSchaetze(who);
+    var box = $('schatzliste');
+    box.innerHTML = Insel.schaetze.map(function (sc) {
+      var gehoben = Insel.schatzGehoben(sc.id, who);
+      var verraten = Insel.schatzVerraten(sc.id, who);
+      return '<div class="zeile ' + (gehoben ? 'weg' : '') + '">' +
+        '<span>' + (gehoben ? '✔' : verraten ? '❌' : '•') + '</span>' +
+        '<span class="n">' + (gehoben ? 'gehoben' : verraten ? sc.nahe : 'irgendwo auf der Insel') + '</span>' +
+        '<span class="p">' + sc.muenzen + ' 🪙</span></div>';
+    }).join('');
+    $('karte-lohn').innerHTML = offen.length
+      ? '<b>' + offen.length + '</b> von ' + Insel.schaetze.length + ' Kisten liegen noch draussen. ' +
+        'Rot heisst: die Stelle kennst du schon, gegraben ist sie aber nicht.'
+      : 'Alles gehoben. Die Insel hat keine Geheimnisse mehr für dich.';
+    tippKnopf();
+    Raum.fensterOeffnen('t-karte');
+  }
+
+  function tippKnopf() {
+    var b = $('tipp');
+    var heuteSchon = Insel.stand(who).turmTipp === Insel.heute();
+    var offen = Insel.offeneSchaetze(who).length;
+    b.disabled = heuteSchon || !offen;
+    b.textContent = !offen ? 'Nichts mehr zu verraten'
+      : heuteSchon ? 'Heute hast du deinen Tipp schon' : 'Heutigen Tipp holen';
+  }
+
+  $('tipp').onclick = function () {
+    var r = Insel.leuchtturmTipp(who);
+    if (!r.ok) {
+      Raum.reden('Wärter Wilhelm', r.grund === 'heuteSchon'
+        ? 'Einer pro Tag, das war die Abmachung. Komm morgen wieder.'
+        : r.grund === 'alle' ? 'Du hast alles ausgegraben. Ich kann dir nichts mehr zeigen.'
+        : 'Erst die Stelle ausgraben, die ich dir schon gezeigt habe.');
+      tippKnopf();
+      return;
+    }
+    miniKarte();
+    tippKnopf();
+    Raum.hudAuffrischen();
+    Raum.reden('Wärter Wilhelm', [
+      'Ich richte das Fernrohr … Moment … da.',
+      'Eine Kiste liegt ' + r.schatz.nahe + '. Auf der Karte ist sie jetzt rot markiert.',
+      'Und draussen zeigt dir ein rotes Kreuz die Stelle, sobald du in die Gegend kommst.'
+    ], karteOeffnen);
+  };
+
+  /* ================= Fernrohr ================= */
+  var BLICKE = [
+    'Du siehst den Rechenturm. Auf der Zinne sitzt jemand und rechnet etwas aus. Es dauert.',
+    'Du siehst das Piratenschiff. Der Käpten winkt. Oder er vertreibt eine Möwe, das ist von hier schwer zu sagen.',
+    'Du siehst die Spelunke. Durch das Fenster: jemand verliert gerade Geld. Du kennst das Gefühl.',
+    'Du siehst den Aussichtsberg. Von dort schaut auch jemand hierher. Ihr winkt euch zu.',
+    'Du siehst weit hinaus aufs Meer. Nichts. Nur Wasser bis zum Horizont. Es ist trotzdem schön.',
+    'Du siehst einen Bären. Er schnüffelt an einem Baum. Vermutlich sucht er Süssigkeiten.',
+    'Du siehst die Schatzhöhle. Verschlossen. Natürlich.',
+    'Du siehst den Kiosk. Jemand kauft eine Schaufel. Guter Plan.'
+  ];
+  var blickNr = 0;
+  function fernrohrOeffnen() {
+    $('fernrohr-text').innerHTML = BLICKE[blickNr % BLICKE.length] +
+      '<br><br><span style="color:#64748b">Dreh weiter mit einem Klick auf das Fenster.</span>';
+    blickNr++;
+    Raum.fensterOeffnen('t-fernrohr');
+  }
+
+  Raum.reden('Leuchtturm', [
+    'Hundertzwölf Stufen. Aber die Aussicht ist es wert.',
+    'Auf dem Tisch liegt die Seekarte, links steht das Fernrohr. Und der Wärter redet gern.'
+  ]);
+})();
+</script>
+</body>
+</html>

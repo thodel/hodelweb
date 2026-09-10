@@ -81,7 +81,7 @@
     affenFundTakt: 120,     /* alle wie viele Sekunden er etwas findet */
     gebraeuPreis: 15,       /* Münzen für ein Gebräu in der Spelunke */
     gebraeuMax: 3,          /* beim dritten Glas ist Schluss */
-    gebraeuVerfall: 900,    /* nach so vielen Sekunden ist der Rausch weg */
+    gebraeuVerfall: 600,    /* in so vielen Sekunden nüchtert man wieder aus */
     baerWitterung: 150,     /* auf so viele Pixel riecht ein Bär die Süssigkeiten */
     baerTempo: 46,          /* langsamer als der Spieler (62) — weglaufen geht */
     baerSattDauer: 45,      /* so viele Sekunden lässt er dich nach der Beute in Ruhe */
@@ -99,6 +99,36 @@
     nordwald: { name: 'Nordwald', tx: 17, ty: 8,  x: 280, y: 142 },
     suedwald: { name: 'Südwald',  tx: 30, ty: 24, x: 488, y: 398 }
   };
+
+  /* Freischaltbare Inselteile.
+     Wer übt, macht die Insel grösser. Jeder Teil hat eine klare Bedingung,
+     die im Spiel angezeigt wird, damit man weiss, worauf man hinarbeitet. */
+  var INSELTEILE = [
+    {
+      id: 'leuchtturm', name: 'Leuchtturm', kurz: 'Leuchtturm',
+      tx: 7, ty: 4, kind: 'leuchtturm', url: '/lernwelt/leuchtturm/',
+      farbe: '#fde68a',
+      bedingung: { sterne: 4 },
+      wozu: 'Der Leuchtturmwärter zeigt dir die ganze Insel und verrät jeden Tag eine Schatzstelle.',
+      offenText: 'Der alte Turm im Norden. Von oben sieht man alles.'
+    },
+    {
+      id: 'sternwarte', name: 'Sternwarte', kurz: 'Sternwarte',
+      tx: 33, ty: 6, kind: 'sternwarte', url: '/lernwelt/sternwarte/',
+      farbe: '#c4b5fd',
+      bedingung: { gemeistert: 6 },
+      wozu: 'Teleskop, Planeten und ein Quiz über das Weltall.',
+      offenText: 'Die Kuppel auf dem Osthügel. Nachts ist sie am schönsten.'
+    },
+    {
+      id: 'bucht', name: 'Fischerbucht', kurz: 'Bucht',
+      tx: 11, ty: 31, kind: 'bucht', url: '/lernwelt/bucht/',
+      farbe: '#7dd3fc',
+      bedingung: { sterne: 8 },
+      wozu: 'Ein Steg, ein Boot und Fische, die sich nicht so leicht fangen lassen.',
+      offenText: 'Die Bucht im Süden mit dem alten Steg.'
+    }
+  ];
 
   /* Vergrabene Schätze. Ohne Schaufel bleibt der Boden zu.
      'nahe' ist der Hinweis, den der alte Seebär erzählt. */
@@ -207,6 +237,7 @@
     affenArten: AFFEN,
     baerenArten: BAEREN,
     schaetze: SCHAETZE,
+    inselteile: INSELTEILE,
     garderobe: GARDEROBE,
     kinder: KINDER,
     faecher: FAECHER,
@@ -870,37 +901,49 @@
     /* ---------------- Spelunke: das Gebräu ----------------
        Nach dem dritten Glas ist der Abend vorbei: halbe Kasse und
        irgendwo im Wald aufwachen. */
-    gebraeuke: function (who) {
-      var stand = this.stand(who);
-      if (!stand.gebraeu) stand.gebraeu = { glaeser: 0, zuletzt: 0 };
-      /* Rausch verfliegt mit der Zeit */
-      if (stand.gebraeu.zuletzt &&
-          Date.now() - stand.gebraeu.zuletzt > OEKONOMIE.gebraeuVerfall * 1000) {
-        stand.gebraeu.glaeser = 0;
-      }
-      return stand.gebraeu.glaeser;
+    /* Der Rausch baut sich linear ab: was beim letzten Glas da war, ist nach
+       gebraeuVerfall Sekunden wieder weg. Rückgabe ist eine Kommazahl,
+       damit das Wackeln stetig nachlässt statt in Stufen zu springen. */
+    rausch: function (who) {
+      var g = this.stand(who).gebraeu;
+      if (!g) return 0;
+      /* Alte Spielstände kannten nur ganze Gläser. */
+      var stufe = g.stufe !== undefined ? g.stufe : (g.glaeser || 0);
+      if (!stufe || !g.zuletzt) return 0;
+      var vergangen = (Date.now() - g.zuletzt) / 1000;
+      var rest = stufe * (1 - vergangen / OEKONOMIE.gebraeuVerfall);
+      return Math.max(0, Math.min(OEKONOMIE.gebraeuMax, rest));
+    },
+    /* Ganze Gläser — für Anzeigen wie „2 von 3“. */
+    gebraeuke: function (who) { return Math.ceil(this.rausch(who) - 0.001); },
+    /* Sekunden, bis der Rausch ganz weg ist. */
+    rauschRest: function (who) {
+      var g = this.stand(who).gebraeu;
+      if (!g || !g.zuletzt) return 0;
+      var stufe = g.stufe !== undefined ? g.stufe : (g.glaeser || 0);
+      if (!stufe) return 0;
+      var vergangen = (Date.now() - g.zuletzt) / 1000;
+      return Math.max(0, Math.round(OEKONOMIE.gebraeuVerfall - vergangen));
     },
     trinken: function (who) {
       who = who || this.who();
       var stand = this.stand(who);
-      if (!stand.gebraeu) stand.gebraeu = { glaeser: 0, zuletzt: 0 };
-      if (stand.gebraeu.zuletzt &&
-          Date.now() - stand.gebraeu.zuletzt > OEKONOMIE.gebraeuVerfall * 1000) {
-        stand.gebraeu.glaeser = 0;
-      }
+      if (!stand.gebraeu) stand.gebraeu = { stufe: 0, zuletzt: 0 };
       if ((stand.muenzen || 0) < OEKONOMIE.gebraeuPreis) {
         return { ok: false, fehlt: OEKONOMIE.gebraeuPreis - (stand.muenzen || 0) };
       }
+      var vorher = this.rausch(who);
       stand.muenzen -= OEKONOMIE.gebraeuPreis;
-      stand.gebraeu.glaeser++;
-      stand.gebraeu.zuletzt = Date.now();
+      stand.gebraeu = { stufe: vorher + 1, zuletzt: Date.now() };
 
-      var ergebnis = { ok: true, glaeser: stand.gebraeu.glaeser, blackout: false };
-      if (stand.gebraeu.glaeser >= OEKONOMIE.gebraeuMax) {
+      var ergebnis = { ok: true, glaeser: Math.ceil(stand.gebraeu.stufe - 0.001),
+                       stufe: stand.gebraeu.stufe, blackout: false };
+      /* Kleine Toleranz: zwischen zwei Gläsern nüchtert man schon ein wenig aus,
+         drei Gläser hintereinander sollen trotzdem sicher zum Blackout führen. */
+      if (stand.gebraeu.stufe + 0.2 >= OEKONOMIE.gebraeuMax) {
         var verloren = Math.floor((stand.muenzen || 0) / 2);
         stand.muenzen -= verloren;
-        stand.gebraeu.glaeser = 0;
-        stand.gebraeu.zuletzt = 0;
+        stand.gebraeu = { stufe: 0, zuletzt: 0 };
         var ids = Object.keys(WAELDER);
         var wald = ids[Math.floor(Math.random() * ids.length)];
         stand.aufwachen = wald;
@@ -948,6 +991,75 @@
       this._speichern(who, stand);
       return { art: art, suessigkeiten: hatte, gefressen: b.gefressen, geschleppt: b.geschleppt,
                name: (BAEREN[id] || {}).name || id };
+    },
+
+    /* ---------------- Freischaltbare Inselteile ---------------- */
+    /* Wie viele gemeisterte Übungen hat das Kind insgesamt? */
+    gemeistertGesamt: function (who) {
+      var alle = this.stand(who).uebungen, n = 0;
+      for (var k in alle) if (alle[k].gemeistert) n++;
+      return n;
+    },
+    /* Ist dieser Teil schon offen? Rückgabe mit Fortschritt für die Anzeige. */
+    teilStand: function (id, who) {
+      var teil = INSELTEILE.filter(function (t) { return t.id === id; })[0];
+      if (!teil) return null;
+      var b = teil.bedingung;
+      var ist, soll, was;
+      if (b.sterne !== undefined) {
+        ist = this.sterneGesamt(who); soll = b.sterne; was = 'Sterne';
+      } else {
+        ist = this.gemeistertGesamt(who); soll = b.gemeistert; was = 'gemeisterte Übungen';
+      }
+      var offen = ist >= soll;
+      /* Einmal offen, bleibt offen — auch wenn später etwas zurückgesetzt wird. */
+      var stand = this.stand(who);
+      if (!stand.teile) stand.teile = {};
+      if (offen && !stand.teile[id]) {
+        stand.teile[id] = Date.now();
+        this._speichern(who, stand);
+      }
+      if (stand.teile[id]) offen = true;
+      return { id: id, teil: teil, offen: offen, ist: ist, soll: soll, was: was,
+               fehlt: Math.max(0, soll - ist), frisch: false };
+    },
+    teilOffen: function (id, who) {
+      var st = this.teilStand(id, who);
+      return !!(st && st.offen);
+    },
+    /* Teile, die seit dem letzten Nachsehen dazugekommen sind. */
+    neueTeile: function (who) {
+      who = who || this.who();
+      var self = this, stand = this.stand(who);
+      if (!stand.teileGesehen) stand.teileGesehen = {};
+      var neu = [];
+      INSELTEILE.forEach(function (t) {
+        var st = self.teilStand(t.id, who);
+        if (st.offen && !stand.teileGesehen[t.id]) neu.push(t);
+      });
+      if (neu.length) {
+        stand = this.stand(who);
+        if (!stand.teileGesehen) stand.teileGesehen = {};
+        neu.forEach(function (t) { stand.teileGesehen[t.id] = Date.now(); });
+        this._speichern(who, stand);
+      }
+      return neu;
+    },
+    /* Der Leuchtturm verrät einmal am Tag eine Stelle. */
+    leuchtturmTipp: function (who) {
+      who = who || this.who();
+      var stand = this.stand(who);
+      var tag = tagesStempel();
+      if (stand.turmTipp === tag) return { ok: false, grund: 'heuteSchon' };
+      var offen = this.offeneSchaetze(who);
+      if (!offen.length) return { ok: false, grund: 'alle' };
+      if (!stand.verraten) stand.verraten = {};
+      var neu = offen.filter(function (x) { return !stand.verraten[x.id]; });
+      if (!neu.length) return { ok: false, grund: 'schonVerraten', schatz: offen[0] };
+      stand.verraten[neu[0].id] = Date.now();
+      stand.turmTipp = tag;
+      this._speichern(who, stand);
+      return { ok: true, schatz: neu[0], offen: neu.length - 1 };
     },
 
     /* ---------------- Schaufel & vergrabene Schätze ---------------- */
@@ -998,7 +1110,7 @@
     },
     ausnuechtern: function (who) {
       var stand = this.stand(who);
-      stand.gebraeu = { glaeser: 0, zuletzt: 0 };
+      stand.gebraeu = { stufe: 0, zuletzt: 0 };
       this._speichern(who, stand);
     },
 
@@ -1027,6 +1139,18 @@
     merkePosition: function (pos) {
       try { sessionStorage.setItem('lerninsel.pos', JSON.stringify(pos)); } catch (e) {}
     },
+    /* Merkt sich, aus welchem Innenraum eine Übung gestartet wurde,
+       damit man danach wieder dorthin zurückkommt und nicht auf die Insel. */
+    merkeRaum: function (url) {
+      try { sessionStorage.setItem('lerninsel.raum', url); } catch (e) {}
+    },
+    letzterRaum: function () {
+      try { return sessionStorage.getItem('lerninsel.raum') || null; } catch (e) { return null; }
+    },
+    raumVergessen: function () {
+      try { sessionStorage.removeItem('lerninsel.raum'); } catch (e) {}
+    },
+
     letztePosition: function () {
       try {
         var raw = sessionStorage.getItem('lerninsel.pos');

@@ -204,7 +204,10 @@
   var fachInfo = Insel.faecher[fach] || { name: fach, emoji: '📘', kurz: fach };
 
   Insel.hudLeiste($('hud'));
-  $('zurueck-fach').href = '/lernwelt/uebung/?fach=' + fach;
+  /* Kam der Spieler aus einem Innenraum, führt der Rückweg auch wieder dorthin. */
+  var ausRaum = Insel.letzterRaum();
+  $('zurueck-fach').href = ausRaum || ('/lernwelt/uebung/?fach=' + fach);
+  if (ausRaum) $('zurueck-fach').textContent = '← Zurück in den ' + (fachInfo.ort || 'Raum');
 
   /* ---------------- Menü ---------------- */
   function zeigeMenue() {
@@ -325,7 +328,12 @@
 
   /* Zwei Aufgaben gelten als gleich, wenn Frage UND Antwort übereinstimmen.
      Manche Sets stellen immer dieselbe Frage und variieren nur die Auswahl. */
-  function schluessel(a) { return a.frage + '\u241F' + a.antwort; }
+  /* Zwei Aufgaben sind dieselbe, wenn Frage und Antwort übereinstimmen — oder
+     wenn beide dieselbe Paar-Kennung tragen. Damit taucht nicht in derselben
+     Runde «Hauptstadt von Italien?» und «Rom ist die Hauptstadt von …» auf. */
+  function schluessel(a) {
+    return a.paar ? 'P\u241F' + a.paar : a.frage + '\u241F' + a.antwort;
+  }
 
   function historieSchluessel(setId) {
     return 'lerninsel.gesehen.' + who + '.' + fach + ':' + setId;
