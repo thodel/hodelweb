@@ -13,7 +13,8 @@ erkannt, benannt und in den passenden Ordner einsortiert.
    Systemmeldungen werden übergangen.
 3. **Aufbereiten** — Die Datei kommt über WebDAV herunter. Bilder werden auf
    1600 Pixel verkleinert und normalisiert, damit das Modell weniger Rauschen
-   sieht. PDFs liefern die erste Seite als Bild.
+   sieht. Aus PDFs werden die ersten Seiten als Bilder gerendert
+   (`pdfSeiten`, Vorgabe 3) und gemeinsam ausgewertet.
 4. **Erkennen** — `openclaw agent` mit einem bildfähigen Modell liefert ein
    JSON: Domäne, Dokumenttyp, Absender, Betreff, Datum, Fälligkeit, Betrag,
    Währung, Referenz, Empfänger, Sicherheit, Handlungsbedarf, Volltext.
@@ -78,6 +79,19 @@ cd ~/scanpipe && python3 scanpipe.py
 ```
 
 Alles noch einmal verarbeiten: `letzteId` in `state.json` heruntersetzen.
+
+## Voraussetzungen auf dem Server
+
+| Werkzeug | Wofür |
+|---|---|
+| `convert` (ImageMagick) | Fotos verkleinern und normalisieren |
+| `pdftoppm` (poppler-utils) | PDF-Seiten in Bilder rendern |
+| `openclaw` | Modellzugriff und Senden im Chat |
+| Python 3 mit `requests` | die Pipeline selbst |
+
+Alle vier sind vorhanden. ImageMagick darf auf diesem Server keine PDFs
+schreiben (Sicherheitsrichtlinie), lesen muss es sie auch nicht — dafür ist
+`pdftoppm` zuständig.
 
 ## Modell
 
