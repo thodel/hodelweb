@@ -1,18 +1,535 @@
-<!doctype html><html lang=en><head><meta name=generator content="Hugo 0.156.0"><meta charset=UTF-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Tobias Hodel</title><style>@import 'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap';:root{--bg:#ffffff;--bg-alt:#f7f7f8;--text:#111111;--text-muted:#6b7280;--accent:#2563eb;--accent-light:#eff6ff;--border:#e5e7eb;--card-shadow:0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)}[data-theme=dark]{--bg:#0f172a;--bg-alt:#1e293b;--text:#f1f5f9;--text-muted:#94a3b8;--accent:#60a5fa;--accent-light:#1e293b;--border:#334155;--card-shadow:0 1px 3px rgba(0,0,0,0.3)}*{margin:0;padding:0;box-sizing:border-box}body{font-family:inter,-apple-system,sans-serif;color:var(--text);background:var(--bg);line-height:1.7;transition:background .3s,color .3s}.topbar{display:flex;justify-content:space-between;align-items:center;max-width:960px;margin:0 auto;padding:1.2rem 2rem}.topbar-left{font-weight:600;font-size:1rem}.topbar-right{display:flex;gap:1rem;align-items:center}.topbar-right a{color:var(--text-muted);text-decoration:none;font-size:.85rem;font-weight:500;transition:color .2s}.topbar-right a:hover{color:var(--accent)}.theme-toggle{background:0 0;border:1px solid var(--border);border-radius:6px;padding:.3rem .6rem;cursor:pointer;font-size:.85rem;color:var(--text-muted);transition:all .2s}.theme-toggle:hover{border-color:var(--accent);color:var(--accent)}.hero{background:linear-gradient(135deg,var(--bg-alt) 0%,var(--bg) 100%);padding:5rem 2rem 4rem}.hero-content{max-width:960px;margin:0 auto;display:grid;grid-template-columns:200px 1fr;gap:3rem;align-items:start}.hero-image{text-align:center}.hero-image img{width:180px;height:180px;border-radius:12px;object-fit:cover;box-shadow:var(--card-shadow)}.hero-text h1{font-size:3rem;font-weight:700;letter-spacing:-.03em;margin-bottom:.8rem}.hero-text .subtitle{font-size:1.15rem;color:var(--text-muted);font-weight:400;margin-bottom:2rem}.hero-text .position-updates{font-size:1rem;margin-bottom:2rem;padding:1rem;background:var(--accent-light);border-radius:8px;border-left:4px solid var(--accent)}.hero-text .position-updates p{margin-bottom:.5rem}.hero-text .position-updates p:last-child{margin-bottom:0}.hero-links{display:flex;gap:1.5rem;flex-wrap:wrap}.hero-links a{color:var(--accent);text-decoration:none;font-weight:500;font-size:.95rem;padding:.5rem 1.2rem;border:1px solid var(--accent);border-radius:8px;transition:all .2s}.hero-links a:hover{background:var(--accent);color:#fff}.social-row{display:flex;gap:1.5rem;margin-top:1rem}.social-row a{color:var(--text-muted);text-decoration:none;font-size:.9rem;font-weight:500;transition:color .2s}.social-row a:hover{color:var(--accent)}.container{max-width:960px;margin:0 auto;padding:0 2rem}section{padding:4rem 0}section+section{border-top:1px solid var(--border)}section h2{font-size:1.5rem;font-weight:700;letter-spacing:-.02em;margin-bottom:2rem}section p{color:var(--text-muted);font-size:1rem;max-width:700px}.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.2rem}.card{background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:1.5rem;transition:transform .2s,box-shadow .2s}.card:hover{transform:translateY(-2px);box-shadow:var(--card-shadow)}.card h3{font-size:1.05rem;font-weight:600;margin-bottom:.5rem}.card p{font-size:.9rem;color:var(--text-muted);margin-bottom:.8rem}.card a{font-size:.85rem;color:var(--accent);text-decoration:none;font-weight:500}.card a:hover{text-decoration:underline}.pub-item{padding:1rem 0;border-bottom:1px solid var(--border)}.pub-item:last-child{border-bottom:none}.pub-year{font-size:.8rem;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:.05em}.pub-title{font-size:.95rem;font-weight:500;margin-top:.2rem}.pub-title a{color:var(--text);text-decoration:none}.pub-title a:hover{color:var(--accent)}footer{text-align:center;padding:3rem 2rem;color:var(--text-muted);font-size:.85rem}@media(max-width:768px){.hero-content{grid-template-columns:1fr;text-align:center;gap:2rem}.hero h1{font-size:2rem}.cards{grid-template-columns:1fr}}</style></head><body><div class=topbar><div class=topbar-left>TH</div><div class=topbar-right><a href=#publications>Publications</a>
-<a href=#projects>Projects</a>
-<a href=#cv>CV</a>
-<a href=#teaching>Teaching</a>
-<a href=/>DE</a>
-<button class=theme-toggle onclick=toggleTheme()>◑</button></div></div><div class=hero><div class=hero-content><div class=hero-image><img src=/images/profile.jpg alt="Tobias Hodel"></div><div class=hero-text><h1>Tobias Hodel</h1><p class=subtitle>Prof. Dr. — Associate Professor Digital Humanities, University of Bern. Responsible for DH Master Major. Research at the intersection of history, machine learning and digital methods.</p><div class=hero-links><a href=#publications>Publications</a>
-<a href=#projects>Projects</a>
-<a href=#cv>CV</a>
-<a href=#teaching>Teaching</a></div><div class=social-row><a href=https://orcid.org/0000-0002-2071-6407>ORCID</a>
-<a href=https://github.com/thodel>GitHub</a>
-<a href=mailto:tobias.hodel@unibe.ch>Email</a></div></div></div></div><div class=container><section id=publications><h2>Publications</h2><div class=publication-filters style=margin-bottom:2rem><div style=display:flex;gap:1rem;flex-wrap:wrap;align-items:center><input type=text id=pub-search placeholder="Search by title or author..." style="flex:1;min-width:200px;padding:.5rem;border:1px solid var(--border);border-radius:6px;font-size:.9rem">
-<select id=pub-year-filter style="padding:.5rem;border:1px solid var(--border);border-radius:6px;font-size:.9rem"><option value>All years</option></select>
-<select id=pub-type-filter style="padding:.5rem;border:1px solid var(--border);border-radius:6px;font-size:.9rem"><option value>All types</option></select></div></div><div id=publications-list><p>Loading publications from ORCID...</p></div></section><section id=projects><h2>Projects</h2><div class=cards><div class=card><h3>Economies of Space</h3><p>Management of urban real estate and economic discourse using Basel as an example.</p><a href=https://dhbern.github.io/content/projects/economies-of-space/index.html>Learn more →</a></div><div class=card><h3>The Flow</h3><p>Historical research increasingly benefits from digitization, handwritten text recognition and natural language processing.</p><a href=https://dhbern.github.io/content/projects/flow/index.html>Learn more →</a></div><div class=card><h3>Confoederatio Ludens</h3><p>Game design and development scene in pre-Internet Switzerland.</p><a href=https://dhbern.github.io/content/projects/ch-ludens/index.html>Learn more →</a></div><div class=card><h3>GeWiS – Grounded Knowledge</h3><p>Combining relational databases and linked data approaches for the humanities.</p><a href=https://dhbern.github.io/content/projects/gewis/index.html>Learn more →</a></div></div><p style=margin-top:1.5rem><a href=https://dhbern.github.io/content/projects/ style=color:var(--accent);text-decoration:none;font-weight:500>All projects →</a></p></section><section id=cv><h2>CV</h2><p>For a detailed overview, see my <a href=/cv/ style=color:var(--accent)>complete CV</a>.</p></section><section id=teaching><h2>Teaching</h2><p>Program director DH Master Minor (30/90 ECTS), MAS Extended Intelligence, MAS Archive, Library and Information Science. Doctoral program DH (Bern & Basel).</p><p style=margin-top:1rem><a href=https://github.com/DHBern/einf_2026 style=color:var(--accent);text-decoration:none;font-weight:500>Introduction DH SS2026 →</a></p></section></div><script>function toggleTheme(){const e=document.body;e.getAttribute("data-theme")==="dark"?(e.removeAttribute("data-theme"),localStorage.setItem("theme","light")):(e.setAttribute("data-theme","dark"),localStorage.setItem("theme","dark"))}const savedTheme=localStorage.getItem("theme");savedTheme==="dark"&&document.body.setAttribute("data-theme","dark");let allPublications=[],filteredPublications=[];async function loadPublications(){try{const e=await fetch("/publications.json");allPublications=await e.json(),filteredPublications=[...allPublications],populateFilters(),displayPublications(),document.getElementById("pub-search").addEventListener("input",filterPublications),document.getElementById("pub-year-filter").addEventListener("change",filterPublications),document.getElementById("pub-type-filter").addEventListener("change",filterPublications)}catch(e){console.error("Error loading publications:",e),document.getElementById("publications-list").innerHTML="<p>Error loading publications. Please try again later.</p>"}}function populateFilters(){const e=[...new Set(allPublications.map(e=>e.year).filter(e=>e&&e!=="n.d."))].sort((e,t)=>t-e),t=document.getElementById("pub-year-filter");e.forEach(e=>{const n=document.createElement("option");n.value=e,n.textContent=e,t.appendChild(n)});const n=[...new Set(allPublications.map(e=>e.type).filter(e=>e))].sort(),s=document.getElementById("pub-type-filter");n.forEach(e=>{const t=document.createElement("option");t.value=e,t.textContent=formatTypeLabel(e),s.appendChild(t)})}function formatTypeLabel(e){const t={"journal-article":"Journal Articles",book:"Books","book-chapter":"Book Chapters","conference-paper":"Conference Papers","edited-book":"Edited Volumes",other:"Other",report:"Reports",dissertation:"Dissertations"};return t[e]||e.replace("-"," ").replace(/\b\w/g,e=>e.toUpperCase())}function formatAuthors(e,t={}){if(!e||e.length===0)return"";const o=t.excludePrimary===!0,s=o?e.filter(e=>!e.is_primary):e.slice();if(s.length===0)return"";const i=[...s].sort((e,t)=>e.is_primary&&!t.is_primary?-1:!e.is_primary&&t.is_primary?1:0),n=i.map(e=>e.name);return n.length===1?n[0]:n.length===2?`${n[0]} & ${n[1]}`:`${n.slice(0,-1).join(", ")} & ${n[n.length-1]}`}function filterPublications(){const e=document.getElementById("pub-search").value.toLowerCase(),t=document.getElementById("pub-year-filter").value,n=document.getElementById("pub-type-filter").value;filteredPublications=allPublications.filter(s=>{const o=!e||s.title.toLowerCase().includes(e)||s.authors&&s.authors.some(t=>t.name.toLowerCase().includes(e))||s.journal&&s.journal.toLowerCase().includes(e),i=!t||s.year==t,a=!n||s.type===n;return o&&i&&a}),displayPublications()}function displayPublications(){const t=document.getElementById("publications-list");let e="";if(filteredPublications.length===0)e="<p>No publications found.</p>";else{const t=filteredPublications.slice(0,10);t.forEach(t=>{const o=formatAuthors(t.authors,{excludePrimary:t.coauthored}),s=t.doi?`<a href="https://doi.org/${t.doi}">${t.title}</a>`:t.title;let n=s;o&&t.coauthored?n=`<strong>${o}</strong> (${t.year||"n.d."}). ${s}`:t.year&&t.year!=="n.d."&&(n=`${s} (${t.year})`),t.journal&&(n+=`. <em>${t.journal}</em>`),e+=`
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta name="generator" content="Hugo 0.156.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tobias Hodel</title>
+<meta name="description" content="Prof. Dr. Tobias Hodel — Digital Humanities, University of Bern">
+<link rel="canonical" href="https://www.hodelweb.ch/en/">
+<link rel="alternate" hreflang="de" href="https://www.hodelweb.ch/">
+<link rel="alternate" hreflang="en" href="https://www.hodelweb.ch/en/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Tobias Hodel">
+<meta property="og:description" content="Prof. Dr. Tobias Hodel — Digital Humanities, University of Bern">
+<meta property="og:url" content="https://www.hodelweb.ch/en/">
+<meta property="og:image" content="https://www.hodelweb.ch/images/profile.jpg">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+  :root {
+    --bg: #ffffff;
+    --bg-alt: #f7f7f8;
+    --text: #111111;
+    --text-muted: #6b7280;
+    --accent: #2563eb;
+    --accent-light: #eff6ff;
+    --border: #e5e7eb;
+    --card-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  }
+
+  [data-theme="dark"] {
+    --bg: #0f172a;
+    --bg-alt: #1e293b;
+    --text: #f1f5f9;
+    --text-muted: #94a3b8;
+    --accent: #60a5fa;
+    --accent-light: #1e293b;
+    --border: #334155;
+    --card-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    color: var(--text);
+    background: var(--bg);
+    line-height: 1.7;
+    transition: background 0.3s, color 0.3s;
+  }
+
+   
+  .topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 1.2rem 2rem;
+  }
+  .topbar-left { font-weight: 600; font-size: 1rem; }
+  .topbar-right { display: flex; gap: 1rem; align-items: center; }
+  .topbar-right a {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: color 0.2s;
+  }
+  .topbar-right a:hover { color: var(--accent); }
+  .theme-toggle {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.3rem 0.6rem;
+    cursor: pointer;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    transition: all 0.2s;
+  }
+  .theme-toggle:hover { border-color: var(--accent); color: var(--accent); }
+
+   
+  .hero {
+    background: linear-gradient(135deg, var(--bg-alt) 0%, var(--bg) 100%);
+    padding: 5rem 2rem 4rem;
+  }
+  
+  .hero-content {
+    max-width: 960px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 3rem;
+    align-items: start;
+  }
+  
+  .hero-image {
+    text-align: center;
+  }
+  
+  .hero-image img {
+    width: 180px;
+    height: 180px;
+    border-radius: 12px;
+    object-fit: cover;
+    box-shadow: var(--card-shadow);
+  }
+
+  .hero-text h1 {
+    font-size: 3rem;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    margin-bottom: 0.8rem;
+  }
+  .hero-text .subtitle {
+    font-size: 1.15rem;
+    color: var(--text-muted);
+    font-weight: 400;
+    margin-bottom: 2rem;
+  }
+  .hero-text .position-updates {
+    font-size: 1rem;
+    margin-bottom: 2rem;
+    padding: 1rem;
+    background: var(--accent-light);
+    border-radius: 8px;
+    border-left: 4px solid var(--accent);
+  }
+  .hero-text .position-updates p {
+    margin-bottom: 0.5rem;
+  }
+  .hero-text .position-updates p:last-child {
+    margin-bottom: 0;
+  }
+  .hero-links {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+  }
+  .hero-links a {
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.95rem;
+    padding: 0.5rem 1.2rem;
+    border: 1px solid var(--accent);
+    border-radius: 8px;
+    transition: all 0.2s;
+  }
+  .hero-links a:hover {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  .social-row {
+    display: flex;
+    gap: 1.5rem;
+    margin-top: 1rem;
+  }
+  .social-row a {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: color 0.2s;
+  }
+  .social-row a:hover { color: var(--accent); }
+
+   
+  .container {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 2rem;
+  }
+  section {
+    padding: 4rem 0;
+  }
+  section + section {
+    border-top: 1px solid var(--border);
+  }
+  section h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 2rem;
+  }
+  section p {
+    color: var(--text-muted);
+    font-size: 1rem;
+    max-width: 700px;
+  }
+
+   
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.2rem;
+  }
+  .card {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--card-shadow);
+  }
+  .card h3 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+  .card p {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-bottom: 0.8rem;
+  }
+  .card a {
+    font-size: 0.85rem;
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 500;
+  }
+  .card a:hover { text-decoration: underline; }
+
+   
+  .pub-item {
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .pub-item:last-child { border-bottom: none; }
+  .pub-year {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .pub-title {
+    font-size: 0.95rem;
+    font-weight: 500;
+    margin-top: 0.2rem;
+  }
+  .pub-title a { color: var(--text); text-decoration: none; }
+  .pub-title a:hover { color: var(--accent); }
+
+   
+  footer {
+    text-align: center;
+    padding: 3rem 2rem;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+  }
+
+  @media (max-width: 768px) {
+    .topbar { padding: 1rem; }
+    .topbar-left { margin-right: 0.75rem; }
+    .topbar-right { gap: 0.7rem; flex-wrap: wrap; justify-content: flex-end; }
+    .hero { padding: 3rem 1.5rem; }
+    .hero-content { grid-template-columns: 1fr; text-align: center; gap: 2rem; }
+    .hero h1 { font-size: 2rem; }
+    .hero-links, .social-row { justify-content: center; }
+    .cards { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left"><a href="/en/" style="color: var(--text); text-decoration: none;">TH</a></div>
+  <div class="topbar-right">
+    <a href="#publications">Publications</a>
+    <a href="#projects">Projects</a>
+    <a href="#cv">CV</a>
+    <a href="#teaching">Teaching</a>
+    
+    <a href="/">DE</a>
+    
+    <button class="theme-toggle" onclick="toggleTheme()">◑</button>
+  </div>
+</div>
+
+<div class="hero">
+  <div class="hero-content">
+    <div class="hero-image">
+      <img src="/images/profile.jpg" alt="Tobias Hodel" width="360" height="360">
+    </div>
+    <div class="hero-text">
+      <h1>Tobias Hodel</h1>
+      <p class="subtitle">Prof. Dr. — Associate Professor Digital Humanities, University of Bern. Programme director DH Master (Major and Minor). Research at the intersection of history, machine learning and digital methods.</p>
+      
+      <div class="hero-links">
+        <a href="#publications">Publications</a>
+        <a href="#projects">Projects</a>
+        <a href="#cv">CV</a>
+        <a href="#teaching">Teaching</a>
+      </div>
+      <div class="social-row">
+        <a href="https://orcid.org/0000-0002-2071-6407">ORCID</a>
+        <a href="https://github.com/thodel">GitHub</a>
+        <a href="mailto:tobias.hodel@unibe.ch">Email</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <section id="publications">
+    <h2>Publications</h2>
+    
+    
+    <div class="publication-filters" style="margin-bottom: 2rem;">
+      <div style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: center;">
+        <input type="text" id="pub-search" placeholder="Search by title or author..." style="flex: 1; min-width: 200px; padding: 0.5rem; border: 1px solid var(--border); border-radius: 6px; font-size: 0.9rem;">
+        <select id="pub-year-filter" style="padding: 0.5rem; border: 1px solid var(--border); border-radius: 6px; font-size: 0.9rem;">
+          <option value="">All years</option>
+        </select>
+        <select id="pub-type-filter" style="padding: 0.5rem; border: 1px solid var(--border); border-radius: 6px; font-size: 0.9rem;">
+          <option value="">All types</option>
+        </select>
+      </div>
+    </div>
+    
+    <div id="publications-list">
+      <p>Loading publications...</p>
+    </div>
+  </section>
+
+  <section id="projects">
+    <h2>Projects</h2>
+    <div class="cards">
+      <div class="card">
+        <h3>Economies of Space</h3>
+        <p>Management of urban real estate and economic discourse using Basel as an example.</p>
+        <a href="https://dhbern.github.io/content/projects/economies-of-space/index.html">Learn more →</a>
+      </div>
+      <div class="card">
+        <h3>The Flow</h3>
+        <p>Historical research increasingly benefits from digitization, handwritten text recognition and natural language processing.</p>
+        <a href="https://dhbern.github.io/content/projects/flow/index.html">Learn more →</a>
+      </div>
+      <div class="card">
+        <h3>Confoederatio Ludens</h3>
+        <p>Game design and development scene in pre-Internet Switzerland.</p>
+        <a href="https://dhbern.github.io/content/projects/ch-ludens/index.html">Learn more →</a>
+      </div>
+      <div class="card">
+        <h3>GeWiS – Grounded Knowledge</h3>
+        <p>Combining relational databases and linked data approaches for the humanities.</p>
+        <a href="https://dhbern.github.io/content/projects/gewis/index.html">Learn more →</a>
+      </div>
+    </div>
+    <p style="margin-top:1.5rem;"><a href="https://dhbern.github.io/content/projects/" style="color:var(--accent); text-decoration:none; font-weight:500;">All projects →</a></p>
+  </section>
+
+  <section id="cv">
+    <h2>CV</h2>
+    <p>For a detailed overview, see my <a href="/cv/" style="color:var(--accent);">complete CV</a>.</p>
+  </section>
+
+  <section id="teaching">
+    <h2>Teaching</h2>
+    <p>Programme director DH Master Major and Minor (30/90 ECTS), MAS Extended Intelligence, MAS Archival, Library and Information Science. Doctoral programme DH (Bern & Basel).</p>
+    <p style="margin-top:1rem;"><a href="https://dhbern.github.io/introduction-to-dh/" style="color:var(--accent); text-decoration:none; font-weight:500;">Introduction DH Spring 2026 →</a></p>
+  </section>
+</div>
+
+
+<script>
+function toggleTheme() {
+  const body = document.body;
+  if (body.getAttribute('data-theme') === 'dark') {
+    body.removeAttribute('data-theme');
+    localStorage.setItem('theme', 'light');
+  } else {
+    body.setAttribute('data-theme', 'dark');
+    localStorage.setItem('theme', 'dark');
+  }
+}
+
+
+const savedTheme = localStorage.getItem('theme');
+if (savedTheme === 'dark') {
+  document.body.setAttribute('data-theme', 'dark');
+}
+
+let allPublications = [];
+let filteredPublications = [];
+
+
+async function loadPublications() {
+  try {
+    const response = await fetch('/publications.json');
+    allPublications = await response.json();
+    filteredPublications = [...allPublications];
+    
+    
+    populateFilters();
+    
+    
+    displayPublications();
+    
+    
+    document.getElementById('pub-search').addEventListener('input', filterPublications);
+    document.getElementById('pub-year-filter').addEventListener('change', filterPublications);
+    document.getElementById('pub-type-filter').addEventListener('change', filterPublications);
+    
+  } catch (error) {
+    console.error('Error loading publications:', error);
+    document.getElementById('publications-list').innerHTML = '<p>Error loading publications. Please try again later.</p>';
+  }
+}
+
+function populateFilters() {
+  
+  const years = [...new Set(allPublications.map(pub => pub.year).filter(year => year && year !== 'n.d.'))].sort((a, b) => b - a);
+  const yearFilter = document.getElementById('pub-year-filter');
+  years.forEach(year => {
+    const option = document.createElement('option');
+    option.value = year;
+    option.textContent = year;
+    yearFilter.appendChild(option);
+  });
+  
+  
+  const types = [...new Set(allPublications.map(pub => pub.type).filter(type => type))].sort();
+  const typeFilter = document.getElementById('pub-type-filter');
+  types.forEach(type => {
+    const option = document.createElement('option');
+    option.value = type;
+    option.textContent = formatTypeLabel(type);
+    typeFilter.appendChild(option);
+  });
+}
+
+function formatTypeLabel(type) {
+  const labels = {
+    'journal-article': 'Journal Articles',
+    'book': 'Books',
+    'book-chapter': 'Book Chapters',
+    'conference-paper': 'Conference Papers',
+    'edited-book': 'Edited Volumes',
+    'other': 'Other',
+    'report': 'Reports',
+    'dissertation': 'Dissertations'
+  };
+  return labels[type] || type.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase());
+}
+
+function formatAuthors(authors) {
+  if (!authors || authors.length === 0) return '';
+
+  
+  const names = authors.map(a => a.is_primary ? `<strong>${a.name}</strong>` : a.name);
+  
+  if (names.length === 1) return names[0];
+  if (names.length === 2) return `${names[0]} & ${names[1]}`;
+  return `${names.slice(0, -1).join(', ')} & ${names[names.length - 1]}`;
+}
+
+function filterPublications() {
+  const searchTerm = document.getElementById('pub-search').value.toLowerCase();
+  const yearFilter = document.getElementById('pub-year-filter').value;
+  const typeFilter = document.getElementById('pub-type-filter').value;
+  
+  filteredPublications = allPublications.filter(pub => {
+    const matchesSearch = !searchTerm || 
+      pub.title.toLowerCase().includes(searchTerm) ||
+      (pub.authors && pub.authors.some(author => author.name.toLowerCase().includes(searchTerm))) ||
+      (pub.journal && pub.journal.toLowerCase().includes(searchTerm));
+    
+    const matchesYear = !yearFilter || pub.year == yearFilter;
+    const matchesType = !typeFilter || pub.type === typeFilter;
+    
+    return matchesSearch && matchesYear && matchesType;
+  });
+  
+  displayPublications();
+}
+
+function displayPublications() {
+  const publicationsDiv = document.getElementById('publications-list');
+  let html = '';
+  
+  if (filteredPublications.length === 0) {
+    html = '<p>No publications found.</p>';
+  } else {
+    
+    const toShow = filteredPublications.slice(0, 10);
+    
+    toShow.forEach(pub => {
+      const authors = formatAuthors(pub.authors);
+      const title = pub.doi ? `<a href="https://doi.org/${pub.doi}">${pub.title}</a>` : pub.title;
+
+      let citation = title;
+      if (authors) {
+        citation = `${authors} (${pub.year || 'n.d.'}). ${title}`;
+      } else if (pub.year && pub.year !== 'n.d.') {
+        citation = `${title} (${pub.year})`;
+      }
+      
+      if (pub.journal) {
+        citation += `. <em>${pub.journal}</em>`;
+      }
+      
+      html += `
         <div class="pub-item">
-          <div class="pub-year">${t.year||"n.d."}</div>
-          <div class="pub-title">${n}</div>
+          <div class="pub-year">${pub.year || 'n.d.'}</div>
+          <div class="pub-title">${citation}</div>
         </div>
-      `}),filteredPublications.length>10&&(e+=`<p style="margin-top:1rem; color:var(--text-muted); font-size:0.9rem;">Showing ${Math.min(10,filteredPublications.length)} of ${filteredPublications.length} publications</p>`)}e+=`<p style="margin-top:1.5rem;"><a href="/publikationen/" style="color:var(--accent); text-decoration:none; font-weight:500;">All ${allPublications.length} publications →</a></p>`,t.innerHTML=e}document.addEventListener("DOMContentLoaded",loadPublications)</script></body></html>
+      `;
+    });
+    
+    if (filteredPublications.length > 10) {
+      html += `<p style="margin-top:1rem; color:var(--text-muted); font-size:0.9rem;">Showing ${Math.min(10, filteredPublications.length)} of ${filteredPublications.length} publications</p>`;
+    }
+  }
+  
+  html += `<p style="margin-top:1.5rem;"><a href="/publikationen/" style="color:var(--accent); text-decoration:none; font-weight:500;">All ${allPublications.length} publications →</a></p>`;
+  
+  publicationsDiv.innerHTML = html;
+}
+
+
+document.addEventListener('DOMContentLoaded', loadPublications);
+</script>
+
+</body>
+</html>
