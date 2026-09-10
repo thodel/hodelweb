@@ -521,6 +521,36 @@
 
   var props = [];   /* {x,y,kind} in Pixeln (Fusspunkt) */
 
+  /* Ein Damm aus Sand: läuft vom Ort Richtung Dorfplatz und füllt Wasser auf,
+     bis wieder festes Land kommt. Ohne ihn liegt der Leuchtturm auf einer
+     Sandzunge, die vom Rest der Insel durch Wasser getrennt ist. */
+  function dammBauen(tx, ty) {
+    /* Erst das Wasser rund um den Ort auffüllen — die Lücke ist meist schmal. */
+    for (var dy = -3; dy <= 3; dy++) {
+      for (var dx = -3; dx <= 3; dx++) {
+        if (Math.hypot(dx, dy) > 3.2) continue;
+        var t0 = at(tx + dx, ty + dy);
+        if (t0 === WATER || t0 === SHALLOW) set(tx + dx, ty + dy, SAND);
+      }
+    }
+    /* Dann schräg Richtung Dorfplatz weiter, bis wieder festes Land kommt. */
+    var x = tx, y = ty, land = 0, schritte = 0;
+    while (schritte++ < 40 && land < 2) {
+      var t = at(x, y);
+      if (t === WATER || t === SHALLOW) {
+        land = 0;
+        set(x, y, SAND);
+        if (at(x, y + 1) === WATER || at(x, y + 1) === SHALLOW) set(x, y + 1, SAND);
+        if (at(x + 1, y) === WATER || at(x + 1, y) === SHALLOW) set(x + 1, y, SAND);
+      } else if (x !== tx || y !== ty) {
+        land++;
+      }
+      if (x === HUB.x && y === HUB.y) break;
+      if (x !== HUB.x) x += x < HUB.x ? 1 : -1;
+      if (y !== HUB.y) y += y < HUB.y ? 1 : -1;
+    }
+  }
+
   function buildWorld() {
     genTerrain();
     /* Der Boden unter jedem Ort wird Land, damit das Schiff am Strand liegt usw. */
@@ -529,6 +559,8 @@
         var t = at(p.tx + dx, p.ty + dy);
         if (t === WATER || t === SHALLOW) set(p.tx + dx, p.ty + dy, SAND);
       }
+      /* Freischaltbare Teile liegen an der Küste — sie brauchen manchmal einen Damm. */
+      if (p.teil) dammBauen(p.tx, p.ty + 1);
       if (!p.versteckt) carvePath(HUB.x, HUB.y, p.tx, p.ty + 1);
     });
     /* Dorfplatz */

@@ -989,21 +989,54 @@
       titel: 'Everyday sentences', lp21: 'FS1E.4.A.1 / FS1E.3.D.1',
       info: 'Ganze Sätze übersetzen.',
       gen: function () {
+        /* Erste Fassung ist die Musterlösung, alle weiteren zählen auch.
+           Kurzformen (don't), britische und amerikanische Schreibweisen sowie
+           Satzzeichen am Schluss werden ohnehin gleich behandelt. */
         var s = pick([
-          ['Ich habe einen Bruder.', 'I have a brother.'],
-          ['Wie geht es dir?', 'How are you?'],
-          ['Meine Lieblingsfarbe ist blau.', 'My favourite colour is blue.'],
-          ['Wir spielen jeden Tag Fussball.', 'We play football every day.'],
-          ['Sie wohnt in der Schweiz.', 'She lives in Switzerland.'],
-          ['Ich bin elf Jahre alt.', 'I am eleven years old.'],
-          ['Das Wetter ist heute schön.', 'The weather is nice today.'],
-          ['Er kann sehr gut schwimmen.', 'He can swim very well.'],
-          ['Wo ist der Bahnhof?', 'Where is the station?'],
-          ['Ich mag Schokolade nicht.', 'I do not like chocolate.']
+          ['Ich habe einen Bruder.',
+           ['I have a brother.', 'I have got a brother.', 'I have one brother.']],
+          ['Wie geht es dir?',
+           ['How are you?', 'How are you doing?', 'How do you feel?']],
+          ['Meine Lieblingsfarbe ist blau.',
+           ['My favourite colour is blue.', 'Blue is my favourite colour.']],
+          ['Wir spielen jeden Tag Fussball.',
+           ['We play football every day.', 'Every day we play football.',
+            'We play soccer every day.', 'We are playing football every day.']],
+          ['Sie wohnt in der Schweiz.',
+           ['She lives in Switzerland.', 'She is living in Switzerland.']],
+          ['Ich bin elf Jahre alt.',
+           ['I am eleven years old.', 'I am 11 years old.', 'I am eleven.']],
+          ['Das Wetter ist heute schön.',
+           ['The weather is nice today.', 'Today the weather is nice.',
+            'The weather is good today.', 'The weather is beautiful today.',
+            'It is nice weather today.', 'The weather today is nice.']],
+          ['Er kann sehr gut schwimmen.',
+           ['He can swim very well.', 'He can swim really well.',
+            'He is very good at swimming.', 'He is a very good swimmer.']],
+          ['Wo ist der Bahnhof?',
+           ['Where is the station?', 'Where is the train station?',
+            'Where is the railway station?']],
+          ['Ich mag Schokolade nicht.',
+           ['I do not like chocolate.', 'I dislike chocolate.']],
+          ['Wir gehen am Samstag ins Kino.',
+           ['We go to the cinema on Saturday.', 'On Saturday we go to the cinema.',
+            'We are going to the cinema on Saturday.', 'We go to the movies on Saturday.']],
+          ['Mein Bruder hat einen Hund.',
+           ['My brother has a dog.', 'My brother has got a dog.']],
+          ['Ich stehe um sieben Uhr auf.',
+           ['I get up at seven.', 'I get up at seven o\'clock.', 'I get up at 7.',
+            'I get up at 7 o\'clock.']],
+          ['Sie ist meine beste Freundin.',
+           ['She is my best friend.']],
+          ['Wie viel kostet das?',
+           ['How much is it?', 'How much does it cost?', 'How much is that?']],
+          ['Es tut mir leid, ich verstehe das nicht.',
+           ['I am sorry, I do not understand.', 'Sorry, I do not understand.',
+            'I am sorry, I do not understand this.', 'Sorry, I do not understand that.']]
         ]);
-        return { typ: 'text', frage: 'Translate: ' + s[0], antwort: s[1],
-                 alternativen: [s[1].replace(/\.$/, ''), s[1].replace('do not', "don't").replace(/\.$/, ''), s[1].replace('do not', "don't")],
-                 hinweis: 'Ganzer Satz, Punkt am Schluss ist egal.' };
+        return { typ: 'text', frage: 'Translate: ' + s[0], antwort: s[1][0],
+                 alternativen: s[1].slice(1), paar: 'satz:' + s[0],
+                 hinweis: 'Ganzer Satz. Satzzeichen sind egal, und oft gibt es mehrere richtige Lösungen.' };
       }
     },
     {
