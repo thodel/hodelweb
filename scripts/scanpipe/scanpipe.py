@@ -460,7 +460,8 @@ def bericht(daten, ziel, cloud):
 
 # ---------------------------------------------------------------- Lernwelt
 
-ORTE = {"englisch": "im Piratenschiff", "deutsch": "in der Schreiberhütte",
+ORTE = {"mathe": "im Rechenturm", "deutsch": "in der Schreiberhütte",
+        "englisch": "im Piratenschiff", "nmg": "auf dem Aussichtsberg",
         "franzoesisch": "im Nebelturm"}
 
 
@@ -498,7 +499,7 @@ def lernwelt_bericht(liste, ziel, kinder, seiten=1):
             f"**{titel}** · {liste['info']}" + (f" · {liste['bewertung']}" if liste.get("bewertung") else ""),
             f"🧮 {len(A)} Aufgaben" + (f" auf {seiten} Seiten" if seiten > 1 else "") + ": " + ", ".join(namen),
             f"🎯 «{titel} — nochmals das Blatt» und «{titel} — ähnliche Aufgaben» liegen "
-            f"{ORTE.get('mathe')}.",
+            f"{ORTE['mathe']}.",
         ]
         if schwach:
             zeilen.append("🔁 Kommt bei den ähnlichen Aufgaben öfter dran: " + ", ".join(schwach))

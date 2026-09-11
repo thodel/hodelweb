@@ -337,6 +337,9 @@ def _mathe_aufgabe(thema, angabe, schueler):
     zahlen = _zahlen(angabe)
     schueler = _rein(schueler, 120)
     werte = loesung = richtig = None
+    # Wo eine einzige Zahl die Antwort ist, sind «1 7» zwei gelesene Ziffern von 17.
+    if schueler and thema in ("ggt", "kgv", "ergaenzen", "rechnen") and "," not in schueler:
+        schueler = re.sub(r"(?<=\d)\s+(?=\d)", "", schueler)
     # Ein Platzhalter (3/4 = ?/8) macht es immer zur Ergänzungsaufgabe.
     if re.search(r"/\s*[?_…]|[?_…]\s*/", angabe):
         thema = "ergaenzen"
