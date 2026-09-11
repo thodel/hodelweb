@@ -1044,8 +1044,8 @@
             w.satz.replace(/\{[^}]+\}/, '___'), m[1],
             shuffle(falschGeschrieben(m[1], true)).slice(0, 3), null, paar(w));
         }
-        return wahl('Welches Wort ist richtig geschrieben?', w.wort,
-          shuffle(falschGeschrieben(w.wort)).slice(0, 3), null, paar(w));
+        return wahl('Welches Wort ist richtig geschrieben?' + (w.artikel ? '  (' + w.artikel + ' …)' : ''),
+          w.wort, shuffle(falschGeschrieben(w.wort)).slice(0, 3), null, paar(w));
       }
     }, {
       id: L.id + '-write', klassen: L.klassen, schwierigkeit: 'schwer',

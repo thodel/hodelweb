@@ -473,18 +473,20 @@ def listen_ablage(konfig):
 def lernwelt_bericht(liste, ziel, kinder):
     E, kind, titel = liste["eintraege"], liste["kind"], liste["titel"]
     if liste["art"] == "vokabeln":
-        beispiele = " · ".join(f"{e['fremd']} = {e['deutsch']}" for e in E[:3])
-        was = f"{lw.SPRACHEN.get(liste['sprache'], 'Vokabeln')} · {len(E)} Wörter"
+        beispiele = " · ".join(f"{e['fremd']} = {e['deutsch']}" for e in E[:3]) + (" …" if len(E) > 3 else "")
+        sprache = lw.SPRACHEN.get(liste["sprache"], "Vokabeln")
+        was = (f"{sprache} · " if sprache.lower() not in titel.lower() else "") + f"{len(E)} Wörter"
         uebungen = f"«{titel} — wählen» und «{titel} — selber schreiben»"
     else:
-        beispiele = " · ".join(e["wort"] for e in E[:6])
+        beispiele = " · ".join(" ".join(filter(None, [e.get("artikel"), e["wort"]]))
+                               for e in E[:6]) + (" …" if len(E) > 6 else "")
         was = f"Lernwörter · {len(E)} Wörter"
         uebungen = f"«{titel} — richtig geschrieben?» und «{titel} — selber schreiben»"
     saetze = sum(1 for e in E if e.get("satz"))
     zeilen = [
         f"🏝️ **Neu in der Lernwelt** für **{kind.capitalize()}** ({liste['klassen'][0]}. Klasse)",
         f"**{titel}** · {was}" + (f", {saetze} mit Beispielsatz" if saetze else ""),
-        beispiele + (" …" if len(E) > 3 else ""),
+        beispiele,
         f"🎯 {uebungen} liegen {ORTE.get(liste['fach'], 'im Lernraum')}.",
     ]
     if ziel:
