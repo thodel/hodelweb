@@ -119,6 +119,10 @@ cd ~/scanpipe && python3 scanpipe.py
 
 Alles noch einmal verarbeiten: `letzteId` in `state.json` heruntersetzen.
 
+Ein Handlauf während eines Timer-Laufs entfällt (Sperre `~/scanpipe/.lauf.lock`).
+Ohne Sperre verarbeiteten beide dieselbe Nachricht doppelt und überschrieben
+sich `state.json`.
+
 ## Voraussetzungen auf dem Server
 
 | Werkzeug | Wofür |
