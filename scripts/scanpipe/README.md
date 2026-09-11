@@ -27,10 +27,46 @@ erkannt, benannt und in den passenden Ordner einsortiert.
 7. **Korrigieren** — Auf diese Antwort mit dem richtigen Domänennamen antworten,
    dann verschiebt die Pipeline Dokument und Beipackzettel.
 
+## Lernwelt: Wortlisten als Übungen
+
+Steht in der Bildunterschrift **«lernwelt»** oder **«lw»**, wird aus dem Foto
+eine Übung für die Lerninsel (`/lernwelt/`) statt eines Ablagedokuments. Im
+Raum *Lernwelt Andrin* gilt das für jedes Foto, ohne Stichwort.
+
+- **Was geht:** Vokabellisten Englisch oder Französisch mit deutscher
+  Bedeutung, sowie deutsche Lernwörter (Rechtschreibung). Mindestens 4 Wörter.
+  Französisch landet im Piratenschiff (Englisch-Lernraum), weil die Insel noch
+  keinen eigenen Französisch-Raum hat.
+- **Für wen:** ein Name in der Bildunterschrift («lw andrin»), sonst die
+  Vorgabe des Raums, sonst der Name auf dem Blatt, sonst die Klasse auf dem
+  Blatt (nächstliegendes Kind), sonst `vorgabeKind`.
+- **Übungen:** je Liste zwei Sets. Vokabeln: *wählen* (Bedeutung oder Lücke
+  im Beispielsatz) und *selber schreiben*. Lernwörter: *richtig geschrieben?*
+  (drei typische Fehlschreibungen) und *selber schreiben* (Lücke oder
+  Fehlerwort verbessern). Gebaut werden sie in `static/lernwelt/uebungen.js`
+  (`vokabelSets`, `lernwortSets`).
+- **Ablage:** Das Foto kommt nach `schule/<Jahr>/JJJJ-MM-TT_lernwelt-<kind>_<titel>`,
+  daneben `….lernwelt.json` mit der erkannten Liste. Fotos, die Andrin selbst
+  schickt, werden kopiert (sie gehören ihm), eigene verschoben.
+- **Nachträglich:** Auf einen normalen Ablagebericht mit «lw» (oder
+  «lw andrin») antworten.
+- **Korrigieren:** Auf den Lernwelt-Bericht mit «löschen» antworten, dann ist
+  die Liste weg (das Foto bleibt). Mit «joris» oder «andrin» wird sie
+  umgehängt.
+
+Technik: Die Stammdaten stehen in `~/scanpipe/lernwelt-listen.json`. Daraus
+schreibt `lernwelt.py` die Datei `public/lernwelt/eigene/listen.js`
+(`window.LERNWELT_LISTEN`), die `uebungen.js` per `document.write` mit
+Minutenstempel nachlädt. Der Ordner ist nicht im Repo (`.gitignore`), Hugo
+lässt ihn stehen; fehlt `listen.js`, schreibt der nächste Lauf sie neu.
+
 ## Räume
 
 Der Raum *Dokumente* (`4cavkg2r`) ist die Ablage: nur Fotos hinein, nur Berichte
-heraus. Der openclaw-Agent ist dort **nicht** eingebunden, er kommentiert also
+heraus. Der Raum *Lernwelt Andrin* (`gr5bir5r`, Mitglieder th und AH) hat
+`"modus": "lernwelt"`: jedes Foto wird zur Übung für Andrin, und auch Andrin
+selbst darf auslösen (`"absender": ["th", "AH"]`). Sonst zählen nur
+Nachrichten des Besitzers. Der openclaw-Agent ist dort **nicht** eingebunden, er kommentiert also
 nichts und verbraucht keine Modellaufrufe.
 
 Damit der Bot dort schreiben darf, musste er einmalig für das Gespräch
@@ -57,6 +93,9 @@ Dokument in `sonstiges`. Ist das Bild gar kein Dokument, bleibt es liegen.
 | Pfad | Inhalt |
 |---|---|
 | `~/scanpipe/scanpipe.py` | die Pipeline |
+| `~/scanpipe/lernwelt.py` | Wortlisten für die Lerninsel |
+| `~/scanpipe/lernwelt-listen.json` | Stammdaten der Lernwelt-Listen |
+| `~/repos/hodelweb/public/lernwelt/eigene/listen.js` | daraus erzeugt, von der Lernwelt geladen |
 | `~/scanpipe/config.json` | Raum, Zielordner, Modell, Domänen |
 | `~/scanpipe/state.json` | zuletzt verarbeitete Nachricht, Berichtszuordnung |
 | `~/scanpipe/scanpipe.log` | Lauf-Protokoll |
