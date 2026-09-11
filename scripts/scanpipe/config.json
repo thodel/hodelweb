@@ -1,0 +1,41 @@
+{
+  "zielOrdner": "Documents/scans",
+  "modell": "custom-api-qwen/qwen3-vl-plus",
+  "agent": "main",
+  "openclaw": "openclaw",
+  "modellTimeout": 240,
+  "agentWorkspace": "~/.openclaw/workspace",
+  "envDatei": "~/.scanpipe.env",
+  "holeAnzahl": 50,
+  "domaenen": [
+    "rechnung",
+    "versicherung",
+    "bank",
+    "steuern",
+    "schule",
+    "gesundheit",
+    "wohnen",
+    "fahrzeug",
+    "arbeit",
+    "vertrag",
+    "quittung",
+    "behoerde",
+    "sonstiges"
+  ],
+  "sendeUeberOpenclaw": true,
+  "botBenutzer": "nc-bot",
+  "besitzer": "th",
+  "raeume": [
+    {
+      "token": "4cavkg2r",
+      "name": "Dokumente",
+      "aktiv": true
+    },
+    {
+      "token": "jgf7ptuf",
+      "name": "Research Bot",
+      "aktiv": false
+    }
+  ],
+  "pdfSeiten": 3
+}

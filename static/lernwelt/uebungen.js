@@ -913,7 +913,93 @@
     ['begin', 'began', 'begun', 'beginnen'], ['win', 'won', 'won', 'gewinnen'], ['put', 'put', 'put', 'stellen']
   ];
 
+  /* Schulblatt «English Vocabulary: Unit Words», 4. Klasse (28 Wörter),
+     eingescannt über die Dokumenten-Pipeline am 11.09.2026.
+     [englisch, deutsch, Beispielsatz mit {Lücke}, Wortart, weitere richtige Antworten]
+     Wortart: n Nomen, v Tätigkeit, f Farbe — Ablenker kommen aus derselben Wortart. */
+  var UNIT_WORDS = [
+    ['a clock', 'eine Uhr (Wanduhr)', 'Look at the {clock}, it is twelve o\'clock.', 'n'],
+    ['a clown', 'ein Clown', 'The {clown} makes funny jokes.', 'n'],
+    ['a duck', 'eine Ente', 'A yellow {duck} swims in the pond.', 'n'],
+    ['a guitar', 'eine Gitarre', 'She plays a song on her {guitar}.', 'n'],
+    ['a lake', 'ein See', 'We go for a swim in the {lake}.', 'n'],
+    ['a trumpet', 'eine Trompete', 'He plays the {trumpet} very loudly.', 'n'],
+    ['to colour', 'anmalen / ausmalen', '{Colour} the picture with pencils, please.', 'v'],
+    ['to cut', 'schneiden', 'Use the scissors to {cut} the paper.', 'v'],
+    ['to draw', 'zeichnen', 'Can you {draw} a nice house?', 'v'],
+    ['to listen', 'zuhören', '{Listen} carefully to the teacher.', 'v'],
+    ['to look', 'schauen / blicken', '{Look} at the blackboard, please.', 'v'],
+    ['to open your book', 'dein Buch aufschlagen', '{Open your book} on page ten.', 'v', ['open the book']],
+    ['to put your hand up', 'aufstrecken', '{Put your hand up} if you know the answer.', 'v', ['put up your hand']],
+    ['to read', 'lesen', 'We {read} a short story together.', 'v'],
+    ['to write', 'schreiben', '{Write} the words in your notebook.', 'v'],
+    ['a castle', 'eine Burg / ein Schloss', 'A king lives in the big {castle}.', 'n'],
+    ['a cloud', 'eine Wolke', 'There is a white {cloud} in the sky.', 'n'],
+    ['a forest', 'ein Wald', 'Many trees grow in the {forest}.', 'n'],
+    ['grass', 'Gras', 'The cow eats green {grass}.', 'n'],
+    ['a hill', 'ein Hügel', 'The children run up the {hill}.', 'n'],
+    ['a mountain', 'ein Berg', 'Mount Everest is a high {mountain}.', 'n'],
+    ['a picture', 'ein Bild', 'She draws a colourful {picture}.', 'n'],
+    ['the sky', 'der Himmel', 'Birds fly high in the blue {sky}.', 'n'],
+    ['a road', 'eine Strasse', 'Cars drive along the {road}.', 'n'],
+    ['light blue', 'hellblau', 'The sea is {light blue} today.', 'f'],
+    ['dark blue', 'dunkelblau', 'The night sky is {dark blue}.', 'f'],
+    ['light green', 'hellgrün', 'Fresh leaves in spring are {light green}.', 'f'],
+    ['dark green', 'dunkelgrün', 'The pine tree is {dark green}.', 'f']
+  ];
+  function unitGleicheArt(w) {
+    return UNIT_WORDS.filter(function (v) { return v[3] === w[3]; });
+  }
+  function ohneBegleiter(en) { return en.replace(/^(to|the|a|an) /, ''); }
+  /* Lückensatz: die Lücke und die Ablenker in derselben Schreibweise
+     (am Satzanfang gross). */
+  function unitLuecke(w) {
+    var m = w[2].match(/\{([^}]+)\}/), gross = w[2].charAt(0) === '{';
+    var form = function (en) {
+      var t = ohneBegleiter(en);
+      return gross ? t.charAt(0).toUpperCase() + t.slice(1) : t;
+    };
+    return { satz: w[2].replace(/\{[^}]+\}/, '___'), wort: m[1],
+             ablenker: unitGleicheArt(w).map(function (v) { return form(v[0]); }) };
+  }
+
   var ENGLISCH = [
+    {
+      id: 'unit-words', klassen: [4], schwierigkeit: 'leicht',
+      titel: 'Unit Words — Schulblatt', lp21: 'FS1E.5.B.1',
+      info: 'Die 28 Wörter vom Englisch-Blatt: Bedeutung wählen oder die Lücke im Satz füllen.',
+      gen: function () {
+        var w = pick(UNIT_WORDS), r = Math.random(), paar = 'unit:' + w[0];
+        if (r < 0.35) {
+          var l = unitLuecke(w);
+          return wahl('Fill in: ' + l.satz, l.wort, distinct(l.wort, l.ablenker, 3), '(' + w[1] + ')', paar);
+        }
+        var art = unitGleicheArt(w);
+        if (r < 0.7) {
+          return wahl('Was heisst «' + w[1] + '» auf Englisch?', w[0],
+            distinct(w[0], art.map(function (v) { return v[0]; }), 3), null, paar);
+        }
+        return wahl('Was heisst «' + w[0] + '» auf Deutsch?', w[1],
+          distinct(w[1], art.map(function (v) { return v[1]; }), 3), null, paar);
+      }
+    },
+    {
+      id: 'unit-words-write', klassen: [4], schwierigkeit: 'schwer',
+      titel: 'Unit Words — selber schreiben', lp21: 'FS1E.5.E.1',
+      info: 'Die 28 Wörter vom Englisch-Blatt auswendig schreiben.',
+      gen: function () {
+        var w = pick(UNIT_WORDS), paar = 'unit:' + w[0];
+        var kern = ohneBegleiter(w[0]), woerter = kern.split(' ').length;
+        var hinweis = woerter > 1 ? woerter + ' Wörter' : kern.length + ' Buchstaben';
+        if (Math.random() < 0.35) {
+          var l = unitLuecke(w);
+          return { typ: 'text', frage: 'Fill in: ' + l.satz + '  (' + w[1] + ')', antwort: l.wort,
+                   alternativen: w[4] || [], hinweis: hinweis, paar: paar };
+        }
+        return { typ: 'text', frage: 'Write in English: ' + w[1], antwort: w[0],
+                 alternativen: w[4] || [], hinweis: hinweis + ' · «a» und «to» darfst du weglassen.', paar: paar };
+      }
+    },
     {
       id: 'words-basic', klassen: [4, 5], schwierigkeit: 'leicht',
       titel: 'Words — choose the answer', lp21: 'FS1E.5.B.1',
