@@ -1,0 +1,4 @@
+# Von der Dokumenten-Pipeline erzeugt (scripts/scanpipe/lernwelt.py), nur auf dem Server
+public/lernwelt/eigene/
+static/lernwelt/eigene/
+__pycache__/

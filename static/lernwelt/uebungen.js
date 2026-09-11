@@ -913,93 +913,198 @@
     ['begin', 'began', 'begun', 'beginnen'], ['win', 'won', 'won', 'gewinnen'], ['put', 'put', 'put', 'stellen']
   ];
 
-  /* Schulblatt «English Vocabulary: Unit Words», 4. Klasse (28 Wörter),
-     eingescannt über die Dokumenten-Pipeline am 11.09.2026.
-     [englisch, deutsch, Beispielsatz mit {Lücke}, Wortart, weitere richtige Antworten]
-     Wortart: n Nomen, v Tätigkeit, f Farbe — Ablenker kommen aus derselben Wortart. */
-  var UNIT_WORDS = [
-    ['a clock', 'eine Uhr (Wanduhr)', 'Look at the {clock}, it is twelve o\'clock.', 'n'],
-    ['a clown', 'ein Clown', 'The {clown} makes funny jokes.', 'n'],
-    ['a duck', 'eine Ente', 'A yellow {duck} swims in the pond.', 'n'],
-    ['a guitar', 'eine Gitarre', 'She plays a song on her {guitar}.', 'n'],
-    ['a lake', 'ein See', 'We go for a swim in the {lake}.', 'n'],
-    ['a trumpet', 'eine Trompete', 'He plays the {trumpet} very loudly.', 'n'],
-    ['to colour', 'anmalen / ausmalen', '{Colour} the picture with pencils, please.', 'v'],
-    ['to cut', 'schneiden', 'Use the scissors to {cut} the paper.', 'v'],
-    ['to draw', 'zeichnen', 'Can you {draw} a nice house?', 'v'],
-    ['to listen', 'zuhören', '{Listen} carefully to the teacher.', 'v'],
-    ['to look', 'schauen / blicken', '{Look} at the blackboard, please.', 'v'],
-    ['to open your book', 'dein Buch aufschlagen', '{Open your book} on page ten.', 'v', ['open the book']],
-    ['to put your hand up', 'aufstrecken', '{Put your hand up} if you know the answer.', 'v', ['put up your hand']],
-    ['to read', 'lesen', 'We {read} a short story together.', 'v'],
-    ['to write', 'schreiben', '{Write} the words in your notebook.', 'v'],
-    ['a castle', 'eine Burg / ein Schloss', 'A king lives in the big {castle}.', 'n'],
-    ['a cloud', 'eine Wolke', 'There is a white {cloud} in the sky.', 'n'],
-    ['a forest', 'ein Wald', 'Many trees grow in the {forest}.', 'n'],
-    ['grass', 'Gras', 'The cow eats green {grass}.', 'n'],
-    ['a hill', 'ein Hügel', 'The children run up the {hill}.', 'n'],
-    ['a mountain', 'ein Berg', 'Mount Everest is a high {mountain}.', 'n'],
-    ['a picture', 'ein Bild', 'She draws a colourful {picture}.', 'n'],
-    ['the sky', 'der Himmel', 'Birds fly high in the blue {sky}.', 'n'],
-    ['a road', 'eine Strasse', 'Cars drive along the {road}.', 'n'],
-    ['light blue', 'hellblau', 'The sea is {light blue} today.', 'f'],
-    ['dark blue', 'dunkelblau', 'The night sky is {dark blue}.', 'f'],
-    ['light green', 'hellgrün', 'Fresh leaves in spring are {light green}.', 'f'],
-    ['dark green', 'dunkelgrün', 'The pine tree is {dark green}.', 'f']
-  ];
-  function unitGleicheArt(w) {
-    return UNIT_WORDS.filter(function (v) { return v[3] === w[3]; });
+  /* ---------------- Wortlisten ----------------
+     Vokabel- und Lernwörterlisten werden aus Daten gebaut: aus den fest
+     eingebauten Schulblättern und aus denen, welche die Dokumenten-Pipeline
+     aus fotografierten Blättern erzeugt (siehe EIGENE weiter unten).
+
+     Vokabel-Eintrag: { fremd, deutsch, satz, art, varianten }
+     Lernwort-Eintrag: { wort, satz, art }
+     satz trägt das geübte Wort in {geschweiften Klammern}.
+     art: n Nomen, v Tätigkeit, a Eigenschaft, f Farbe, x anderes —
+     Ablenker kommen möglichst aus derselben Wortart. */
+  var SPRACHEN = {
+    englisch: { name: 'Englisch', auf: 'auf Englisch', schreib: 'Write in English: ', luecke: 'Fill in: ',
+                begleiter: /^(to|the|a|an) /i, lp21: 'FS1E.5.B.1', lp21schreib: 'FS1E.5.E.1',
+                weglassen: ' · «a» und «to» darfst du weglassen.' },
+    franzoesisch: { name: 'Französisch', auf: 'auf Französisch', schreib: 'Écris en français : ',
+                    luecke: 'Complète : ', begleiter: /^(le |la |les |l'|un |une |des |se |s')/i,
+                    lp21: 'FS2F.5.B.1', lp21schreib: 'FS2F.5.E.1', weglassen: ' · Mit Artikel, wie auf dem Blatt.' }
+  };
+
+  function gleicheArt(liste, w) {
+    var gleich = liste.filter(function (v) { return v.art === w.art; });
+    return gleich.length >= 4 ? gleich : liste;
   }
-  function ohneBegleiter(en) { return en.replace(/^(to|the|a|an) /, ''); }
+  function zaehlHinweis(kern) {
+    var woerter = kern.split(' ').length;
+    return woerter > 1 ? woerter + ' Wörter' : kern.length + ' Buchstaben';
+  }
   /* Lückensatz: die Lücke und die Ablenker in derselben Schreibweise
      (am Satzanfang gross). */
-  function unitLuecke(w) {
-    var m = w[2].match(/\{([^}]+)\}/), gross = w[2].charAt(0) === '{';
-    var form = function (en) {
-      var t = ohneBegleiter(en);
+  function luecke(satz, pool, ohne) {
+    var m = satz.match(/\{([^}]+)\}/), gross = satz.charAt(0) === '{';
+    var form = function (t) {
+      t = ohne(t);
       return gross ? t.charAt(0).toUpperCase() + t.slice(1) : t;
     };
-    return { satz: w[2].replace(/\{[^}]+\}/, '___'), wort: m[1],
-             ablenker: unitGleicheArt(w).map(function (v) { return form(v[0]); }) };
+    return { satz: satz.replace(/\{[^}]+\}/, '___'), wort: m[1], ablenker: pool.map(form) };
   }
 
-  var ENGLISCH = [
-    {
-      id: 'unit-words', klassen: [4], schwierigkeit: 'leicht',
-      titel: 'Unit Words — Schulblatt', lp21: 'FS1E.5.B.1',
-      info: 'Die 28 Wörter vom Englisch-Blatt: Bedeutung wählen oder die Lücke im Satz füllen.',
+  function vokabelSets(L) {
+    var sp = SPRACHEN[L.sprache] || SPRACHEN.englisch, E = L.eintraege;
+    var ohne = function (t) { return t.replace(sp.begleiter, ''); };
+    var paar = function (w) { return 'liste:' + L.id + ':' + w.fremd; };
+    var anzahl = E.length + ' Wörter';
+    return [{
+      id: L.id, klassen: L.klassen, schwierigkeit: 'leicht',
+      titel: L.titel + ' — wählen', lp21: sp.lp21,
+      info: (L.info || 'Vom Schulblatt') + ' · ' + anzahl + ': Bedeutung wählen oder die Lücke im Satz füllen.',
       gen: function () {
-        var w = pick(UNIT_WORDS), r = Math.random(), paar = 'unit:' + w[0];
-        if (r < 0.35) {
-          var l = unitLuecke(w);
-          return wahl('Fill in: ' + l.satz, l.wort, distinct(l.wort, l.ablenker, 3), '(' + w[1] + ')', paar);
+        var w = pick(E), r = Math.random(), art = gleicheArt(E, w);
+        if (w.satz && r < 0.35) {
+          var l = luecke(w.satz, art.map(function (v) { return v.fremd; }), ohne);
+          return wahl(sp.luecke + l.satz, l.wort, distinct(l.wort, l.ablenker, 3), '(' + w.deutsch + ')', paar(w));
         }
-        var art = unitGleicheArt(w);
         if (r < 0.7) {
-          return wahl('Was heisst «' + w[1] + '» auf Englisch?', w[0],
-            distinct(w[0], art.map(function (v) { return v[0]; }), 3), null, paar);
+          return wahl('Was heisst «' + w.deutsch + '» ' + sp.auf + '?', w.fremd,
+            distinct(w.fremd, art.map(function (v) { return v.fremd; }), 3), null, paar(w));
         }
-        return wahl('Was heisst «' + w[0] + '» auf Deutsch?', w[1],
-          distinct(w[1], art.map(function (v) { return v[1]; }), 3), null, paar);
+        return wahl('Was heisst «' + w.fremd + '» auf Deutsch?', w.deutsch,
+          distinct(w.deutsch, art.map(function (v) { return v.deutsch; }), 3), null, paar(w));
       }
-    },
-    {
-      id: 'unit-words-write', klassen: [4], schwierigkeit: 'schwer',
-      titel: 'Unit Words — selber schreiben', lp21: 'FS1E.5.E.1',
-      info: 'Die 28 Wörter vom Englisch-Blatt auswendig schreiben.',
+    }, {
+      id: L.id + '-write', klassen: L.klassen, schwierigkeit: 'schwer',
+      titel: L.titel + ' — selber schreiben', lp21: sp.lp21schreib,
+      info: (L.info || 'Vom Schulblatt') + ' · ' + anzahl + ' auswendig schreiben.',
       gen: function () {
-        var w = pick(UNIT_WORDS), paar = 'unit:' + w[0];
-        var kern = ohneBegleiter(w[0]), woerter = kern.split(' ').length;
-        var hinweis = woerter > 1 ? woerter + ' Wörter' : kern.length + ' Buchstaben';
-        if (Math.random() < 0.35) {
-          var l = unitLuecke(w);
-          return { typ: 'text', frage: 'Fill in: ' + l.satz + '  (' + w[1] + ')', antwort: l.wort,
-                   alternativen: w[4] || [], hinweis: hinweis, paar: paar };
+        var w = pick(E), hinweis = zaehlHinweis(ohne(w.fremd));
+        if (w.satz && Math.random() < 0.35) {
+          var l = luecke(w.satz, [], ohne);
+          return { typ: 'text', frage: sp.luecke + l.satz + '  (' + w.deutsch + ')', antwort: l.wort,
+                   alternativen: w.varianten || [], hinweis: hinweis, paar: paar(w) };
         }
-        return { typ: 'text', frage: 'Write in English: ' + w[1], antwort: w[0],
-                 alternativen: w[4] || [], hinweis: hinweis + ' · «a» und «to» darfst du weglassen.', paar: paar };
+        return { typ: 'text', frage: sp.schreib + w.deutsch, antwort: w.fremd,
+                 alternativen: w.varianten || [], hinweis: hinweis + sp.weglassen, paar: paar(w) };
       }
-    },
+    }];
+  }
+
+  /* Falsche Schreibweisen für Lernwörter: typische Fehler der Mittelstufe. */
+  var FEHLER = [
+    [/ie/, 'i'], [/([^aeiouäöü])i([bdglmnrst])/, '$1ie$2'], [/ck/, 'k'], [/tz/, 'z'], [/ß/, 'ss'],
+    [/ss/, 's'], [/([bdfglmnprt])\1/, '$1'], [/([aeiouäöü])([lmnpt])([aeiou])/, '$1$2$2$3'],
+    [/äu/, 'eu'], [/eu/, 'äu'], [/ä/, 'e'], [/([aeiouäöü])h([lmnr])/i, '$1$2'],
+    [/([^aeiouäöü][aiouäöü])([lmnr])(?!\2)/, '$1h$2'], [/d$/, 't'], [/t$/, 'd'], [/g$/, 'k'], [/b$/, 'p'],
+    [/^V/, 'F'], [/^F/, 'V'], [/^v/, 'f'], [/ei/, 'ai'], [/ai/, 'ei'], [/chs/, 'x'], [/x/, 'chs'],
+    [/qu/, 'kw'], [/ph/, 'f'], [/th/, 't'], [/(aa|ee|oo)/, function (m) { return m[0]; }],
+    [/ng/, 'nk'], [/dt/, 't'], [/([^c])k/, '$1ck']
+  ];
+  /* grossKlein: auch die Gross-/Kleinschreibung verdrehen. Nur im Satz
+     sinnvoll — allein kann «Schwimmen» durchaus richtig sein. */
+  function falschGeschrieben(wort, grossKlein) {
+    var out = [];
+    FEHLER.forEach(function (f) {
+      var v = wort.replace(f[0], f[1]);
+      if (v !== wort && out.indexOf(v) < 0) out.push(v);
+    });
+    if (grossKlein) {
+      var klein = wort.charAt(0).toLowerCase() + wort.slice(1), gross = wort.charAt(0).toUpperCase() + wort.slice(1);
+      [klein, gross].forEach(function (v) { if (v !== wort && out.indexOf(v) < 0) out.push(v); });
+    }
+    /* Reicht das nicht, kommen glaubwürdige Tippfehler dazu, von hinten her:
+       ein Konsonant oder a/e/o doppelt, dann ein Buchstabe vertauscht. */
+    var dazu = function (t) { if (t !== wort && out.indexOf(t) < 0) out.push(t); };
+    for (var i = wort.length - 1; out.length < 3 && i > 0; i--) {
+      var c = wort.charAt(i);
+      if (/[bdfglmnprtaeo]/.test(c) && wort.charAt(i - 1) !== c && wort.charAt(i + 1) !== c) {
+        dazu(wort.slice(0, i + 1) + wort.slice(i));
+      }
+    }
+    for (i = wort.length - 2; out.length < 3 && i > 0; i--) {
+      dazu(wort.slice(0, i) + wort.charAt(i + 1) + wort.charAt(i) + wort.slice(i + 2));
+    }
+    /* Ganz kurze Wörter (Ei, See): irgendein Buchstabe doppelt. */
+    for (i = wort.length - 1; out.length < 3 && i >= 0; i--) dazu(wort.slice(0, i + 1) + wort.slice(i));
+    return out;
+  }
+
+  function lernwortSets(L) {
+    var E = L.eintraege, anzahl = E.length + ' Wörter';
+    var paar = function (w) { return 'liste:' + L.id + ':' + w.wort; };
+    return [{
+      id: L.id, klassen: L.klassen, schwierigkeit: 'leicht',
+      titel: L.titel + ' — richtig geschrieben?', lp21: 'D.5.E.1',
+      info: (L.info || 'Vom Schulblatt') + ' · ' + anzahl + ': die richtige Schreibweise finden.',
+      gen: function () {
+        var w = pick(E), m = w.satz && w.satz.match(/\{([^}]+)\}/);
+        if (m && Math.random() < 0.5) {
+          /* Im Satz zählt die Form in der Lücke — am Satzanfang gross. */
+          return wahl('Welches Wort gehört richtig geschrieben in die Lücke?\n' +
+            w.satz.replace(/\{[^}]+\}/, '___'), m[1],
+            shuffle(falschGeschrieben(m[1], true)).slice(0, 3), null, paar(w));
+        }
+        return wahl('Welches Wort ist richtig geschrieben?', w.wort,
+          shuffle(falschGeschrieben(w.wort)).slice(0, 3), null, paar(w));
+      }
+    }, {
+      id: L.id + '-write', klassen: L.klassen, schwierigkeit: 'schwer',
+      titel: L.titel + ' — selber schreiben', lp21: 'D.5.E.1',
+      info: (L.info || 'Vom Schulblatt') + ' · ' + anzahl + ' richtig schreiben.',
+      gen: function () {
+        var w = pick(E), m = w.satz && w.satz.match(/\{([^}]+)\}/);
+        if (m && Math.random() < 0.5) {
+          return { typ: 'text', frage: 'Schreib das fehlende Wort:\n' + w.satz.replace(/\{[^}]+\}/, '___'),
+                   antwort: m[1], hinweis: 'Beginnt mit «' + m[1].charAt(0) + '» · ' + m[1].length + ' Buchstaben',
+                   paar: paar(w) };
+        }
+        return { typ: 'text', frage: 'Hier ist ein Fehler drin. Schreib das Wort richtig:\n' +
+                   pick(falschGeschrieben(w.wort)), antwort: w.wort,
+                 hinweis: w.wort.length + ' Buchstaben', paar: paar(w) };
+      }
+    }];
+  }
+
+  function listenSets(L) { return L.art === 'lernwoerter' ? lernwortSets(L) : vokabelSets(L); }
+
+  /* Schulblatt «English Vocabulary: Unit Words», 4. Klasse (28 Wörter),
+     eingescannt über die Dokumenten-Pipeline am 11.09.2026. */
+  var UNIT_WORDS = {
+    id: 'unit-words', art: 'vokabeln', sprache: 'englisch', klassen: [4],
+    titel: 'Unit Words', info: 'Englisch-Blatt der 4. Klasse',
+    eintraege: [
+      ['a clock', 'eine Uhr (Wanduhr)', 'Look at the {clock}, it is twelve o\'clock.', 'n'],
+      ['a clown', 'ein Clown', 'The {clown} makes funny jokes.', 'n'],
+      ['a duck', 'eine Ente', 'A yellow {duck} swims in the pond.', 'n'],
+      ['a guitar', 'eine Gitarre', 'She plays a song on her {guitar}.', 'n'],
+      ['a lake', 'ein See', 'We go for a swim in the {lake}.', 'n'],
+      ['a trumpet', 'eine Trompete', 'He plays the {trumpet} very loudly.', 'n'],
+      ['to colour', 'anmalen / ausmalen', '{Colour} the picture with pencils, please.', 'v'],
+      ['to cut', 'schneiden', 'Use the scissors to {cut} the paper.', 'v'],
+      ['to draw', 'zeichnen', 'Can you {draw} a nice house?', 'v'],
+      ['to listen', 'zuhören', '{Listen} carefully to the teacher.', 'v'],
+      ['to look', 'schauen / blicken', '{Look} at the blackboard, please.', 'v'],
+      ['to open your book', 'dein Buch aufschlagen', '{Open your book} on page ten.', 'v', ['open the book']],
+      ['to put your hand up', 'aufstrecken', '{Put your hand up} if you know the answer.', 'v', ['put up your hand']],
+      ['to read', 'lesen', 'We {read} a short story together.', 'v'],
+      ['to write', 'schreiben', '{Write} the words in your notebook.', 'v'],
+      ['a castle', 'eine Burg / ein Schloss', 'A king lives in the big {castle}.', 'n'],
+      ['a cloud', 'eine Wolke', 'There is a white {cloud} in the sky.', 'n'],
+      ['a forest', 'ein Wald', 'Many trees grow in the {forest}.', 'n'],
+      ['grass', 'Gras', 'The cow eats green {grass}.', 'n'],
+      ['a hill', 'ein Hügel', 'The children run up the {hill}.', 'n'],
+      ['a mountain', 'ein Berg', 'Mount Everest is a high {mountain}.', 'n'],
+      ['a picture', 'ein Bild', 'She draws a colourful {picture}.', 'n'],
+      ['the sky', 'der Himmel', 'Birds fly high in the blue {sky}.', 'n'],
+      ['a road', 'eine Strasse', 'Cars drive along the {road}.', 'n'],
+      ['light blue', 'hellblau', 'The sea is {light blue} today.', 'f'],
+      ['dark blue', 'dunkelblau', 'The night sky is {dark blue}.', 'f'],
+      ['light green', 'hellgrün', 'Fresh leaves in spring are {light green}.', 'f'],
+      ['dark green', 'dunkelgrün', 'The pine tree is {dark green}.', 'f']
+    ].map(function (r) { return { fremd: r[0], deutsch: r[1], satz: r[2], art: r[3], varianten: r[4] }; })
+  };
+
+  var ENGLISCH = vokabelSets(UNIT_WORDS).concat([
     {
       id: 'words-basic', klassen: [4, 5], schwierigkeit: 'leicht',
       titel: 'Words — choose the answer', lp21: 'FS1E.5.B.1',
@@ -1207,7 +1312,7 @@
         return wahl(s[0], s[1], s[2]);
       }
     }
-  ];
+  ]);
 
   /* ============================================================
      NMG — Räume, Zeiten, Gesellschaften
@@ -1399,6 +1504,29 @@
   reg('englisch', ENGLISCH);
   reg('nmg', NMG);
 
+  /* Eigene Listen aus fotografierten Schulblättern. Die Dokumenten-Pipeline
+     schreibt sie nach /lernwelt/eigene/listen.js (nur auf dem Server, nicht
+     im Repo); die Datei setzt window.LERNWELT_LISTEN. document.write lädt sie
+     noch vor allen Skripten, die nach uebungen.js kommen, der Minutenstempel
+     umgeht den Browser-Cache. Registriert wird beim ersten Zugriff. */
+  if (typeof document !== 'undefined' && document.readyState === 'loading') {
+    document.write('<script src="/lernwelt/eigene/listen.js?t=' +
+      Math.floor(Date.now() / 60000) + '"><\/script>');
+  }
+  var eigeneGeladen = false;
+  function eigeneLaden() {
+    if (eigeneGeladen) return;
+    var daten = global.LERNWELT_LISTEN;
+    if (!daten) return;            /* noch nicht da — beim nächsten Zugriff wieder schauen */
+    eigeneGeladen = true;
+    (daten.listen || []).forEach(function (L) {
+      try {
+        if (!L || !L.id || !L.eintraege || L.eintraege.length < 4 || ALLE.some(function (s) { return s.id === L.id; })) return;
+        reg(L.art === 'lernwoerter' ? 'deutsch' : 'englisch', listenSets(L));
+      } catch (e) { /* eine kaputte Liste darf die Lernwelt nicht lahmlegen */ }
+    });
+  }
+
   /* Externe Übungsseiten, die es schon gibt */
   var EXTERN = [
     { fach: 'mathe', id: 'rechnen-trainer', titel: 'Rechen-Trainer (Reihen)', schwierigkeit: 'leicht',
@@ -1410,14 +1538,16 @@
   ];
 
   global.Uebungen = {
-    alle: ALLE,
+    get alle() { eigeneLaden(); return ALLE; },
     extern: EXTERN,
     fuer: function (fach, klasse) {
+      eigeneLaden();
       var eigene = ALLE.filter(function (s) { return s.fach === fach && s.klassen.indexOf(klasse) >= 0; });
       var fremde = EXTERN.filter(function (s) { return s.fach === fach && s.klassen.indexOf(klasse) >= 0; });
       return { eigene: eigene, extern: fremde };
     },
     set: function (fach, id) {
+      eigeneLaden();
       return ALLE.filter(function (s) { return s.fach === fach && s.id === id; })[0] || null;
     }
   };

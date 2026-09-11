@@ -32,10 +32,33 @@
       "aktiv": true
     },
     {
+      "token": "gr5bir5r",
+      "name": "Lernwelt Andrin",
+      "aktiv": true,
+      "modus": "lernwelt",
+      "kind": "andrin",
+      "absender": [
+        "th",
+        "AH"
+      ]
+    },
+    {
       "token": "jgf7ptuf",
       "name": "Research Bot",
       "aktiv": false
     }
   ],
-  "pdfSeiten": 3
+  "pdfSeiten": 3,
+  "lernwelt": {
+    "stichwoerter": [
+      "lernwelt",
+      "lw"
+    ],
+    "kinder": {
+      "joris": 4,
+      "andrin": 6
+    },
+    "vorgabeKind": "joris",
+    "ordner": "~/repos/hodelweb/public/lernwelt/eigene"
+  }
 }

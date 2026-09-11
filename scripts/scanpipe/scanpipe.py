@@ -9,11 +9,16 @@ Ablauf:
   4. Datei in den passenden Ordner verschieben, JSON danebenlegen.
   5. Im Chat zusammenfassen und den Link schicken.
 
+Mit dem Stichwort «lernwelt» oder «lw» in der Bildunterschrift (oder in
+einem Raum mit "modus": "lernwelt") wird aus einer Wortliste stattdessen eine
+Übung für die Lerninsel, siehe lernwelt.py.
+
 Läuft als systemd-User-Timer. Zustand steht in state.json, damit nichts
 doppelt verarbeitet wird.
 """
 
 import json
+import mimetypes
 import os
 import re
 import shutil
@@ -27,10 +32,13 @@ from pathlib import Path
 
 import requests
 
+import lernwelt as lw
+
 BASIS = Path(__file__).resolve().parent
 KONFIG_PFAD = BASIS / "config.json"
 ZUSTAND_PFAD = BASIS / "state.json"
 LOG_PFAD = BASIS / "scanpipe.log"
+LISTEN_PFAD = BASIS / "lernwelt-listen.json"
 
 
 # ---------------------------------------------------------------- Grundlagen
@@ -165,11 +173,38 @@ class Cloud:
         teile = [urllib.parse.quote(t) for t in pfad.strip("/").split("/") if t]
         return f"{self.basis}/remote.php/dav/files/{self.user}/" + "/".join(teile)
 
-    def hole(self, pfad, ziel: Path):
+    def hole(self, pfad, ziel: Path, dateiId=None):
         r = self.s.get(self._dav(pfad), timeout=120)
+        if r.status_code == 404 and dateiId:
+            # Von anderen geteilte Dateien liegen nicht immer dort, wo Talk
+            # sie meldet — dann über die Datei-ID suchen.
+            gefunden = self.pfad_zur_id(dateiId)
+            if gefunden:
+                r = self.s.get(self._dav(gefunden), timeout=120)
         r.raise_for_status()
         ziel.write_bytes(r.content)
         return ziel
+
+    def pfad_zur_id(self, dateiId):
+        anfrage = f"""<?xml version="1.0"?>
+<d:searchrequest xmlns:d="DAV:" xmlns:oc="http://owncloud.org/ns">
+ <d:basicsearch>
+  <d:select><d:prop><d:displayname/></d:prop></d:select>
+  <d:from><d:scope><d:href>/files/{self.user}</d:href><d:depth>infinity</d:depth></d:scope></d:from>
+  <d:where><d:eq><d:prop><oc:fileid/></d:prop><d:literal>{int(dateiId)}</d:literal></d:eq></d:where>
+ </d:basicsearch>
+</d:searchrequest>"""
+        try:
+            r = self.s.request("SEARCH", f"{self.basis}/remote.php/dav/", data=anfrage.encode(),
+                               headers={"Content-Type": "text/xml"}, timeout=60)
+        except requests.RequestException:
+            return None
+        m = re.search(r"<d:href>([^<]+)</d:href>", r.text)
+        if not m:
+            return None
+        praefix = f"/remote.php/dav/files/{self.user}/"
+        href = urllib.parse.unquote(m.group(1))
+        return href[len(praefix):] if href.startswith(praefix) else None
 
     def ordner_anlegen(self, pfad):
         """Legt den Pfad samt Elternordnern an. Vorhandene bleiben unberührt."""
@@ -248,9 +283,10 @@ Regeln:
 """
 
 
-def erkenne(konfig, bilder, arbeitsverzeichnis: Path, sitzung: str):
+def erkenne(konfig, bilder, arbeitsverzeichnis: Path, sitzung: str, prompt=None):
     """Fragt openclaw mit einem bildfähigen Modell. 'bilder' ist eine Liste von
-    Seiten in der richtigen Reihenfolge. Gibt ein dict zurück."""
+    Seiten in der richtigen Reihenfolge. Ohne 'prompt' gilt der Dokumenten-
+    Prompt. Gibt (dict, None) oder (None, Fehler) zurück."""
     if isinstance(bilder, Path):
         bilder = [bilder]
     kopien = []
@@ -261,7 +297,10 @@ def erkenne(konfig, bilder, arbeitsverzeichnis: Path, sitzung: str):
             kopien.append(ziel)
 
     namen = ", ".join(b.name for b in bilder)
-    prompt = PROMPT.format(datei=namen, domaenen=", ".join(konfig["domaenen"]))
+    if prompt:
+        prompt = prompt.format(datei=namen)
+    else:
+        prompt = PROMPT.format(datei=namen, domaenen=", ".join(konfig["domaenen"]))
     befehl = [
         konfig.get("openclaw", "openclaw"), "agent",
         "--agent", konfig.get("agent", "main"),
@@ -413,10 +452,152 @@ def bericht(daten, ziel, cloud):
     return "\n".join(zeilen)
 
 
+# ---------------------------------------------------------------- Lernwelt
+
+ORTE = {"englisch": "im Piratenschiff", "deutsch": "in der Schreiberhütte"}
+
+
+def lw_konfig(konfig):
+    k = dict(konfig.get("lernwelt") or {})
+    k.setdefault("stichwoerter", ["lernwelt", "lw"])
+    k.setdefault("kinder", {"joris": 4, "andrin": 6})
+    k.setdefault("vorgabeKind", "joris")
+    k.setdefault("ordner", "~/repos/hodelweb/public/lernwelt/eigene")
+    return k
+
+
+def listen_ablage(konfig):
+    return lw.Listen(LISTEN_PFAD, Path(os.path.expanduser(lw_konfig(konfig)["ordner"])))
+
+
+def lernwelt_bericht(liste, ziel, kinder):
+    E, kind, titel = liste["eintraege"], liste["kind"], liste["titel"]
+    if liste["art"] == "vokabeln":
+        beispiele = " · ".join(f"{e['fremd']} = {e['deutsch']}" for e in E[:3])
+        was = f"{lw.SPRACHEN.get(liste['sprache'], 'Vokabeln')} · {len(E)} Wörter"
+        uebungen = f"«{titel} — wählen» und «{titel} — selber schreiben»"
+    else:
+        beispiele = " · ".join(e["wort"] for e in E[:6])
+        was = f"Lernwörter · {len(E)} Wörter"
+        uebungen = f"«{titel} — richtig geschrieben?» und «{titel} — selber schreiben»"
+    saetze = sum(1 for e in E if e.get("satz"))
+    zeilen = [
+        f"🏝️ **Neu in der Lernwelt** für **{kind.capitalize()}** ({liste['klassen'][0]}. Klasse)",
+        f"**{titel}** · {was}" + (f", {saetze} mit Beispielsatz" if saetze else ""),
+        beispiele + (" …" if len(E) > 3 else ""),
+        f"🎯 {uebungen} liegen {ORTE.get(liste['fach'], 'im Lernraum')}.",
+    ]
+    if ziel:
+        zeilen.append(f"📂 `{ziel}`")
+    andere = " oder ".join(f"«{n}»" for n in kinder if n != kind)
+    zeilen.append("_Antworte «löschen», um die Liste zu entfernen"
+                  + (f", oder {andere}, um sie umzuhängen._" if andere else "._"))
+    return "\n".join(zeilen)
+
+
+def foto_ablegen(cloud, konfig, original: Path, pfad, liste, fremd):
+    """Legt das Foto einer Lernwelt-Liste unter schule/<Jahr>/ ab. Eigene
+    Dateien werden verschoben, von anderen geteilte (Andrin) kopiert."""
+    ordner = f"{konfig['zielOrdner'].strip('/')}/schule/{liste['erstellt'][:4]}"
+    cloud.ordner_anlegen(ordner)
+    endung = Path(pfad).suffix.lower() or original.suffix.lower() or ".jpg"
+    stamm = "_".join(t for t in [liste["erstellt"], f"lernwelt-{liste['kind']}",
+                                 sauber(liste["titel"], 30)] if t)
+    ziel, n = f"{ordner}/{stamm}{endung}", 2
+    while cloud.existiert(ziel):
+        ziel = f"{ordner}/{stamm}-{n}{endung}"
+        n += 1
+    if not fremd:
+        ok, _ = cloud.verschiebe(pfad, ziel)
+        if ok:
+            return ziel, None
+    ok, code = cloud.lege_ab(ziel, original.read_bytes())
+    return (ziel, None) if ok else (None, f"Ablegen fehlgeschlagen (HTTP {code})")
+
+
+def lernwelt_uebernehmen(cloud, konfig, zustand, raum, antwortAuf, bilder, arbeitsverzeichnis,
+                         kind=None, original=None, pfad=None, fremd=False, quelle=None):
+    """Macht aus dem Foto einer Wortliste Übungen für die Lernwelt.
+    Mit 'original' und 'pfad' wird das Foto zusätzlich unter schule abgelegt,
+    mit 'quelle' liegt es schon in der Ablage. Gibt 'ok', 'keine_liste' oder
+    'fehler' zurück."""
+    lk = lw_konfig(konfig)
+    kinder = lk["kinder"]
+    daten, fehler = erkenne(konfig, bilder, arbeitsverzeichnis,
+                            f"agent:main:scanpipe-lw-{antwortAuf}", prompt=lw.PROMPT)
+    if fehler:
+        log("Lernwelt-Erkennung fehlgeschlagen:", fehler)
+        cloud.sende(raum, f"⚠️ Erkennung fehlgeschlagen: {fehler[:200]}", antwortAuf=antwortAuf)
+        return "fehler"
+
+    # Wer übt? Ausdrücklich genannt, sonst der Name auf dem Blatt, sonst die Klasse.
+    kind = (kind or lw.kind_aus_text(str(daten.get("name") or ""), kinder)
+            or lw.kind_zur_klasse(daten.get("klasse"), kinder) or lk["vorgabeKind"])
+    liste, grund = lw.aufbereiten(daten, kind, kinder[kind], quelle or pfad or "")
+    if not liste:
+        if grund == "keine_liste":
+            log("Lernwelt: keine Wortliste —", daten.get("grund"))
+            return "keine_liste"
+        cloud.sende(raum, f"⚠️ {grund}", antwortAuf=antwortAuf)
+        return "fehler"
+
+    ziel = quelle
+    if original is not None and pfad:
+        ziel, fehler = foto_ablegen(cloud, konfig, original, pfad, liste, fremd)
+        if fehler:
+            cloud.sende(raum, f"⚠️ {fehler}", antwortAuf=antwortAuf)
+            return "fehler"
+        liste["quelle"] = ziel
+    if ziel:
+        cloud.lege_ab(ziel.rsplit(".", 1)[0] + ".lernwelt.json",
+                      json.dumps(liste, ensure_ascii=False, indent=2).encode("utf-8"))
+
+    listen_ablage(konfig).speichern(liste)
+    berichtId = cloud.sende(raum, lernwelt_bericht(liste, ziel, kinder), antwortAuf=antwortAuf)
+    cloud.reagiere(raum, antwortAuf, "🏝️")
+    if berichtId:
+        zustand.setdefault("berichte", {})[str(berichtId)] = {
+            "typ": "lernwelt", "liste": liste["id"], "pfad": ziel, "raum": raum
+        }
+    log("Lernwelt:", liste["id"], "für", kind, "mit", len(liste["eintraege"]), "Einträgen")
+    return "ok"
+
+
+def lernwelt_korrektur(cloud, konfig, eintrag, raum, nachricht, text):
+    """Antwort auf einen Lernwelt-Bericht: «löschen» oder ein Kindername."""
+    lk = lw_konfig(konfig)
+    ablage = listen_ablage(konfig)
+    if text.strip().lower() in ("löschen", "loeschen", "entfernen", "weg"):
+        if ablage.entfernen(eintrag["liste"]):
+            cloud.sende(raum, "🗑️ Die Liste ist aus der Lernwelt entfernt. Das Foto bleibt abgelegt.",
+                        antwortAuf=nachricht["id"])
+            log("Lernwelt: entfernt", eintrag["liste"])
+        else:
+            cloud.sende(raum, "Diese Liste ist schon nicht mehr in der Lernwelt.",
+                        antwortAuf=nachricht["id"])
+        return True
+    kind = lw.kind_aus_text(text, lk["kinder"])
+    if kind:
+        liste = ablage.umhaengen(eintrag["liste"], kind, lk["kinder"][kind])
+        if liste:
+            cloud.sende(raum, f"✅ Die Liste gehört jetzt **{kind.capitalize()}** "
+                              f"({lk['kinder'][kind]}. Klasse).", antwortAuf=nachricht["id"])
+            log("Lernwelt: umgehängt", eintrag["liste"], "->", kind)
+        else:
+            cloud.sende(raum, "Diese Liste ist schon nicht mehr in der Lernwelt.",
+                        antwortAuf=nachricht["id"])
+        return True
+    cloud.sende(raum, "Möglich sind «löschen» oder " +
+                " / ".join(f"«{n}»" for n in lk["kinder"]) + ".", antwortAuf=nachricht["id"])
+    return True
+
+
 # ---------------------------------------------------------------- Korrektur
 
-def korrektur_pruefen(cloud, konfig, zustand, raum, nachricht):
-    """Antwortet der Nutzer auf einen Bericht mit einer Domäne, wird umsortiert."""
+def korrektur_pruefen(cloud, konfig, zustand, raum, nachricht, arbeitsverzeichnis):
+    """Antworten auf einen Bericht: eine Domäne sortiert um, «lw» schickt das
+    Dokument nachträglich in die Lernwelt, bei Lernwelt-Berichten gelten
+    «löschen» und die Kindernamen."""
     eltern = nachricht.get("parent") or {}
     eltern_id = str(eltern.get("id") or "")
     if not eltern_id:
@@ -431,11 +612,35 @@ def korrektur_pruefen(cloud, konfig, zustand, raum, nachricht):
     # Geplauder und wird still übergangen.
     if not text or len(text.split()) > 2 or len(text) > 40:
         return False
+
+    if eintrag.get("typ") == "lernwelt":
+        return lernwelt_korrektur(cloud, konfig, eintrag, raum, nachricht, text)
+
+    lk = lw_konfig(konfig)
+    if lw.hat_stichwort(text, lk["stichwoerter"]):
+        pfad = eintrag["pfad"]
+        name = pfad.rsplit("/", 1)[-1]
+        mime = mimetypes.guess_type(name)[0] or "image/jpeg"
+        cloud.reagiere(raum, nachricht["id"], "👀")
+        with tempfile.TemporaryDirectory(prefix="scanpipe-") as tmp:
+            _, bilder, fehler = bilder_vorbereiten(cloud, konfig, pfad, name, mime, Path(tmp))
+            if fehler:
+                cloud.sende(raum, f"⚠️ {fehler}", antwortAuf=nachricht["id"])
+                return True
+            ergebnis = lernwelt_uebernehmen(cloud, konfig, zustand, raum, nachricht["id"], bilder,
+                                            arbeitsverzeichnis,
+                                            kind=lw.kind_aus_text(text, lk["kinder"]), quelle=pfad)
+        if ergebnis == "keine_liste":
+            cloud.sende(raum, "🤔 Auf diesem Dokument finde ich keine Wortliste.",
+                        antwortAuf=nachricht["id"])
+        return True
+
     wunsch = sauber(text, 30).replace("-", "")
     treffer = next((d for d in konfig["domaenen"] if sauber(d, 30).replace("-", "") == wunsch), None)
     if not treffer:
         cloud.sende(raum, "Diese Domäne kenne ich nicht. Möglich sind: " +
-                    ", ".join(konfig["domaenen"]), antwortAuf=nachricht["id"])
+                    ", ".join(konfig["domaenen"]) + " — oder «lw» für die Lernwelt.",
+                    antwortAuf=nachricht["id"])
         return True
 
     alt = eintrag["pfad"]
@@ -457,7 +662,36 @@ def korrektur_pruefen(cloud, konfig, zustand, raum, nachricht):
 
 # ---------------------------------------------------------------- Hauptlauf
 
-def verarbeite(cloud, konfig, zustand, raum, nachricht, arbeitsverzeichnis: Path):
+def bilder_vorbereiten(cloud, konfig, pfad, name, mime, tmpdir: Path, dateiId=None):
+    """Lädt die Datei und macht Bilder fürs Modell daraus.
+    Gibt (original, bilder, None) oder (None, None, Fehlertext) zurück."""
+    original = tmpdir / name
+    try:
+        cloud.hole(pfad, original, dateiId)
+    except requests.RequestException as e:
+        return None, None, f"Konnte `{name}` nicht laden: {e}"
+
+    if mime.startswith("image/"):
+        klein = fuers_modell(original, tmpdir / ("klein-" + name))
+        return original, [klein], None
+    if mime == "application/pdf":
+        if not shutil.which("pdftoppm"):
+            return None, None, "PDF-Verarbeitung braucht `pdftoppm`, das fehlt noch."
+        maxSeiten = int(konfig.get("pdfSeiten", 3))
+        subprocess.run(["pdftoppm", "-png", "-r", "150", "-f", "1", "-l", str(maxSeiten),
+                        str(original), str(tmpdir / "seite")],
+                       capture_output=True, timeout=240)
+        seiten = sorted(tmpdir.glob("seite*.png"))
+        if not seiten:
+            return None, None, "Aus dem PDF liess sich keine Seite lesen."
+        bilder = [fuers_modell(s_, tmpdir / ("klein-" + s_.name)) for s_ in seiten[:maxSeiten]]
+        log(f"PDF mit {len(bilder)} Seite(n) für das Modell aufbereitet")
+        return original, bilder, None
+    return None, None, f"`{mime}` kann ich nicht lesen. Schick ein Foto oder ein PDF."
+
+
+def verarbeite(cloud, konfig, zustand, raum_eintrag, nachricht, arbeitsverzeichnis: Path):
+    raum = raum_eintrag["token"]
     mp = nachricht.get("messageParameters") or {}
     datei = mp.get("file")
     nid = str(nachricht["id"])
@@ -465,45 +699,39 @@ def verarbeite(cloud, konfig, zustand, raum, nachricht, arbeitsverzeichnis: Path
     pfad = datei.get("path") or name
     mime = (datei.get("mimetype") or "").lower()
 
-    log("Neues Dokument:", nid, name, mime)
+    # Die Bildunterschrift steht im Nachrichtentext; ohne sie ist er "{file}".
+    text = str(nachricht.get("message") or "")
+    beschriftung = "" if text.strip() == "{file}" else text
+    lk = lw_konfig(konfig)
+    lernwelt_raum = raum_eintrag.get("modus") == "lernwelt"
+    zur_lernwelt = lernwelt_raum or lw.hat_stichwort(beschriftung, lk["stichwoerter"])
+
+    log("Neues Dokument:", nid, name, mime, "→ Lernwelt" if zur_lernwelt else "")
     cloud.reagiere(raum, nachricht["id"], "👀")
 
     with tempfile.TemporaryDirectory(prefix="scanpipe-") as tmp:
         tmpdir = Path(tmp)
-        original = tmpdir / name
-        try:
-            cloud.hole(pfad, original)
-        except requests.RequestException as e:
-            cloud.sende(raum, f"⚠️ Konnte `{name}` nicht laden: {e}", antwortAuf=nachricht["id"])
+        original, bilder, fehler = bilder_vorbereiten(cloud, konfig, pfad, name, mime, tmpdir,
+                                                      datei.get("id"))
+        if fehler:
+            cloud.sende(raum, f"⚠️ {fehler}", antwortAuf=nachricht["id"])
             return
 
-        if mime.startswith("image/"):
-            fuers_modell(original, tmpdir / ("klein-" + name))
-            bilder = [tmpdir / ("klein-" + name)]
-        elif mime == "application/pdf":
-            if not shutil.which("pdftoppm"):
-                cloud.sende(raum, "⚠️ PDF-Verarbeitung braucht `pdftoppm`, das fehlt noch.",
+        if zur_lernwelt:
+            kind = lw.kind_aus_text(beschriftung, lk["kinder"]) or raum_eintrag.get("kind")
+            ergebnis = lernwelt_uebernehmen(
+                cloud, konfig, zustand, raum, nachricht["id"], bilder, arbeitsverzeichnis,
+                kind=kind, original=original, pfad=pfad,
+                fremd=nachricht.get("actorId") != cloud.user)
+            if ergebnis != "keine_liste":
+                return
+            if lernwelt_raum:
+                cloud.sende(raum, "🤔 Auf dem Foto finde ich keine Wortliste. Die Lernwelt übernimmt "
+                                  "bisher Vokabeln (Englisch, Französisch) und Lernwörter.",
                             antwortAuf=nachricht["id"])
                 return
-            maxSeiten = int(konfig.get("pdfSeiten", 3))
-            subprocess.run(["pdftoppm", "-png", "-r", "150", "-f", "1", "-l", str(maxSeiten),
-                            str(original), str(tmpdir / "seite")],
-                           capture_output=True, timeout=240)
-            seiten = sorted(tmpdir.glob("seite*.png"))
-            if not seiten:
-                cloud.sende(raum, "⚠️ Aus dem PDF liess sich keine Seite lesen.",
-                            antwortAuf=nachricht["id"])
-                return
-            bilder = []
-            for s_ in seiten[:maxSeiten]:
-                klein = tmpdir / ("klein-" + s_.name)
-                fuers_modell(s_, klein)
-                bilder.append(klein)
-            log(f"PDF mit {len(bilder)} Seite(n) für das Modell aufbereitet")
-        else:
-            cloud.sende(raum, f"⚠️ `{mime}` kann ich nicht lesen. Schick ein Foto oder ein PDF.",
+            cloud.sende(raum, "🤔 Keine Wortliste gefunden — ich lege es als Dokument ab.",
                         antwortAuf=nachricht["id"])
-            return
 
         daten, fehler = erkenne(konfig, bilder, arbeitsverzeichnis, f"agent:main:scanpipe-{nid}")
         if fehler:
@@ -538,6 +766,8 @@ def main():
     arbeitsverzeichnis = Path(os.path.expanduser(konfig.get("agentWorkspace",
                                                             "~/.openclaw/workspace")))
     arbeitsverzeichnis.mkdir(parents=True, exist_ok=True)
+    if listen_ablage(konfig).sicherstellen():
+        log("Lernwelt: listen.js fehlte und ist neu geschrieben")
 
     raeume = [r for r in (konfig.get("raeume") or []) if r.get("aktiv", True)]
     if not raeume:
@@ -548,6 +778,8 @@ def main():
     for eintrag in raeume:
         raum = eintrag["token"]
         name = eintrag.get("name", raum)
+        # Wer darf in diesem Raum etwas auslösen? Vorgabe: nur der Besitzer.
+        erlaubt = eintrag.get("absender") or ([konfig["besitzer"]] if konfig.get("besitzer") else [])
         try:
             nachrichten = cloud.nachrichten(raum, limit=konfig.get("holeAnzahl", 50))
         except requests.RequestException as e:
@@ -572,14 +804,13 @@ def main():
             try:
                 if ist_bot(m) or m.get("messageType") != "comment":
                     continue
-                besitzer = konfig.get("besitzer")
-                if besitzer and m.get("actorId") != besitzer:
+                if erlaubt and m.get("actorId") not in erlaubt:
                     continue
-                if korrektur_pruefen(cloud, konfig, zustand, raum, m):
+                if korrektur_pruefen(cloud, konfig, zustand, raum, m, arbeitsverzeichnis):
                     continue
                 mp = m.get("messageParameters") or {}
                 if mp.get("file"):
-                    verarbeite(cloud, konfig, zustand, raum, m, arbeitsverzeichnis)
+                    verarbeite(cloud, konfig, zustand, eintrag, m, arbeitsverzeichnis)
             except Exception as e:      # eine kaputte Nachricht darf nicht alles stoppen
                 log("Fehler bei Nachricht", m.get("id"), ":", repr(e))
             finally:
