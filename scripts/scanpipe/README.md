@@ -38,6 +38,23 @@ Raum *Lernwelt Andrin* gilt das für jedes Foto, ohne Stichwort.
   Englisch landet im Piratenschiff, Französisch im Nebelturm (erst ab der
   5. Klasse offen — eine Französisch-Liste für Joris bleibt unsichtbar, bis er
   so weit ist; der Bericht sagt das), Lernwörter in der Schreiberhütte.
+- **Mathe-Blätter** (Arbeitsblatt, Test, Lernzielkontrolle): Das Modell schreibt
+  je Aufgabe die Anweisung wörtlich ab und jede Teilaufgabe so, wie sie gedruckt
+  ist, dazu die Antwort des Kindes. Das **Thema bestimmt `lernwelt.py` aus dem
+  Anweisungstext** (`THEMA_REGELN`): Beim Einordnen verwechselt das Modell
+  Aufgabentypen, beim Abschreiben kaum. Die Zahlen liest ebenfalls die Pipeline,
+  und sie rechnet die Lösungen selbst. Themen: Teiler, gemeinsame Teiler, ggT,
+  kgV, Primzahlen, gleichwertige Brüche, Zähler/Nenner ergänzen, Kürzen,
+  Teilbarkeit, Rechnen, Bruchrechnen. Daraus entstehen im Rechenturm
+  *nochmals das Blatt* (die Aufgaben vom Blatt) und *ähnliche Aufgaben* (neue
+  nach dem Vorbild des Blatts, gleiche Grössenordnung). Themen, bei denen die
+  Antwort des Kindes nicht stimmt, kommen dort dreimal so oft dran. Die
+  Handschrift wird nicht immer gleich gelesen, darum nennt der Chat keine
+  einzelnen Fehler; sie stehen in der `.lernwelt.json`.
+- **Mehrere Fotos = ein Blatt:** Fotos derselben Person mit höchstens zwei
+  Minuten Abstand gelten als Seiten eines Blatts (bis 6), sortiert nach
+  Dateiname. Ist das letzte Foto jünger als 60 Sekunden, wartet der Lauf auf
+  weitere Seiten. Abgelegt werden sie als `…_s1.jpg`, `…_s2.jpg` usw.
 - **Für wen:** ein Name in der Bildunterschrift («lw andrin»), sonst die
   Vorgabe des Raums, sonst der Name auf dem Blatt, sonst die Klasse auf dem
   Blatt (nächstliegendes Kind), sonst `vorgabeKind`.
