@@ -92,6 +92,14 @@
   var info = Insel.faecher[fach];
   document.title = info.ort + ' — Lerninsel';
 
+  /* Der Nebelturm lässt nur hinein, wer schon Französisch hat (ab der 5. Klasse). */
+  if (!Insel.fachOffen(fach, who)) {
+    Dialog.zeigen(info.ort, ['Die Tür bleibt zu. Eine Stimme flüstert von oben: «Pas encore, mon ami.»',
+                             'Französisch beginnt in der ' + info.ab + '. Klasse. Dann öffnet sich der Turm.'],
+                  function () { location.href = '/lernwelt/'; });
+    return;
+  }
+
   /* ================= Ausstattung je Fach ================= */
   var THEMEN = {
     mathe: {
@@ -202,6 +210,36 @@
             'Flüsse fliessen bergab. Immer. Das ist die verlässlichste Regel der ganzen Geografie.'
           ] }
       ]
+    },
+    franzoesisch: {
+      boden: ['#3b3552', '#36304c'], fuge: '#2a2540',
+      wand: '#2e2744', wandD: '#221d35', wandL: '#463d63',
+      moebel: '#5b3a2e', moebelD: '#3f2a22', akzent: '#c4b5fd',
+      pult: 'Lesepult', deko: 'zauber', nacht: true,
+      willkommen: ['Der Nebelturm. Kerzen schweben, ohne dass jemand sie hält. Niemand fragt, warum.',
+                   'Auf jedem Lesepult liegt eine Übung. Ein gelber Rand heisst: hier gibt es noch Münzen.'],
+      leute: [
+        { name: 'Madame Mystère', tx: 6, ty: 5, jacke: ['#6d28d9', '#4c1d95'], haar: '#111827', haut: '#e0ac7e',
+          sprueche: [
+            ['Bienvenue dans la Tour de Brume. Willkommen im Nebelturm.',
+             'Ich sehe in meiner Kugel … dass du gleich eine Übung machst. Erstaunlich, nicht wahr?'],
+            'Im Französischen gibt es Buchstaben, die man schreibt und nicht spricht. Wie Gespenster. Das passt hierher.',
+            'Le, la, les. Frag nicht, warum der Tisch weiblich ist. Das weiss nicht einmal meine Kugel.'
+          ] },
+        { name: 'Professeur Pamplemousse', tx: 24, ty: 6, jacke: ['#b45309', '#8a3f07'], haar: '#e2e8f0', haut: '#f2c8a0',
+          sprueche: [
+            'Pamplemousse heisst Grapefruit. Ja, ich heisse wie eine Frucht. Professeur Ananas wohnt einen Stock höher.',
+            ['Être und avoir, sein und haben.',
+             'Wer die zwei kann, kann schon die halbe Sprache. Die andere Hälfte sind Ausnahmen.'],
+            'Bonjour am Morgen, bonsoir am Abend, und bonne nuit, wenn du mir zu lange zuhörst.'
+          ] },
+        { name: 'Hector le Hibou', tx: 22, ty: 15, jacke: ['#57534e', '#3f3a36'], haar: '#a8a29e', haut: '#d8a882',
+          sprueche: [
+            'Hou hou! Pardon. Das ist nicht Französisch, das ist Eule. Ich verwechsle das manchmal.',
+            ['Ich wohne ganz oben, gleich unter dem Dach.', 'Nachts lese ich Wörterbücher. Tagsüber schlafe ich darauf.'],
+            'Akzente sind die Hütchen der Buchstaben: é, è, ê. Wer sie vergisst, kommt trotzdem weiter. Schön ist es aber nicht.'
+          ] }
+      ]
     }
   };
   var thema = THEMEN[fach];
@@ -272,8 +310,8 @@
     moebel: moebel,
     stationen: stationen,
     leute: thema.leute,
-    lichtInnen: 'rgba(255,240,200,.04)',
-    lichtAussen: 'rgba(8,12,24,.34)',
+    lichtInnen: thema.nacht ? 'rgba(196,181,253,.05)' : 'rgba(255,240,200,.04)',
+    lichtAussen: thema.nacht ? 'rgba(18,8,38,.46)' : 'rgba(8,12,24,.34)',
 
     boden: function (ctx, t) {
       for (var ty = 3; ty < RAUM_H; ty++) {
@@ -304,7 +342,21 @@
       /* Fenster mit Aussicht */
       [5, 11, 19, 25].forEach(function (fx) {
         px(ctx, fx * TILE, 10, 3 * TILE, 28, thema.wandD);
-        px(ctx, fx * TILE + 2, 12, 3 * TILE - 4, 24, fach === 'englisch' ? '#1c6ea4' : '#7cb0e0');
+        px(ctx, fx * TILE + 2, 12, 3 * TILE - 4, 24,
+           fach === 'englisch' ? '#1c6ea4' : thema.nacht ? '#1e1b4b' : '#7cb0e0');
+        if (thema.nacht) {
+          /* Nachthimmel: funkelnde Sterne, im ersten Fenster der Mond */
+          for (var st = 0; st < 5; st++) {
+            var fu = 0.4 + 0.6 * Math.abs(Math.sin(t * 1.3 + st * 1.7 + fx));
+            ctx.globalAlpha = fu;
+            px(ctx, fx * TILE + 5 + (st * 9) % 38, 15 + (st * 7) % 18, 1, 1, '#e0e7ff');
+            ctx.globalAlpha = 1;
+          }
+          if (fx === 5) {
+            px(ctx, fx * TILE + 30, 15, 8, 8, '#fef3c7');
+            px(ctx, fx * TILE + 33, 14, 7, 7, '#1e1b4b');
+          }
+        }
         if (fach === 'nmg') {
           px(ctx, fx * TILE + 4, 26, 3 * TILE - 8, 10, '#5aa54a');
           px(ctx, fx * TILE + 10, 18, 10, 8, '#f8fafc');
@@ -337,6 +389,32 @@
       } else if (thema.deko === 'seil') {
         px(ctx, 12 * TILE, 14, 6 * TILE, 3, '#c9a227');
         for (var r = 0; r < 6; r++) px(ctx, 12 * TILE + r * 16, 17, 3, 20, '#a67c3d');
+      } else if (thema.deko === 'zauber') {
+        /* Bücherwand mit leuchtenden Rücken, darüber schwebende Kerzen */
+        px(ctx, 12 * TILE - 2, 12, 6 * TILE + 4, 30, '#3f2a22');
+        for (var bu = 0; bu < 14; bu++) {
+          px(ctx, 12 * TILE + bu * 7, 16, 5, 11, ['#6d28d9', '#1e40af', '#7f1d1d', '#065f46'][bu % 4]);
+          px(ctx, 12 * TILE + bu * 7, 29, 5, 11, ['#1e40af', '#7f1d1d', '#065f46', '#6d28d9'][bu % 4]);
+        }
+        var glimm = 0.35 + 0.35 * Math.abs(Math.sin(t * 0.9));
+        ctx.globalAlpha = glimm;
+        px(ctx, 12 * TILE + 3 * 7 + 1, 18, 3, 7, '#c4b5fd');
+        px(ctx, 12 * TILE + 10 * 7 + 1, 31, 3, 7, '#c4b5fd');
+        ctx.globalAlpha = 1;
+        ctx.fillStyle = 'rgba(196,181,253,.28)';
+        ctx.fillText('Bonjour · Bonsoir · Bonne nuit', 15 * TILE, 8);
+        /* Kerzen: schweben auf und ab, Flammen flackern */
+        [[3, 70], [9, 62], [20, 66], [27, 60], [14, 58]].forEach(function (k, n) {
+          var kx = k[0] * TILE + 6, ky = k[1] + Math.round(Math.sin(t * 1.4 + n * 1.9) * 3);
+          px(ctx, kx - 1, ky, 3, 8, '#f5f0e1');
+          var fl = 0.7 + 0.3 * Math.abs(Math.sin(t * 9 + n * 3));
+          ctx.globalAlpha = fl;
+          px(ctx, kx - 1, ky - 4, 3, 4, '#fbbf24');
+          px(ctx, kx, ky - 5, 1, 2, '#fef3c7');
+          ctx.globalAlpha = 0.12 * fl;
+          px(ctx, kx - 7, ky - 10, 15, 15, '#fbbf24');
+          ctx.globalAlpha = 1;
+        });
       }
       ctx.textAlign = 'left';
     },
@@ -369,6 +447,13 @@
       } else if (thema.deko === 'seil') {
         px(ctx, x + 4, y - 16, w - 8, 7, thema.moebel);
         px(ctx, x + 6, y - 14, w - 12, 3, farbe);
+      } else if (thema.deko === 'zauber') {
+        /* Aufgeschlagenes Buch, daneben eine Glaskugel */
+        px(ctx, x + 3, y - 15, 10, 6, '#f5f0e1');
+        px(ctx, x + 13, y - 15, 1, 6, '#a8a29e');
+        px(ctx, x + 5, y - 13, 6, 1, farbe);
+        px(ctx, x + 18, y - 18, 8, 8, '#a78bfa');
+        px(ctx, x + 19, y - 17, 3, 3, '#ede9fe');
       } else {
         px(ctx, x + 4, y - 16, w - 8, 7, '#0f172a');
         px(ctx, x + 6, y - 14, w - 12, 3, farbe);

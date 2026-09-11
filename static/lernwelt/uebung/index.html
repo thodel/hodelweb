@@ -223,6 +223,12 @@
     box.style.display = 'grid';
     box.innerHTML = '';
 
+    if (!Insel.fachOffen(fach, who)) {
+      box.innerHTML = '<div class="set"><div class="t">🔒 Noch verschlossen</div>' +
+        '<div class="i">' + fachInfo.kurz + ' beginnt in der ' + fachInfo.ab + '. Klasse. ' +
+        'Bis dahin bleibt der ' + fachInfo.ort + ' zu.</div></div>';
+      return;
+    }
     var listen = Uebungen.fuer(fach, klasse);
     if (!listen.eigene.length && !listen.extern.length) {
       box.innerHTML = '<div class="set"><div class="t">Noch keine Übungen</div>' +
@@ -380,7 +386,13 @@
     return t.replace(/\s+/g, ' ').trim();
   }
 
-  function normal(s, englisch) {
+  /* Französisch: Akzente und œ zählen beim Tippen nicht — «ecole» gilt wie
+     «école». Die richtige Schreibweise zeigt die Rückmeldung trotzdem. */
+  function ohneAkzente(t) {
+    return t.replace(/œ/g, 'oe').replace(/æ/g, 'ae').normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  }
+
+  function normal(s, englisch, franzoesisch) {
     var t = String(s).toLowerCase().trim()
       /* Typografische Apostrophe auf den geraden zurückführen */
       .replace(/[\u2018\u2019\u02bc\u00b4`]/g, "'")
@@ -390,6 +402,7 @@
     if (t.length > 1) t = t.replace(/[.!?;:,]+$/, '').trim();
     t = t.replace(/^(to|the|a|an)\s+/, '');
     if (englisch) t = englischGleichmachen(t);
+    if (franzoesisch) t = ohneAkzente(t);
     /* Komma und Punkt sind beim Dezimaltrennzeichen gleichwertig (12,50 = 12.50) */
     if (/^-?\d+[.,]\d+$/.test(t)) t = t.replace(',', '.');
     return t;
@@ -398,7 +411,7 @@
 
   function starte() {
     set = Uebungen.set(fach, setId);
-    if (!set) { zeigeMenue(); return; }
+    if (!set || !Insel.fachOffen(fach, who)) { zeigeMenue(); return; }
     document.title = set.titel + ' — Lerninsel';
     $('menu').style.display = 'none';
     $('summary').classList.remove('show');
@@ -534,10 +547,10 @@
     if (feld.disabled) return;
     var eingabe = feld.value;
     if (!eingabe.trim()) { feld.focus(); return; }
-    var enFach = fach === 'englisch';
-    var korrekt = normal(aktuell.antwort, enFach);
-    var alt = (aktuell.alternativen || []).map(function (a) { return normal(a, enFach); });
-    var gegebenN = normal(eingabe, enFach);
+    var enFach = fach === 'englisch', frFach = fach === 'franzoesisch';
+    var korrekt = normal(aktuell.antwort, enFach, frFach);
+    var alt = (aktuell.alternativen || []).map(function (a) { return normal(a, enFach, frFach); });
+    var gegebenN = normal(eingabe, enFach, frFach);
     var ok = gegebenN === korrekt || alt.indexOf(gegebenN) >= 0;
     /* Reine Zahlen auch rechnerisch vergleichen — 53.9 und 53,90 sind dasselbe.
        Brüche (3/4) und Uhrzeiten (14:35) sind davon ausgenommen. */
@@ -551,10 +564,17 @@
   }
 
   function bewerte(ok, gegeben) {
-    var fb = $('fb');
+    var fb = $('fb'), akzentHinweis = false;
     if (ok) {
       richtig++; serie++;
       fb.textContent = ['Richtig!', 'Super!', 'Genau!', 'Stimmt!', 'Perfekt!'][Math.floor(Math.random() * 5)];
+      /* Akzente vergessen? Zählt, aber die richtige Schreibweise soll man sehen. */
+      if (fach === 'franzoesisch' && typeof gegeben === 'string' &&
+          normal(gegeben) !== normal(aktuell.antwort) &&
+          (aktuell.alternativen || []).every(function (a) { return normal(gegeben) !== normal(a); })) {
+        fb.textContent += ' Mit Akzenten: ' + aktuell.antwort;
+        akzentHinweis = true;
+      }
       fb.className = 'fb ok';
     } else {
       serie = 0;
@@ -566,7 +586,7 @@
     setTimeout(function () {
       i++;
       if (i >= aufgaben.length) abschluss(); else zeige();
-    }, ok ? 750 : 2200);
+    }, ok ? (akzentHinweis ? 1800 : 750) : 2200);
   }
 
   function abschluss() {

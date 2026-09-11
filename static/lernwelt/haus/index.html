@@ -258,6 +258,7 @@
     var t = $('stand');
     t.innerHTML = '';
     Object.keys(Insel.faecher).forEach(function (f) {
+      if (!Insel.fachOffen(f, who)) return;
       var fach = Insel.faecher[f];
       var u = Insel.uebungenImFach(f, who);
       var gem = u.filter(function (x) { return x.gemeistert; }).length;

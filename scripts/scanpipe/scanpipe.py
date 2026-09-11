@@ -456,7 +456,17 @@ def bericht(daten, ziel, cloud):
 
 # ---------------------------------------------------------------- Lernwelt
 
-ORTE = {"englisch": "im Piratenschiff", "deutsch": "in der Schreiberhütte"}
+ORTE = {"englisch": "im Piratenschiff", "deutsch": "in der Schreiberhütte",
+        "franzoesisch": "im Nebelturm"}
+
+
+def zutritt_hinweis(liste):
+    """Französisch öffnet sich erst ab der 5. Klasse — sagen, wenn das Kind jünger ist."""
+    ab = lw.FACH_AB.get(liste.get("fach"))
+    if ab and liste["klassen"][0] < ab:
+        return (f"🔒 {liste['kind'].capitalize()} kommt erst ab der {ab}. Klasse in den "
+                "Nebelturm, bis dahin bleibt die Liste unsichtbar.")
+    return None
 
 
 def lw_konfig(konfig):
@@ -491,6 +501,9 @@ def lernwelt_bericht(liste, ziel, kinder):
         beispiele,
         f"🎯 {uebungen} liegen {ORTE.get(liste['fach'], 'im Lernraum')}.",
     ]
+    hinweis = zutritt_hinweis(liste)
+    if hinweis:
+        zeilen.append(hinweis)
     if ziel:
         zeilen.append(f"📂 `{ziel}`")
     andere = " oder ".join(f"«{n}»" for n in kinder if n != kind)
@@ -584,8 +597,10 @@ def lernwelt_korrektur(cloud, konfig, eintrag, raum, nachricht, text):
     if kind:
         liste = ablage.umhaengen(eintrag["liste"], kind, lk["kinder"][kind])
         if liste:
+            hinweis = zutritt_hinweis(liste)
             cloud.sende(raum, f"✅ Die Liste gehört jetzt **{kind.capitalize()}** "
-                              f"({lk['kinder'][kind]}. Klasse).", antwortAuf=nachricht["id"])
+                              f"({lk['kinder'][kind]}. Klasse)." + (f"\n{hinweis}" if hinweis else ""),
+                        antwortAuf=nachricht["id"])
             log("Lernwelt: umgehängt", eintrag["liste"], "->", kind)
         else:
             cloud.sende(raum, "Diese Liste ist schon nicht mehr in der Lernwelt.",
