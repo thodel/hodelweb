@@ -1493,6 +1493,137 @@
   ];
 
   /* ============================================================
+     FRANZÖSISCH — Nebelturm, ab der 5. Klasse (LP21 FS2F)
+     ============================================================ */
+  var FR_WOERTER = {
+    id: 'fr-mots', art: 'vokabeln', sprache: 'franzoesisch', klassen: [5, 6],
+    titel: 'Mots de base', info: 'Grundwortschatz Französisch',
+    eintraege: [
+      ['le chat', 'die Katze', 'Le {chat} dort sur le lit.', 'n'],
+      ['le chien', 'der Hund', 'Le {chien} joue dans le jardin.', 'n'],
+      ['l\'oiseau', 'der Vogel', 'L\'{oiseau} chante le matin.', 'n'],
+      ['le cheval', 'das Pferd', 'Le {cheval} court vite.', 'n'],
+      ['la vache', 'die Kuh', 'La {vache} mange de l\'herbe.', 'n'],
+      ['le poisson', 'der Fisch', 'Le {poisson} nage dans l\'eau.', 'n'],
+      ['la mère', 'die Mutter', 'Ma {mère} s\'appelle Anne.', 'n'],
+      ['le père', 'der Vater', 'Mon {père} travaille beaucoup.', 'n'],
+      ['la sœur', 'die Schwester', 'Ma {sœur} a dix ans.', 'n'],
+      ['le frère', 'der Bruder', 'Mon {frère} joue au foot.', 'n'],
+      ['l\'école', 'die Schule', 'Je vais à l\'{école} à pied.', 'n'],
+      ['le livre', 'das Buch', 'Je lis un {livre}.', 'n'],
+      ['le crayon', 'der Bleistift', 'J\'écris avec un {crayon}.', 'n'],
+      ['la table', 'der Tisch', 'Le livre est sur la {table}.', 'n'],
+      ['la maison', 'das Haus', 'Notre {maison} est grande.', 'n'],
+      ['la pomme', 'der Apfel', 'Je mange une {pomme}.', 'n'],
+      ['le pain', 'das Brot', 'Le {pain} est frais.', 'n'],
+      ['l\'eau', 'das Wasser', 'Je bois de l\'{eau}.', 'n'],
+      ['le fromage', 'der Käse', 'La Suisse aime le {fromage}.', 'n'],
+      ['la tête', 'der Kopf', 'J\'ai mal à la {tête}.', 'n'],
+      ['la main', 'die Hand', 'Lève la {main}, s\'il te plaît.', 'n'],
+      ['le soleil', 'die Sonne', 'Le {soleil} brille.', 'n'],
+      ['la lune', 'der Mond', 'La {lune} est ronde ce soir.', 'n'],
+      ['la tour', 'der Turm', 'La {tour} est dans la forêt.', 'n'],
+      ['la forêt', 'der Wald', 'Il fait sombre dans la {forêt}.', 'n'],
+      ['manger', 'essen', 'Nous {mangeons} à midi.', 'v'],
+      ['boire', 'trinken', 'Tu veux {boire} un jus?', 'v'],
+      ['jouer', 'spielen', 'Les enfants {jouent} dehors.', 'v'],
+      ['lire', 'lesen', 'J\'aime {lire} le soir.', 'v'],
+      ['écrire', 'schreiben', 'Il faut {écrire} la date.', 'v'],
+      ['chanter', 'singen', 'Elle {chante} très bien.', 'v'],
+      ['dormir', 'schlafen', 'Le chat aime {dormir}.', 'v'],
+      ['rouge', 'rot', 'La tomate est {rouge}.', 'f'],
+      ['bleu', 'blau', 'Le ciel est {bleu}.', 'f'],
+      ['vert', 'grün', 'L\'herbe est {verte}.', 'f'],
+      ['jaune', 'gelb', 'Le citron est {jaune}.', 'f'],
+      ['noir', 'schwarz', 'Le chat {noir} a peur.', 'f'],
+      ['blanc', 'weiss', 'La neige est {blanche}.', 'f'],
+      ['grand', 'gross', 'Mon frère est {grand}.', 'a'],
+      ['petit', 'klein', 'La souris est {petite}.', 'a'],
+      ['lundi', 'Montag', 'Le {lundi}, j\'ai sport.', 'x'],
+      ['mardi', 'Dienstag', 'Le {mardi}, il pleut souvent.', 'x'],
+      ['mercredi', 'Mittwoch', 'Le {mercredi} après-midi, je suis libre.', 'x'],
+      ['aujourd\'hui', 'heute', '{Aujourd\'hui}, il fait beau.', 'x', ['aujourdhui', 'aujourd hui']],
+      ['demain', 'morgen', 'À {demain}!', 'x']
+    ].map(function (r) { return { fremd: r[0], deutsch: r[1], satz: r[2], art: r[3], varianten: r[4] }; })
+  };
+
+  /* Artikel: das Geschlecht lernt man mit dem Wort. */
+  var FR_ARTIKEL = [
+    ['chat', 'le'], ['maison', 'la'], ['livre', 'le'], ['table', 'la'], ['pomme', 'la'],
+    ['pain', 'le'], ['soleil', 'le'], ['lune', 'la'], ['école', 'l\''], ['eau', 'l\''],
+    ['oiseau', 'l\''], ['fromage', 'le'], ['tête', 'la'], ['main', 'la'], ['forêt', 'la'],
+    ['crayon', 'le'], ['fenêtre', 'la'], ['jardin', 'le'], ['ami', 'l\''], ['voiture', 'la']
+  ];
+  var FR_ETRE_AVOIR = [
+    ['je', 'suis', 'ai'], ['tu', 'es', 'as'], ['il', 'est', 'a'], ['elle', 'est', 'a'],
+    ['nous', 'sommes', 'avons'], ['vous', 'êtes', 'avez'], ['ils', 'sont', 'ont'], ['elles', 'sont', 'ont']
+  ];
+  var FR_ZAHLEN = ['zéro', 'un', 'deux', 'trois', 'quatre', 'cinq', 'six', 'sept', 'huit', 'neuf', 'dix',
+    'onze', 'douze', 'treize', 'quatorze', 'quinze', 'seize', 'dix-sept', 'dix-huit', 'dix-neuf', 'vingt'];
+
+  var FRANZOESISCH = vokabelSets(FR_WOERTER).concat([
+    {
+      id: 'fr-articles', klassen: [5, 6], schwierigkeit: 'leicht',
+      titel: 'le, la ou l\'?', lp21: 'FS2F.5.D.1',
+      info: 'Den richtigen Artikel wählen.',
+      gen: function () {
+        var w = pick(FR_ARTIKEL);
+        return wahl('Welcher Artikel passt?\n___ ' + w[0], w[1], ['le', 'la', 'l\'', 'les'].filter(function (a) { return a !== w[1]; }),
+          'Vor a, e, i, o, u wird le/la zu l\'.', 'art:' + w[0]);
+      }
+    },
+    {
+      id: 'fr-etre-avoir', klassen: [5, 6], schwierigkeit: 'schwer',
+      titel: 'être et avoir', lp21: 'FS2F.5.D.1',
+      info: 'Die zwei wichtigsten Verben: sein und haben.',
+      gen: function () {
+        var z = pick(FR_ETRE_AVOIR), sein = Math.random() < 0.5;
+        var form = sein ? z[1] : z[2];
+        var subjekt = !sein && z[0] === 'je' ? 'j\'' : z[0] + ' ';
+        var alle = FR_ETRE_AVOIR.map(function (r) { return sein ? r[1] : r[2]; });
+        return wahl((sein ? 'être (sein)' : 'avoir (haben)') + ': ' + subjekt + '___',
+          form, distinct(form, alle, 3), sein ? 'je suis, tu es, il est …' : 'j\'ai, tu as, il a …',
+          (sein ? 'etre:' : 'avoir:') + z[0]);
+      }
+    },
+    {
+      id: 'fr-phrases', klassen: [5, 6], schwierigkeit: 'leicht',
+      titel: 'Petites phrases', lp21: 'FS2F.2.B.1',
+      info: 'Was sagt man, wenn …?',
+      gen: function () {
+        var s = pick([
+          ['Du begrüsst jemanden am Morgen.', 'Bonjour!', ['Bonsoir!', 'Au revoir!', 'Merci!']],
+          ['Du verabschiedest dich.', 'Au revoir!', ['Bonjour!', 'Pardon!', 'S\'il te plaît!']],
+          ['Du bedankst dich.', 'Merci!', ['Pardon!', 'Salut!', 'Bonne nuit!']],
+          ['Du fragst jemanden nach seinem Namen.', 'Comment tu t\'appelles?', ['Comment ça va?', 'Où tu habites?', 'Quel âge as-tu?']],
+          ['Du sagst, wie du heisst.', 'Je m\'appelle Lou.', ['J\'ai Lou.', 'Je suis appelle Lou.', 'Moi Lou.']],
+          ['Du fragst, wie es geht.', 'Ça va?', ['Ça coûte?', 'C\'est qui?', 'Tu vas où?']],
+          ['Du sagst, dass du elf Jahre alt bist.', 'J\'ai onze ans.', ['Je suis onze ans.', 'J\'ai onze années.', 'Je onze ans.']],
+          ['Du entschuldigst dich.', 'Pardon!', ['Merci!', 'Bravo!', 'Salut!']],
+          ['Du wünschst eine gute Nacht.', 'Bonne nuit!', ['Bon appétit!', 'Bonne chance!', 'Bonjour!']],
+          ['Du bittest um etwas.', 'S\'il te plaît.', ['De rien.', 'Pas du tout.', 'À bientôt.']],
+          ['Jemand bedankt sich bei dir.', 'De rien.', ['Merci.', 'Pardon.', 'Au secours.']],
+          ['Du sagst, dass du etwas nicht verstehst.', 'Je ne comprends pas.', ['Je ne sais bien.', 'Je comprends non.', 'Pas de problème.']]
+        ]);
+        return wahl(s[0], s[1], s[2], null, 'phrase:' + s[1]);
+      }
+    },
+    {
+      id: 'fr-nombres', klassen: [5, 6], schwierigkeit: 'leicht',
+      titel: 'Les nombres 0–20', lp21: 'FS2F.5.B.1',
+      info: 'Zahlen auf Französisch.',
+      gen: function () {
+        var n = rint(0, 20), wort = FR_ZAHLEN[n];
+        if (Math.random() < 0.5) {
+          return wahl('Wie heisst ' + n + ' auf Französisch?', wort,
+            distinct(wort, FR_ZAHLEN.slice(Math.max(0, n - 4), n + 5), 3), null, 'zahl:' + n);
+        }
+        return { typ: 'zahl', frage: 'Welche Zahl ist «' + wort + '»?', antwort: String(n), paar: 'zahl:' + n };
+      }
+    }
+  ]);
+
+  /* ============================================================
      Registrierung
      ============================================================ */
   var ALLE = [];
@@ -1503,6 +1634,7 @@
   reg('deutsch', DEUTSCH);
   reg('englisch', ENGLISCH);
   reg('nmg', NMG);
+  reg('franzoesisch', FRANZOESISCH);
 
   /* Eigene Listen aus fotografierten Schulblättern. Die Dokumenten-Pipeline
      schreibt sie nach /lernwelt/eigene/listen.js (nur auf dem Server, nicht
@@ -1522,7 +1654,9 @@
     (daten.listen || []).forEach(function (L) {
       try {
         if (!L || !L.id || !L.eintraege || L.eintraege.length < 4 || ALLE.some(function (s) { return s.id === L.id; })) return;
-        reg(L.art === 'lernwoerter' ? 'deutsch' : 'englisch', listenSets(L));
+        var fach = L.fach || (L.art === 'lernwoerter' ? 'deutsch'
+                 : L.sprache === 'franzoesisch' ? 'franzoesisch' : 'englisch');
+        reg(fach, listenSets(L));
       } catch (e) { /* eine kaputte Liste darf die Lernwelt nicht lahmlegen */ }
     });
   }

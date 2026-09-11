@@ -145,6 +145,22 @@
              0,0,2,0,0,0,0,0, 0,0,2,0,0,0,2,0]
     },
 
+    /* Nebelturm: Musette im Nebel — d-Moll, ein chromatischer Schritt, der
+       nicht ganz geheuer klingt, und eine Trommel, die nur manchmal klopft. */
+    franzoesisch: {
+      name: 'Valse du brouillard', tempo: 96, form: 'triangle', laut: 0.09,
+      lead: ['D5',0,'F5',0,'A5',0,'G#5',0,
+             'A5',0,0,0,'E5',0,'F5',0,
+             'D5',0,'F5',0,'A5',0,'C6',0,
+             'B5',0,'A#5',0,'A5',0,0,0],
+      bass: ['D2',0,'A2',0,'D3',0,'A2',0,
+             'C#2',0,'A2',0,'E3',0,'A2',0,
+             'D2',0,'A2',0,'F3',0,'A2',0,
+             'A#1',0,'F2',0,'A2',0,'A1',0],
+      beat: [1,0,0,0,2,0,0,0, 1,0,0,0,2,0,0,0,
+             1,0,0,0,2,0,0,0, 1,0,0,2,0,0,2,0]
+    },
+
     /* Fischerbucht: gemütlich, schaukelnd. */
     bucht: {
       name: 'Stegwellen', tempo: 104, form: 'triangle', laut: 0.082,

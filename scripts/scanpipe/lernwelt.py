@@ -28,6 +28,8 @@ BEGLEITER = {
     "englisch": re.compile(r"^(to|the|a|an) ", re.I),
     "franzoesisch": re.compile(r"^(le |la |les |l'|un |une |des |se |s')", re.I),
 }
+# Ab welcher Klasse ein Fach in der Lernwelt offen ist (siehe FAECHER in insel.js).
+FACH_AB = {"franzoesisch": 5}
 ARTIKEL_DE = re.compile(r"^(der|die|das) ", re.I)
 ARTEN = {"n", "v", "a", "f", "x"}
 MIN_EINTRAEGE, MAX_EINTRAEGE = 4, 80
@@ -216,15 +218,13 @@ def aufbereiten(daten, kind, klasse, quelle, erstellt=None):
 
     erstellt = erstellt or datetime.now().strftime("%Y-%m-%d")
     titel = _rein(daten.get("titel"), 40) or ("Wortliste" if art == "vokabeln" else "Lernwörter")
-    if sprache == "franzoesisch" and "franz" not in titel.lower():
-        titel = "Französisch · " + titel
     kennung = hashlib.sha1(f"{quelle}|{erstellt}|{titel}".encode()).hexdigest()[:6]
     tag = datetime.strptime(erstellt, "%Y-%m-%d").strftime("%d.%m.%Y")
     return {
         "id": f"lw-{_sauber(titel) or 'liste'}-{kennung}",
         "art": art,
         "sprache": sprache,
-        "fach": "deutsch" if art == "lernwoerter" else "englisch",
+        "fach": "deutsch" if art == "lernwoerter" else sprache,
         "klassen": [int(klasse)],
         "kind": kind,
         "titel": titel,

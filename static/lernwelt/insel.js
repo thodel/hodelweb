@@ -58,7 +58,11 @@
     mathe:    { name: 'Mathematik', kurz: 'Mathe',    emoji: '🧮', ort: 'Rechenturm' },
     deutsch:  { name: 'Deutsch',    kurz: 'Deutsch',  emoji: '✏️', ort: 'Schreiberhütte' },
     englisch: { name: 'English',    kurz: 'Englisch', emoji: '🏴‍☠️', ort: 'Piratenschiff' },
-    nmg:      { name: 'Natur, Mensch, Gesellschaft', kurz: 'NMG', emoji: '🌍', ort: 'Aussichtsberg' }
+    nmg:      { name: 'Natur, Mensch, Gesellschaft', kurz: 'NMG', emoji: '🌍', ort: 'Aussichtsberg' },
+    /* Französisch beginnt im Aargau in der 5. Klasse (LP21 FS2F). Der Turm
+       lässt Jüngere nicht hinein, und er zählt nicht zu den vier Fächern,
+       welche die Schatzhöhle verlangt. */
+    franzoesisch: { name: 'Français', kurz: 'Französisch', emoji: '🔮', ort: 'Nebelturm', ab: 5 }
   };
 
   /* ---- Wirtschaft ---- */
@@ -449,8 +453,9 @@
        Braucht uebungen.js; Seiten ohne Katalog rufen tagesauftrag() ohne Argument auf. */
     katalogAus: function (Uebungen, who) {
       if (!Uebungen || !Uebungen.fuer) return [];
-      var kl = this.klasse(who), out = [];
+      var self = this, kl = this.klasse(who), out = [];
       Object.keys(FAECHER).forEach(function (f) {
+        if (!self.fachOffen(f, who)) return;
         Uebungen.fuer(f, kl).eigene.forEach(function (u) {
           out.push({ fach: f, set: u.id, titel: u.titel, schwierigkeit: u.schwierigkeit });
         });
@@ -643,8 +648,15 @@
     },
     alleFaecherGeschafft: function (who) {
       var self = this, ok = true;
-      Object.keys(FAECHER).forEach(function (f) { if (!self.sterne(f, who)) ok = false; });
+      Object.keys(FAECHER).forEach(function (f) {
+        if (!FAECHER[f].ab && !self.sterne(f, who)) ok = false;
+      });
       return ok;
+    },
+    /* Darf dieses Kind das Fach schon betreten? (Französisch erst ab der 5.) */
+    fachOffen: function (fach, who) {
+      var f = FAECHER[fach];
+      return !!f && (!f.ab || this.klasse(who) >= f.ab);
     },
 
     /* ---------------- Kiosk: Münzen → Marken ---------------- */

@@ -35,8 +35,9 @@ Raum *Lernwelt Andrin* gilt das für jedes Foto, ohne Stichwort.
 
 - **Was geht:** Vokabellisten Englisch oder Französisch mit deutscher
   Bedeutung, sowie deutsche Lernwörter (Rechtschreibung). Mindestens 4 Wörter.
-  Französisch landet im Piratenschiff (Englisch-Lernraum), weil die Insel noch
-  keinen eigenen Französisch-Raum hat.
+  Englisch landet im Piratenschiff, Französisch im Nebelturm (erst ab der
+  5. Klasse offen — eine Französisch-Liste für Joris bleibt unsichtbar, bis er
+  so weit ist; der Bericht sagt das), Lernwörter in der Schreiberhütte.
 - **Für wen:** ein Name in der Bildunterschrift («lw andrin»), sonst die
   Vorgabe des Raums, sonst der Name auf dem Blatt, sonst die Klasse auf dem
   Blatt (nächstliegendes Kind), sonst `vorgabeKind`.
