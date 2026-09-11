@@ -28,6 +28,7 @@ BEGLEITER = {
     "englisch": re.compile(r"^(to|the|a|an) ", re.I),
     "franzoesisch": re.compile(r"^(le |la |les |l'|un |une |des |se |s')", re.I),
 }
+ARTIKEL_DE = re.compile(r"^(der|die|das) ", re.I)
 ARTEN = {"n", "v", "a", "f", "x"}
 MIN_EINTRAEGE, MAX_EINTRAEGE = 4, 80
 
@@ -118,18 +119,33 @@ def _rein(text, laenge):
     return t[:laenge].strip() or None
 
 
+def _passt(lueckenwort, kern):
+    """Steht in der Lücke das geübte Wort? Gleicher Anfang genügt, damit
+    gebeugte Formen gelten (nourrir/nourris, swim/swims)."""
+    a, b = lueckenwort.casefold(), kern.casefold()
+    gemeinsam = 0
+    for x, y in zip(a, b):
+        if x != y:
+            break
+        gemeinsam += 1
+    return gemeinsam >= min(4, len(a), len(b))
+
+
 def _satz_pruefen(satz, wort, begleiter):
+    """Der Satz muss das geübte Wort genau einmal in {Klammern} tragen.
+    Setzt das Modell die Klammern ums falsche Wort oder vergisst sie, wird
+    das Wort im Satz gesucht; findet es sich nicht, gibt es keinen Satz."""
     satz = _rein(satz, 200)
     if not satz:
         return None
+    kern = begleiter.sub("", wort) if begleiter else wort
     klammern = list(re.finditer(r"\{([^{}]+)\}", satz))
-    if klammern:
+    if klammern and _passt(klammern[0].group(1), kern):
         erste = klammern[0]
         rest = satz[erste.end():].replace("{", "").replace("}", "")
         satz = satz[:erste.end()] + rest
     else:
-        # Das Modell hat die Klammern vergessen: das Wort im Satz suchen.
-        kern = begleiter.sub("", wort) if begleiter else wort
+        satz = satz.replace("{", "").replace("}", "")
         m = re.search(r"(?<![\wäöüÄÖÜ'])" + re.escape(kern) + r"(?![\wäöüÄÖÜ])", satz, re.I)
         if not m:
             return None
@@ -180,11 +196,18 @@ def aufbereiten(daten, kind, klasse, quelle, erstellt=None):
                               "art": wortart, "varianten": varianten[:4]})
         else:
             wort = _rein(e.get("wort"), 40)
+            # Den Artikel abtrennen, sonst verdreht die Fehlerschreibung ihn mit.
+            artikel = None
+            m = ARTIKEL_DE.match(wort or "")
+            if m:
+                artikel, wort = m.group(1).lower(), wort[m.end():].strip()
             if not wort or len(wort.split()) > 3 or wort in gesehen:
                 continue
             gesehen.add(wort)
-            eintraege.append({"wort": wort, "satz": _satz_pruefen(e.get("satz"), wort, None),
-                              "art": wortart})
+            eintrag = {"wort": wort, "satz": _satz_pruefen(e.get("satz"), wort, None), "art": wortart}
+            if artikel:
+                eintrag["artikel"] = artikel
+            eintraege.append(eintrag)
 
     if len(eintraege) < MIN_EINTRAEGE:
         return None, (f"Nur {len(eintraege)} Wort{'' if len(eintraege) == 1 else 'e'} erkannt. Für eine Übung braucht es "
@@ -194,7 +217,7 @@ def aufbereiten(daten, kind, klasse, quelle, erstellt=None):
     erstellt = erstellt or datetime.now().strftime("%Y-%m-%d")
     titel = _rein(daten.get("titel"), 40) or ("Wortliste" if art == "vokabeln" else "Lernwörter")
     if sprache == "franzoesisch" and "franz" not in titel.lower():
-        titel = "Französisch: " + titel
+        titel = "Französisch · " + titel
     kennung = hashlib.sha1(f"{quelle}|{erstellt}|{titel}".encode()).hexdigest()[:6]
     tag = datetime.strptime(erstellt, "%Y-%m-%d").strftime("%d.%m.%Y")
     return {
