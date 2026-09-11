@@ -17,6 +17,7 @@ Läuft als systemd-User-Timer. Zustand steht in state.json, damit nichts
 doppelt verarbeitet wird.
 """
 
+import fcntl
 import json
 import mimetypes
 import os
@@ -39,6 +40,7 @@ KONFIG_PFAD = BASIS / "config.json"
 ZUSTAND_PFAD = BASIS / "state.json"
 LOG_PFAD = BASIS / "scanpipe.log"
 LISTEN_PFAD = BASIS / "lernwelt-listen.json"
+SPERRE_PFAD = BASIS / ".lauf.lock"
 
 
 # ---------------------------------------------------------------- Grundlagen
@@ -762,6 +764,14 @@ def verarbeite(cloud, konfig, zustand, raum_eintrag, nachricht, arbeitsverzeichn
 
 
 def main():
+    # Nie zwei Läufe gleichzeitig: sonst verarbeiten beide dieselbe Nachricht
+    # und überschreiben sich gegenseitig state.json (Timer + Handlauf).
+    sperre = SPERRE_PFAD.open("w")
+    try:
+        fcntl.flock(sperre, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except BlockingIOError:
+        log("Ein anderer Lauf ist noch aktiv, dieser entfällt.")
+        return 0
     konfig = lade_konfig()
     zustand = lade_zustand()
     cloud = Cloud(konfig)
