@@ -552,6 +552,23 @@
     var alt = (aktuell.alternativen || []).map(function (a) { return normal(a, enFach, frFach); });
     var gegebenN = normal(eingabe, enFach, frFach);
     var ok = gegebenN === korrekt || alt.indexOf(gegebenN) >= 0;
+    /* Mengen (alle Teiler): Reihenfolge und Trennzeichen egal, doppelte zählen einmal. */
+    if (aktuell.vergleich === 'menge') {
+      var menge = function (s) {
+        return (String(s).match(/\d+/g) || []).map(Number)
+          .filter(function (v, i, a) { return a.indexOf(v) === i; })
+          .sort(function (a, b) { return a - b; }).join(',');
+      };
+      ok = menge(eingabe) !== '' && menge(eingabe) === menge(aktuell.antwort);
+    }
+    /* Brüche: genau der gekürzte Bruch; 3 und 3/1 sind dasselbe. */
+    if (aktuell.vergleich === 'bruch') {
+      var br = function (s) {
+        var m = String(s).replace(/\s+/g, '').match(/^(\d+)(?:\/(\d+))?$/);
+        return m ? m[1] + '/' + (m[2] || '1') : null;
+      };
+      ok = br(eingabe) !== null && br(eingabe) === br(aktuell.antwort);
+    }
     /* Reine Zahlen auch rechnerisch vergleichen — 53.9 und 53,90 sind dasselbe.
        Brüche (3/4) und Uhrzeiten (14:35) sind davon ausgenommen. */
     if (!ok && reinNumerisch(eingabe) && reinNumerisch(aktuell.antwort)) {

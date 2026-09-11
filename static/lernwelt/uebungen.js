@@ -1065,7 +1065,218 @@
     }];
   }
 
-  function listenSets(L) { return L.art === 'lernwoerter' ? lernwortSets(L) : vokabelSets(L); }
+  /* ---------------- Mathe vom Blatt ----------------
+     Aufgaben aus einem fotografierten Mathe-Blatt kommen als { thema, werte }.
+     Die Lösung rechnet die Lernwelt selbst. Jedes Thema kann die Aufgabe vom
+     Blatt stellen (aus) und nach ihrem Vorbild eine neue erfinden (neu), mit
+     Zahlen in derselben Grössenordnung. */
+  function teilerVon(n) { var t = []; for (var i = 1; i <= n; i++) if (n % i === 0) t.push(i); return t; }
+  function istPrim(n) { if (n < 2) return false; for (var i = 2; i * i <= n; i++) if (n % i === 0) return false; return true; }
+  function kgV(a, b) { return a / ggT(a, b) * b; }
+  function zahlText(n) { return n >= 10000 ? String(n).replace(/\B(?=(\d{3})+(?!\d))/g, "'") : String(n); }
+  function jaNein(frage, ja, hinweis) { return wahl(frage, ja ? 'Ja' : 'Nein', [ja ? 'Nein' : 'Ja'], hinweis); }
+  function aehnlich(x, unten) { return Math.max(unten || 2, Math.round(x * (0.6 + Math.random() * 0.8))); }
+  function gekuerzt(z, n) { var t = ggT(z, n); return { z: z / t, n: n / t }; }
+  function bruchAntwort(z, n) { var g = gekuerzt(z, n); return g.n === 1 ? String(g.z) : g.z + '/' + g.n; }
+  function zufallsBruch(maxNenner) {
+    var n = rint(2, maxNenner || 12), z = rint(1, n - 1);
+    while (ggT(z, n) !== 1) z = rint(1, n - 1);
+    return { z: z, n: n };
+  }
+  var TEILBAR_REGEL = {
+    2: 'Die letzte Ziffer ist gerade.', 3: 'Die Quersumme ist durch 3 teilbar.',
+    4: 'Die letzten zwei Ziffern sind durch 4 teilbar.', 5: 'Die letzte Ziffer ist 0 oder 5.',
+    6: 'Durch 2 und durch 3 teilbar: gerade und Quersumme durch 3 teilbar.',
+    8: 'Die letzten drei Ziffern sind durch 8 teilbar.', 9: 'Die Quersumme ist durch 9 teilbar.',
+    10: 'Die letzte Ziffer ist 0.', 25: 'Endet auf 00, 25, 50 oder 75.'
+  };
+  var MATHE_BLATT = {
+    teiler: { name: 'Teiler',
+      aus: function (w) {
+        return { typ: 'text', frage: 'Nenne alle Teiler von ' + w[0] + '.', antwort: teilerVon(w[0]).join(', '),
+                 vergleich: 'menge', hinweis: 'Mit Komma trennen, die Reihenfolge ist egal.' };
+      },
+      neu: function (w) {
+        var n = aehnlich(w[0], 6);
+        for (var i = 0; i < 30 && teilerVon(n).length < 4; i++) n = aehnlich(w[0], 6);
+        if (Math.random() < 0.3) return { typ: 'zahl', frage: 'Wie viele Teiler hat ' + n + '?', antwort: String(teilerVon(n).length) };
+        return this.aus([n]);
+      } },
+    gemeinsame_teiler: { name: 'gemeinsame Teiler',
+      aus: function (w) {
+        var t = teilerVon(w[0]).filter(function (x) { return w[1] % x === 0; });
+        return { typ: 'text', frage: 'Welche Teiler haben ' + w[0] + ' und ' + w[1] + ' gemeinsam?', antwort: t.join(', '),
+                 vergleich: 'menge', hinweis: 'Alle gemeinsamen, mit Komma getrennt. 1 gehört auch dazu.' };
+      },
+      neu: function (w) {
+        var g = rint(2, 6), m = rint(2, 7), n = rint(2, 7);
+        while (n === m) n = rint(2, 7);
+        return this.aus([g * m, g * n]);
+      } },
+    ggt: { name: 'ggT',
+      aus: function (w) {
+        return { typ: 'zahl', frage: 'Grösster gemeinsamer Teiler (ggT) von ' + w[0] + ' und ' + w[1] + '?',
+                 antwort: String(ggT(w[0], w[1])), hinweis: 'Die grösste Zahl, die in beiden aufgeht.' };
+      },
+      neu: function (w) {
+        var gross = Math.max(w[0], w[1], 24), g = rint(2, Math.max(3, Math.floor(gross / 4)));
+        var m = Math.random() < 0.25 ? 1 : rint(2, 5), n = rint(m + 1, m + 4);
+        while (ggT(m, n) !== 1) n++;
+        return this.aus(shuffle([g * m, g * n]));
+      } },
+    kgv: { name: 'kgV',
+      aus: function (w) {
+        return { typ: 'zahl', frage: 'Kleinstes gemeinsames Vielfaches (kgV) von ' + w[0] + ' und ' + w[1] + '?',
+                 antwort: String(kgV(w[0], w[1])), hinweis: 'Zähle die Vielfachen der grösseren Zahl, bis die kleinere darin aufgeht.' };
+      },
+      neu: function (w) {
+        var gross = Math.max(w[0], w[1], 10), a = rint(2, gross), b = rint(2, gross);
+        while (b === a || kgV(a, b) > 150) { a = rint(2, gross); b = rint(2, gross); }
+        return this.aus([a, b]);
+      } },
+    primzahl: { name: 'Primzahlen',
+      aus: function (w) {
+        return jaNein('Ist ' + w[0] + ' eine Primzahl?', istPrim(w[0]), 'Eine Primzahl hat genau zwei Teiler: 1 und sich selbst.');
+      },
+      neu: function (w) {
+        var oben = Math.max(40, w[0] + 30), unten = Math.max(2, w[0] - 30);
+        var primz = [], falle = [];
+        for (var n = unten; n <= oben; n++) {
+          if (istPrim(n)) primz.push(n);
+          else if (n % 2 && n % 5) falle.push(n);     /* ungerade Nicht-Primzahlen sind die Fallen */
+        }
+        if (Math.random() < 0.5 && primz.length && falle.length >= 3) {
+          var p = pick(primz);
+          return wahl('Welche Zahl ist eine Primzahl?', String(p), distinct(p, falle, 3).map(String),
+                      'Eine Primzahl hat genau zwei Teiler: 1 und sich selbst.');
+        }
+        return this.aus([Math.random() < 0.5 && primz.length ? pick(primz) : pick(falle.length ? falle : [9])]);
+      } },
+    gleichwertig: { name: 'gleichwertige Brüche',
+      aus: function (w) {
+        var k = rint(2, 6);
+        return { typ: 'zahl', frage: 'Ergänze, damit die Brüche gleichwertig sind:\n' + w[0] + '/' + w[1] + ' = ___/' + (w[1] * k),
+                 antwort: String(w[0] * k), hinweis: 'Womit wurde der Nenner multipliziert? Mit dem Zähler dasselbe tun.' };
+      },
+      neu: function (w) {
+        var b = zufallsBruch(Math.max(8, Math.min(20, w[1]))), k = rint(2, 6);
+        if (Math.random() < 0.5) return this.aus([b.z, b.n]);
+        var richtig = (b.z * k) + '/' + (b.n * k);
+        /* Typische Fehler: nur oben erweitert, oben und unten addiert … — aber nie
+           ein Bruch, der zufällig doch gleichwertig ist, und keiner doppelt. */
+        var falsch = [[b.z * k + 1, b.n * k], [b.z * k, b.n * k + k], [b.z + k, b.n + k],
+                      [b.z * k, b.n + k], [b.z + k, b.n * k], [b.z * k - 1, b.n * k]]
+          .filter(function (f) { return f[0] > 0 && f[1] > 0 && f[0] * b.n !== f[1] * b.z; })
+          .map(function (f) { return f[0] + '/' + f[1]; });
+        return wahl('Welcher Bruch ist gleichwertig zu ' + b.z + '/' + b.n + '?', richtig,
+          distinct(richtig, falsch, 3), null);
+      } },
+    ergaenzen: { name: 'Zähler und Nenner ergänzen',
+      aus: function (w) {
+        var frage = w[2] === null
+          ? w[0] + '/' + w[1] + ' = ___/' + w[3]
+          : w[0] + '/' + w[1] + ' = ' + w[2] + '/___';
+        var loesung = w[2] === null ? w[0] * w[3] / w[1] : w[1] * w[2] / w[0];
+        return { typ: 'zahl', frage: 'Erweitere oder kürze:\n' + frage, antwort: String(loesung),
+                 hinweis: 'Mit welcher Zahl wurde multipliziert oder geteilt? Oben und unten dasselbe.' };
+      },
+      neu: function (w) {
+        var gross = Math.max(w[0], w[1]), b = zufallsBruch(gross > 100 ? 10 : 9);
+        var faktoren = gross > 200 ? [10, 20, 25, 50, 100, 125, 200] : [2, 3, 4, 5, 6, 7, 8, 9, 12];
+        var k1 = pick(faktoren), k2 = pick(faktoren);
+        while (k2 === k1) k2 = pick(faktoren);
+        return this.aus(Math.random() < 0.5
+          ? [b.z * k1, b.n * k1, null, b.n * k2]
+          : [b.z * k1, b.n * k1, b.z * k2, null]);
+      } },
+    kuerzen: { name: 'Kürzen',
+      aus: function (w) {
+        return { typ: 'text', frage: 'Kürze so weit wie möglich:\n' + w[0] + '/' + w[1], antwort: bruchAntwort(w[0], w[1]),
+                 vergleich: 'bruch', hinweis: 'Teile Zähler und Nenner durch den ggT. Schreib z.B. 4/7.' };
+      },
+      neu: function (w) {
+        var gross = Math.max(w[0], w[1]), b = zufallsBruch(12);
+        var k = gross > 200 ? pick([8, 12, 15, 25, 40, 45, 60, 125]) : rint(2, Math.max(4, Math.min(14, Math.floor(gross / b.n))));
+        return this.aus([b.z * k, b.n * k]);
+      } },
+    teilbarkeit: { name: 'Teilbarkeit',
+      aus: function (w) {
+        return jaNein('Ist ' + zahlText(w[0]) + ' durch ' + w[1] + ' teilbar?', w[0] % w[1] === 0,
+                      TEILBAR_REGEL[w[1]] || null);
+      },
+      neu: function (w) {
+        var t = w[1], n = aehnlich(w[0], 100);
+        n = n - n % t;
+        if (Math.random() < 0.5) n += rint(1, t - 1);
+        return this.aus([n, t]);
+      } },
+    rechnen: { name: 'Rechnen',
+      aus: function (w) {
+        var e = { '+': w[0] + w[2], '-': w[0] - w[2], '·': w[0] * w[2], ':': w[0] / w[2] }[w[1]];
+        return { typ: 'zahl', frage: zahlText(w[0]) + ' ' + w[1] + ' ' + zahlText(w[2]) + ' =', antwort: String(e) };
+      },
+      neu: function (w) {
+        var a = aehnlich(w[0], 2), b = aehnlich(w[2], 2);
+        if (w[1] === '-' && b > a) { var h = a; a = b; b = h; }
+        if (w[1] === ':') a = b * aehnlich(Math.max(2, Math.round(w[0] / w[2])), 2);
+        return this.aus([a, w[1], b]);
+      } },
+    bruchrechnen: { name: 'Bruchrechnen',
+      aus: function (w) {
+        var a = w[0].split('/').map(Number), b = w[2].split('/').map(Number), z, n;
+        if (w[1] === '+') { z = a[0] * b[1] + b[0] * a[1]; n = a[1] * b[1]; }
+        else if (w[1] === '-') { z = a[0] * b[1] - b[0] * a[1]; n = a[1] * b[1]; }
+        else if (w[1] === '·') { z = a[0] * b[0]; n = a[1] * b[1]; }
+        else { z = a[0] * b[1]; n = a[1] * b[0]; }
+        return { typ: 'text', frage: w[0] + ' ' + w[1] + ' ' + w[2] + ' =', antwort: bruchAntwort(z, n),
+                 vergleich: 'bruch', hinweis: 'Vollständig gekürzt, z.B. 7/12. Ganze Zahlen ohne Nenner.' };
+      },
+      neu: function (w) {
+        var a = w[0].split('/').map(Number), b = w[2].split('/').map(Number);
+        var n1 = Math.max(2, aehnlich(a[1], 2)), n2 = Math.max(2, aehnlich(b[1], 2));
+        var z1 = rint(1, n1 - 1), z2 = rint(1, n2 - 1);
+        if (w[1] === '-' && z1 * n2 < z2 * n1) { var h = [z1, n1]; z1 = z2; n1 = n2; z2 = h[0]; n2 = h[1]; }
+        return this.aus([z1 + '/' + n1, w[1], z2 + '/' + n2]);
+      } }
+  };
+
+  function matheSets(L) {
+    var A = (L.aufgaben || []).filter(function (a) { return MATHE_BLATT[a.thema]; });
+    var nachThema = {};
+    A.forEach(function (a) { (nachThema[a.thema] = nachThema[a.thema] || []).push(a); });
+    var themen = Object.keys(nachThema);
+    /* Wo auf dem Blatt Fehler waren, kommt das Thema dreimal so oft dran. */
+    var gewicht = themen.map(function (t) { return L.themen && L.themen[t] && L.themen[t].fehler ? 3 : 1; });
+    var summe = gewicht.reduce(function (a, b) { return a + b; }, 0);
+    function gewichtet() {
+      var r = Math.random() * summe;
+      for (var i = 0; i < themen.length; i++) { r -= gewicht[i]; if (r < 0) return themen[i]; }
+      return themen[themen.length - 1];
+    }
+    var namen = themen.map(function (t) { return MATHE_BLATT[t].name; }).join(', ');
+    return [{
+      id: L.id, klassen: L.klassen, schwierigkeit: 'leicht',
+      titel: L.titel + ' — nochmals das Blatt', lp21: 'MA.1.A.1 / MA.1.A.3',
+      info: (L.info || 'Vom Blatt') + ' · ' + A.length + ' Aufgaben vom Blatt, bunt gemischt.',
+      gen: function () {
+        var a = pick(nachThema[pick(themen)]), x = MATHE_BLATT[a.thema].aus(a.werte);
+        x.paar = 'blatt:' + L.id + ':' + a.thema + ':' + a.werte.join(',');
+        return x;
+      }
+    }, {
+      id: L.id + '-neu', klassen: L.klassen, schwierigkeit: 'schwer',
+      titel: L.titel + ' — ähnliche Aufgaben', lp21: 'MA.1.A.1 / MA.1.A.3',
+      info: 'Neue Aufgaben wie auf dem Blatt: ' + namen + '.',
+      gen: function () {
+        var t = gewichtet();
+        return MATHE_BLATT[t].neu(pick(nachThema[t]).werte);
+      }
+    }];
+  }
+
+  function listenSets(L) {
+    return L.art === 'mathe' ? matheSets(L) : L.art === 'lernwoerter' ? lernwortSets(L) : vokabelSets(L);
+  }
 
   /* Schulblatt «English Vocabulary: Unit Words», 4. Klasse (28 Wörter),
      eingescannt über die Dokumenten-Pipeline am 11.09.2026. */
@@ -1653,7 +1864,9 @@
     eigeneGeladen = true;
     (daten.listen || []).forEach(function (L) {
       try {
-        if (!L || !L.id || !L.eintraege || L.eintraege.length < 4 || ALLE.some(function (s) { return s.id === L.id; })) return;
+        var menge = (L && (L.art === 'mathe' ? L.aufgaben : L.eintraege)) || [];
+        if (!L || !L.id || menge.length < (L.art === 'mathe' ? 3 : 4) ||
+            ALLE.some(function (s) { return s.id === L.id; })) return;
         var fach = L.fach || (L.art === 'lernwoerter' ? 'deutsch'
                  : L.sprache === 'franzoesisch' ? 'franzoesisch' : 'englisch');
         reg(fach, listenSets(L));
