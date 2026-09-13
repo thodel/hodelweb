@@ -1,17 +1,6 @@
 [
   {
     "start": {
-      "date": "2026-09-26"
-    },
-    "end": {
-      "date": "2026-10-12"
-    },
-    "id": "5jmq0k1tgviobf8qrit0ak6hou@google.com",
-    "status": "confirmed",
-    "summary": "Herbstferien"
-  },
-  {
-    "start": {
       "dateTime": "2026-11-25T11:15:00+00:00"
     },
     "end": {
@@ -20,6 +9,17 @@
     "id": "4g2jqh33dt4t28i0bt5nchahfk@google.com",
     "status": "confirmed",
     "summary": "Religion - mit Mittagessen"
+  },
+  {
+    "start": {
+      "date": "2026-09-26"
+    },
+    "end": {
+      "date": "2026-10-12"
+    },
+    "id": "5jmq0k1tgviobf8qrit0ak6hou@google.com",
+    "status": "confirmed",
+    "summary": "Herbstferien"
   },
   {
     "start": {
