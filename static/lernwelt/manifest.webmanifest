@@ -1,0 +1,16 @@
+{
+  "name": "Lerninsel",
+  "short_name": "Lerninsel",
+  "description": "Die Lerninsel: üben, spielen und Münzen sammeln — auch ohne Internet.",
+  "lang": "de-CH",
+  "start_url": "/lernwelt/",
+  "scope": "/lernwelt/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "icons": [
+    { "src": "/lernwelt/icon/insel-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/lernwelt/icon/insel-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ]
+}
