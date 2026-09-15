@@ -306,6 +306,10 @@
       return aktivId;
     },
     aktuell: function () { return aktivId; },
+    /* Alle Stücke mit Namen — das Hauskonzert, wenn kein Internet da ist. */
+    liste: function () {
+      return Object.keys(STUECKE).map(function (id) { return { id: id, name: STUECKE[id].name }; });
+    },
     titel: function () { return aktiv.name; },
 
     an: function () {

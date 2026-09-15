@@ -5,6 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Kino — Lerninsel</title>
 <link rel="icon" href="/favicon-32x32.png" sizes="32x32">
+<link rel="manifest" href="/lernwelt/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/lernwelt/icon/insel-180.png">
+<meta name="theme-color" content="#0f172a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="stylesheet" href="/lernwelt/raum.css">
 <style>
   body { background: #07060f; }
@@ -39,6 +44,8 @@
   .lohn { font-size: 12.5px; color: #94a3b8; margin-top: 10px; line-height: 1.7; }
   .lohn b { color: #fcd34d; }
 </style>
+<script src="/lernwelt/kurzfilm.js"></script>
+<script src="/lernwelt/offline.js" defer></script>
 </head>
 <body>
 
@@ -328,12 +335,74 @@
   function leinwandOeffnen() {
     $('lw-titel').textContent = daten.emoji + ' ' + (istMusik ? 'Die Bühne' : 'Die Leinwand');
     $('lw-unter').textContent = daten.beschreibung || '';
-    if (Insel.raumOffen(raumId)) { $('lw-tuer').hidden = true; videosZeigen(); }
-    else { $('lw-tuer').hidden = false; $('videos').innerHTML = ''; tuerZeigen(); }
+    $('videos').innerHTML = '<div class="leer">Einen Moment …</div>';
+    $('lw-tuer').hidden = true;
     Raum.fensterOeffnen('t-leinwand');
+    netzPruefen().then(function () {
+      if (Insel.raumOffen(raumId)) { $('lw-tuer').hidden = true; programmZeigen(); }
+      else { $('lw-tuer').hidden = false; $('videos').innerHTML = ''; tuerZeigen(); }
+    });
+  }
+
+  function programmZeigen() {
+    if (imNetz) { videosZeigen(); return; }
+    if (istMusik) hauskonzert(); else hauskino();
+  }
+
+  function hauskino() {
+    var box = $('videos');
+    box.innerHTML = '<div class="gruppe"><h3>🎞️ Hausprogramm</h3>' +
+      '<div class="gh">Ohne Internet gibt es keine YouTube-Videos. Dafür läuft unser eigener Film.</div>' +
+      '<canvas id="film" style="width:100%;image-rendering:pixelated;border-radius:10px;' +
+      'border:2px solid #334155;background:#0f172a"></canvas>' +
+      '<div class="gh" id="film-stand">«Der Honigtopf» · ' + Kurzfilm.dauer() + ' Sekunden</div></div>';
+    Kurzfilm.starten(document.getElementById('film'), function () {
+      var s = document.getElementById('film-stand');
+      if (s) s.innerHTML = 'Ende. <button class="knopf" id="nochmal">Nochmals</button>';
+      var k = document.getElementById('nochmal');
+      if (k) k.onclick = hauskino;
+    });
+  }
+
+  function hauskonzert() {
+    var stuecke = (window.Musik && Musik.liste) ? Musik.liste() : [];
+    var box = $('videos');
+    box.innerHTML = '<div class="gruppe"><h3>🎹 Hauskonzert</h3>' +
+      '<div class="gh">Ohne Internet spielt die Kapelle der Insel: ' + stuecke.length +
+      ' Stücke, alle hier im Browser erzeugt.</div><div class="videos" id="konzert"></div></div>';
+    var grid = document.getElementById('konzert');
+    stuecke.forEach(function (st) {
+      var el = document.createElement('div');
+      el.className = 'v';
+      el.innerHTML = '<div class="thumb"><div class="play">♪</div></div>' +
+                     '<div class="txt"><div class="t">' + esc(st.name) + '</div></div>';
+      el.onclick = function () {
+        Musik.stueck(st.id);
+        Musik.beiErsterAktion();
+        Array.prototype.forEach.call(grid.children, function (x) { x.style.borderColor = ''; });
+        el.style.borderColor = '#4ade80';
+      };
+      grid.appendChild(el);
+    });
+  }
+
+  /* Ohne Internet läuft das Hausprogramm: eigener Pixelfilm im Kino,
+     eigene Stücke in der Musikhütte. Die Marke gilt wie sonst auch. */
+  var imNetz = true;
+  function netzPruefen() {
+    if (!window.Offline) return Promise.resolve(true);
+    return Offline.netzPruefen().then(function (ok) { imNetz = ok; return ok; });
   }
 
   function tuerZeigen() {
+    if (!imNetz) {
+      $('tuer-text').innerHTML = 'Kein Internet — dafür läuft das <b>Hausprogramm</b>: ' +
+        (istMusik ? 'ein Konzert mit den Stücken der Insel.' : 'unser eigener Pixelfilm «Der Honigtopf».') +
+        '<br>Die Vorstellung kostet <b>1 Marke</b>. Du hast <b>' + Insel.marken(who) + '</b>.';
+      $('oeffnen').style.display = '';
+      $('oeffnen').disabled = Insel.marken(who) < 1;
+      return;
+    }
     if (!anzahlSichtbar()) {
       $('tuer-text').innerHTML = 'Hier ist gerade nichts zu sehen. Erlaubt sind nur Videos bis ' +
         Math.round(grenze() / 60) + ' Minuten.<br>Deine Marke bleibt dir erhalten.';
@@ -353,7 +422,7 @@
     if (!r.ok) { $('tuer-text').innerHTML = 'Dir fehlt noch ' + r.fehlt + ' Marke.'; return; }
     Raum.hudAuffrischen();
     $('lw-tuer').hidden = true;
-    videosZeigen();
+    programmZeigen();
   };
 
   function videosZeigen() {
