@@ -1,47 +1,14 @@
 [
   {
     "start": {
-      "dateTime": "2026-12-17T05:00:00+00:00"
+      "date": "2026-12-19"
     },
     "end": {
-      "dateTime": "2026-12-17T06:00:00+00:00"
+      "date": "2027-01-04"
     },
-    "id": "4i62n8q9i39tfv5v01ce5s1cet@google.com",
+    "id": "3upl1knpcek0rmddn2l3dit195@google.com",
     "status": "confirmed",
-    "summary": "Rorate Messe"
-  },
-  {
-    "start": {
-      "date": "2026-09-26"
-    },
-    "end": {
-      "date": "2026-10-12"
-    },
-    "id": "5jmq0k1tgviobf8qrit0ak6hou@google.com",
-    "status": "confirmed",
-    "summary": "Herbstferien"
-  },
-  {
-    "start": {
-      "dateTime": "2026-09-23T10:15:00+00:00"
-    },
-    "end": {
-      "dateTime": "2026-09-23T12:30:00+00:00"
-    },
-    "id": "39jgst6jprtk942gfq7vseonm2@google.com",
-    "status": "confirmed",
-    "summary": "Religion - Mittagessen mitnehmen"
-  },
-  {
-    "start": {
-      "dateTime": "2026-10-21T08:50:00+00:00"
-    },
-    "end": {
-      "dateTime": "2026-10-21T10:00:00+00:00"
-    },
-    "id": "3nn8q720r1lq4q97216for8mds@google.com",
-    "status": "confirmed",
-    "summary": "Zahnarzt Seiler --> Kieferortho."
+    "summary": "Weihnachtsferien"
   },
   {
     "start": {
@@ -56,13 +23,46 @@
   },
   {
     "start": {
-      "date": "2026-12-19"
+      "date": "2026-09-26"
     },
     "end": {
-      "date": "2027-01-04"
+      "date": "2026-10-12"
     },
-    "id": "3upl1knpcek0rmddn2l3dit195@google.com",
+    "id": "5jmq0k1tgviobf8qrit0ak6hou@google.com",
     "status": "confirmed",
-    "summary": "Weihnachtsferien"
+    "summary": "Herbstferien"
+  },
+  {
+    "start": {
+      "dateTime": "2026-10-21T08:50:00+00:00"
+    },
+    "end": {
+      "dateTime": "2026-10-21T10:00:00+00:00"
+    },
+    "id": "3nn8q720r1lq4q97216for8mds@google.com",
+    "status": "confirmed",
+    "summary": "Zahnarzt Seiler --> Kieferortho."
+  },
+  {
+    "start": {
+      "dateTime": "2026-09-23T10:15:00+00:00"
+    },
+    "end": {
+      "dateTime": "2026-09-23T12:30:00+00:00"
+    },
+    "id": "39jgst6jprtk942gfq7vseonm2@google.com",
+    "status": "confirmed",
+    "summary": "Religion - Mittagessen mitnehmen"
+  },
+  {
+    "start": {
+      "dateTime": "2026-12-17T05:00:00+00:00"
+    },
+    "end": {
+      "dateTime": "2026-12-17T06:00:00+00:00"
+    },
+    "id": "4i62n8q9i39tfv5v01ce5s1cet@google.com",
+    "status": "confirmed",
+    "summary": "Rorate Messe"
   }
 ]
