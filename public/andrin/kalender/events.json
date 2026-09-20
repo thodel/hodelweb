@@ -12,6 +12,17 @@
   },
   {
     "start": {
+      "dateTime": "2026-11-25T11:15:00+00:00"
+    },
+    "end": {
+      "dateTime": "2026-11-25T13:30:00+00:00"
+    },
+    "id": "4g2jqh33dt4t28i0bt5nchahfk@google.com",
+    "status": "confirmed",
+    "summary": "Religion - mit Mittagessen"
+  },
+  {
+    "start": {
       "dateTime": "2026-09-23T10:15:00+00:00"
     },
     "end": {
@@ -20,6 +31,17 @@
     "id": "39jgst6jprtk942gfq7vseonm2@google.com",
     "status": "confirmed",
     "summary": "Religion - Mittagessen mitnehmen"
+  },
+  {
+    "start": {
+      "date": "2026-12-19"
+    },
+    "end": {
+      "date": "2027-01-04"
+    },
+    "id": "3upl1knpcek0rmddn2l3dit195@google.com",
+    "status": "confirmed",
+    "summary": "Weihnachtsferien"
   },
   {
     "start": {
@@ -34,17 +56,6 @@
   },
   {
     "start": {
-      "dateTime": "2026-11-25T11:15:00+00:00"
-    },
-    "end": {
-      "dateTime": "2026-11-25T13:30:00+00:00"
-    },
-    "id": "4g2jqh33dt4t28i0bt5nchahfk@google.com",
-    "status": "confirmed",
-    "summary": "Religion - mit Mittagessen"
-  },
-  {
-    "start": {
       "date": "2026-09-26"
     },
     "end": {
@@ -53,16 +64,5 @@
     "id": "5jmq0k1tgviobf8qrit0ak6hou@google.com",
     "status": "confirmed",
     "summary": "Herbstferien"
-  },
-  {
-    "start": {
-      "date": "2026-12-19"
-    },
-    "end": {
-      "date": "2027-01-04"
-    },
-    "id": "3upl1knpcek0rmddn2l3dit195@google.com",
-    "status": "confirmed",
-    "summary": "Weihnachtsferien"
   }
 ]
