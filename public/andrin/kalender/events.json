@@ -1,17 +1,6 @@
 [
   {
     "start": {
-      "dateTime": "2026-12-17T05:00:00+00:00"
-    },
-    "end": {
-      "dateTime": "2026-12-17T06:00:00+00:00"
-    },
-    "id": "4i62n8q9i39tfv5v01ce5s1cet@google.com",
-    "status": "confirmed",
-    "summary": "Rorate Messe"
-  },
-  {
-    "start": {
       "dateTime": "2026-10-21T08:50:00+00:00"
     },
     "end": {
@@ -23,14 +12,14 @@
   },
   {
     "start": {
-      "dateTime": "2026-11-25T11:15:00+00:00"
+      "date": "2026-12-19"
     },
     "end": {
-      "dateTime": "2026-11-25T13:30:00+00:00"
+      "date": "2027-01-04"
     },
-    "id": "4g2jqh33dt4t28i0bt5nchahfk@google.com",
+    "id": "3upl1knpcek0rmddn2l3dit195@google.com",
     "status": "confirmed",
-    "summary": "Religion - mit Mittagessen"
+    "summary": "Weihnachtsferien"
   },
   {
     "start": {
@@ -56,13 +45,24 @@
   },
   {
     "start": {
-      "date": "2026-12-19"
+      "dateTime": "2026-12-17T05:00:00+00:00"
     },
     "end": {
-      "date": "2027-01-04"
+      "dateTime": "2026-12-17T06:00:00+00:00"
     },
-    "id": "3upl1knpcek0rmddn2l3dit195@google.com",
+    "id": "4i62n8q9i39tfv5v01ce5s1cet@google.com",
     "status": "confirmed",
-    "summary": "Weihnachtsferien"
+    "summary": "Rorate Messe"
+  },
+  {
+    "start": {
+      "dateTime": "2026-11-25T11:15:00+00:00"
+    },
+    "end": {
+      "dateTime": "2026-11-25T13:30:00+00:00"
+    },
+    "id": "4g2jqh33dt4t28i0bt5nchahfk@google.com",
+    "status": "confirmed",
+    "summary": "Religion - mit Mittagessen"
   }
 ]
