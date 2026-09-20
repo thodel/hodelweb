@@ -1,14 +1,14 @@
 [
   {
     "start": {
-      "date": "2026-12-19"
+      "dateTime": "2026-12-17T05:00:00+00:00"
     },
     "end": {
-      "date": "2027-01-04"
+      "dateTime": "2026-12-17T06:00:00+00:00"
     },
-    "id": "3upl1knpcek0rmddn2l3dit195@google.com",
+    "id": "4i62n8q9i39tfv5v01ce5s1cet@google.com",
     "status": "confirmed",
-    "summary": "Weihnachtsferien"
+    "summary": "Rorate Messe"
   },
   {
     "start": {
@@ -23,25 +23,14 @@
   },
   {
     "start": {
-      "date": "2026-09-26"
+      "date": "2026-12-19"
     },
     "end": {
-      "date": "2026-10-12"
+      "date": "2027-01-04"
     },
-    "id": "5jmq0k1tgviobf8qrit0ak6hou@google.com",
+    "id": "3upl1knpcek0rmddn2l3dit195@google.com",
     "status": "confirmed",
-    "summary": "Herbstferien"
-  },
-  {
-    "start": {
-      "dateTime": "2026-10-21T08:50:00+00:00"
-    },
-    "end": {
-      "dateTime": "2026-10-21T10:00:00+00:00"
-    },
-    "id": "3nn8q720r1lq4q97216for8mds@google.com",
-    "status": "confirmed",
-    "summary": "Zahnarzt Seiler --> Kieferortho."
+    "summary": "Weihnachtsferien"
   },
   {
     "start": {
@@ -56,13 +45,24 @@
   },
   {
     "start": {
-      "dateTime": "2026-12-17T05:00:00+00:00"
+      "dateTime": "2026-10-21T08:50:00+00:00"
     },
     "end": {
-      "dateTime": "2026-12-17T06:00:00+00:00"
+      "dateTime": "2026-10-21T10:00:00+00:00"
     },
-    "id": "4i62n8q9i39tfv5v01ce5s1cet@google.com",
+    "id": "3nn8q720r1lq4q97216for8mds@google.com",
     "status": "confirmed",
-    "summary": "Rorate Messe"
+    "summary": "Zahnarzt Seiler --> Kieferortho."
+  },
+  {
+    "start": {
+      "date": "2026-09-26"
+    },
+    "end": {
+      "date": "2026-10-12"
+    },
+    "id": "5jmq0k1tgviobf8qrit0ak6hou@google.com",
+    "status": "confirmed",
+    "summary": "Herbstferien"
   }
 ]
