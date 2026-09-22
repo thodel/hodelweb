@@ -12,6 +12,17 @@
   },
   {
     "start": {
+      "date": "2026-09-26"
+    },
+    "end": {
+      "date": "2026-10-12"
+    },
+    "id": "5jmq0k1tgviobf8qrit0ak6hou@google.com",
+    "status": "confirmed",
+    "summary": "Herbstferien"
+  },
+  {
+    "start": {
       "dateTime": "2026-11-22T10:30:00+00:00"
     },
     "end": {
@@ -23,36 +34,14 @@
   },
   {
     "start": {
-      "dateTime": "2026-10-21T08:50:00+00:00"
+      "dateTime": "2026-12-05T12:00:00+00:00"
     },
     "end": {
-      "dateTime": "2026-10-21T10:00:00+00:00"
+      "dateTime": "2026-12-05T15:00:00+00:00"
     },
-    "id": "3nn8q720r1lq4q97216for8mds@google.com",
+    "id": "0aikma4f4uv2crl1hkovjuim1u@google.com",
     "status": "confirmed",
-    "summary": "Zahnarzt Seiler --> Kieferortho."
-  },
-  {
-    "start": {
-      "dateTime": "2026-11-28T08:00:00+00:00"
-    },
-    "end": {
-      "dateTime": "2026-11-28T11:00:00+00:00"
-    },
-    "id": "72k7580gjiaiqk88ai7hq2sqci@google.com",
-    "status": "confirmed",
-    "summary": "Match vs. Allschwil (Muesmattweg 6, 4123 Allschwil)"
-  },
-  {
-    "start": {
-      "dateTime": "2026-10-31T08:00:00+00:00"
-    },
-    "end": {
-      "dateTime": "2026-10-31T11:00:00+00:00"
-    },
-    "id": "0ld9qev31dor4pmitsn1q279i1@google.com",
-    "status": "confirmed",
-    "summary": "Match vs. Emmen (Erlenmatte 80, 6020 Emmenbrücke)"
+    "summary": "Match vs. Regensdorf (Heimspiel)"
   },
   {
     "start": {
@@ -67,14 +56,14 @@
   },
   {
     "start": {
-      "date": "2026-09-26"
+      "date": "2026-12-19"
     },
     "end": {
-      "date": "2026-10-12"
+      "date": "2027-01-04"
     },
-    "id": "5jmq0k1tgviobf8qrit0ak6hou@google.com",
+    "id": "3upl1knpcek0rmddn2l3dit195@google.com",
     "status": "confirmed",
-    "summary": "Herbstferien"
+    "summary": "Weihnachtsferien"
   },
   {
     "start": {
@@ -89,6 +78,17 @@
   },
   {
     "start": {
+      "dateTime": "2026-10-21T08:50:00+00:00"
+    },
+    "end": {
+      "dateTime": "2026-10-21T10:00:00+00:00"
+    },
+    "id": "3nn8q720r1lq4q97216for8mds@google.com",
+    "status": "confirmed",
+    "summary": "Zahnarzt Seiler --> Kieferortho."
+  },
+  {
+    "start": {
       "dateTime": "2026-12-17T05:00:00+00:00"
     },
     "end": {
@@ -100,14 +100,14 @@
   },
   {
     "start": {
-      "date": "2026-12-19"
+      "dateTime": "2026-10-31T08:00:00+00:00"
     },
     "end": {
-      "date": "2027-01-04"
+      "dateTime": "2026-10-31T11:00:00+00:00"
     },
-    "id": "3upl1knpcek0rmddn2l3dit195@google.com",
+    "id": "0ld9qev31dor4pmitsn1q279i1@google.com",
     "status": "confirmed",
-    "summary": "Weihnachtsferien"
+    "summary": "Match vs. Emmen (Erlenmatte 80, 6020 Emmenbrücke)"
   },
   {
     "start": {
@@ -122,13 +122,13 @@
   },
   {
     "start": {
-      "dateTime": "2026-12-05T12:00:00+00:00"
+      "dateTime": "2026-11-28T08:00:00+00:00"
     },
     "end": {
-      "dateTime": "2026-12-05T15:00:00+00:00"
+      "dateTime": "2026-11-28T11:00:00+00:00"
     },
-    "id": "0aikma4f4uv2crl1hkovjuim1u@google.com",
+    "id": "72k7580gjiaiqk88ai7hq2sqci@google.com",
     "status": "confirmed",
-    "summary": "Match vs. Regensdorf (Heimspiel)"
+    "summary": "Match vs. Allschwil (Muesmattweg 6, 4123 Allschwil)"
   }
 ]
