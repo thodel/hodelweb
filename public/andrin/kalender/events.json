@@ -1,6 +1,72 @@
 [
   {
     "start": {
+      "dateTime": "2026-11-28T08:00:00+00:00"
+    },
+    "end": {
+      "dateTime": "2026-11-28T11:00:00+00:00"
+    },
+    "id": "72k7580gjiaiqk88ai7hq2sqci@google.com",
+    "status": "confirmed",
+    "summary": "Match vs. Allschwil (Muesmattweg 6, 4123 Allschwil)"
+  },
+  {
+    "start": {
+      "dateTime": "2026-11-14T12:30:00+00:00"
+    },
+    "end": {
+      "dateTime": "2026-11-14T16:00:00+00:00"
+    },
+    "id": "30hppimlft58oobf4g9m5k3fhe@google.com",
+    "status": "confirmed",
+    "summary": "Match vs. Münchenstein (Heimspiel)"
+  },
+  {
+    "start": {
+      "dateTime": "2026-10-21T08:50:00+00:00"
+    },
+    "end": {
+      "dateTime": "2026-10-21T10:00:00+00:00"
+    },
+    "id": "3nn8q720r1lq4q97216for8mds@google.com",
+    "status": "confirmed",
+    "summary": "Zahnarzt Seiler --> Kieferortho."
+  },
+  {
+    "start": {
+      "dateTime": "2026-11-25T11:15:00+00:00"
+    },
+    "end": {
+      "dateTime": "2026-11-25T13:30:00+00:00"
+    },
+    "id": "4g2jqh33dt4t28i0bt5nchahfk@google.com",
+    "status": "confirmed",
+    "summary": "Religion - mit Mittagessen"
+  },
+  {
+    "start": {
+      "dateTime": "2026-10-24T09:00:00+00:00"
+    },
+    "end": {
+      "dateTime": "2026-10-24T12:15:00+00:00"
+    },
+    "id": "5vg2nj9kqnc11muq1nst16qa54@google.com",
+    "status": "confirmed",
+    "summary": "Match vs. Zug (Lüssiweg 24, 6300 Zug)"
+  },
+  {
+    "start": {
+      "dateTime": "2026-10-31T08:00:00+00:00"
+    },
+    "end": {
+      "dateTime": "2026-10-31T11:00:00+00:00"
+    },
+    "id": "0ld9qev31dor4pmitsn1q279i1@google.com",
+    "status": "confirmed",
+    "summary": "Match vs. Emmen (Erlenmatte 80, 6020 Emmenbrücke)"
+  },
+  {
+    "start": {
       "dateTime": "2026-12-05T12:00:00+00:00"
     },
     "end": {
@@ -23,25 +89,14 @@
   },
   {
     "start": {
-      "dateTime": "2026-10-17T13:00:00+00:00"
+      "dateTime": "2026-12-17T05:00:00+00:00"
     },
     "end": {
-      "dateTime": "2026-10-17T15:00:00+00:00"
+      "dateTime": "2026-12-17T06:00:00+00:00"
     },
-    "id": "4vs1io9dc2pj6apfb9qameoagt@google.com",
+    "id": "4i62n8q9i39tfv5v01ce5s1cet@google.com",
     "status": "confirmed",
-    "summary": "Match vs. BC Zürich"
-  },
-  {
-    "start": {
-      "dateTime": "2026-10-31T08:00:00+00:00"
-    },
-    "end": {
-      "dateTime": "2026-10-31T11:00:00+00:00"
-    },
-    "id": "0ld9qev31dor4pmitsn1q279i1@google.com",
-    "status": "confirmed",
-    "summary": "Match vs. Emmen (Erlenmatte 80, 6020 Emmenbrücke)"
+    "summary": "Rorate Messe"
   },
   {
     "start": {
@@ -56,69 +111,14 @@
   },
   {
     "start": {
-      "dateTime": "2026-10-24T09:00:00+00:00"
+      "dateTime": "2026-10-17T13:00:00+00:00"
     },
     "end": {
-      "dateTime": "2026-10-24T12:15:00+00:00"
+      "dateTime": "2026-10-17T15:00:00+00:00"
     },
-    "id": "5vg2nj9kqnc11muq1nst16qa54@google.com",
+    "id": "4vs1io9dc2pj6apfb9qameoagt@google.com",
     "status": "confirmed",
-    "summary": "Match vs. Zug (Lüssiweg 24, 6300 Zug)"
-  },
-  {
-    "start": {
-      "dateTime": "2026-11-25T11:15:00+00:00"
-    },
-    "end": {
-      "dateTime": "2026-11-25T13:30:00+00:00"
-    },
-    "id": "4g2jqh33dt4t28i0bt5nchahfk@google.com",
-    "status": "confirmed",
-    "summary": "Religion - mit Mittagessen"
-  },
-  {
-    "start": {
-      "dateTime": "2026-10-21T08:50:00+00:00"
-    },
-    "end": {
-      "dateTime": "2026-10-21T10:00:00+00:00"
-    },
-    "id": "3nn8q720r1lq4q97216for8mds@google.com",
-    "status": "confirmed",
-    "summary": "Zahnarzt Seiler --> Kieferortho."
-  },
-  {
-    "start": {
-      "dateTime": "2026-12-17T05:00:00+00:00"
-    },
-    "end": {
-      "dateTime": "2026-12-17T06:00:00+00:00"
-    },
-    "id": "4i62n8q9i39tfv5v01ce5s1cet@google.com",
-    "status": "confirmed",
-    "summary": "Rorate Messe"
-  },
-  {
-    "start": {
-      "dateTime": "2026-11-14T12:30:00+00:00"
-    },
-    "end": {
-      "dateTime": "2026-11-14T16:00:00+00:00"
-    },
-    "id": "30hppimlft58oobf4g9m5k3fhe@google.com",
-    "status": "confirmed",
-    "summary": "Match vs. Münchenstein (Heimspiel)"
-  },
-  {
-    "start": {
-      "dateTime": "2026-11-28T08:00:00+00:00"
-    },
-    "end": {
-      "dateTime": "2026-11-28T11:00:00+00:00"
-    },
-    "id": "72k7580gjiaiqk88ai7hq2sqci@google.com",
-    "status": "confirmed",
-    "summary": "Match vs. Allschwil (Muesmattweg 6, 4123 Allschwil)"
+    "summary": "Match vs. BC Zürich"
   },
   {
     "start": {
