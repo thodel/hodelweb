@@ -1,17 +1,6 @@
 [
   {
     "start": {
-      "dateTime": "2026-11-22T10:30:00+00:00"
-    },
-    "end": {
-      "dateTime": "2026-11-22T14:00:00+00:00"
-    },
-    "id": "7bsdsov10fn44l15fhh5plsfm7@google.com",
-    "status": "confirmed",
-    "summary": "Match vs. Wohlen (Heimspiel)"
-  },
-  {
-    "start": {
       "dateTime": "2026-12-05T12:00:00+00:00"
     },
     "end": {
@@ -23,36 +12,36 @@
   },
   {
     "start": {
-      "dateTime": "2026-11-14T12:30:00+00:00"
+      "dateTime": "2026-11-28T08:00:00+00:00"
     },
     "end": {
-      "dateTime": "2026-11-14T16:00:00+00:00"
+      "dateTime": "2026-11-28T11:00:00+00:00"
     },
-    "id": "30hppimlft58oobf4g9m5k3fhe@google.com",
+    "id": "72k7580gjiaiqk88ai7hq2sqci@google.com",
     "status": "confirmed",
-    "summary": "Match vs. Münchenstein (Heimspiel)"
+    "summary": "Match vs. Allschwil (Muesmattweg 6, 4123 Allschwil)"
   },
   {
     "start": {
-      "dateTime": "2026-10-17T13:00:00+00:00"
+      "date": "2026-09-26"
     },
     "end": {
-      "dateTime": "2026-10-17T15:00:00+00:00"
+      "date": "2026-10-12"
     },
-    "id": "4vs1io9dc2pj6apfb9qameoagt@google.com",
+    "id": "5jmq0k1tgviobf8qrit0ak6hou@google.com",
     "status": "confirmed",
-    "summary": "Match vs. BC Zürich"
+    "summary": "Herbstferien"
   },
   {
     "start": {
-      "dateTime": "2026-12-17T05:00:00+00:00"
+      "date": "2026-12-19"
     },
     "end": {
-      "dateTime": "2026-12-17T06:00:00+00:00"
+      "date": "2027-01-04"
     },
-    "id": "4i62n8q9i39tfv5v01ce5s1cet@google.com",
+    "id": "3upl1knpcek0rmddn2l3dit195@google.com",
     "status": "confirmed",
-    "summary": "Rorate Messe"
+    "summary": "Weihnachtsferien"
   },
   {
     "start": {
@@ -78,36 +67,25 @@
   },
   {
     "start": {
-      "date": "2026-09-26"
+      "dateTime": "2026-12-17T05:00:00+00:00"
     },
     "end": {
-      "date": "2026-10-12"
+      "dateTime": "2026-12-17T06:00:00+00:00"
     },
-    "id": "5jmq0k1tgviobf8qrit0ak6hou@google.com",
+    "id": "4i62n8q9i39tfv5v01ce5s1cet@google.com",
     "status": "confirmed",
-    "summary": "Herbstferien"
+    "summary": "Rorate Messe"
   },
   {
     "start": {
-      "dateTime": "2026-11-28T08:00:00+00:00"
+      "dateTime": "2026-10-21T08:50:00+00:00"
     },
     "end": {
-      "dateTime": "2026-11-28T11:00:00+00:00"
+      "dateTime": "2026-10-21T10:00:00+00:00"
     },
-    "id": "72k7580gjiaiqk88ai7hq2sqci@google.com",
+    "id": "3nn8q720r1lq4q97216for8mds@google.com",
     "status": "confirmed",
-    "summary": "Match vs. Allschwil (Muesmattweg 6, 4123 Allschwil)"
-  },
-  {
-    "start": {
-      "date": "2026-12-19"
-    },
-    "end": {
-      "date": "2027-01-04"
-    },
-    "id": "3upl1knpcek0rmddn2l3dit195@google.com",
-    "status": "confirmed",
-    "summary": "Weihnachtsferien"
+    "summary": "Zahnarzt Seiler --> Kieferortho."
   },
   {
     "start": {
@@ -122,13 +100,35 @@
   },
   {
     "start": {
-      "dateTime": "2026-10-21T08:50:00+00:00"
+      "dateTime": "2026-10-17T13:00:00+00:00"
     },
     "end": {
-      "dateTime": "2026-10-21T10:00:00+00:00"
+      "dateTime": "2026-10-17T15:00:00+00:00"
     },
-    "id": "3nn8q720r1lq4q97216for8mds@google.com",
+    "id": "4vs1io9dc2pj6apfb9qameoagt@google.com",
     "status": "confirmed",
-    "summary": "Zahnarzt Seiler --> Kieferortho."
+    "summary": "Match vs. BC Zürich"
+  },
+  {
+    "start": {
+      "dateTime": "2026-11-14T12:30:00+00:00"
+    },
+    "end": {
+      "dateTime": "2026-11-14T16:00:00+00:00"
+    },
+    "id": "30hppimlft58oobf4g9m5k3fhe@google.com",
+    "status": "confirmed",
+    "summary": "Match vs. Münchenstein (Heimspiel)"
+  },
+  {
+    "start": {
+      "dateTime": "2026-11-22T10:30:00+00:00"
+    },
+    "end": {
+      "dateTime": "2026-11-22T14:00:00+00:00"
+    },
+    "id": "7bsdsov10fn44l15fhh5plsfm7@google.com",
+    "status": "confirmed",
+    "summary": "Match vs. Wohlen (Heimspiel)"
   }
 ]
