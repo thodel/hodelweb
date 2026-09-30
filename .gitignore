@@ -2,3 +2,8 @@
 public/lernwelt/eigene/
 static/lernwelt/eigene/
 __pycache__/
+
+# Kalenderdaten der Kinder: das Repo ist öffentlich, diese Termine nicht.
+# Die Datei entsteht auf dem Server (~/scripts/andrin-calendar-sync.py) und
+# wird hinter dem Passwortschutz ausgeliefert.
+public/andrin/kalender/events.json
