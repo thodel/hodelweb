@@ -7,3 +7,7 @@ __pycache__/
 # Die Datei entsteht auf dem Server (~/scripts/andrin-calendar-sync.py) und
 # wird hinter dem Passwortschutz ausgeliefert.
 public/andrin/kalender/events.json
+
+# Nextcloud-Exporte gehören nicht ins öffentliche Repo.
+public/contacts.vcf
+*.vcf
