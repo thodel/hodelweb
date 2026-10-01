@@ -238,8 +238,8 @@
     <div class="overlay" id="scr-who" hidden>
       <div class="title" style="font-size:20px">WER GEHT AN LAND?</div>
       <div class="choices" id="who-choices">
-        <button class="choice" data-who="Andrin"><span class="big">🧑‍🚀</span>Andrin<small>6. Klasse</small></button>
-        <button class="choice" data-who="Joris"><span class="big">🧑‍🎤</span>Joris<small>4. Klasse</small></button>
+        <button class="choice" data-who="A"><span class="big">🧑‍🚀</span><span class="wer">A.</span><small>6. Klasse</small></button>
+        <button class="choice" data-who="J"><span class="big">🧑‍🎤</span><span class="wer">J.</span><small>4. Klasse</small></button>
         <button class="choice" data-who="Gast"><span class="big">🐵</span>Gast<small>5. Klasse</small></button>
       </div>
       <div class="keyhint">Der Fortschritt wird nur in diesem Browser gespeichert.</div>
@@ -1345,8 +1345,8 @@
   var waveT = 0;
 
   var JACKETS = {
-    Andrin: ['#3b6fb0', '#2c5289'],
-    Joris:  ['#b03b3b', '#8a2c2c'],
+    A: ['#3b6fb0', '#2c5289'],
+    J: ['#b03b3b', '#8a2c2c'],
     Gast:   ['#3d8f57', '#2d6f42']
   };
   if (window.Insel && Insel.kinder) {
@@ -1398,7 +1398,7 @@
     var kl = window.Insel ? Insel.klasse(who) : '';
     var w = WETTER[wetter];
     document.getElementById('hud-who').textContent =
-      '🧭 ' + who + (kl ? ' · ' + kl + '. Kl.' : '') + '  ' + w.icon + ' ' + w.name;
+      '🧭 ' + Insel.name(who) + (kl ? ' · ' + kl + '. Kl.' : '') + '  ' + w.icon + ' ' + w.name;
     var m = window.Insel ? Insel.muenzen(who) : 0;
     var mk = window.Insel ? Insel.marken(who) : 0;
     var su = window.Insel ? Insel.suessigkeiten(who) : 0;
@@ -1854,7 +1854,7 @@
   function showTreasure() {
     var el = document.getElementById('scr-treasure');
     document.getElementById('treasure-text').innerHTML =
-      'Du hast alle vier Orte der Insel geschafft, <b>' + who + '</b>!<br><br>' +
+      'Du hast alle vier Orte der Insel geschafft, <b>' + Insel.name(who) + '</b>!<br><br>' +
       'Insgesamt: <b>' + totalStars() + ' von 12 Sternen</b>.<br>' +
       (totalStars() === 12
         ? 'Perfekt — mehr geht nicht. 🏆'
@@ -2560,8 +2560,8 @@
     }
     if (state === 'title' && (k === 'enter' || k === ' ')) { state = 'who'; showScreen('scr-who'); return; }
     if (state === 'who') {
-      if (k === '1') startPlay('Andrin');
-      if (k === '2') startPlay('Joris');
+      if (k === '1') startPlay('A');
+      if (k === '2') startPlay('J');
       if (k === '3') startPlay('Gast');
       return;
     }
@@ -2592,6 +2592,9 @@
     state = 'who'; showScreen('scr-who');
   });
   Array.prototype.forEach.call(document.querySelectorAll('#who-choices .choice'), function (b) {
+    /* Der echte Vorname steht nur auf dem Server; im Code steht das Kürzel. */
+    var wer = b.querySelector('.wer');
+    if (wer) wer.textContent = Insel.name(b.dataset.who);
     b.addEventListener('click', function () { startPlay(b.dataset.who); });
   });
   function closeTreasure() {

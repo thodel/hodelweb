@@ -31,12 +31,12 @@ erkannt, benannt und in den passenden Ordner einsortiert.
 
 Steht in der Bildunterschrift **«lernwelt»** oder **«lw»**, wird aus dem Foto
 eine Übung für die Lerninsel (`/lernwelt/`) statt eines Ablagedokuments. Im
-Raum *Lernwelt Andrin* gilt das für jedes Foto, ohne Stichwort.
+Raum *Lernwelt A.* (dem Raum des älteren Kindes) gilt das für jedes Foto, ohne Stichwort.
 
 - **Was geht:** Vokabellisten Englisch oder Französisch mit deutscher
   Bedeutung, sowie deutsche Lernwörter (Rechtschreibung). Mindestens 4 Wörter.
   Englisch landet im Piratenschiff, Französisch im Nebelturm (erst ab der
-  5. Klasse offen — eine Französisch-Liste für Joris bleibt unsichtbar, bis er
+  5. Klasse offen — eine Französisch-Liste fürs jüngere Kind bleibt unsichtbar, bis es
   so weit ist; der Bericht sagt das), Lernwörter in der Schreiberhütte.
 - **Mathe-Blätter** (Arbeitsblatt, Test, Lernzielkontrolle): Das Modell schreibt
   je Aufgabe die Anweisung wörtlich ab und jede Teilaufgabe so, wie sie gedruckt
@@ -55,7 +55,7 @@ Raum *Lernwelt Andrin* gilt das für jedes Foto, ohne Stichwort.
   Minuten Abstand gelten als Seiten eines Blatts (bis 6), sortiert nach
   Dateiname. Ist das letzte Foto jünger als 60 Sekunden, wartet der Lauf auf
   weitere Seiten. Abgelegt werden sie als `…_s1.jpg`, `…_s2.jpg` usw.
-- **Für wen:** ein Name in der Bildunterschrift («lw andrin»), sonst die
+- **Für wen:** das Kürzel in der Bildunterschrift («lw a»), sonst die
   Vorgabe des Raums, sonst der Name auf dem Blatt, sonst die Klasse auf dem
   Blatt (nächstliegendes Kind), sonst `vorgabeKind`.
 - **Übungen:** je Liste zwei Sets. Vokabeln: *wählen* (Bedeutung oder Lücke
@@ -64,12 +64,12 @@ Raum *Lernwelt Andrin* gilt das für jedes Foto, ohne Stichwort.
   Fehlerwort verbessern). Gebaut werden sie in `static/lernwelt/uebungen.js`
   (`vokabelSets`, `lernwortSets`).
 - **Ablage:** Das Foto kommt nach `schule/<Jahr>/JJJJ-MM-TT_lernwelt-<kind>_<titel>`,
-  daneben `….lernwelt.json` mit der erkannten Liste. Fotos, die Andrin selbst
+  daneben `….lernwelt.json` mit der erkannten Liste. Fotos, die das Kind selbst
   schickt, werden kopiert (sie gehören ihm), eigene verschoben.
 - **Nachträglich:** Auf einen normalen Ablagebericht mit «lw» (oder
-  «lw andrin») antworten.
+  «lw a») antworten.
 - **Korrigieren:** Auf den Lernwelt-Bericht mit «löschen» antworten, dann ist
-  die Liste weg (das Foto bleibt). Mit «joris» oder «andrin» wird sie
+  die Liste weg (das Foto bleibt). Mit «j» oder «a» wird sie
   umgehängt.
 
 Technik: Die Stammdaten stehen in `~/scanpipe/lernwelt-listen.json`. Daraus
@@ -78,12 +78,19 @@ schreibt `lernwelt.py` die Datei `public/lernwelt/eigene/listen.js`
 Minutenstempel nachlädt. Der Ordner ist nicht im Repo (`.gitignore`), Hugo
 lässt ihn stehen; fehlt `listen.js`, schreibt der nächste Lauf sie neu.
 
+## Namen
+
+Im Repo stehen nur Kürzel (`j`, `a`): es ist öffentlich. Die Fassung von
+`config.json` **auf dem Server** trägt die echten Vornamen, damit die
+Meldungen im Chat persönlich bleiben. Beim Ausspielen also `config.json`
+nicht blind überschreiben.
+
 ## Räume
 
 Der Raum *Dokumente* (`4cavkg2r`) ist die Ablage: nur Fotos hinein, nur Berichte
-heraus. Der Raum *Lernwelt Andrin* (`gr5bir5r`, Mitglieder th und AH) hat
-`"modus": "lernwelt"`: jedes Foto wird zur Übung für Andrin, und auch Andrin
-selbst darf auslösen (`"absender": ["th", "AH"]`). Sonst zählen nur
+heraus. Der Raum *Lernwelt A.* (`gr5bir5r`, Mitglieder th und AH) hat
+`"modus": "lernwelt"`: jedes Foto wird zur Übung für dieses Kind, und es darf
+auch selbst auslösen (`"absender": ["th", "AH"]`). Sonst zählen nur
 Nachrichten des Besitzers. Der openclaw-Agent ist dort **nicht** eingebunden, er kommentiert also
 nichts und verbraucht keine Modellaufrufe.
 

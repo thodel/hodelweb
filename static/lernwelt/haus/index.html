@@ -129,7 +129,7 @@
   var auswahl = Insel.avatar(who);
 
   Insel.hudLeiste($('hud'), 'laden');
-  $('sub').textContent = who + ' · speichern, umziehen, nachschauen';
+  $('sub').textContent = Insel.name(who) + ' · speichern, umziehen, nachschauen';
 
   /* ---------------- Figur zeichnen ---------------- */
   var cv = $('figur'), ctx = cv.getContext('2d');
@@ -292,13 +292,13 @@
       var b = document.createElement('button');
       b.className = 'btn' + (k === who ? ' gold' : ' grau');
       b.style.cssText += 'width:auto;flex:1;min-width:110px;margin-top:0;padding:11px';
-      b.textContent = Insel.kinder[k].emoji + ' ' + k;
+      b.textContent = Insel.kinder[k].emoji + ' ' + Insel.name(k);
       b.onclick = function () {
         Insel.setWho(k);
         who = k;
         auswahl = Insel.avatar(who);
         Insel.positionVergessen();
-        $('sub').textContent = who + ' · speichern, umziehen, nachschauen';
+        $('sub').textContent = Insel.name(who) + ' · speichern, umziehen, nachschauen';
         alles();
       };
       box.appendChild(b);

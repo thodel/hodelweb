@@ -16,7 +16,7 @@ importScripts('/lernwelt/sw-liste.js');
 var CACHE = 'lerninsel-' + self.LERNWELT_VERSION;
 /* Diese Dateien entstehen ausserhalb des Repos und dürfen veralten, aber
    nie fehlen: zuerst aus dem Cache, dann im Hintergrund erneuern. */
-var DYNAMISCH = ['/lernwelt/eigene/listen.js', '/lernwelt/videos.json'];
+var DYNAMISCH = ['/lernwelt/eigene/listen.js', '/lernwelt/eigene/namen.js', '/lernwelt/videos.json'];
 var stand = { fertig: 0, gesamt: self.LERNWELT_DATEIEN.length, fehler: [] };
 /* Der Browser beendet einen Service Worker zwischendurch; ein Zähler im
    Speicher wäre danach weg. Das Ergebnis des Vorladens liegt darum im Cache. */

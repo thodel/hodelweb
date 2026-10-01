@@ -237,7 +237,7 @@
     },
     hudZeichnen: function () {
       var ms = Insel.muenzStatus('nmg', 'planeten', 'leicht', who);
-      return '<span>🧭 <b>' + who + '</b></span>' +
+      return '<span>🧭 <b>' + Insel.name(who) + '</b></span>' +
              '<span class="z">🪙 ' + Insel.muenzen(who) + '</span>' +
              '<span>🪐 ' + (ms.zahlt ? 'Quiz offen' : 'Quiz erledigt') + '</span>' +
              '<span><a href="/lernwelt/">🏝️ Insel</a></span>';

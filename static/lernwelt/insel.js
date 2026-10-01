@@ -9,12 +9,21 @@
   var KEY_WHO = 'lerninsel.who';
   var KEY_DATA = 'lerninsel.v2';
 
-  /* ---- Kinder & Klassenstufen (Lehrplan 21, Zyklus 2) ---- */
+  /* ---- Kinder & Klassenstufen (Lehrplan 21, Zyklus 2) ----
+     Im Code stehen nur Kürzel: dieses Repo ist öffentlich, und die Vornamen
+     der Kinder gehören nicht hinein. Die echten Namen liegen in
+     /lernwelt/eigene/namen.js, die nur auf dem Server existiert
+     (window.LERNWELT_NAMEN = { J: '…', A: '…' }). Fehlt sie, heissen die
+     beiden eben «J.» und «A.» — das Spiel läuft genauso. */
   var KINDER = {
-    Joris:  { klasse: 4, jacke: ['#b03b3b', '#8a2c2c'], emoji: '🧑‍🎤' },
-    Andrin: { klasse: 6, jacke: ['#3b6fb0', '#2c5289'], emoji: '🧑‍🚀' },
-    Gast:   { klasse: 5, jacke: ['#3d8f57', '#2d6f42'], emoji: '🐵' }
+    J:    { kurz: 'J.',   klasse: 4, jacke: ['#b03b3b', '#8a2c2c'], emoji: '🧑‍🎤' },
+    A:    { kurz: 'A.',   klasse: 6, jacke: ['#3b6fb0', '#2c5289'], emoji: '🧑‍🚀' },
+    Gast: { kurz: 'Gast', klasse: 5, jacke: ['#3d8f57', '#2d6f42'], emoji: '🐵' }
   };
+  if (typeof document !== 'undefined' && document.readyState === 'loading') {
+    document.write('<script src="/lernwelt/eigene/namen.js?t=' +
+      Math.floor(Date.now() / 3600000) + '"><\/script>');
+  }
 
   /* Spiele, die Münzen melden. Einmal hier gepflegt, überall gleich:
      Spielplatz, Bestenliste und Haus lesen dieselbe Liste. */
@@ -212,6 +221,46 @@
   }
   function save(data) { return writeRaw(KEY_DATA, JSON.stringify(data)); }
 
+  /* Früher hiessen die Spielstände nach den Vornamen der Kinder. Welche das
+     waren, weiss nur der Server (namen.js) — hier steht es bewusst nicht.
+     Die Umbenennung läuft deshalb beim ersten Zugriff, nicht beim Laden. */
+  var umbenannt = false;
+  function altenStandUebernehmen() {
+    if (umbenannt) return;
+    umbenannt = true;
+    var namen = global.LERNWELT_NAMEN;
+    if (!namen) return;                     /* ohne alte Namen gibt es nichts zu tun */
+    try {
+      var daten = load(), geaendert = false;
+      Object.keys(namen).forEach(function (kuerzel) {
+        var alt = namen[kuerzel];
+        if (!alt || alt === kuerzel || !daten[alt]) return;
+        if (!daten[kuerzel]) daten[kuerzel] = daten[alt];
+        delete daten[alt];
+        geaendert = true;
+      });
+      if (geaendert) save(daten);
+      var wer = readRaw(KEY_WHO, '');
+      Object.keys(namen).forEach(function (kuerzel) {
+        if (namen[kuerzel] === wer) writeRaw(KEY_WHO, kuerzel);
+      });
+      /* Auch die Schlüssel, die den Namen im Namen tragen: entdeckt, offen, … */
+      for (var i = localStorage.length - 1; i >= 0; i--) {
+        var k = localStorage.key(i);
+        if (!k || k.indexOf('lerninsel.') !== 0) continue;
+        Object.keys(namen).forEach(function (kuerzel) {
+          var teil = '.' + namen[kuerzel];
+          if (namen[kuerzel] === kuerzel || k.indexOf(teil) < 0) return;
+          var neuerK = k.split(teil).join('.' + kuerzel);
+          if (localStorage.getItem(neuerK) === null) {
+            localStorage.setItem(neuerK, localStorage.getItem(k));
+          }
+          localStorage.removeItem(k);
+        });
+      }
+    } catch (e) { /* ohne Speicher gibt es auch nichts umzubenennen */ }
+  }
+
   /* ---------------- Datum & Woche ---------------- */
   function zwei(n) { return (n < 10 ? '0' : '') + n; }
   function tagesStempel(d) {
@@ -266,13 +315,21 @@
 
     /* ---------------- Spieler ---------------- */
     who: function () {
+      altenStandUebernehmen();
       var w = readRaw(KEY_WHO, 'Gast');
       return KINDER[w] ? w : 'Gast';
     },
     setWho: function (name) { if (KINDER[name]) writeRaw(KEY_WHO, name); },
+    /* Anzeigename: der echte Vorname vom Server, sonst das Kürzel. */
+    name: function (who) {
+      who = who || this.who();
+      var echte = global.LERNWELT_NAMEN || {};
+      return echte[who] || (KINDER[who] ? KINDER[who].kurz : who);
+    },
     klasse: function (who) { return (KINDER[who || this.who()] || KINDER.Gast).klasse; },
 
     stand: function (who) {
+      altenStandUebernehmen();
       var data = load();
       var k = who || this.who();
       if (!data[k]) data[k] = leererSpielstand();
@@ -1305,7 +1362,7 @@
       var who = this.who();
       el.innerHTML =
         '<span style="background:#1e293b;border:2px solid #334155;border-radius:8px;padding:7px 10px;color:#e2e8f0">' +
-          (KINDER[who] ? KINDER[who].emoji : '🙂') + ' ' + who + ' · ' + this.klasse(who) + '. Klasse</span>' +
+          (KINDER[who] ? KINDER[who].emoji : '🙂') + ' ' + this.name(who) + ' · ' + this.klasse(who) + '. Klasse</span>' +
         '<span style="background:#1e293b;border:2px solid #fbbf24;border-radius:8px;padding:7px 10px;color:#fbbf24">🪙 ' +
           this.muenzen(who) + '</span>' +
         '<span style="background:#1e293b;border:2px solid #a78bfa;border-radius:8px;padding:7px 10px;color:#c4b5fd">🎟️ ' +

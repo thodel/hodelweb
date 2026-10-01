@@ -33,10 +33,10 @@
     },
     {
       "token": "gr5bir5r",
-      "name": "Lernwelt Andrin",
+      "name": "Lernwelt A.",
       "aktiv": true,
       "modus": "lernwelt",
-      "kind": "andrin",
+      "kind": "a",
       "absender": [
         "th",
         "AH"
@@ -55,10 +55,10 @@
       "lw"
     ],
     "kinder": {
-      "joris": 4,
-      "andrin": 6
+      "j": 4,
+      "a": 6
     },
-    "vorgabeKind": "joris",
+    "vorgabeKind": "j",
     "ordner": "~/repos/hodelweb/public/lernwelt/eigene"
   }
 }

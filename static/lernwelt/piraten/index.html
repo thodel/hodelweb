@@ -372,7 +372,7 @@
     },
     hudZeichnen: function () {
       var n = anzahlGeschafft();
-      return '<span>🧭 <b>' + who + '</b></span>' +
+      return '<span>🧭 <b>' + Insel.name(who) + '</b></span>' +
              '<span class="z">🪙 ' + Insel.muenzen(who) + '</span>' +
              '<span>🏴‍☠️ gefangen</span>' +
              '<span>Aufgaben: <b>' + n + '/' + Insel.oekonomie.piratenAufgaben + '</b></span>';

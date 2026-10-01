@@ -220,7 +220,7 @@
   function zeigeMenue() {
     document.title = fachInfo.kurz + ' — Lerninsel';
     $('titel').textContent = fachInfo.emoji + ' ' + fachInfo.name;
-    $('untertitel').textContent = who + ', ' + klasse + '. Klasse — wähle eine Übung. ' +
+    $('untertitel').textContent = Insel.name(who) + ', ' + klasse + '. Klasse — wähle eine Übung. ' +
       'Grün = Grundlagen (Münzen einmalig), Orange = Knacknuss (Münzen bis du sie meisterst).';
     $('quiz').style.display = 'none';
     $('summary').classList.remove('show');

@@ -170,7 +170,7 @@
       var d = document.createElement('div');
       d.className = 'kind' + (w.p === max && max > 0 ? ' fuehrt' : '');
       d.innerHTML = '<div class="e">' + k.emoji + '</div>' +
-        '<div class="n">' + w.name + (w.name === ich ? ' ·' : '') + '</div>' +
+        '<div class="n">' + Insel.name(w.name) + (w.name === ich ? ' ·' : '') + '</div>' +
         '<div class="kl">' + k.klasse + '. Klasse</div>' +
         '<div class="p">' + w.p + '</div><div class="pl">Punkte</div>';
       box.appendChild(d);
@@ -207,7 +207,7 @@
       reihen.forEach(function (d, idx) {
         var medaille = idx === 0 && reihen.length > 1 ? ' 🥇' : '';
         tabelle += '<tr><td' + (idx === 0 ? ' class="sieger"' : '') + '>' +
-          Insel.kinder[d.name].emoji + ' ' + d.name + medaille + '</td>' +
+          Insel.kinder[d.name].emoji + ' ' + Insel.name(d.name) + medaille + '</td>' +
           '<td>' + d.best + ' %</td><td>' + d.schnitt + ' %</td>' +
           '<td>' + d.gemeistert + ' / ' + d.uebungen + '</td>' +
           '<td>' + '★'.repeat(d.sterne) + '☆'.repeat(3 - d.sterne) + '</td>' +
@@ -217,7 +217,7 @@
 
       /* Balken für den Bestwert */
       var balken = reihen.map(function (d) {
-        return '<div style="font-size:12px;color:#94a3b8;margin-top:10px">' + d.name + '</div>' +
+        return '<div style="font-size:12px;color:#94a3b8;margin-top:10px">' + Insel.name(d.name) + '</div>' +
                '<div class="balken"><i style="width:' + d.best + '%"></i></div>';
       }).join('');
 
@@ -306,7 +306,7 @@
       var fuehrt = r.punkte > 0 && r.punkte === tabelle[0].punkte;
       return '<div class="dz' + (fuehrt ? ' fuehrt' : '') + '">' +
         '<span class="r">' + (i + 1) + '.</span>' +
-        '<span class="n">' + k.emoji + ' ' + r.name +
+        '<span class="n">' + k.emoji + ' ' + Insel.name(r.name) +
           (r.name === ich ? ' ·' : '') +
           (vorwoche && vorwoche.name === r.name ? ' <span class="pokal" title="Sieger der letzten Woche">🏆</span>' : '') +
         '</span>' +

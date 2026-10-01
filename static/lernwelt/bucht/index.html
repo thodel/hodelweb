@@ -258,7 +258,7 @@
     },
     hudZeichnen: function () {
       var arten = Object.keys(eimer()).length;
-      return '<span>🧭 <b>' + who + '</b></span>' +
+      return '<span>🧭 <b>' + Insel.name(who) + '</b></span>' +
              '<span class="z">🪙 ' + Insel.muenzen(who) + '</span>' +
              '<span>🎣 ' + arten + '/' + FISCHE.length + ' Arten</span>' +
              '<span><a href="/lernwelt/">🏝️ Insel</a></span>';

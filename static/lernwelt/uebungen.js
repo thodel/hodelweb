@@ -1511,7 +1511,7 @@
           ['Jemand hilft dir.', 'Thank you very much.', ['You are welcome.', 'Never mind.']],
           ['Du hast die Frage nicht verstanden.', 'Sorry, can you repeat that?', ['I know nothing.', 'Speak again now.']],
           ['Du willst wissen, wie spät es ist.', 'What time is it?', ['How is the time?', 'When is the clock?']],
-          ['Du stellst dich vor.', "My name is Joris.", ['I am called by Joris.', 'Me Joris.']],
+          ['Du stellst dich vor.', "My name is Alex.", ['I am called by Alex.', 'Me Alex.']],
           ['Du fragst nach dem Weg.', 'Excuse me, where is the station?', ['Where go station?', 'Say me the station.']],
           ['Du möchtest wissen, wie alt jemand ist.', 'How old are you?', ['How many years you?', 'What age have you?']],
           ['Du entschuldigst dich.', "I'm sorry.", ['I am sad.', 'Excuse it.']],

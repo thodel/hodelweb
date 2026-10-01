@@ -477,8 +477,8 @@ def zutritt_hinweis(liste):
 def lw_konfig(konfig):
     k = dict(konfig.get("lernwelt") or {})
     k.setdefault("stichwoerter", ["lernwelt", "lw"])
-    k.setdefault("kinder", {"joris": 4, "andrin": 6})
-    k.setdefault("vorgabeKind", "joris")
+    k.setdefault("kinder", {"j": 4, "a": 6})
+    k.setdefault("vorgabeKind", "j")
     k.setdefault("ordner", "~/repos/hodelweb/public/lernwelt/eigene")
     return k
 
@@ -538,7 +538,7 @@ def lernwelt_bericht(liste, ziel, kinder, seiten=1):
 def fotos_ablegen(cloud, konfig, seiten, liste):
     """Legt die Fotos einer Lernwelt-Liste unter schule/<Jahr>/ ab, mehrere
     Seiten als _s1, _s2 … Eigene Dateien werden verschoben, von anderen
-    geteilte (Andrin) kopiert. 'seiten' = [(original, pfad, fremd), …].
+    geteilte (vom Kind selbst geschickte) kopiert. 'seiten' = [(original, pfad, fremd), …].
     Gibt (Pfad der ersten Seite, None) oder (None, Fehler) zurück."""
     datum = liste.get("datum") or liste["erstellt"]
     ordner = f"{konfig['zielOrdner'].strip('/')}/schule/{datum[:4]}"

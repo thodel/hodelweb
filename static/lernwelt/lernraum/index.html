@@ -487,7 +487,7 @@
     },
     hudZeichnen: function () {
       var a = Insel.auftragOffen(who);
-      return '<span>🧭 <b>' + who + '</b> · ' + klasse + '. Kl.</span>' +
+      return '<span>🧭 <b>' + Insel.name(who) + '</b> · ' + klasse + '. Kl.</span>' +
              '<span>' + info.emoji + ' ' + info.name + '</span>' +
              '<span class="z">🪙 ' + Insel.muenzen(who) + '</span>' +
              '<span>⭐ ' + Insel.sterne(fach, who) + '/3</span>' +

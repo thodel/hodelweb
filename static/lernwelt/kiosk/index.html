@@ -135,7 +135,7 @@
   var $ = function (id) { return document.getElementById(id); };
   var who = Insel.who();
   Insel.hudLeiste($('hud'), 'laden');
-  $('sub').textContent = who + ' · Münzen gegen Marken tauschen';
+  $('sub').textContent = Insel.name(who) + ' · Münzen gegen Marken tauschen';
   $('preis').textContent = Insel.oekonomie.markePreis;
 
   function zeichne() {

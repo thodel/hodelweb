@@ -451,7 +451,7 @@
     hudZeichnen: function () {
       var bilanz = Insel.bankBilanz(who);
       var rest = Insel.rauschRest(who);
-      return '<span>🧭 <b>' + who + '</b></span>' +
+      return '<span>🧭 <b>' + Insel.name(who) + '</b></span>' +
              '<span class="z">🪙 ' + Insel.muenzen(who) + '</span>' +
              (Insel.rausch(who) > 0.02
                ? '<span>🍺 ' + Insel.rausch(who).toFixed(1) + ' · nüchtern in ' +

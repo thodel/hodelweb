@@ -11,6 +11,7 @@ const INSEL = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..'
 
 const AUSNAHMEN = new Set([
   '/lernwelt/eigene/listen.js',   // entsteht erst auf dem Server (Dokumenten-Pipeline)
+  '/lernwelt/eigene/namen.js',    // die echten Vornamen der Kinder, nur auf dem Server
   '/lernwelt/sw.js',              // den Service Worker verwaltet der Browser selbst
   '/lernwelt/sw-liste.js'         // lädt der Service Worker per importScripts
 ]);
