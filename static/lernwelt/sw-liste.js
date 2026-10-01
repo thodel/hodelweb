@@ -1,6 +1,6 @@
 /* Erzeugt von scripts/lernwelt/build_sw.py — nicht von Hand ändern.
-   36 Dateien. Neue Version = neuer Cache. */
-self.LERNWELT_VERSION = '7807ebaa6556';
+   38 Dateien. Neue Version = neuer Cache. */
+self.LERNWELT_VERSION = '419800c42090';
 self.LERNWELT_DATEIEN = [
   '/favicon-32x32.png',
   '/lernwelt/',
@@ -35,6 +35,8 @@ self.LERNWELT_DATEIEN = [
   '/lernwelt/spiele/pferderennen/',
   '/lernwelt/spiele/sprint/',
   '/lernwelt/sternwarte/',
+  '/lernwelt/tablet.css',
+  '/lernwelt/tablet.js',
   '/lernwelt/uebung/',
   '/lernwelt/uebungen.js',
   '/lernwelt/videos.json'

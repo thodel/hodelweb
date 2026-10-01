@@ -1964,8 +1964,11 @@
         }
         if (art === 'plus') { var a = rint(-20, -1), b = rint(1, 30); return { typ: 'zahl', frage: '(' + a + ') + ' + b + ' =', antwort: String(a + b) }; }
         if (art === 'minus') { var c = rint(-10, 15), e = rint(1, 25); return { typ: 'zahl', frage: c + ' − ' + e + ' =', antwort: String(c - e) }; }
-        var z1 = rint(-20, -1), z2 = z1 + rint(1, 8), z3 = rint(0, 20);
-        var z = [z1, Math.min(z2, -1) === z1 ? z1 + 1 : Math.min(z2, -1), z3].sort(function (x, y) { return x - y; });
+        var z = [rint(-20, -2)];
+        z.push(z[0] + rint(1, 8));                 /* grösser, kann auch positiv sein */
+        var z3 = rint(0, 20); while (z.indexOf(z3) >= 0) z3++;
+        z.push(z3);
+        z.sort(function (x, y) { return x - y; });
         return wahl('Welche Zahl ist die kleinste: ' + shuffle(z).join(', ') + '?', z[0], [z[1], z[2]],
                     'Je weiter links auf dem Zahlenstrahl, desto kleiner.');
       }

@@ -1,0 +1,24 @@
+/* ============================================================
+   Lerninsel — Tablet
+   Auf dem iPad markiert ein langer Fingerdruck sonst den ganzen Bildschirm,
+   und Safari blendet «Kopieren / Ausschneiden» ein. Hier wird das für alle
+   Seiten der Lernwelt abgestellt. Eingabefelder bleiben normal bedienbar.
+   ============================================================ */
+html, body {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;          /* kein Zoom per Doppeltipp, Pinch bleibt */
+}
+canvas, button, a, img, label, .pad, #touch, #steuer, #hud, #banner, #dialog {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+canvas { touch-action: none; }
+input, textarea, select, [contenteditable="true"] {
+  -webkit-user-select: text;
+  user-select: text;
+  -webkit-touch-callout: default;
+}
