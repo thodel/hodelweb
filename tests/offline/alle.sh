@@ -19,5 +19,10 @@ node --test tests/offline/*.mjs 2>&1 | grep -E "^(✔|✖)|^ℹ (tests|pass|fail
 node --test tests/offline/*.mjs >/dev/null 2>&1 || fehler=1
 
 echo
+echo "== Spiellogik der Insel (Node) =="
+node --test tests/lernwelt/*.mjs 2>&1 | grep -E "^(✔|✖)|^ℹ (tests|pass|fail)" || fehler=1
+node --test tests/lernwelt/*.mjs >/dev/null 2>&1 || fehler=1
+
+echo
 if [ "$fehler" -eq 0 ]; then echo "Alles grün."; else echo "FEHLER — siehe oben."; fi
 exit "$fehler"

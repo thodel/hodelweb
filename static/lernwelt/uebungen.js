@@ -1835,6 +1835,806 @@
   ]);
 
   /* ============================================================
+     ZWEITE RUNDE — neue Übungen für die 4. und 6. Klasse
+     Wer die ersten Pulte abgeräumt hat, findet hier Nachschub.
+     ============================================================ */
+  function zahlwort(n) {
+    var w = ['null', 'eins', 'zwei', 'drei', 'vier', 'fünf', 'sechs', 'sieben', 'acht', 'neun', 'zehn', 'elf', 'zwölf'];
+    return w[n] || String(n);
+  }
+  var MATHE_NEU = [
+    {
+      id: 'verdoppeln-halbieren', klassen: [4], schwierigkeit: 'leicht',
+      titel: 'Verdoppeln & Halbieren', lp21: 'MA.1.A.2',
+      info: 'Das Doppelte und die Hälfte im Kopf.',
+      gen: function () {
+        if (Math.random() < 0.5) {
+          var a = rint(13, 480);
+          return { typ: 'zahl', frage: 'Das Doppelte von ' + a + ' ist', antwort: String(a * 2) };
+        }
+        var b = rint(8, 490) * 2;
+        return { typ: 'zahl', frage: 'Die Hälfte von ' + b + ' ist', antwort: String(b / 2) };
+      }
+    },
+    {
+      id: 'platzhalter', klassen: [4, 5], schwierigkeit: 'leicht',
+      titel: 'Platzhalter-Aufgaben', lp21: 'MA.1.A.2',
+      info: 'Welche Zahl fehlt im Kästchen?',
+      gen: function () {
+        var art = pick(['plus', 'minus', 'mal', 'geteilt']);
+        if (art === 'plus') { var a = rint(12, 60), b = rint(10, 80); return { typ: 'zahl', frage: '▢ + ' + a + ' = ' + (a + b), antwort: String(b) }; }
+        if (art === 'minus') { var c = rint(40, 99), d = rint(5, 35); return { typ: 'zahl', frage: c + ' − ▢ = ' + (c - d), antwort: String(d) }; }
+        if (art === 'mal') { var e = rint(2, 9), f = rint(3, 12); return { typ: 'zahl', frage: e + ' · ▢ = ' + (e * f), antwort: String(f) }; }
+        var g = rint(2, 9), h = rint(3, 12);
+        return { typ: 'zahl', frage: '▢ : ' + g + ' = ' + h, antwort: String(g * h) };
+      }
+    },
+    {
+      id: 'teilen-rest4', klassen: [4], schwierigkeit: 'schwer',
+      titel: 'Teilen mit Rest', lp21: 'MA.1.A.3',
+      info: 'Teilen, wenn es nicht aufgeht — Antwort als «Ergebnis R Rest».',
+      gen: function () {
+        var d = rint(2, 9), q = rint(3, 12), r = rint(1, d - 1);
+        var z = q * d + r;
+        return { typ: 'text', frage: z + ' : ' + d + ' =', antwort: q + ' R ' + r,
+                 alternativen: [q + 'R' + r, q + ' r ' + r, q + ' Rest ' + r],
+                 hinweis: 'Schreibe so: 7 R 2' };
+      }
+    },
+    {
+      id: 'zahlenstrahl', klassen: [4], schwierigkeit: 'leicht',
+      titel: 'Zahlenstrahl & Schritte', lp21: 'MA.1.A.1',
+      info: 'Mitte finden, in Schritten zählen, Nachbarzahlen.',
+      gen: function () {
+        var art = pick(['mitte', 'schritte', 'vorher', 'nachher']);
+        if (art === 'mitte') {
+          var a = rint(10, 90) * 10, w = pick([20, 40, 100, 200]);
+          return { typ: 'zahl', frage: 'Welche Zahl liegt genau in der Mitte zwischen ' + a + ' und ' + (a + w) + '?',
+                   antwort: String(a + w / 2) };
+        }
+        if (art === 'schritte') {
+          var s = pick([5, 10, 25, 50, 100]), start = rint(2, 20) * s;
+          return { typ: 'zahl', frage: 'Weiter in ' + s + 'er-Schritten: ' + start + ', ' + (start + s) + ', ' + (start + 2 * s) + ', ?',
+                   antwort: String(start + 3 * s) };
+        }
+        var z = rint(100, 999) * 10;
+        if (art === 'vorher') return { typ: 'zahl', frage: 'Welche Zahl kommt direkt vor ' + z + '?', antwort: String(z - 1) };
+        return { typ: 'zahl', frage: 'Welche Zahl kommt direkt nach ' + (z - 1) + '?', antwort: String(z) };
+      }
+    },
+    {
+      id: 'formen', klassen: [4, 5], schwierigkeit: 'leicht',
+      titel: 'Formen & Körper', lp21: 'MA.2.A.1',
+      info: 'Ecken, Kanten, Flächen und Symmetrie.',
+      gen: function () {
+        var f = pick([
+          ['Wie viele Ecken hat ein Dreieck?', '3'], ['Wie viele Ecken hat ein Sechseck?', '6'],
+          ['Wie viele Ecken hat ein Achteck?', '8'], ['Wie viele Seiten hat ein Fünfeck?', '5'],
+          ['Wie viele Symmetrieachsen hat ein Quadrat?', '4'], ['Wie viele Symmetrieachsen hat ein Rechteck (kein Quadrat)?', '2'],
+          ['Wie viele Ecken hat ein Würfel?', '8'], ['Wie viele Kanten hat ein Würfel?', '12'],
+          ['Wie viele Flächen hat ein Würfel?', '6'], ['Wie viele Flächen hat ein Quader?', '6'],
+          ['Wie viele Ecken hat eine Pyramide mit quadratischer Grundfläche?', '5'],
+          ['Wie viele Ecken hat eine Kugel?', '0'], ['Wie viele Kanten hat ein Zylinder?', '2'],
+          ['Wie viele rechte Winkel hat ein Rechteck?', '4']
+        ]);
+        return { typ: 'zahl', frage: f[0], antwort: f[1] };
+      }
+    },
+    {
+      id: 'ueberschlag', klassen: [4, 5], schwierigkeit: 'leicht',
+      titel: 'Überschlagen', lp21: 'MA.1.A.4',
+      info: 'Ungefähr rechnen: Welches Ergebnis passt?',
+      gen: function () {
+        var a = rint(180, 980), b = rint(110, 890);
+        var plus = Math.random() < 0.6;
+        var genau = plus ? a + b : Math.abs(a - b);
+        var grob = Math.round(genau / 100) * 100;
+        var falsche = distinct(grob, [grob + 100, grob - 100, grob + 200, grob - 200, grob + 300].filter(function (x) { return x > 0; }), 2);
+        return wahl('Ungefähr: ' + (plus ? a + ' + ' + b : Math.max(a, b) + ' − ' + Math.min(a, b)) + ' ≈ ?',
+                    grob, falsche, 'Runde beide Zahlen auf Hunderter, dann rechne.');
+      }
+    },
+    {
+      id: 'zeitspannen', klassen: [4, 5], schwierigkeit: 'schwer',
+      titel: 'Zeitspannen', lp21: 'MA.3.A.2',
+      info: 'Wie lange dauert es von … bis …? Antwort in Minuten.',
+      gen: function () {
+        var h1 = rint(7, 17), m1 = pick([0, 10, 15, 20, 30, 40, 45, 50]);
+        var dauer = rint(2, 20) * 5 + (Math.random() < 0.5 ? 60 : 0);
+        var ges = h1 * 60 + m1 + dauer, h2 = Math.floor(ges / 60), m2 = ges % 60;
+        function uhr(h, m) { return h + ':' + (m < 10 ? '0' : '') + m; }
+        if (Math.random() < 0.5) {
+          return { typ: 'zahl', frage: 'Von ' + uhr(h1, m1) + ' Uhr bis ' + uhr(h2, m2) + ' Uhr sind es wie viele Minuten?',
+                   antwort: String(dauer), hinweis: 'Erst bis zur vollen Stunde, dann weiter.' };
+        }
+        return { typ: 'text', frage: 'Um ' + uhr(h1, m1) + ' Uhr geht es los und dauert ' + dauer + ' Minuten. Wann ist Schluss? (z. B. 9:05)',
+                 antwort: uhr(h2, m2), alternativen: [uhr(h2, m2) + ' Uhr', (h2 < 10 ? '0' : '') + uhr(h2, m2)] };
+      }
+    },
+    {
+      id: 'negative-zahlen', klassen: [6], schwierigkeit: 'schwer',
+      titel: 'Negative Zahlen', lp21: 'MA.1.A.1',
+      info: 'Temperaturen, Schulden und der Zahlenstrahl unter null.',
+      gen: function () {
+        var art = pick(['temp', 'plus', 'minus', 'ordnen']);
+        if (art === 'temp') {
+          var t = rint(-12, 8), d = rint(3, 15), fallend = Math.random() < 0.5;
+          return { typ: 'zahl', frage: 'Es sind ' + t + ' °C. Die Temperatur ' + (fallend ? 'sinkt' : 'steigt') + ' um ' + d + ' Grad. Wie viel Grad sind es jetzt?',
+                   antwort: String(fallend ? t - d : t + d) };
+        }
+        if (art === 'plus') { var a = rint(-20, -1), b = rint(1, 30); return { typ: 'zahl', frage: '(' + a + ') + ' + b + ' =', antwort: String(a + b) }; }
+        if (art === 'minus') { var c = rint(-10, 15), e = rint(1, 25); return { typ: 'zahl', frage: c + ' − ' + e + ' =', antwort: String(c - e) }; }
+        var z1 = rint(-20, -1), z2 = z1 + rint(1, 8), z3 = rint(0, 20);
+        var z = [z1, Math.min(z2, -1) === z1 ? z1 + 1 : Math.min(z2, -1), z3].sort(function (x, y) { return x - y; });
+        return wahl('Welche Zahl ist die kleinste: ' + shuffle(z).join(', ') + '?', z[0], [z[1], z[2]],
+                    'Je weiter links auf dem Zahlenstrahl, desto kleiner.');
+      }
+    },
+    {
+      id: 'quadratzahlen', klassen: [5, 6], schwierigkeit: 'leicht',
+      titel: 'Quadratzahlen & Wurzeln', lp21: 'MA.1.A.3',
+      info: 'Hoch zwei und wieder zurück.',
+      gen: function () {
+        var n = rint(2, 15);
+        if (Math.random() < 0.5) return { typ: 'zahl', frage: n + '² =', antwort: String(n * n), paar: 'q' + n };
+        return { typ: 'zahl', frage: '√' + (n * n) + ' =', antwort: String(n), paar: 'q' + n,
+                 hinweis: 'Welche Zahl mal sich selbst gibt ' + (n * n) + '?' };
+      }
+    },
+    {
+      id: 'volumen', klassen: [6], schwierigkeit: 'schwer',
+      titel: 'Volumen', lp21: 'MA.2.A.2',
+      info: 'Quader und Würfel ausrechnen, Liter und Kubikdezimeter.',
+      gen: function () {
+        var art = pick(['quader', 'wuerfel', 'liter', 'liter']);
+        if (art === 'quader') {
+          var a = rint(2, 9), b = rint(2, 9), c = rint(2, 9);
+          return { typ: 'zahl', frage: 'Quader: ' + a + ' cm × ' + b + ' cm × ' + c + ' cm. Volumen in cm³?', antwort: String(a * b * c) };
+        }
+        if (art === 'wuerfel') { var k = rint(2, 8); return { typ: 'zahl', frage: 'Würfel mit Kantenlänge ' + k + ' cm. Volumen in cm³?', antwort: String(k * k * k) }; }
+        var l = rint(2, 40);
+        return Math.random() < 0.5
+          ? { typ: 'zahl', frage: l + ' Liter sind wie viele dm³?', antwort: String(l), hinweis: '1 l = 1 dm³' }
+          : { typ: 'zahl', frage: l + ' dm³ sind wie viele Liter?', antwort: String(l), hinweis: '1 dm³ = 1 l' };
+      }
+    },
+    {
+      id: 'mittelwert', klassen: [6], schwierigkeit: 'schwer',
+      titel: 'Durchschnitt', lp21: 'MA.3.C.2',
+      info: 'Den Mittelwert von Zahlen berechnen.',
+      gen: function () {
+        var n = pick([3, 4, 5]), mitte = rint(5, 40), werte = [], summe = 0;
+        for (var i = 0; i < n - 1; i++) { var w = mitte + rint(-4, 4); werte.push(w); summe += w; }
+        werte.push(mitte * n - summe);
+        var kontext = pick(['Noten in Punkten', 'Temperaturen in °C', 'Tore in fünf Spielen', 'Kilometer pro Tag']);
+        return { typ: 'zahl', frage: 'Durchschnitt von ' + shuffle(werte).join(', ') + ' (' + kontext + ')?', antwort: String(mitte),
+                 hinweis: 'Alles zusammenzählen und durch ' + n + ' teilen.' };
+      }
+    },
+    {
+      id: 'winkel', klassen: [5, 6], schwierigkeit: 'leicht',
+      titel: 'Winkel', lp21: 'MA.2.C.1',
+      info: 'Spitz, recht, stumpf — und die Winkelsumme im Dreieck.',
+      gen: function () {
+        if (Math.random() < 0.5) {
+          var g = pick([25, 40, 60, 85, 90, 100, 120, 150, 175, 180, 200, 270]);
+          var art = g < 90 ? 'spitz' : g === 90 ? 'recht' : g < 180 ? 'stumpf' : g === 180 ? 'gestreckt' : 'überstumpf';
+          return wahl('Ein Winkel von ' + g + '°. Wie heisst er?', art, distinct(art, ['spitz', 'recht', 'stumpf', 'gestreckt', 'überstumpf'], 2));
+        }
+        var a = rint(20, 90), b = rint(20, 80);
+        return { typ: 'zahl', frage: 'Dreieck: zwei Winkel messen ' + a + '° und ' + b + '°. Der dritte?', antwort: String(180 - a - b),
+                 hinweis: 'Alle drei zusammen geben 180°.' };
+      }
+    },
+    {
+      id: 'massstab', klassen: [6], schwierigkeit: 'schwer',
+      titel: 'Massstab', lp21: 'MA.3.B.1',
+      info: 'Karte und Wirklichkeit umrechnen.',
+      gen: function () {
+        var m = pick([100, 1000, 10000, 25000, 50000]), cm = rint(2, 12);
+        var meter = cm * m / 100;
+        if (Math.random() < 0.5) {
+          return meter >= 1000
+            ? { typ: 'zahl', frage: 'Massstab 1:' + zahlText(m) + '. ' + cm + ' cm auf der Karte sind in Wirklichkeit wie viele km?', antwort: fmt(meter / 1000) }
+            : { typ: 'zahl', frage: 'Massstab 1:' + zahlText(m) + '. ' + cm + ' cm auf der Karte sind in Wirklichkeit wie viele m?', antwort: String(meter) };
+        }
+        return { typ: 'zahl', frage: 'Massstab 1:' + zahlText(m) + '. ' + (meter >= 1000 ? fmt(meter / 1000) + ' km' : meter + ' m') + ' in Wirklichkeit sind auf der Karte wie viele cm?', antwort: String(cm) };
+      }
+    },
+    {
+      id: 'dezimal-vergleich', klassen: [5, 6], schwierigkeit: 'leicht',
+      titel: 'Dezimalzahlen vergleichen', lp21: 'MA.1.A.1',
+      info: 'Welche Zahl ist grösser? Welche liegt dazwischen?',
+      gen: function () {
+        var a = rint(1, 99) / 10, b = a + pick([0.05, 0.1, 0.3, 0.02]);
+        b = Math.round(b * 100) / 100;
+        var p = [fmt(a), fmt(b)];
+        if (Math.random() < 0.6) return wahl('Welche Zahl ist grösser: ' + p[0] + ' oder ' + p[1] + '?', fmt(b), [fmt(a)], 'Stelle für Stelle vergleichen.');
+        var kleiner = Math.round((a - 0.2) * 100) / 100;
+        return wahl('Welche Zahl liegt zwischen ' + p[0] + ' und ' + p[1] + '?', fmt(Math.round((a + (b - a) / 2) * 1000) / 1000), [fmt(kleiner), fmt(Math.round((b + 0.2) * 100) / 100)]);
+      }
+    }
+  ];
+
+  var GEGENTEILE = [['hell', 'dunkel'], ['gross', 'klein'], ['laut', 'leise'], ['schnell', 'langsam'], ['warm', 'kalt'],
+    ['alt', 'jung'], ['reich', 'arm'], ['voll', 'leer'], ['nass', 'trocken'], ['schwer', 'leicht'], ['hart', 'weich'],
+    ['süss', 'sauer'], ['oben', 'unten'], ['früh', 'spät'], ['mutig', 'feige'], ['fleissig', 'faul'], ['breit', 'schmal']];
+  var ARTIKEL = [['Haus', 'das'], ['Lampe', 'die'], ['Tisch', 'der'], ['Fenster', 'das'], ['Katze', 'die'], ['Hund', 'der'],
+    ['Auto', 'das'], ['Strasse', 'die'], ['Baum', 'der'], ['Buch', 'das'], ['Schule', 'die'], ['Garten', 'der'],
+    ['Mädchen', 'das'], ['Sonne', 'die'], ['Mond', 'der'], ['Pferd', 'das'], ['Blume', 'die'], ['Apfel', 'der']];
+  var REIME = [['Haus', ['Maus', 'Hund', 'Tisch', 'Baum']], ['Hund', ['Mund', 'Katze', 'Bein', 'Tor']], ['Tisch', ['Fisch', 'Stuhl', 'Bett', 'Hand']],
+    ['Baum', ['Raum', 'Blatt', 'Ast', 'Wald']], ['Nacht', ['Macht', 'Tag', 'Stern', 'Mond']], ['Hand', ['Sand', 'Arm', 'Fuss', 'Kopf']],
+    ['Bein', ['Stein', 'Fuss', 'Knie', 'Zeh']], ['Schuh', ['Kuh', 'Socke', 'Hose', 'Hut']], ['Tor', ['Ohr', 'Tür', 'Haus', 'Wand']],
+    ['Wein', ['Schwein', 'Bier', 'Saft', 'Glas']], ['Licht', ['Gesicht', 'Lampe', 'Kerze', 'Stern']], ['Rose', ['Hose', 'Blume', 'Dorn', 'Beet']]];
+  var STEIGERUNG = [['schnell', 'schneller', 'am schnellsten'], ['gut', 'besser', 'am besten'], ['viel', 'mehr', 'am meisten'],
+    ['gross', 'grösser', 'am grössten'], ['hoch', 'höher', 'am höchsten'], ['nah', 'näher', 'am nächsten'], ['gern', 'lieber', 'am liebsten'],
+    ['alt', 'älter', 'am ältesten'], ['jung', 'jünger', 'am jüngsten'], ['dunkel', 'dunkler', 'am dunkelsten'], ['teuer', 'teurer', 'am teuersten'],
+    ['kalt', 'kälter', 'am kältesten'], ['stark', 'stärker', 'am stärksten'], ['klug', 'klüger', 'am klügsten']];
+  var FREMDWOERTER = [['Dialog', 'Gespräch'], ['Monolog', 'Selbstgespräch'], ['Information', 'Auskunft'], ['Autor', 'Verfasser'],
+    ['Problem', 'Schwierigkeit'], ['Idee', 'Einfall'], ['Resultat', 'Ergebnis'], ['Fantasie', 'Vorstellungskraft'],
+    ['Distanz', 'Abstand'], ['Position', 'Stellung'], ['Konflikt', 'Streit'], ['Symbol', 'Zeichen'], ['Minimum', 'das Wenigste'],
+    ['Maximum', 'das Meiste'], ['Region', 'Gegend'], ['Produkt', 'Erzeugnis'], ['Experiment', 'Versuch'], ['Diskussion', 'Aussprache']];
+  var DEUTSCH_NEU = [
+    {
+      id: 'alphabet', klassen: [4], schwierigkeit: 'leicht',
+      titel: 'Nach dem Alphabet ordnen', lp21: 'D.4.A.1',
+      info: 'Welches Wort steht im Wörterbuch zuerst?',
+      gen: function () {
+        var pool = NOMEN.concat(['Ampel', 'Zebra', 'Igel', 'Lampe', 'Nase', 'Ente', 'Rabe', 'Uhr', 'Vase', 'Pilz', 'Hase', 'Honig', 'Hut'])
+          .filter(function (w, i, a) { return a.indexOf(w) === i; });
+        var drei = shuffle(pool).slice(0, 3);
+        var sortiert = drei.slice().sort(function (a, b) { return a.localeCompare(b, 'de'); });
+        return wahl('Welches Wort kommt im Wörterbuch zuerst?\n' + drei.join(' · '), sortiert[0], [sortiert[1], sortiert[2]],
+                    'Erster Buchstabe, dann der zweite …');
+      }
+    },
+    {
+      id: 'silben', klassen: [4], schwierigkeit: 'leicht',
+      titel: 'Silben zählen', lp21: 'D.5.E.1',
+      info: 'Wie viele Silben hat das Wort? Klatschen hilft.',
+      gen: function () {
+        var w = pick([['Schokolade', 4], ['Baum', 1], ['Katze', 2], ['Fahrrad', 2], ['Elefant', 3], ['Sonnenblume', 4], ['Tisch', 1],
+          ['Banane', 3], ['Wasser', 2], ['Marmelade', 4], ['Regenbogen', 4], ['Apfel', 2], ['Krokodil', 3], ['Haus', 1],
+          ['Schmetterling', 3], ['Lokomotive', 5], ['Ente', 2], ['Pinguin', 3], ['Erdbeere', 3], ['Zahnbürste', 3]]);
+        return { typ: 'zahl', frage: 'Wie viele Silben hat «' + w[0] + '»?', antwort: String(w[1]) };
+      }
+    },
+    {
+      id: 'gegenteil', klassen: [4, 5], schwierigkeit: 'leicht',
+      titel: 'Gegenteile', lp21: 'D.5.C.1',
+      info: 'Das Gegenteil eines Wortes finden.',
+      gen: function () {
+        var p = pick(GEGENTEILE), umgekehrt = Math.random() < 0.5;
+        var frage = umgekehrt ? p[1] : p[0], antwort = umgekehrt ? p[0] : p[1];
+        return { typ: 'text', frage: 'Wie heisst das Gegenteil von «' + frage + '»?', antwort: antwort, paar: 'gg:' + p[0] };
+      }
+    },
+    {
+      id: 'artikel', klassen: [4], schwierigkeit: 'leicht',
+      titel: 'Der, die oder das?', lp21: 'D.5.D.1',
+      info: 'Den richtigen Begleiter wählen.',
+      gen: function () {
+        var p = pick(ARTIKEL);
+        return wahl('___ ' + p[0], p[1], distinct(p[1], ['der', 'die', 'das'], 2));
+      }
+    },
+    {
+      id: 'reimwoerter', klassen: [4], schwierigkeit: 'leicht',
+      titel: 'Reimwörter', lp21: 'D.5.B.1',
+      info: 'Was reimt sich?',
+      gen: function () {
+        var r = pick(REIME);
+        return wahl('Was reimt sich auf «' + r[0] + '»?', r[1][0], r[1].slice(1, 3), null, 'reim:' + r[0]);
+      }
+    },
+    {
+      id: 'steigerung', klassen: [4, 5], schwierigkeit: 'leicht',
+      titel: 'Steigern', lp21: 'D.5.D.1',
+      info: 'schnell – schneller – am schnellsten.',
+      gen: function () {
+        var s = pick(STEIGERUNG);
+        if (Math.random() < 0.5) return { typ: 'text', frage: s[0] + ' – ___ – ' + s[2], antwort: s[1], paar: 'st:' + s[0] };
+        return { typ: 'text', frage: s[0] + ' – ' + s[1] + ' – ___', antwort: s[2], alternativen: [s[2].replace('am ', '')], paar: 'st:' + s[0],
+                 hinweis: 'Mit «am»: am …sten' };
+      }
+    },
+    {
+      id: 'satzarten', klassen: [4, 5], schwierigkeit: 'leicht',
+      titel: 'Satzarten', lp21: 'D.5.D.1',
+      info: 'Aussage, Frage oder Aufforderung?',
+      gen: function () {
+        var s = pick([['Der Hund schläft im Garten.', 'Aussagesatz'], ['Kommst du heute mit?', 'Fragesatz'], ['Mach die Tür zu!', 'Aufforderungssatz'],
+          ['Wir essen um zwölf.', 'Aussagesatz'], ['Wo ist mein Schlüssel?', 'Fragesatz'], ['Hört jetzt bitte zu!', 'Aufforderungssatz'],
+          ['Morgen scheint die Sonne.', 'Aussagesatz'], ['Hast du Hunger?', 'Fragesatz'], ['Lauf schneller!', 'Aufforderungssatz'],
+          ['Die Katze hat Hunger.', 'Aussagesatz'], ['Warum weinst du?', 'Fragesatz'], ['Räum dein Zimmer auf!', 'Aufforderungssatz']]);
+        return wahl('«' + s[0] + '» — welche Satzart?', s[1], distinct(s[1], ['Aussagesatz', 'Fragesatz', 'Aufforderungssatz'], 2));
+      }
+    },
+    {
+      id: 'pronomen', klassen: [5, 6], schwierigkeit: 'leicht',
+      titel: 'Pronomen', lp21: 'D.5.D.1',
+      info: 'Nomen durch er, sie, es ersetzen.',
+      gen: function () {
+        var s = pick([['Die Lehrerin liest vor.', 'Die Lehrerin', 'Sie'], ['Der Hund bellt.', 'Der Hund', 'Er'], ['Das Kind lacht.', 'Das Kind', 'Es'],
+          ['Die Kinder spielen.', 'Die Kinder', 'Sie'], ['Der Zug kommt zu spät.', 'Der Zug', 'Er'], ['Das Wetter ist schön.', 'Das Wetter', 'Es'],
+          ['Die Katze schläft.', 'Die Katze', 'Sie'], ['Mein Vater kocht.', 'Mein Vater', 'Er'], ['Das Auto ist rot.', 'Das Auto', 'Es'],
+          ['Die Blumen blühen.', 'Die Blumen', 'Sie'], ['Der Lehrer erklärt.', 'Der Lehrer', 'Er'], ['Das Mädchen singt.', 'Das Mädchen', 'Es']]);
+        return wahl('«' + s[0] + '» — ersetze «' + s[1] + '» durch ein Pronomen.', s[2], distinct(s[2], ['Er', 'Sie', 'Es'], 2));
+      }
+    },
+    {
+      id: 'woertliche-rede', klassen: [5, 6], schwierigkeit: 'schwer',
+      titel: 'Wörtliche Rede', lp21: 'D.5.E.1',
+      info: 'Anführungszeichen, Doppelpunkt und Komma richtig setzen.',
+      gen: function () {
+        var s = pick([
+          ['Mama sagt: «Komm zum Essen.»', ['Mama sagt «Komm zum Essen.»', 'Mama sagt: Komm zum Essen.']],
+          ['«Ich bin müde», sagt Leo.', ['«Ich bin müde» sagt Leo.', 'Ich bin müde, sagt Leo.']],
+          ['Der Lehrer fragt: «Wer weiss es?»', ['Der Lehrer fragt «Wer weiss es?»', 'Der Lehrer fragt: Wer weiss es?']],
+          ['«Pass auf!», ruft Anna.', ['«Pass auf!» ruft Anna.', 'Pass auf!, ruft Anna.']],
+          ['Opa flüstert: «Sei leise.»', ['Opa flüstert «Sei leise.»', 'Opa flüstert: Sei leise.']],
+          ['«Wo bist du?», fragt Mia.', ['«Wo bist du?» fragt Mia.', 'Wo bist du, fragt Mia.']],
+          ['Tim schreit: «Tor!»', ['Tim schreit «Tor!»', 'Tim schreit: Tor!']],
+          ['«Danke», sagt die Frau.', ['«Danke» sagt die Frau.', 'Danke, sagt die Frau.']],
+          ['Papa ruft: «Abfahrt!»', ['Papa ruft «Abfahrt!»', 'Papa ruft: Abfahrt!']],
+          ['«Ich komme», antwortet er.', ['«Ich komme» antwortet er.', 'Ich komme, antwortet er.']]
+        ]);
+        return wahl('Welcher Satz ist richtig geschrieben?', s[0], s[1], 'Doppelpunkt vor der Rede, Komma nach der Rede.');
+      }
+    },
+    {
+      id: 'aktiv-passiv', klassen: [6], schwierigkeit: 'schwer',
+      titel: 'Aktiv & Passiv', lp21: 'D.5.D.1',
+      info: 'Wer handelt — oder wird gehandelt?',
+      gen: function () {
+        var s = pick([['Der Kuchen wird gebacken.', 'Passiv'], ['Mia bäckt einen Kuchen.', 'Aktiv'], ['Das Fenster wurde geöffnet.', 'Passiv'],
+          ['Der Hund jagt die Katze.', 'Aktiv'], ['Die Katze wird vom Hund gejagt.', 'Passiv'], ['Das Lied wird gesungen.', 'Passiv'],
+          ['Die Klasse singt ein Lied.', 'Aktiv'], ['Der Brief wurde geschrieben.', 'Passiv'], ['Opa schreibt einen Brief.', 'Aktiv'],
+          ['Das Auto wird repariert.', 'Passiv'], ['Papa repariert das Auto.', 'Aktiv'], ['Der Ball wird geworfen.', 'Passiv'],
+          ['Lea wirft den Ball.', 'Aktiv'], ['Die Tür wird geschlossen.', 'Passiv']]);
+        return wahl('«' + s[0] + '» — Aktiv oder Passiv?', s[1], [s[1] === 'Aktiv' ? 'Passiv' : 'Aktiv'],
+                    'Passiv: eine Form von «werden» + Partizip.');
+      }
+    },
+    {
+      id: 'fremdwoerter', klassen: [6], schwierigkeit: 'leicht',
+      titel: 'Fremdwörter', lp21: 'D.5.C.1',
+      info: 'Was bedeutet das Wort auf gut Deutsch?',
+      gen: function () {
+        var f = pick(FREMDWOERTER);
+        return wahl('Was bedeutet «' + f[0] + '»?', f[1], distinct(f[1], FREMDWOERTER.map(function (x) { return x[1]; }), 3), null, 'fw:' + f[0]);
+      }
+    },
+    {
+      id: 'zeitformen6', klassen: [6], schwierigkeit: 'schwer',
+      titel: 'Futur & Plusquamperfekt', lp21: 'D.5.D.1',
+      info: 'Die Zeitformen, die man in der 6. Klasse dazulernt.',
+      gen: function () {
+        var v = pick(STARKE_VERBEN);   /* [Infinitiv, Präteritum, Perfekt] */
+        var pp = v[2];                  /* z. B. 'ist gegangen' oder 'hat gesehen' */
+        if (Math.random() < 0.5) {
+          return { typ: 'text', frage: 'Setze «' + v[0] + '» ins Futur I:\ner/sie ___', antwort: 'wird ' + v[0],
+                   hinweis: 'Mit «wird» + Grundform.', paar: 'f:' + v[0] };
+        }
+        var plus = pp.replace('ist ', 'war ').replace('hat ', 'hatte ');
+        return { typ: 'text', frage: 'Setze «' + v[0] + '» ins Plusquamperfekt (Vorvergangenheit):\ner/sie ___', antwort: plus,
+                 hinweis: 'Mit «hatte» oder «war» + Partizip.', paar: 'p:' + v[0] };
+      }
+    }
+  ];
+
+  var EN_ZAHLEN = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve',
+    'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen', 'twenty'];
+  var EN_ZEHNER = { 30: 'thirty', 40: 'forty', 50: 'fifty', 60: 'sixty', 70: 'seventy', 80: 'eighty', 90: 'ninety', 100: 'one hundred' };
+  function enZahl(n) {
+    if (n <= 20) return EN_ZAHLEN[n];
+    var z = Math.floor(n / 10) * 10, r = n % 10;
+    var zw = z === 20 ? 'twenty' : EN_ZEHNER[z];
+    return r ? zw + '-' + EN_ZAHLEN[r] : zw;
+  }
+  var EN_TAGE = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+  var EN_MONATE = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  var DE_MONATE = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
+  var EN_FARBEN = [['red', 'rot'], ['blue', 'blau'], ['green', 'grün'], ['yellow', 'gelb'], ['black', 'schwarz'], ['white', 'weiss'],
+    ['orange', 'orange'], ['purple', 'violett'], ['pink', 'rosa'], ['brown', 'braun'], ['grey', 'grau']];
+  var EN_FAMILIE = [['mother', 'Mutter'], ['father', 'Vater'], ['sister', 'Schwester'], ['brother', 'Bruder'], ['grandmother', 'Grossmutter'],
+    ['grandfather', 'Grossvater'], ['aunt', 'Tante'], ['uncle', 'Onkel'], ['cousin', 'Cousin / Cousine'], ['daughter', 'Tochter'],
+    ['son', 'Sohn'], ['parents', 'Eltern'], ['baby', 'Baby'], ['family', 'Familie']];
+  var EN_KLASSE = [['Open your books.', 'Öffnet eure Bücher.'], ['Sit down, please.', 'Setzt euch bitte.'], ['Listen carefully.', 'Hört gut zu.'],
+    ['Be quiet.', 'Seid leise.'], ['Can I go to the toilet?', 'Darf ich auf die Toilette?'], ['I don\'t understand.', 'Ich verstehe nicht.'],
+    ['Raise your hand.', 'Hebt die Hand.'], ['Close the door.', 'Schliess die Tür.'], ['What does … mean?', 'Was bedeutet …?'],
+    ['Work in pairs.', 'Arbeitet zu zweit.'], ['Stand up.', 'Steht auf.'], ['Repeat, please.', 'Wiederhole bitte.']];
+  var EN_GEGENSATZ = [['big', 'small'], ['hot', 'cold'], ['fast', 'slow'], ['old', 'new'], ['happy', 'sad'], ['long', 'short'],
+    ['up', 'down'], ['open', 'closed'], ['loud', 'quiet'], ['day', 'night'], ['light', 'dark'], ['full', 'empty'], ['rich', 'poor'], ['wet', 'dry']];
+  var EN_STEIGERUNG = [['big', 'bigger', 'biggest'], ['small', 'smaller', 'smallest'], ['fast', 'faster', 'fastest'], ['tall', 'taller', 'tallest'],
+    ['good', 'better', 'best'], ['bad', 'worse', 'worst'], ['happy', 'happier', 'happiest'], ['easy', 'easier', 'easiest'],
+    ['hot', 'hotter', 'hottest'], ['long', 'longer', 'longest'], ['old', 'older', 'oldest'], ['nice', 'nicer', 'nicest'],
+    ['beautiful', 'more beautiful', 'most beautiful'], ['expensive', 'more expensive', 'most expensive'], ['far', 'farther', 'farthest']];
+  var EN_ING = [['read', 'reading'], ['play', 'playing'], ['swim', 'swimming'], ['run', 'running'], ['write', 'writing'], ['eat', 'eating'],
+    ['sleep', 'sleeping'], ['sit', 'sitting'], ['dance', 'dancing'], ['sing', 'singing'], ['cook', 'cooking'], ['make', 'making'], ['watch', 'watching']];
+  var EN_PRAEP = [['The cat is ___ the table.', 'under', 'unter dem Tisch'], ['The book is ___ the bag.', 'in', 'in der Tasche'],
+    ['The lamp is ___ the desk.', 'on', 'auf dem Pult'], ['The school is ___ the church.', 'next to', 'neben der Kirche'],
+    ['The ball is ___ the two trees.', 'between', 'zwischen den beiden Bäumen'], ['The bird is ___ the house.', 'above', 'über dem Haus'],
+    ['The bus stop is ___ the shop.', 'in front of', 'vor dem Laden'], ['The garden is ___ the house.', 'behind', 'hinter dem Haus'],
+    ['The picture is ___ the wall.', 'on', 'an der Wand'], ['The dog sleeps ___ the bed.', 'under', 'unter dem Bett']];
+  var EN_PRAEP_ALLE = ['under', 'in', 'on', 'next to', 'between', 'above', 'in front of', 'behind'];
+  var ENGLISCH_NEU = [
+    {
+      id: 'numbers-en', klassen: [4, 5], schwierigkeit: 'leicht',
+      titel: 'Numbers', lp21: 'FS1E.5.B.1',
+      info: 'Zahlen lesen und schreiben, bis 100.',
+      gen: function () {
+        var n, wort;
+        if (Math.random() < 0.6) { n = rint(0, 20); wort = EN_ZAHLEN[n]; }
+        else { n = pick([30, 40, 50, 60, 70, 80, 90, 100]); wort = EN_ZEHNER[n]; }
+        if (Math.random() < 0.5) return { typ: 'zahl', frage: '«' + wort + '» — welche Zahl?', antwort: String(n), paar: 'n' + n };
+        return { typ: 'text', frage: 'Schreibe ' + n + ' auf Englisch:', antwort: wort, alternativen: n === 100 ? ['a hundred', 'hundred'] : [], paar: 'n' + n };
+      }
+    },
+    {
+      id: 'colours-en', klassen: [4], schwierigkeit: 'leicht',
+      titel: 'Colours', lp21: 'FS1E.5.B.1',
+      info: 'Die Farben auf Englisch.',
+      gen: function () {
+        var f = pick(EN_FARBEN), de = Math.random() < 0.5;
+        var korrekt = de ? f[1] : f[0];
+        return wahl(de ? 'Was heisst «' + f[0] + '»?' : 'Was heisst «' + f[1] + '» auf Englisch?', korrekt,
+                    distinct(korrekt, EN_FARBEN.map(function (x) { return de ? x[1] : x[0]; }), 3), null, 'col:' + f[0]);
+      }
+    },
+    {
+      id: 'days-months', klassen: [4, 5], schwierigkeit: 'leicht',
+      titel: 'Days and months', lp21: 'FS1E.5.B.1',
+      info: 'Wochentage und Monate — schreiben und ordnen.',
+      gen: function () {
+        if (Math.random() < 0.5) {
+          var i = rint(0, 6);
+          return { typ: 'text', frage: 'Which day comes after ' + EN_TAGE[i] + '?', antwort: EN_TAGE[(i + 1) % 7], paar: 'd' + i,
+                   hinweis: 'Gross schreiben!' };
+        }
+        var m = rint(0, 11);
+        return Math.random() < 0.5
+          ? { typ: 'text', frage: DE_MONATE[m] + ' auf Englisch:', antwort: EN_MONATE[m], paar: 'm' + m }
+          : { typ: 'text', frage: 'Month number ' + (m + 1) + ' is …', antwort: EN_MONATE[m], paar: 'm' + m, hinweis: 'January ist Nummer 1.' };
+      }
+    },
+    {
+      id: 'classroom-en', klassen: [4], schwierigkeit: 'leicht',
+      titel: 'Classroom English', lp21: 'FS1E.1.B.1',
+      info: 'Sätze, die man im Englischunterricht hört.',
+      gen: function () {
+        var s = pick(EN_KLASSE);
+        return wahl('Was bedeutet «' + s[0] + '»?', s[1], distinct(s[1], EN_KLASSE.map(function (x) { return x[1]; }), 2), null, 'cl:' + s[0]);
+      }
+    },
+    {
+      id: 'family-en', klassen: [4, 5], schwierigkeit: 'leicht',
+      titel: 'Family', lp21: 'FS1E.5.B.1',
+      info: 'Die Familie auf Englisch.',
+      gen: function () {
+        var f = pick(EN_FAMILIE), de = Math.random() < 0.5;
+        var korrekt = de ? f[1] : f[0];
+        return wahl(de ? 'Was heisst «' + f[0] + '»?' : 'Was heisst «' + f[1] + '» auf Englisch?', korrekt,
+                    distinct(korrekt, EN_FAMILIE.map(function (x) { return de ? x[1] : x[0]; }), 3), null, 'fam:' + f[0]);
+      }
+    },
+    {
+      id: 'opposites-en', klassen: [4, 5], schwierigkeit: 'leicht',
+      titel: 'Opposites', lp21: 'FS1E.5.B.1',
+      info: 'big – small, hot – cold …',
+      gen: function () {
+        var p = pick(EN_GEGENSATZ), um = Math.random() < 0.5;
+        var frage = um ? p[1] : p[0], korrekt = um ? p[0] : p[1];
+        return wahl('What is the opposite of «' + frage + '»?', korrekt,
+                    distinct(korrekt, EN_GEGENSATZ.map(function (x) { return x[0]; }).concat(EN_GEGENSATZ.map(function (x) { return x[1]; })), 3),
+                    null, 'op:' + p[0]);
+      }
+    },
+    {
+      id: 'time-en', klassen: [5, 6], schwierigkeit: 'schwer',
+      titel: 'What time is it?', lp21: 'FS1E.5.B.1',
+      info: 'Die Uhrzeit auf Englisch sagen.',
+      gen: function () {
+        var h = rint(1, 12), m = pick([0, 15, 30, 45, 5, 10, 20, 25, 35, 40, 50, 55]);
+        var hn = EN_ZAHLEN[h], hn1 = EN_ZAHLEN[h % 12 + 1];
+        var text;
+        if (m === 0) text = hn + " o'clock";
+        else if (m === 15) text = 'quarter past ' + hn;
+        else if (m === 30) text = 'half past ' + hn;
+        else if (m === 45) text = 'quarter to ' + hn1;
+        else if (m < 30) text = enZahl(m) + ' past ' + hn;
+        else text = enZahl(60 - m) + ' to ' + hn1;
+        var falsche = ['half past ' + hn1, 'quarter to ' + hn, enZahl((m + 10) % 60 || 5) + ' past ' + hn, hn1 + " o'clock"];
+        return wahl('It is ' + h + ':' + (m < 10 ? '0' : '') + m + '. What time is it?', text, distinct(text, falsche, 2), null, 't' + h + ':' + m);
+      }
+    },
+    {
+      id: 'comparatives', klassen: [6], schwierigkeit: 'schwer',
+      titel: 'Comparatives & superlatives', lp21: 'FS1E.5.D.1',
+      info: 'big – bigger – the biggest.',
+      gen: function () {
+        var s = pick(EN_STEIGERUNG);
+        if (Math.random() < 0.5) return { typ: 'text', frage: s[0] + ' – ___ – the ' + s[2], antwort: s[1], paar: 'cs:' + s[0] };
+        return { typ: 'text', frage: s[0] + ' – ' + s[1] + ' – the ___', antwort: s[2], paar: 'cs:' + s[0] };
+      }
+    },
+    {
+      id: 'present-continuous', klassen: [6], schwierigkeit: 'schwer',
+      titel: 'Present continuous', lp21: 'FS1E.5.D.1',
+      info: 'Was gerade jetzt passiert: is/are + -ing.',
+      gen: function () {
+        var v = pick(EN_ING);
+        var subj = pick([['She', 'is'], ['He', 'is'], ['They', 'are'], ['We', 'are'], ['I', 'am'], ['The children', 'are'], ['My dad', 'is']]);
+        return { typ: 'text', frage: subj[0] + ' ___ (' + v[0] + ') right now.', antwort: subj[1] + ' ' + v[1],
+                 alternativen: [subj[1] + ' ' + v[1] + '.'], hinweis: 'Form von «to be» + Verb mit -ing', paar: 'pc:' + v[0] + subj[0] };
+      }
+    },
+    {
+      id: 'prepositions-en', klassen: [5, 6], schwierigkeit: 'leicht',
+      titel: 'Prepositions of place', lp21: 'FS1E.5.D.1',
+      info: 'in, on, under, next to …',
+      gen: function () {
+        var p = pick(EN_PRAEP);
+        return wahl(p[0] + '  (' + p[2] + ')', p[1], distinct(p[1], EN_PRAEP_ALLE, 3), null, 'pr:' + p[0]);
+      }
+    },
+    {
+      id: 'some-any', klassen: [6], schwierigkeit: 'leicht',
+      titel: 'some, any, a, an', lp21: 'FS1E.5.D.1',
+      info: 'Mengenwörter richtig einsetzen.',
+      gen: function () {
+        var s = pick([['There is ___ milk in the fridge.', 'some'], ['Is there ___ bread left?', 'any'], ['I don\'t have ___ money.', 'any'],
+          ['She has ___ apple.', 'an'], ['He has ___ dog.', 'a'], ['We need ___ eggs.', 'some'], ['Are there ___ cookies?', 'any'],
+          ['I\'d like ___ orange.', 'an'], ['There aren\'t ___ chairs.', 'any'], ['Can I have ___ water?', 'some'],
+          ['This is ___ umbrella.', 'an'], ['They have ___ cat.', 'a'], ['Have you got ___ brothers?', 'any'], ['Here is ___ sugar.', 'some']]);
+        return wahl(s[0], s[1], distinct(s[1], ['some', 'any', 'a', 'an'], 2),
+                    'some: Aussage · any: Frage und Verneinung · a/an: Einzahl', 'sa:' + s[0]);
+      }
+    }
+  ];
+
+  var TIERE = [['Steinbock', 'Säugetier', 'in den Bergen'], ['Forelle', 'Fisch', 'im Bach'], ['Storch', 'Vogel', 'auf dem Dach und im Feuchtgebiet'],
+    ['Frosch', 'Amphibie', 'am Teich'], ['Biene', 'Insekt', 'auf der Blumenwiese'], ['Igel', 'Säugetier', 'im Garten und in der Hecke'],
+    ['Adler', 'Vogel', 'in den Bergen'], ['Hecht', 'Fisch', 'im See'], ['Eidechse', 'Reptil', 'an der sonnigen Mauer'],
+    ['Schmetterling', 'Insekt', 'auf der Blumenwiese'], ['Fuchs', 'Säugetier', 'im Wald'], ['Amsel', 'Vogel', 'im Garten'],
+    ['Salamander', 'Amphibie', 'im feuchten Wald'], ['Ringelnatter', 'Reptil', 'am Teich'], ['Fledermaus', 'Säugetier', 'in Höhlen und Dachböden'],
+    ['Marienkäfer', 'Insekt', 'auf der Blumenwiese']];
+  var TIERKLASSEN = ['Säugetier', 'Vogel', 'Fisch', 'Amphibie', 'Reptil', 'Insekt'];
+  var NMG_NEU = [
+    {
+      id: 'kalender', klassen: [4], schwierigkeit: 'leicht',
+      titel: 'Kalender & Jahreszeiten', lp21: 'NMG.9.2',
+      info: 'Monate, Tage, Jahreszeiten.',
+      gen: function () {
+        var art = pick(['tage', 'nach', 'jahreszeit', 'anzahl']);
+        if (art === 'tage') {
+          var m = rint(0, 11), t = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][m];
+          return { typ: 'zahl', frage: 'Wie viele Tage hat der ' + DE_MONATE[m] + '?' + (m === 1 ? ' (kein Schaltjahr)' : ''), antwort: String(t), paar: 'tg' + m };
+        }
+        if (art === 'nach') { var n = rint(0, 11); return { typ: 'text', frage: 'Welcher Monat kommt nach dem ' + DE_MONATE[n] + '?', antwort: DE_MONATE[(n + 1) % 12], paar: 'mn' + n }; }
+        if (art === 'jahreszeit') {
+          var j = pick([['Januar', 'Winter'], ['April', 'Frühling'], ['Juli', 'Sommer'], ['Oktober', 'Herbst'], ['Februar', 'Winter'], ['Mai', 'Frühling'], ['August', 'Sommer'], ['November', 'Herbst']]);
+          return wahl('In welcher Jahreszeit liegt der ' + j[0] + ' bei uns?', j[1], distinct(j[1], ['Winter', 'Frühling', 'Sommer', 'Herbst'], 2), null, 'jz' + j[0]);
+        }
+        var a = pick([['Wie viele Monate hat ein Jahr?', '12'], ['Wie viele Tage hat eine Woche?', '7'], ['Wie viele Tage hat ein Jahr (kein Schaltjahr)?', '365'],
+          ['Wie viele Wochen hat ein Jahr ungefähr?', '52'], ['Wie viele Stunden hat ein Tag?', '24'], ['Wie viele Minuten hat eine Stunde?', '60'],
+          ['Alle wie viele Jahre gibt es ein Schaltjahr?', '4']]);
+        return { typ: 'zahl', frage: a[0], antwort: a[1] };
+      }
+    },
+    {
+      id: 'tiere', klassen: [4, 5], schwierigkeit: 'leicht',
+      titel: 'Tiere & Lebensräume', lp21: 'NMG.2.1',
+      info: 'Welche Tierklasse? Wo lebt das Tier?',
+      gen: function () {
+        var t = pick(TIERE);
+        if (Math.random() < 0.6) return wahl('Zu welcher Tierklasse gehört der/die ' + t[0] + '?', t[1], distinct(t[1], TIERKLASSEN, 3), null, 'tk:' + t[0]);
+        return wahl('Wo lebt der/die ' + t[0] + ' meistens?', t[2], distinct(t[2], TIERE.map(function (x) { return x[2]; }), 2), null, 'lr:' + t[0]);
+      }
+    },
+    {
+      id: 'wasser-wetter', klassen: [4, 5], schwierigkeit: 'leicht',
+      titel: 'Wasser & Wetter', lp21: 'NMG.4.4',
+      info: 'Wasserkreislauf, Aggregatzustände, Wetter.',
+      gen: function () {
+        var f = pick([
+          ['Wie heisst es, wenn Wasser zu Dampf wird?', 'verdunsten', ['gefrieren', 'schmelzen']],
+          ['Wie heisst es, wenn Wasser zu Eis wird?', 'gefrieren', ['verdunsten', 'kondensieren']],
+          ['Wie heisst es, wenn Eis zu Wasser wird?', 'schmelzen', ['gefrieren', 'verdunsten']],
+          ['Wie heisst es, wenn Wasserdampf wieder zu Tropfen wird?', 'kondensieren', ['verdunsten', 'schmelzen']],
+          ['Bei wie viel Grad gefriert Wasser?', '0 °C', ['10 °C', '−10 °C']],
+          ['Bei wie viel Grad kocht Wasser?', '100 °C', ['80 °C', '50 °C']],
+          ['Woraus bestehen Wolken?', 'aus winzigen Wassertröpfchen', ['aus Rauch', 'aus Luft']],
+          ['Was misst ein Thermometer?', 'die Temperatur', ['den Wind', 'den Regen']],
+          ['Was misst ein Regenmesser?', 'die Niederschlagsmenge', ['die Temperatur', 'den Luftdruck']],
+          ['Welche Form von Wasser ist fest?', 'Eis', ['Dampf', 'Nebel']],
+          ['Welche Form von Wasser ist gasförmig?', 'Wasserdampf', ['Eis', 'Hagel']],
+          ['Woher kommt das Wasser im Fluss zuerst?', 'aus Regen und Schnee', ['aus dem Meer', 'aus der Kläranlage']]
+        ]);
+        return wahl(f[0], f[1], f[2]);
+      }
+    },
+    {
+      id: 'himmelsrichtungen', klassen: [4], schwierigkeit: 'leicht',
+      titel: 'Himmelsrichtungen', lp21: 'NMG.8.1',
+      info: 'Norden, Osten, Süden, Westen.',
+      gen: function () {
+        var f = pick([
+          ['Wo geht die Sonne auf?', 'im Osten', ['im Westen', 'im Norden']], ['Wo geht die Sonne unter?', 'im Westen', ['im Osten', 'im Süden']],
+          ['Wo steht die Sonne am Mittag bei uns?', 'im Süden', ['im Norden', 'im Osten']], ['Welche Himmelsrichtung liegt Norden gegenüber?', 'Süden', ['Osten', 'Westen']],
+          ['Welche Himmelsrichtung liegt Osten gegenüber?', 'Westen', ['Norden', 'Süden']], ['Wohin zeigt die rote Nadel eines Kompasses?', 'nach Norden', ['nach Süden', 'nach Osten']],
+          ['Was ist auf einer Karte normalerweise oben?', 'Norden', ['Süden', 'Westen']], ['Du schaust nach Norden. Was liegt rechts von dir?', 'Osten', ['Westen', 'Süden']],
+          ['Du schaust nach Süden. Was liegt links von dir?', 'Osten', ['Westen', 'Norden']], ['Wofür steht das «O» auf dem Kompass?', 'Osten', ['Oben', 'Ozean']],
+          ['Welche Himmelsrichtung liegt zwischen Norden und Osten?', 'Nordosten', ['Nordwesten', 'Südosten']]
+        ]);
+        return wahl(f[0], f[1], f[2]);
+      }
+    },
+    {
+      id: 'koerper', klassen: [5, 6], schwierigkeit: 'leicht',
+      titel: 'Der menschliche Körper', lp21: 'NMG.1.2',
+      info: 'Organe, Knochen, Sinne.',
+      gen: function () {
+        var f = pick([
+          ['Welches Organ pumpt das Blut durch den Körper?', 'das Herz', ['die Lunge', 'die Leber']], ['Womit atmen wir?', 'mit der Lunge', ['mit dem Magen', 'mit der Niere']],
+          ['Wie viele Knochen hat ein Erwachsener ungefähr?', '206', ['106', '406']], ['Welches Organ steuert den ganzen Körper?', 'das Gehirn', ['das Herz', 'der Magen']],
+          ['Wo wird die Nahrung zuerst zerkleinert?', 'im Mund', ['im Magen', 'im Darm']], ['Welches Organ filtert das Blut und bildet Urin?', 'die Niere', ['die Leber', 'die Lunge']],
+          ['Wie viele Sinne hat der Mensch klassisch?', '5', ['3', '7']], ['Welcher Knochen schützt das Gehirn?', 'der Schädel', ['das Becken', 'die Rippe']],
+          ['Wie viele Zähne hat ein Erwachsener (mit Weisheitszähnen)?', '32', ['20', '28']], ['Was schützt die Rippen?', 'Herz und Lunge', ['den Kopf', 'die Beine']],
+          ['Wie oft schlägt das Herz in Ruhe etwa pro Minute?', '60–80 Mal', ['10–20 Mal', '200 Mal']], ['Welches ist das grösste Organ?', 'die Haut', ['die Leber', 'das Herz']],
+          ['Was transportiert Sauerstoff im Blut?', 'die roten Blutkörperchen', ['die Knochen', 'die Muskeln']], ['Welcher ist der längste Knochen?', 'der Oberschenkelknochen', ['der Oberarmknochen', 'das Schienbein']]
+        ]);
+        return wahl(f[0], f[1], f[2]);
+      }
+    },
+    {
+      id: 'kontinente', klassen: [5, 6], schwierigkeit: 'leicht',
+      titel: 'Kontinente & Ozeane', lp21: 'NMG.8.3',
+      info: 'Die grossen Teile der Erde.',
+      gen: function () {
+        var f = pick([
+          ['Welcher Kontinent ist der grösste?', 'Asien', ['Afrika', 'Europa']], ['Welcher Ozean ist der grösste?', 'Pazifik', ['Atlantik', 'Indischer Ozean']],
+          ['Auf welchem Kontinent liegt die Schweiz?', 'Europa', ['Asien', 'Nordamerika']], ['Auf welchem Kontinent liegt Brasilien?', 'Südamerika', ['Afrika', 'Nordamerika']],
+          ['Auf welchem Kontinent liegt Ägypten?', 'Afrika', ['Asien', 'Europa']], ['Auf welchem Kontinent liegt China?', 'Asien', ['Europa', 'Australien']],
+          ['Welcher Kontinent ist fast ganz von Eis bedeckt?', 'Antarktis', ['Australien', 'Europa']], ['Wie viele Kontinente gibt es (üblich gezählt)?', '7', ['5', '9']],
+          ['Welcher Ozean liegt zwischen Europa und Amerika?', 'Atlantik', ['Pazifik', 'Indischer Ozean']], ['Auf welchem Kontinent liegen die USA?', 'Nordamerika', ['Südamerika', 'Europa']],
+          ['Welcher Kontinent ist der kleinste?', 'Australien', ['Europa', 'Antarktis']], ['Welche Wüste ist die grösste heisse Wüste?', 'Sahara', ['Gobi', 'Atacama']],
+          ['Auf welchem Kontinent liegt Indien?', 'Asien', ['Afrika', 'Australien']], ['Welcher Ozean liegt östlich von Afrika?', 'Indischer Ozean', ['Atlantik', 'Pazifik']]
+        ]);
+        return wahl(f[0], f[1], f[2]);
+      }
+    },
+    {
+      id: 'schweiz-rekorde', klassen: [5, 6], schwierigkeit: 'schwer',
+      titel: 'Schweiz: Berge, Seen, Flüsse', lp21: 'NMG.8.2',
+      info: 'Die wichtigsten Namen der Schweizer Geografie.',
+      gen: function () {
+        var f = pick([
+          ['Welches ist der höchste Berg der Schweiz?', 'Dufourspitze', ['Matterhorn', 'Eiger']], ['Welcher Berg ist für seine Pyramidenform berühmt?', 'Matterhorn', ['Säntis', 'Pilatus']],
+          ['Welches ist der grösste See ganz in der Schweiz?', 'Neuenburgersee', ['Zürichsee', 'Bodensee']], ['Welcher See ist der grösste, an dem die Schweiz liegt?', 'Genfersee', ['Bodensee', 'Vierwaldstättersee']],
+          ['Welcher Fluss fliesst durch Basel in die Nordsee?', 'Rhein', ['Rhone', 'Aare']], ['Welcher Fluss fliesst durch Bern?', 'Aare', ['Reuss', 'Limmat']],
+          ['Welcher Fluss fliesst durch Zürich?', 'Limmat', ['Aare', 'Rhein']], ['Welcher Fluss fliesst durch Genf ins Mittelmeer?', 'Rhone', ['Rhein', 'Ticino']],
+          ['Welcher Fluss fliesst durch Luzern?', 'Reuss', ['Aare', 'Limmat']], ['Welcher Gletscher ist der längste der Alpen?', 'Aletschgletscher', ['Rhonegletscher', 'Gornergletscher']],
+          ['Wie heisst der grösste Kanton?', 'Graubünden', ['Bern', 'Wallis']], ['Wie heisst der kleinste Kanton (Fläche)?', 'Basel-Stadt', ['Zug', 'Genf']],
+          ['Welcher Kanton hat am meisten Einwohner?', 'Zürich', ['Bern', 'Waadt']], ['Wie heisst der Pass zwischen Uri und Tessin?', 'Gotthard', ['Simplon', 'Julier']],
+          ['Welcher Fluss bildet den Rheinfall?', 'Rhein', ['Aare', 'Inn']]
+        ]);
+        return wahl(f[0], f[1], f[2]);
+      }
+    },
+    {
+      id: 'schweiz-politik', klassen: [6], schwierigkeit: 'leicht',
+      titel: 'Schweiz: Politik & Geschichte', lp21: 'NMG.10.2 / NMG.9.3',
+      info: 'Bundesrat, Parlament und die grossen Jahreszahlen.',
+      gen: function () {
+        var f = pick([
+          ['Wie viele Bundesrätinnen und Bundesräte gibt es?', '7', ['5', '9']], ['Wie heisst die Bundesstadt der Schweiz?', 'Bern', ['Zürich', 'Genf']],
+          ['Wann ist der Nationalfeiertag?', '1. August', ['1. Mai', '12. September']], ['Wie heissen die zwei Kammern des Parlaments?', 'Nationalrat und Ständerat', ['Bundesrat und Bundesgericht', 'Landrat und Stadtrat']],
+          ['In welchem Jahr wurde der Bundesstaat gegründet?', '1848', ['1291', '1971']], ['Welches Jahr gilt als Gründungsjahr der Eidgenossenschaft?', '1291', ['1848', '1515']],
+          ['Seit wann dürfen Frauen in der Schweiz national abstimmen?', '1971', ['1848', '1918']], ['Wie viele Kantone hat die Schweiz?', '26', ['22', '30']],
+          ['Wie viele Landessprachen hat die Schweiz?', '4', ['3', '5']], ['Wie heisst das Bundeshaus-Parlament insgesamt?', 'Bundesversammlung', ['Bundesrat', 'Landsgemeinde']],
+          ['Wie viele Mitglieder hat der Nationalrat?', '200', ['46', '100']], ['Wie viele Mitglieder hat der Ständerat?', '46', ['200', '26']],
+          ['Wer wählt den Bundesrat?', 'die Bundesversammlung', ['das Volk', 'die Kantone']], ['Wie heisst die Abstimmung, mit der das Volk ein Gesetz ändern will?', 'Initiative', ['Referendum', 'Wahl']],
+          ['Mit welchem Instrument kann das Volk ein neues Gesetz stoppen?', 'Referendum', ['Initiative', 'Petition']], ['Welcher Kanton kam 1979 als jüngster dazu?', 'Jura', ['Tessin', 'Genf']]
+        ]);
+        return wahl(f[0], f[1], f[2]);
+      }
+    },
+    {
+      id: 'energie', klassen: [6], schwierigkeit: 'leicht',
+      titel: 'Energie & Strom', lp21: 'NMG.3.2',
+      info: 'Woher der Strom kommt und was Energie ist.',
+      gen: function () {
+        var f = pick([
+          ['Welche Energiequelle ist erneuerbar?', 'Wasserkraft', ['Erdöl', 'Kohle']], ['Welche Energiequelle ist nicht erneuerbar?', 'Erdgas', ['Sonne', 'Wind']],
+          ['Woraus macht die Schweiz am meisten Strom?', 'Wasserkraft', ['Kohle', 'Erdöl']], ['Welches Material leitet Strom gut?', 'Kupfer', ['Holz', 'Gummi']],
+          ['Welches Material leitet Strom nicht?', 'Plastik', ['Eisen', 'Kupfer']], ['Was wandelt eine Solarzelle in Strom um?', 'Sonnenlicht', ['Wind', 'Wärme aus dem Boden']],
+          ['Was braucht ein Stromkreis, damit die Lampe leuchtet?', 'einen geschlossenen Kreis', ['eine Lücke', 'zwei Lampen']], ['In welcher Einheit misst man elektrische Spannung?', 'Volt', ['Meter', 'Gramm']],
+          ['Welche Energie steckt in Essen?', 'chemische Energie', ['Lichtenergie', 'Schallenergie']], ['Was macht ein Windrad?', 'Bewegung in Strom umwandeln', ['Wind erzeugen', 'Wasser pumpen']],
+          ['Welches Gerät speichert Strom?', 'eine Batterie', ['eine Lampe', 'ein Kabel']], ['Was ist ein Treibhausgas?', 'CO₂', ['Sauerstoff', 'Wasserdampf allein']]
+        ]);
+        return wahl(f[0], f[1], f[2]);
+      }
+    }
+  ];
+
+  var FR_FARBEN = [['rouge', 'rot'], ['bleu', 'blau'], ['vert', 'grün'], ['jaune', 'gelb'], ['noir', 'schwarz'], ['blanc', 'weiss'],
+    ['orange', 'orange'], ['violet', 'violett'], ['rose', 'rosa'], ['brun', 'braun'], ['gris', 'grau']];
+  var FR_TAGE = ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche'];
+  var FR_MONATE = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+  var FR_FAMILIE = [['la mère', 'die Mutter'], ['le père', 'der Vater'], ['la sœur', 'die Schwester'], ['le frère', 'der Bruder'],
+    ['la grand-mère', 'die Grossmutter'], ['le grand-père', 'der Grossvater'], ['la tante', 'die Tante'], ['l\'oncle', 'der Onkel'],
+    ['la fille', 'die Tochter'], ['le fils', 'der Sohn'], ['les parents', 'die Eltern'], ['le cousin', 'der Cousin'], ['la famille', 'die Familie']];
+  var FR_ER = [['parler', 'sprechen'], ['chanter', 'singen'], ['jouer', 'spielen'], ['manger', 'essen'], ['habiter', 'wohnen'], ['aimer', 'mögen'],
+    ['regarder', 'schauen'], ['écouter', 'hören'], ['danser', 'tanzen'], ['travailler', 'arbeiten']];
+  var FR_PERSONEN = [['je', 'e'], ['tu', 'es'], ['il', 'e'], ['elle', 'e'], ['nous', 'ons'], ['vous', 'ez'], ['ils', 'ent'], ['elles', 'ent']];
+  var FR_FRAGEN = [['Comment tu t\'appelles ?', 'Wie heisst du?'], ['Quel âge as-tu ?', 'Wie alt bist du?'], ['Où habites-tu ?', 'Wo wohnst du?'],
+    ['Ça va ?', 'Geht es dir gut?'], ['Qu\'est-ce que c\'est ?', 'Was ist das?'], ['Quelle heure est-il ?', 'Wie spät ist es?'],
+    ['Tu as des frères et sœurs ?', 'Hast du Geschwister?'], ['Tu aimes le chocolat ?', 'Magst du Schokolade?'], ['Où est la gare ?', 'Wo ist der Bahnhof?'],
+    ['Combien ça coûte ?', 'Wie viel kostet das?'], ['Quel temps fait-il ?', 'Wie ist das Wetter?'], ['Tu parles allemand ?', 'Sprichst du Deutsch?']];
+  var FRANZOESISCH_NEU = [
+    {
+      id: 'fr-couleurs', klassen: [5, 6], schwierigkeit: 'leicht',
+      titel: 'Les couleurs', lp21: 'FS2F.5.B.1',
+      info: 'Die Farben auf Französisch.',
+      gen: function () {
+        var f = pick(FR_FARBEN), de = Math.random() < 0.5;
+        var korrekt = de ? f[1] : f[0];
+        return wahl(de ? 'Was heisst «' + f[0] + '»?' : 'Was heisst «' + f[1] + '» auf Französisch?', korrekt,
+                    distinct(korrekt, FR_FARBEN.map(function (x) { return de ? x[1] : x[0]; }), 3), null, 'frc:' + f[0]);
+      }
+    },
+    {
+      id: 'fr-jours', klassen: [5, 6], schwierigkeit: 'leicht',
+      titel: 'Les jours et les mois', lp21: 'FS2F.5.B.1',
+      info: 'Wochentage und Monate schreiben.',
+      gen: function () {
+        if (Math.random() < 0.5) {
+          var i = rint(0, 6);
+          return { typ: 'text', frage: 'Quel jour vient après ' + FR_TAGE[i] + ' ?', antwort: FR_TAGE[(i + 1) % 7], paar: 'fj' + i,
+                   hinweis: 'Französische Wochentage schreibt man klein.' };
+        }
+        var m = rint(0, 11);
+        return { typ: 'text', frage: DE_MONATE[m] + ' auf Französisch:', antwort: FR_MONATE[m], paar: 'fm' + m };
+      }
+    },
+    {
+      id: 'fr-famille', klassen: [5, 6], schwierigkeit: 'leicht',
+      titel: 'La famille', lp21: 'FS2F.5.B.1',
+      info: 'Die Familie auf Französisch — mit Artikel.',
+      gen: function () {
+        var f = pick(FR_FAMILIE), de = Math.random() < 0.6;
+        if (de) return wahl('Was heisst «' + f[0] + '»?', f[1], distinct(f[1], FR_FAMILIE.map(function (x) { return x[1]; }), 3), null, 'ff:' + f[0]);
+        return { typ: 'text', frage: 'Was heisst «' + f[1] + '» auf Französisch? (mit le/la/les)', antwort: f[0],
+                 alternativen: [f[0].replace(/^(le|la|les|l') ?/, '')], paar: 'ff:' + f[0] };
+      }
+    },
+    {
+      id: 'fr-verbes-er', klassen: [6], schwierigkeit: 'schwer',
+      titel: 'Verbes en -er', lp21: 'FS2F.5.D.1',
+      info: 'parler: je parle, tu parles, il parle, nous parlons …',
+      gen: function () {
+        var v = pick(FR_ER), p = pick(FR_PERSONEN);
+        var stamm = v[0].slice(0, -2);
+        var form = stamm + p[1];
+        if (v[0] === 'manger' && p[0] === 'nous') form = 'mangeons';
+        var subj = p[0] === 'je' && /^[aeiouh]/.test(stamm) ? "j'" : p[0] + ' ';
+        return { typ: 'text', frage: v[0] + ' (' + v[1] + ') — ' + p[0] + ' ___', antwort: (subj + form).trim(),
+                 alternativen: [form], hinweis: 'Stamm + e, es, e, ons, ez, ent', paar: 'fv:' + v[0] + p[0] };
+      }
+    },
+    {
+      id: 'fr-questions', klassen: [5, 6], schwierigkeit: 'leicht',
+      titel: 'Questions simples', lp21: 'FS2F.1.B.1',
+      info: 'Die wichtigsten Fragen verstehen.',
+      gen: function () {
+        var q = pick(FR_FRAGEN);
+        return wahl('Was bedeutet «' + q[0] + '»?', q[1], distinct(q[1], FR_FRAGEN.map(function (x) { return x[1]; }), 2), null, 'fq:' + q[0]);
+      }
+    }
+  ];
+
+  /* ============================================================
      Registrierung
      ============================================================ */
   var ALLE = [];
@@ -1846,6 +2646,11 @@
   reg('englisch', ENGLISCH);
   reg('nmg', NMG);
   reg('franzoesisch', FRANZOESISCH);
+  reg('mathe', MATHE_NEU);
+  reg('deutsch', DEUTSCH_NEU);
+  reg('englisch', ENGLISCH_NEU);
+  reg('nmg', NMG_NEU);
+  reg('franzoesisch', FRANZOESISCH_NEU);
 
   /* Eigene Listen aus fotografierten Schulblättern. Die Dokumenten-Pipeline
      schreibt sie nach /lernwelt/eigene/listen.js (nur auf dem Server, nicht

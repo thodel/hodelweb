@@ -225,7 +225,10 @@
         Antippen oder <b>K</b> wählt ein anderes Ziel.</p>
         <p style="margin-top:8px">Für geschaffte Übungen gibt es <b>Münzen</b> 🪙. Im <b>Kiosk</b>
         werden daraus <b>Marken</b> 🎟️ — und damit öffnest du das <b>Kino</b> und die
-        <b>Musikhütte</b>.</p>
+        <b>Musikhütte</b>. Mit einer <b>Leiter</b> holst du in den Wäldern <b>Honig</b> 🍯,
+        der die Bären beruhigt.</p>
+        <p style="margin-top:8px">Irgendwo an der Küste liegt ein <b>Ruderboot</b>. Es führt zu einer
+        Insel, auf der ein Schatz wartet — die Karte dazu ist teuer, und die Fahrt ist nicht ungefährlich.</p>
       </div>
       <div class="blink">DRÜCKE ENTER ODER TIPPE</div>
       <div class="keyhint">
@@ -399,12 +402,16 @@
       hint: 'braucht alle 4 Fächer', color: '#f2c14e' },
     /* Kein Weg führt hierhin — wer sie finden will, muss suchen. */
     { id: 'spelunke', name: 'Alte Spelunke',  tx: 30, ty: 28, kind: 'spelunke', versteckt: true,
-      url: '/lernwelt/spelunke/',            hint: 'Glücksspiel — hier verliert man Münzen', color: '#f472b6' }
+      url: '/lernwelt/spelunke/',            hint: 'Glücksspiel — hier verliert man Münzen', color: '#f472b6' },
+    /* Das Ruderboot: ebenfalls ohne Weg, an der Ostküste zwischen den Felsen. */
+    { id: 'ruderboot', name: 'Ruderboot', tx: 43, ty: 12, kind: 'ruderboot', versteckt: true, boot: true,
+      url: null, hint: 'zur Schatzinsel — gefährlich', color: '#fdba74' }
   ];
 
   /* Häfen: von hier fahren Boote zu den anderen Stegen. */
   if (window.Insel && Insel.haefen) {
     Insel.haefen.forEach(function (h) {
+      if (h.versteckt) return;                /* die Felsenbucht hat ihr eigenes Boot */
       places.push({ id: h.id, name: h.name, tx: h.tx, ty: h.ty, kind: 'steg',
                     url: null, hafen: h, hint: h.nahe, color: '#7dd3fc' });
     });
@@ -421,7 +428,7 @@
 
   /* Inselbewohner, die mit ihren Resultaten angeben und Wetten anbieten */
   var npcs = [
-    { id: 'bruno', name: 'Rechen-Bruno', tx: 13, ty: 11, fach: 'mathe', basis: 70,
+    { id: 'bruno', name: 'Rechen-Bruno', tx: 12, ty: 13, fach: 'mathe', basis: 70,
       jacke: ['#b45309', '#92400e'], haar: '#3b2a1a',
       prahlen: [
         'Im Rechenturm hatte ich {ziel}. Da kommst du nie ran!',
@@ -448,8 +455,18 @@
         'Ich kenne jeden Kanton auswendig. {ziel} auf dem Aussichtsberg!',
         'Karten lesen? Kinderleicht. {ziel}!',
         'Ich war überall. Beim Quiz hatte ich {ziel}.'
-      ] }
+      ] },
+    /* Karten-Agathe verkauft die Schatzkarte — sie wettet nicht. */
+    { id: 'agathe', name: 'Karten-Agathe', tx: 27, ty: 17, haendlerin: true,
+      jacke: ['#92400e', '#6b2f0a'], haar: '#e2e8f0' }
   ];
+  /* Bewohner stehen nicht mehr wie Pfosten herum: jeder hat einen Heimplatz und
+     schlendert langsam darum herum. x/y sind Pixel, hx/hy der Heimplatz. */
+  npcs.forEach(function (n) {
+    n.hx = n.tx * TILE + 8; n.hy = n.ty * TILE + 14;
+    n.x = n.hx; n.y = n.hy;
+    n.dir = 'down'; n.frame = 0; n.animT = 0; n.pause = Math.random() * 2; n.ziel = null;
+  });
 
   /* Affen: mit einer Süssigkeit gezähmt, sonst holen sie sich Münzen */
   var affen = [
@@ -552,7 +569,7 @@
   var seebaer = {
     id: 'kruemel', name: 'Käpten Krümel', fell: '#d8a882',
     jacke: ['#7c2d12', '#5a1f0c'], haar: '#e2e8f0',
-    tx: 22, ty: 20,
+    tx: 22, ty: 20, weite: 1.2,
     geschichten: [
       'Damals, bei Windstärke neun, hat ein Seemann seine ganze Heuer vergraben. ' +
       'Warum? Er hatte kein Portemonnaie dabei. So einfach ist das manchmal.',
@@ -562,6 +579,9 @@
       'und dann findest du vor allem Sand. Der Kiosk hat welche.'
     ]
   };
+  seebaer.hx = seebaer.tx * TILE + 8; seebaer.hy = seebaer.ty * TILE + 14;
+  seebaer.x = seebaer.hx; seebaer.y = seebaer.hy;
+  seebaer.dir = 'down'; seebaer.frame = 0; seebaer.animT = 0; seebaer.pause = 1; seebaer.ziel = null;
 
   /* Affen laufen herum: ein zahmer folgt dem Spieler, ein wilder bleibt daheim. */
   affen.forEach(function (a) {
@@ -658,6 +678,24 @@
     props.push({ x: (HUB.x - 2) * TILE + 8, y: (HUB.y - 1) * TILE + 14, kind: 'sign', solid: true });
     props.push({ x: (HUB.x + 2) * TILE + 8, y: (HUB.y - 1) * TILE + 14, kind: 'bush', solid: false });
 
+    /* Bienenbäume und Honigsteine: feste Plätze in den Wäldern. Was dort
+       zufällig gewachsen ist, muss weichen; die Nachbarkachel bleibt frei,
+       damit man mit der Leiter überhaupt hinkommt. */
+    if (window.Insel) {
+      var feste = (Insel.bienenbaeume || []).concat(Insel.honigplaetze || []);
+      props = props.filter(function (o) {
+        var ox = Math.floor(o.x / TILE), oy = Math.floor(o.y / TILE);
+        return !feste.some(function (f) { return Math.abs(ox - f.tx) <= 1 && Math.abs(oy - f.ty) <= 1; });
+      });
+      (Insel.bienenbaeume || []).forEach(function (b) {
+        set(b.tx, b.ty, DARKGRASS);
+        props.push({ x: b.tx * TILE + 8, y: b.ty * TILE + 14, kind: 'bienenbaum', solid: true, baum: b });
+      });
+      (Insel.honigplaetze || []).forEach(function (h) {
+        props.push({ x: h.tx * TILE + 8, y: h.ty * TILE + 14, kind: 'honigstein', solid: true, platz: h });
+      });
+    }
+
     /* Orte, die nach der Deko dazukommen (Nebelturm): Weg bahnen, eine
        Lichtung um den Turm freiräumen und alles vom neuen Weg nehmen. */
     places.forEach(function (p) {
@@ -665,6 +703,7 @@
       var vorher = map.slice();
       carvePath(HUB.x, HUB.y, p.tx, p.ty + 1);
       props = props.filter(function (o) {
+        if (o.baum || o.platz) return true;
         var ox = Math.floor(o.x / TILE), oy = Math.floor(o.y / TILE);
         /* Nur den Turm selbst und den Platz vor der Tür freiräumen — rundherum bleibt Wald. */
         if (Math.abs(ox - p.tx) <= 1 && oy >= p.ty - 1 && oy <= p.ty + 1) return false;
@@ -757,6 +796,57 @@
       var alpha = 0.45 * (1 - t);
       px(c, x + drift - gr / 2, y - hoehe - gr, gr, gr, 'rgba(226,232,240,' + alpha.toFixed(2) + ')');
     }
+  }
+  /* Bienenbaum: ein Baum mit Bienenstock in der Krone. Leer geerntet hängt
+     der Stock dunkel, voll glänzt er goldgelb und ein paar Bienen schwirren. */
+  function drawBienenbaum(c, x, y, voll) {
+    drawTree(c, x, y);
+    var w = wiegen(x, 1.2, 1);
+    px(c, x + 2 + w, y - 15, 6, 6, voll ? '#d9a441' : '#7c5a2b');
+    px(c, x + 3 + w, y - 14, 4, 1, voll ? '#fde68a' : '#8b6a3a');
+    px(c, x + 3 + w, y - 12, 4, 1, voll ? '#b7791f' : '#5b4320');
+    px(c, x + 4 + w, y - 10, 2, 1, '#1a1626');
+    if (voll) {
+      for (var i = 0; i < 3; i++) {
+        var bx = x + 5 + Math.round(Math.sin(waveT * 3.1 + i * 2.1) * 7);
+        var by = y - 16 + Math.round(Math.cos(waveT * 2.3 + i * 1.7) * 5);
+        px(c, bx, by, 2, 1, i % 2 ? '#fbbf24' : '#1a1626');
+      }
+    }
+  }
+  /* Honigstein: flacher Stein; liegt ein Topf darauf, leuchtet er. */
+  function drawHonigstein(c, x, y, topf) {
+    px(c, x - 7, y - 5, 14, 5, COL.stoneD);
+    px(c, x - 6, y - 7, 12, 3, COL.stone);
+    px(c, x - 4, y - 7, 5, 1, COL.stoneL);
+    if (topf) {
+      px(c, x - 3, y - 13, 6, 6, '#d97706');
+      px(c, x - 4, y - 14, 8, 2, '#b45309');
+      px(c, x - 2, y - 12, 2, 2, '#fde68a');
+      var gl = 0.25 + 0.2 * Math.abs(Math.sin(waveT * 2));
+      c.globalAlpha = gl;
+      px(c, x - 8, y - 18, 16, 14, '#fbbf24');
+      c.globalAlpha = 1;
+    } else {
+      /* Ein Klecks alter Honig verrät, wofür der Stein da ist. */
+      px(c, x - 1, y - 8, 3, 1, '#d97706');
+    }
+  }
+  /* Ruderboot zwischen zwei Felsen, halb an den Strand gezogen. */
+  function drawRuderboot(c, x, y) {
+    var wippe = Math.round(Math.sin(waveT * 1.1 + x * 0.05) * 1);
+    px(c, x - 16, y - 8, 7, 8, COL.stoneD);
+    px(c, x - 15, y - 11, 5, 3, COL.stone);
+    px(c, x + 10, y - 9, 8, 9, COL.stoneD);
+    px(c, x + 11, y - 12, 6, 3, COL.stone);
+    px(c, x - 9, y - 7 + wippe, 18, 6, COL.woodL);
+    px(c, x - 10, y - 4 + wippe, 20, 3, COL.woodD);
+    px(c, x - 7, y - 6 + wippe, 14, 1, COL.wood);
+    /* Ruder */
+    px(c, x - 12, y - 9 + wippe, 10, 1, COL.woodD);
+    px(c, x + 3, y - 9 + wippe, 10, 1, COL.woodD);
+    px(c, x - 13, y - 10 + wippe, 2, 3, '#e2e8f0');
+    px(c, x + 12, y - 10 + wippe, 2, 3, '#e2e8f0');
   }
   function drawRock(c, x, y) {
     px(c, x - 6, y - 6, 12, 6, COL.stoneD);
@@ -1092,6 +1182,13 @@
       px(c, x - 2, t - 24 + q, 2, 2, 'rgba(226,232,240,.55)');
       px(c, x + 2, t - 27 + q, 3, 2, 'rgba(226,232,240,.35)');
     }
+    /* Beruhigt: Honigtropfen an der Schnauze und ein Zeitbalken */
+    if (window.Insel && Insel.baerRuhig(b.id, who)) {
+      if (b.schleckt && Math.sin(waveT * 6) > 0) px(c, x, t - 14, 2, 2, '#fbbf24');
+      var rest = Insel.baerRuhigRest(b.id, who) / Insel.oekonomie.honigRuhe;
+      px(c, x - 11, y + 3, 22, 4, 'rgba(9,14,33,.75)');
+      px(c, x - 10, y + 4, Math.max(1, Math.round(20 * rest)), 2, '#fbbf24');
+    }
   }
 
   /* Flaneur: wie eine Spielfigur, aber mit Gesprächspunkt über dem Kopf. */
@@ -1107,7 +1204,7 @@
 
   /* Käpten Krümel: Seebär mit Mütze. */
   function drawSeebaer(c, x, y) {
-    drawHero(c, x, y, 'down', 0, seebaer.jacke[0], seebaer.jacke[1], seebaer.haar, { haut: seebaer.fell });
+    drawHero(c, x, y, seebaer.dir || 'down', seebaer.frame || 0, seebaer.jacke[0], seebaer.jacke[1], seebaer.haar, { haut: seebaer.fell });
     px(c, x - 6, y - 21, 12, 3, '#1f2937');   /* Mützenschirm */
     px(c, x - 5, y - 24, 10, 3, '#334155');
     px(c, x - 3, y - 12, 6, 4, '#e2e8f0');    /* Bart */
@@ -1212,7 +1309,15 @@
   }
 
   function drawNpc(c, x, y, npc) {
-    drawHero(c, x, y, 'down', 0, npc.jacke[0], npc.jacke[1], npc.haar);
+    drawHero(c, x, y, npc.dir || 'down', npc.frame || 0, npc.jacke[0], npc.jacke[1], npc.haar);
+    if (npc.haendlerin) {
+      /* Kopftuch und eine Kartenrolle unter dem Arm */
+      px(c, x - 6, y - 22, 12, 3, '#b45309');
+      px(c, x - 5, y - 24, 10, 2, '#92400e');
+      px(c, x + 5, y - 12, 2, 8, '#f5f0e1');
+      px(c, x + 5, y - 12, 2, 1, '#b91c1c');
+      return;
+    }
     /* Sprechblase, solange die Figur noch wettet */
     if (window.Insel && Insel.npcWettetNoch(npc.id)) {
       var hoch = Math.round(Math.sin(waveT * 2.4 + x) * 1);
@@ -1363,13 +1468,12 @@
     props.forEach(function (p) {
       if (p.solid) solids.push({ x: p.x - 4, y: p.y - 6, w: 8, h: 6 });
     });
-    npcs.forEach(function (n) {
-      solids.push({ x: n.tx * TILE + 4, y: n.ty * TILE + 8, w: 8, h: 6 });
-    });
+    /* Bewohner blockieren nicht mehr — sie weichen aus (siehe bewohnerBewegen). */
     places.forEach(function (p) {
       var cx = p.tx * TILE + 8, cy = p.ty * TILE + 16;
-      var w = p.kind === 'ship' ? 40 : p.kind === 'cave' ? 40 : 28;
-      solids.push({ x: cx - w / 2, y: cy - 20, w: w, h: 18 });
+      var w = p.kind === 'ship' ? 40 : p.kind === 'cave' ? 40 : p.kind === 'ruderboot' ? 20 : 28;
+      var h = p.kind === 'ruderboot' ? 10 : 18;
+      solids.push({ x: cx - w / 2, y: cy - 20, w: w, h: h });
     });
   }
   function blocked(nx, ny) {
@@ -1407,6 +1511,10 @@
       '</span> &nbsp; <span style="color:#c4b5fd">🎟️ ' + mk +
       '</span> &nbsp; <span style="color:#f9a8d4">🍬 ' + su + '</span>' +
       (window.Insel && Insel.hatSchaufel(who) ? ' &nbsp; <span style="color:#fde68a">🪏</span>' : '') +
+      (window.Insel && Insel.hatLeiter(who) ? ' <span style="color:#fde68a">🪜</span>' : '') +
+      (window.Insel && Insel.honig(who) ? ' &nbsp; <span style="color:#fbbf24">🍯 ' + Insel.honig(who) + '</span>' : '') +
+      (window.Insel && Insel.hatSchatzkarte(who) && !Insel.schatzinselStand(who).gehoben
+        ? ' &nbsp; <span style="color:#fdba74">📜</span>' : '') +
       (window.Insel && Insel.hinweisGuthaben(who)
         ? ' &nbsp; <span style="color:#7dd3fc">🗺️ ' + Insel.hinweisGuthaben(who) + '</span>' : '');
   }
@@ -1421,8 +1529,18 @@
     }
     for (i = 0; i < npcs.length; i++) {
       var n = npcs[i];
-      d = Math.hypot(hero.x - (n.tx * TILE + 8), hero.y - (n.ty * TILE + 14));
+      d = Math.hypot(hero.x - n.x, hero.y - n.y);
       if (d < 26 && d < bestD) { best = { istNpc: true, npc: n, name: n.name }; bestD = d; }
+    }
+    for (i = 0; i < props.length; i++) {
+      var pr = props[i];
+      if (!pr.baum && !pr.platz) continue;
+      d = Math.hypot(hero.x - pr.x, hero.y - pr.y);
+      if (d < 24 && d < bestD) {
+        best = pr.baum ? { istBaum: true, baum: pr.baum, name: 'Bienenbaum' }
+                       : { istHonigstein: true, platz: pr.platz, name: pr.platz.name };
+        bestD = d;
+      }
     }
     for (i = 0; i < affen.length; i++) {
       var af = affen[i];
@@ -1434,7 +1552,7 @@
       d = Math.hypot(hero.x - fl.x, hero.y - fl.y);
       if (d < 26 && d < bestD) { best = { istFlaneur: true, flaneur: fl, name: fl.name }; bestD = d; }
     }
-    d = Math.hypot(hero.x - (seebaer.tx * TILE + 8), hero.y - (seebaer.ty * TILE + 14));
+    d = Math.hypot(hero.x - seebaer.x, hero.y - seebaer.y);
     if (d < 26 && d < bestD) { best = { istSeebaer: true, name: seebaer.name }; bestD = d; }
     /* Eine Grabstelle sticht alles andere aus — sonst gräbt man nie. */
     if (window.Insel && Insel.hatSchaufel(who)) {
@@ -1447,7 +1565,10 @@
     }
     if (best && best.versteckt && !entdeckt(best.id)) {
       entdecken(best.id);
-      flash('Du hast die ' + best.name + ' gefunden. Hier wird um Münzen gespielt — Vorsicht.');
+      flash(best.boot
+        ? ['Zwischen den Felsen liegt ein altes Ruderboot. Zwei Ruder, kein Leck — so weit du siehst.',
+           'Wer damit hinausfährt, kommt zur Schatzinsel. Oder zu den Piraten. Das weiss man vorher nicht.']
+        : 'Du hast die ' + best.name + ' gefunden. Hier wird um Münzen gespielt — Vorsicht.');
     }
     return best;
   }
@@ -1472,6 +1593,31 @@
       bannerEl.classList.add('show');
       return;
     }
+    if (p.istBaum) {
+      var rest = Insel.bienenbaumRest(p.baum.id, who);
+      bannerEl.innerHTML = '<b>Bienenbaum</b> — ' +
+        (rest ? 'leer, in ' + Math.ceil(rest / 60) + ' Min wieder voll'
+              : Insel.hatLeiter(who) ? 'voll · 🍯 ' + Insel.honig(who) + '/' + Insel.oekonomie.honigMax + ' — [E] ernten 🪜'
+                                     : 'der Stock hängt zu hoch — Leiter im Kiosk');
+      bannerEl.classList.add('show');
+      return;
+    }
+    if (p.istHonigstein) {
+      var liegt = Insel.honigAufPlatzRest(p.platz.id, who);
+      bannerEl.innerHTML = '<b>' + p.platz.name + '</b> — ' +
+        (liegt ? 'Honig liegt da, der Bär ist noch ' + Math.ceil(liegt / 60) + ' Min beschäftigt'
+               : '🍯 ' + Insel.honig(who) + ' dabei — [E] Honig hinlegen');
+      bannerEl.classList.add('show');
+      return;
+    }
+    if (p.boot) {
+      var sis = Insel.schatzinselStand(who);
+      bannerEl.innerHTML = '<b>Ruderboot</b> — zur Schatzinsel' +
+        (sis.karte ? ' · 📜 Karte dabei' : ' · ohne Karte findest du den Schatz nicht') +
+        ' — [E] ablegen';
+      bannerEl.classList.add('show');
+      return;
+    }
     if (p.istFlaneur) {
       bannerEl.innerHTML = '<b>' + p.flaneur.name + '</b> — will dir etwas erzählen — [E] zuhören';
       bannerEl.classList.add('show');
@@ -1488,7 +1634,12 @@
       bannerEl.classList.add('show');
       return;
     }
-    if (p.istNpc) {
+    if (p.istNpc && p.npc.haendlerin) {
+      txt = '<b>' + p.npc.name + '</b> — ' +
+        (Insel.hatSchatzkarte(who) ? 'hat dir die Karte verkauft'
+                                   : 'verkauft eine Schatzkarte · ' + Insel.oekonomie.schatzkartePreis + ' Münzen') +
+        ' — [E] reden';
+    } else if (p.istNpc) {
       var wettetNoch = window.Insel && Insel.npcWettetNoch(p.npc.id);
       var laufend = window.Insel && Insel.offeneWette();
       txt = '<b>' + p.npc.name + '</b> — ' +
@@ -1563,9 +1714,13 @@
     if (state !== 'play' || !nearest) return;
     if (nearest.hafen) { hafenOeffnen(nearest.hafen); return; }
     if (nearest.istGrab) { graben(nearest.schatz); return; }
+    if (nearest.istBaum) { ernten(nearest.baum); return; }
+    if (nearest.istHonigstein) { honigLegen(nearest.platz); return; }
+    if (nearest.boot) { rudernLos(); return; }
     if (nearest.istFlaneur) { plaudern(nearest.flaneur); return; }
     if (nearest.istSeebaer) { schatzGeschichte(); return; }
     if (nearest.istAffe) { fuettern(nearest.affe); return; }
+    if (nearest.istNpc && nearest.npc.haendlerin) { kartenHandel(nearest.npc); return; }
     if (nearest.istNpc) { redeMit(nearest.npc); return; }
     if (nearest.id === 'schatz') {
       if (!treasureOpen()) {
@@ -1616,7 +1771,7 @@
     var box = document.getElementById('hafen-ziele');
     box.innerHTML = '';
     Insel.haefen.forEach(function (ziel) {
-      if (ziel.id === h.id) return;
+      if (ziel.id === h.id || ziel.versteckt) return;
       var b = document.createElement('button');
       b.className = 'choice';
       b.style.minWidth = 'auto';
@@ -1656,7 +1811,7 @@
     hero.x = pos.x; hero.y = pos.y; hero.dir = 'down';
     nearest = null;
     updateBanner();
-    flash('Ruhige See. Nach ein paar Minuten legt ihr am ' + ziel.name + ' an, ' +
+    flash('Ruhige See. Nach ein paar Minuten legt ihr ' + (ziel.an || 'am ' + ziel.name) + ' an, ' +
           ziel.nahe + '.', 'Bootsmann');
   }
 
@@ -1680,6 +1835,103 @@
     updateBanner();
   }
 
+  /* ---------------- Honig ---------------- */
+  function ernten(baum) {
+    var r = Insel.honigErnten(baum.id, who);
+    if (!r.ok) {
+      if (r.grund === 'leiter') {
+        flash('Der Bienenstock hängt viel zu hoch. Mit einer Leiter ginge das — der Kiosk hat eine für ' +
+              Insel.oekonomie.leiterPreis + ' Münzen.');
+      } else if (r.grund === 'voll') {
+        flash('Mehr als ' + Insel.oekonomie.honigMax + ' Töpfe trägst du nicht. Leg erst einen auf einen Honigstein.');
+      } else {
+        flash('Der Stock ist leer. Die Bienen brauchen noch ' + Math.ceil(r.rest / 60) + ' Minuten.');
+      }
+      return;
+    }
+    flash(['Du stellst die Leiter an, kletterst hoch und holst vorsichtig einen Topf Honig herunter. ' +
+           'Die Bienen brummen, stechen aber nicht.',
+           'Du hast jetzt ' + r.honig + ' Topf' + (r.honig === 1 ? '' : 'e') + ' dabei. ' +
+           'Auf einem Honigstein bei einer Bärenhöhle beschäftigt er den Bären eine Viertelstunde.']);
+    updateHud();
+    nearest = null;
+    updateBanner();
+  }
+  function honigLegen(platz) {
+    var r = Insel.honigLegen(platz.id, who);
+    if (!r.ok) {
+      if (r.grund === 'keiner') {
+        flash('Du hast keinen Honig dabei. Bienenbäume stehen in den beiden Wäldern — mit Leiter kommst du hin.');
+      } else if (r.grund === 'liegt') {
+        flash('Hier liegt schon ein Topf. Der Bär ist noch ' + Math.ceil(r.rest / 60) + ' Minuten beschäftigt.');
+      } else {
+        flash('Hier geht das nicht.');
+      }
+      return;
+    }
+    flash([
+      'Du stellst den Honigtopf auf den Stein und gehst ein paar Schritte zurück.',
+      'Es dauert nicht lange: ' + r.name + ' kommt angetrottet, steckt die Nase in den Topf und vergisst alles ' +
+      'andere — auch deine Süssigkeiten. Du hast ' + Math.round(Insel.oekonomie.honigRuhe / 60) + ' Minuten Ruhe.'
+    ]);
+    updateHud();
+    nearest = null;
+    updateBanner();
+  }
+
+  /* ---------------- Ruderboot zur Schatzinsel ---------------- */
+  function rudernLos() {
+    var sis = Insel.schatzinselStand(who);
+    var text = [
+      'Du schiebst das Boot ins Wasser und legst dich in die Ruder. Die Insel wird kleiner.',
+      sis.karte ? 'Die Schatzkarte steckt gut verpackt in deiner Jacke.'
+                : 'Eine Karte hast du nicht. Du wirst die Insel also nur anschauen können — ' +
+                  'Karten-Agathe am Dorfplatz verkauft eine.',
+      'Draussen auf dem Meer bist du allein. Meistens.'
+    ];
+    flash(text, 'Auf See', function () {
+      var r = Insel.rudern('hin', who);
+      if (r.gekapert) {
+        flash(['Ein Schatten über dir. Ein Schiff mit schwarzer Flagge gleitet heran.',
+               'Piraten! Sie ziehen dich samt Ruderboot an Bord.'], 'Auf See',
+              function () { window.location.href = '/lernwelt/piraten/'; });
+        return;
+      }
+      window.location.href = '/lernwelt/schatzinsel/';
+    });
+  }
+
+  /* ---------------- Karten-Agathe ---------------- */
+  var aktuellerHandel = null;
+  function kartenHandel(npc) {
+    aktuellerHandel = npc;
+    var el = document.getElementById('scr-npc');
+    document.getElementById('npc-name').textContent = npc.name;
+    var hat = Insel.hatSchatzkarte(who);
+    var sis = Insel.schatzinselStand(who);
+    var txt;
+    if (sis.gehoben) {
+      txt = 'Du hast die Kiste gehoben? Dann bist du der Erste seit Jahren, der meine Karte ' +
+            'wirklich benutzt hat. Die anderen haben sie nur an die Wand gehängt.';
+    } else if (hat) {
+      txt = 'Die Karte hast du schon. Das Ruderboot musst du selber finden — irgendwo an der Küste, ' +
+            'wo kein Weg hinführt. Und nimm eine Schaufel mit.';
+    } else {
+      txt = 'Pssst. Ich habe hier eine <b>Schatzkarte</b>. Echt, alt, mit Kreuz. ' +
+            'Sie zeigt, wo auf der <b>Schatzinsel</b> eine Kiste vergraben liegt.' +
+            '<br><br>Preis: <b>' + Insel.oekonomie.schatzkartePreis + ' Münzen</b>. Du hast ' +
+            Insel.muenzen(who) + '.<br>Das Boot dorthin und die Schaufel sind nicht dabei — ' +
+            'und die Fahrt, nun ja, man hört von Piraten.';
+    }
+    document.getElementById('npc-text').innerHTML = txt;
+    var ja = document.getElementById('npc-ja');
+    ja.hidden = hat;
+    ja.textContent = 'Karte kaufen (' + Insel.oekonomie.schatzkartePreis + ' 🪙)';
+    el.hidden = false;
+    state = 'npc';
+    updateBanner();
+  }
+
   /* ---------------- Von selbst ansprechen ----------------
      Die Inselbewohner warten nicht, bis man sie anspricht. Kommt der Spieler
      in die Nähe, fangen sie selber an. Danach halten sie eine Weile still. */
@@ -1693,6 +1945,7 @@
       var f = flaneure[i];
       if (Math.hypot(hero.x - f.x, hero.y - f.y) > 32) continue;
       if (f.zuletztGeredet && Date.now() - f.zuletztGeredet < 90000) continue;
+      if (Dialog.gemieden(f.name)) continue;
       f.zuletztGeredet = Date.now();
       letztesGespraech = Date.now();
       f.pause = 4;
@@ -1702,8 +1955,10 @@
     /* Die Wett-Bewohner rufen einen an, solange sie noch wetten wollen. */
     for (var n = 0; n < npcs.length; n++) {
       var npc = npcs[n];
-      if (Math.hypot(hero.x - npc.tx * TILE - 8, hero.y - npc.ty * TILE - 14) > 32) continue;
+      if (npc.haendlerin) continue;
+      if (Math.hypot(hero.x - npc.x, hero.y - npc.y) > 32) continue;
       if (npc.zuletztGeredet && Date.now() - npc.zuletztGeredet < 120000) continue;
+      if (Dialog.gemieden(npc.name)) continue;
       if (!window.Insel || !Insel.npcWettetNoch(npc.id, who)) continue;
       if (Insel.offeneWette(who)) continue;
       npc.zuletztGeredet = Date.now();
@@ -1716,7 +1971,7 @@
     }
     /* Käpten Krümel meldet sich, wenn ein Hinweis auf dem Konto liegt. */
     if (window.Insel && Insel.hinweisGuthaben(who) > 0 &&
-        Math.hypot(hero.x - seebaer.tx * TILE - 8, hero.y - seebaer.ty * TILE - 14) < 40 &&
+        Math.hypot(hero.x - seebaer.x, hero.y - seebaer.y) < 40 && !Dialog.gemieden(seebaer.name) &&
         (!seebaer.zuletztGeredet || Date.now() - seebaer.zuletztGeredet > 120000)) {
       seebaer.zuletztGeredet = Date.now();
       letztesGespraech = Date.now();
@@ -1841,6 +2096,10 @@
     document.getElementById('hud').hidden = false;
     state = 'play';
     aktuellerNpc = null;
+    aktuellerHandel = null;
+  }
+  function npc_name_agathe() {
+    return npcs.filter(function (n) { return n.haendlerin; })[0].name;
   }
 
   var flashT = 0, flashMsg = '';
@@ -1894,7 +2153,7 @@
       items.push({ x: p.tx * TILE + 8, y: p.ty * TILE + 16, kind: p.kind, place: p });
     });
     npcs.forEach(function (n) {
-      items.push({ x: n.tx * TILE + 8, y: n.ty * TILE + 14, kind: 'npc', npc: n });
+      items.push({ x: n.x, y: n.y, kind: 'npc', npc: n });
     });
     affen.forEach(function (a) {
       items.push({ x: a.x, y: a.y, kind: 'affe', affe: a });
@@ -1905,7 +2164,7 @@
     flaneure.forEach(function (f) {
       items.push({ x: f.x, y: f.y, kind: 'flaneur', flaneur: f });
     });
-    items.push({ x: seebaer.tx * TILE + 8, y: seebaer.ty * TILE + 14, kind: 'seebaer' });
+    items.push({ x: seebaer.x, y: seebaer.y, kind: 'seebaer' });
     /* Grabstellen: nur sichtbar, wer eine Schaufel hat und nah genug ist. */
     if (window.Insel && Insel.hatSchaufel(who)) {
       Insel.offeneSchaetze(who).forEach(function (sc) {
@@ -1928,6 +2187,9 @@
         case 'tree': drawTree(ctx, X, Y); break;
         case 'bush': drawBush(ctx, X, Y); break;
         case 'rock': drawRock(ctx, X, Y); break;
+        case 'bienenbaum': drawBienenbaum(ctx, X, Y, !window.Insel || Insel.bienenbaumVoll(it.baum.id, who)); break;
+        case 'honigstein': drawHonigstein(ctx, X, Y, window.Insel && Insel.honigAufPlatzRest(it.platz.id, who) > 0); break;
+        case 'ruderboot': drawRuderboot(ctx, X, Y); break;
         case 'sign': drawSign(ctx, X, Y); break;
         case 'tower': drawTower(ctx, X, Y); break;
         case 'nebelturm': drawNebelturm(ctx, X, Y, !window.Insel || Insel.fachOffen('franzoesisch', who)); break;
@@ -2017,7 +2279,7 @@
 
     /* Namen der Inselbewohner */
     npcs.forEach(function (n) {
-      var X = n.tx * TILE + 8 - camX, Y = n.ty * TILE + 14 - camY;
+      var X = n.x - camX, Y = n.y - camY;
       if (X < -40 || X > VIEW_W + 40 || Y < -40 || Y > VIEW_H + 40) return;
       var label = n.name.toUpperCase();
       var w = ctx.measureText(label).width + 6;
@@ -2047,7 +2309,7 @@
       ctx.fillStyle = b.jagt ? '#fca5a5' : '#cbd5e1';
       ctx.fillText(label, X, Y + 10);
     });
-    flaneure.concat([{ x: seebaer.tx * TILE + 8, y: seebaer.ty * TILE + 14, name: seebaer.name }])
+    flaneure.concat([{ x: seebaer.x, y: seebaer.y, name: seebaer.name }])
       .forEach(function (f) {
         var X = f.x - camX, Y = f.y - camY;
         if (X < -50 || X > VIEW_W + 50 || Y < -50 || Y > VIEW_H + 50) return;
@@ -2192,16 +2454,39 @@
     }
     var dx = zielX - e.x, dy = zielY - e.y;
     var len = Math.hypot(dx, dy);
-    if (len < 1) { e.frame = 0; return false; }
-    var sx = (dx / len) * tempo * dt, sy = (dy / len) * tempo * dt;
-    var bewegt = false;
-    if (!blocked(e.x + sx, e.y)) { e.x += sx; bewegt = true; }
-    if (!blocked(e.x, e.y + sy)) { e.y += sy; bewegt = true; }
-    /* Steckt er an einer Ecke fest, weicht er seitlich aus. */
-    if (!bewegt) {
-      if (!blocked(e.x + (sy >= 0 ? 1 : -1) * tempo * dt, e.y)) e.x += (sy >= 0 ? 1 : -1) * tempo * dt;
-      else if (!blocked(e.x, e.y + (sx >= 0 ? 1 : -1) * tempo * dt)) e.y += (sx >= 0 ? 1 : -1) * tempo * dt;
+    if (len < 1) { e.frame = 0; e.umweg = null; return false; }
+    var q = tempo * dt;
+    var sx = (dx / len) * q, sy = (dy / len) * q;
+    var ax = e.x, ay = e.y;
+    /* Läuft gerade ein Umweg um ein Hindernis, wird er zu Ende gegangen,
+       solange der direkte Weg noch versperrt ist. */
+    if (e.umweg && e.umweg.rest > 0 && blocked(e.x + sx * 3, e.y + sy * 3)) {
+      if (!blocked(e.x + e.umweg.x * q, e.y + e.umweg.y * q)) {
+        e.x += e.umweg.x * q; e.y += e.umweg.y * q; e.umweg.rest -= q;
+      } else e.umweg = null;
+    } else {
+      e.umweg = null;
+      if (!blocked(e.x + sx, e.y)) e.x += sx;
+      if (!blocked(e.x, e.y + sy)) e.y += sy;
     }
+    /* Nur eine echte Ortsveränderung zählt — ein Nullschritt nicht. Sonst
+       stand Gerti jahrelang am Wegweiser und «lief» auf der Stelle. */
+    var bewegt = Math.hypot(e.x - ax, e.y - ay) > q * 0.3;
+    /* Steckt er fest, sucht er sich quer zur Laufrichtung einen Umweg
+       (eine Kachel weit), zuerst auf der Seite, auf der das Ziel liegt. */
+    if (!bewegt && !e.umweg) {
+      var quer = Math.abs(dx) > Math.abs(dy)
+        ? [[0, dy >= 0 ? 1 : -1], [0, dy >= 0 ? -1 : 1], [dx > 0 ? -1 : 1, 0]]
+        : [[dx >= 0 ? 1 : -1, 0], [dx >= 0 ? -1 : 1, 0], [0, dy > 0 ? -1 : 1]];
+      for (var v = 0; v < quer.length && !bewegt; v++) {
+        if (!blocked(e.x + quer[v][0] * q, e.y + quer[v][1] * q)) {
+          e.x += quer[v][0] * q; e.y += quer[v][1] * q;
+          e.umweg = { x: quer[v][0], y: quer[v][1], rest: TILE + 4 };
+          bewegt = true;
+        }
+      }
+    }
+    if (!bewegt) { e.frame = 0; return false; }
     if (Math.abs(dx) > Math.abs(dy)) e.dir = dx < 0 ? 'left' : 'right';
     else e.dir = dy < 0 ? 'up' : 'down';
     e.animT += dt;
@@ -2238,6 +2523,34 @@
       var satt = Insel.baerSatt(b.id, who);
       var witterung = Insel.oekonomie.baerWitterung;
 
+      /* Honig schlägt alles: er trottet zum Stein und schleckt. */
+      if (Insel.baerRuhig(b.id, who)) {
+        b.jagt = false;
+        var stein = honigsteinVon(b.id);
+        if (stein) {
+          /* Er stellt sich auf die freie Seite des Steins, die ihm am nächsten liegt. */
+          if (!b.fressplatz || b.fressplatzStein !== stein) {
+            var seiten = [[0, 12], [0, -14], [-14, 0], [14, 0]], beste = null, bd = 1e9;
+            seiten.forEach(function (o) {
+              var px0 = stein.x + o[0], py0 = stein.y + o[1];
+              if (blocked(px0, py0)) return;
+              var dd = Math.hypot(px0 - b.x, py0 - b.y);
+              if (dd < bd) { bd = dd; beste = { x: px0, y: py0 }; }
+            });
+            b.fressplatz = beste || { x: stein.x, y: stein.y + 12 };
+            b.fressplatzStein = stein;
+          }
+          var zx = b.fressplatz.x, zy = b.fressplatz.y;
+          if (Math.hypot(zx - b.x, zy - b.y) > 3 && schrittRichtung(b, zx, zy, 30, dt)) { b.schleckt = false; }
+          else {
+            b.frame = 0; b.schleckt = true;
+            b.dir = Math.abs(stein.x - b.x) > Math.abs(stein.y - b.y) ? (stein.x < b.x ? 'left' : 'right') : (stein.y < b.y ? 'up' : 'down');
+          }
+        }
+        return;
+      }
+      b.schleckt = false;
+
       if (satt) b.jagt = false;
       else if (suess > 0 && d < witterung) { b.jagt = true; b.witterungBis = jetzt + 7000; }
       else if (b.witterungBis > jetzt && d < witterung * 1.4) b.jagt = true;
@@ -2254,6 +2567,12 @@
     });
   }
 
+  function honigsteinVon(baerId) {
+    for (var i = 0; i < props.length; i++) {
+      if (props[i].platz && props[i].platz.baer === baerId) return props[i];
+    }
+    return null;
+  }
   function baerFaengt(b) {
     baerSperre = 2.5;
     b.jagt = false; b.witterungBis = 0;
@@ -2281,15 +2600,63 @@
   /* ---------------- Flaneure ---------------- */
   function flaneureBewegen(dt) {
     flaneure.forEach(function (f) {
+      if (ausweichen(f, dt)) return;
       if (f.pause > 0) { f.pause -= dt; f.frame = 0; return; }
       var z = f.route[f.ziel];
       var zx = z[0] * TILE + 8, zy = z[1] * TILE + 14;
       if (Math.hypot(zx - f.x, zy - f.y) < 4) {
         f.ziel = (f.ziel + 1) % f.route.length;
-        f.pause = 1.5 + Math.random() * 3;
+        f.pause = 0.4 + Math.random() * 1.2;
         return;
       }
-      schrittRichtung(f, zx, zy, 20, dt);
+      if (!schrittRichtung(f, zx, zy, 20, dt)) f.ziel = (f.ziel + 1) % f.route.length;
+    });
+  }
+
+  /* Niemand soll dem Spieler im Weg stehen: wer ihm zu nah ist, tritt zur Seite. */
+  function ausweichen(e, dt) {
+    var d = Math.hypot(hero.x - e.x, hero.y - e.y);
+    if (d > 13) return false;
+    var wx = e.x + ((e.x - hero.x) || 1) * 3, wy = e.y + (e.y - hero.y) * 3;
+    schrittRichtung(e, wx, wy, 34, dt);
+    e.pause = 0.3;
+    return true;
+  }
+  /* Ist dieser Punkt frei und weit genug weg von Orten, an denen man etwas tut? */
+  function schlenderPlatzFrei(x, y, e) {
+    if (blocked(x, y) || !istErreichbar(x, y)) return false;
+    for (var i = 0; i < places.length; i++) {
+      if (Math.hypot(x - (places[i].tx * TILE + 8), y - (places[i].ty * TILE + 16)) < 40) return false;
+    }
+    /* Auch nicht vor Bienenbäume und Honigsteine stellen. */
+    for (var k = 0; k < props.length; k++) {
+      if ((props[k].baum || props[k].platz) && Math.hypot(x - props[k].x, y - props[k].y) < 30) return false;
+    }
+    var andere = npcs.concat([seebaer]);
+    for (var j = 0; j < andere.length; j++) {
+      if (andere[j] !== e && Math.hypot(x - andere[j].x, y - andere[j].y) < 20) return false;
+    }
+    return true;
+  }
+  /* Die Wett-Bewohner, Agathe und der Seebär: langsam, aber stetig rund um den Heimplatz. */
+  function bewohnerBewegen(dt) {
+    npcs.concat([seebaer]).forEach(function (e) {
+      if (ausweichen(e, dt)) return;
+      if (e.pause > 0) { e.pause -= dt; e.frame = 0; return; }
+      if (!e.ziel) {
+        for (var v = 0; v < 10 && !e.ziel; v++) {
+          var w = Math.random() * Math.PI * 2, r = TILE * (0.7 + Math.random() * (e.weite || 1.8));
+          var x = e.hx + Math.cos(w) * r, y = e.hy + Math.sin(w) * r;
+          if (schlenderPlatzFrei(x, y, e)) e.ziel = { x: x, y: y };
+        }
+        if (!e.ziel) { e.pause = 1.5; return; }
+      }
+      if (Math.hypot(e.ziel.x - e.x, e.ziel.y - e.y) < 2 || !schrittRichtung(e, e.ziel.x, e.ziel.y, 14, dt)) {
+        e.ziel = null;
+        e.pause = 0.4 + Math.random() * 1.4;
+        e.frame = 0;
+        e.dir = 'down';
+      }
     });
   }
 
@@ -2330,6 +2697,7 @@
       baerenBewegen(dt);
       affenBewegen(dt);
       flaneureBewegen(dt);
+      bewohnerBewegen(dt);
       ansprechenPruefen();
 
       rauschAnzeigen();
@@ -2446,13 +2814,11 @@
       a.hx = frei.x; a.hy = frei.y;
       a.x = frei.x; a.y = frei.y;
     });
-    /* Der Seebär steht am Dorfplatz — auch er soll erreichbar bleiben. */
-    var sx = seebaer.tx * TILE + 8, sy = seebaer.ty * TILE + 14;
-    if (blocked(sx, sy) || !istErreichbar(sx, sy)) {
-      var sfrei = sichererPlatz(sx, sy);
-      seebaer.tx = Math.floor(sfrei.x / TILE);
-      seebaer.ty = Math.floor(sfrei.y / TILE);
-    }
+    /* Der Seebär und die Bewohner — auch sie sollen erreichbar bleiben. */
+    npcs.concat([seebaer]).forEach(function (e) {
+      var frei = sichererPlatz(e.hx, e.hy);
+      e.hx = frei.x; e.hy = frei.y; e.x = frei.x; e.y = frei.y;
+    });
   }
 
   var letzteRettung = 0;
@@ -2529,13 +2895,13 @@
         if (auf) {
           var offen = auf.sets.filter(function (x) { return !x.fertig; });
           flash(offen.length
-            ? 'Willkommen, ' + name + '! Tagesauftrag: ' +
+            ? 'Willkommen, ' + Insel.name(name) + '! Tagesauftrag: ' +
               offen.map(function (x) { return x.titel; }).join(', ') + '. Alle drei zusammen bringen ' +
               Insel.oekonomie.auftragBonus + ' Münzen und einen Schatzhinweis.'
-            : 'Willkommen zurück, ' + name + '! Der Tagesauftrag steht schon. ' +
+            : 'Willkommen zurück, ' + Insel.name(name) + '! Der Tagesauftrag steht schon. ' +
               'Am Anschlagbrett siehst du, wie das Wochenduell läuft.');
         } else {
-          flash('Willkommen auf der Lerninsel, ' + name + '! Laufe mit WASD zu einem der Orte.');
+          flash('Willkommen auf der Lerninsel, ' + Insel.name(name) + '! Laufe mit WASD zu einem der Orte.');
         }
       }
     } else {
@@ -2606,6 +2972,24 @@
 
   document.getElementById('npc-nein').addEventListener('click', npcSchliessen);
   document.getElementById('npc-ja').addEventListener('click', function () {
+    if (aktuellerHandel) {
+      var kauf = Insel.schatzkarteKaufen(who);
+      if (!kauf.ok) {
+        document.getElementById('npc-text').innerHTML = kauf.grund === 'schon'
+          ? 'Die Karte hast du schon.'
+          : 'Dir fehlen noch <b>' + kauf.fehlt + ' Münzen</b>. Üben, graben, wetten — irgendwie kommst du hin.';
+        document.getElementById('npc-ja').hidden = true;
+        return;
+      }
+      aktuellerHandel = null;
+      npcSchliessen();
+      updateHud();
+      flash(['Agathe rollt die Karte auf: eine Insel, drei Palmen, ein rotes Kreuz. ' +
+             '«Zwischen den Felsen an der Ostküste liegt ein Ruderboot», flüstert sie. ' +
+             '«Mehr sage ich nicht.»',
+             'Du hast jetzt eine Schatzkarte. Im Rucksack: 📜'], npc_name_agathe());
+      return;
+    }
     if (!aktuellerNpc) return npcSchliessen();
     var npc = aktuellerNpc;
     var ziel = Insel.npcZiel(npc.id, npc.basis, who);
@@ -2745,6 +3129,11 @@
     window.location.replace('/lernwelt/piraten/');
     return;
   }
+  /* Wer gerade auf der Schatzinsel ist, kommt nur mit dem Boot zurück. */
+  if (window.Insel && Insel.schatzinselStand && Insel.schatzinselStand(Insel.who()).dort) {
+    window.location.replace('/lernwelt/schatzinsel/');
+    return;
+  }
   /* Kommt der Spieler per Boot zurück, steht er am Zielsteg. */
   var perBoot = window.Insel && Insel.ankunftAbholen ? Insel.ankunftAbholen() : null;
 
@@ -2761,7 +3150,7 @@
     hero.x = anleger.x; hero.y = anleger.y; hero.dir = 'down';
     if (window.Insel) Insel.positionVergessen();
     startPlay(Insel.who(), true);
-    flash('Du stehst am ' + perBoot.name + ', ' + perBoot.nahe + '. Fester Boden, endlich.',
+    flash('Du stehst ' + (perBoot.an || 'am ' + perBoot.name) + ', ' + perBoot.nahe + '. Fester Boden, endlich.',
           'An Land');
   } else if (rueckkehr && JACKETS[rueckkehr.who]) {
     /* Gemerkte Positionen stammen aus einer früheren Sitzung — prüfen. */
@@ -2774,9 +3163,21 @@
   if (new URLSearchParams(location.search).get('debug') === '1') {
     window.__insel = { blocked: blocked, at: at, TILE: TILE, WATER: WATER, SHALLOW: SHALLOW,
                        places: places, hero: hero, baeren: baeren, flaneure: flaneure, affen: affen,
+                       npcs: npcs, seebaer: seebaer, props: props, erreichbar: istErreichbar,
                        schaetze: function () { return Insel.offeneSchaetze(who); },
                        fang: function (i) { baerSperre = 0; baerFaengt(baeren[i || 0]); },
                        nah: function () { nearest = findNearest(); return nearest && nearest.name; },
+                       /* Spielzeit von Hand vorspulen (für Prüfungen ohne sichtbares Fenster). */
+                       tick: function (sek) {
+                         var dt = 0.05, n = Math.round((sek || 1) / dt);
+                         for (var i = 0; i < n; i++) {
+                           baerenBewegen(dt); affenBewegen(dt); flaneureBewegen(dt); bewohnerBewegen(dt);
+                           ansprechenPruefen(); waveT += dt;
+                         }
+                         nearest = findNearest(); updateBanner(); draw(0);
+                         return nearest && nearest.name;
+                       },
+                       zustand: function () { return state; },
                        tu: function () { nearest = findNearest(); interact(); return nearest && nearest.name; } };
   }
 

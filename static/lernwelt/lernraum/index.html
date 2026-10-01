@@ -68,6 +68,13 @@
       <div id="auftrag-liste"></div>
       <div class="lohn" id="auftrag-lohn"></div>
     </div>
+    <div class="tafel" id="t-regal" hidden>
+      <h2 id="regal-titel">📚 Regal</h2>
+      <div class="unter" id="regal-unter"></div>
+      <div class="liste" id="regal-liste"></div>
+      <div class="lohn">Erledigte Übungen kommen vom Pult ins Regal, damit vorne Platz für Neues ist.
+        Üben darfst du sie weiter — Münzen gibt es dafür keine mehr.</div>
+    </div>
     <div class="tafel" id="t-tafel" hidden>
       <h2 id="tafel-titel">Anschlagbrett</h2>
       <div class="unter" id="tafel-unter"></div>
@@ -262,12 +269,22 @@
     }
   }
 
-  /* Mehrere Übungen an einem Pult, wenn es viele sind. */
-  var proPult = Math.max(1, Math.ceil((sets.length + extern.length) / PLATZ.length));
+  /* Auf den Pulten liegt nur, was noch etwas bringt. Was abgeholt oder
+     gemeistert ist, wandert ins Regal — und vorne rückt Neues nach. So wird
+     der Raum mit jedem Erfolg anders bestückt. */
   var alleSets = sets.concat(extern.map(function (x) { x.istExtern = true; return x; }));
+  function nochOffen(u) {
+    var ms = Insel.muenzStatus(fach, u.id, u.schwierigkeit, who);
+    var auf = Insel.imAuftrag(fach, u.id, who);
+    return ms.zahlt || (auf && !auf.fertig);
+  }
+  var offene = alleSets.filter(nochOffen);
+  var erledigte = alleSets.filter(function (u) { return !nochOffen(u); });
+  /* Mehrere Übungen an einem Pult, wenn es viele sind. */
+  var proPult = Math.max(1, Math.ceil(offene.length / PLATZ.length));
   var pulte = [];
-  for (var i = 0; i < alleSets.length; i += proPult) {
-    pulte.push({ nr: pulte.length, sets: alleSets.slice(i, i + proPult) });
+  for (var i = 0; i < offene.length; i += proPult) {
+    pulte.push({ nr: pulte.length, sets: offene.slice(i, i + proPult) });
   }
 
   function pultStatus(p) {
@@ -303,9 +320,12 @@
                    tx: 27, ty: 16, farbe: '#fbbf24', verb: 'lesen' });
   stationen.push({ id: 'tuer', name: 'Tür nach draussen', tafel: null,
                    tx: 15, ty: 17, farbe: '#fde68a', hinweis: 'zurück auf die Insel' });
+  stationen.push({ id: 'regal', name: 'Regal', tafel: 't-regal',
+                   tx: 27, ty: 10, farbe: '#a78bfa', verb: 'durchsehen' });
 
   moebel.push({ art: 'brett', tx: 1, ty: 14, tw: 2, th: 1 });
   moebel.push({ art: 'brett', tx: 27, ty: 14, tw: 2, th: 1 });
+  moebel.push({ art: 'regal', tx: 26, ty: 7, tw: 3, th: 1 });
 
   var raum = Raum.starten({
     canvas: $('raum'), breiteKacheln: RAUM_W, hoeheKacheln: RAUM_H,
@@ -427,6 +447,21 @@
 
     moebelZeichnen: function (ctx, m, t) {
       var x = m.tx * TILE, y = m.ty * TILE, w = m.tw * TILE;
+      if (m.art === 'regal') {
+        px(ctx, x, y - 26, w, 30, thema.moebelD);
+        px(ctx, x + 2, y - 24, w - 4, 1, thema.moebel);
+        px(ctx, x + 2, y - 12, w - 4, 1, thema.moebel);
+        /* Ein Buchrücken je erledigter Übung — das Regal füllt sich mit der Zeit. */
+        var farben = ['#7f1d1d', '#166534', '#1d4ed8', '#7e22ce', '#b45309', '#0f766e'];
+        for (var b = 0; b < Math.min(erledigte.length, 16); b++) {
+          px(ctx, x + 3 + (b % 8) * 5, y - 23 + Math.floor(b / 8) * 12, 4, 10, farben[b % farben.length]);
+        }
+        if (!erledigte.length) {
+          ctx.font = '7px ui-monospace, monospace'; ctx.textAlign = 'center';
+          ctx.fillStyle = 'rgba(226,232,240,.5)'; ctx.fillText('leer', x + w / 2, y - 14); ctx.textAlign = 'left';
+        }
+        return;
+      }
       if (m.art === 'brett') {
         px(ctx, x, y - 18, w, 20, thema.moebelD);
         px(ctx, x + 2, y - 16, w - 4, 16, '#e8dcc0');
@@ -472,6 +507,11 @@
     },
 
     stationHinweis: function (s) {
+      if (s.id === 'regal') {
+        return erledigte.length
+          ? erledigte.length + ' erledigte Übung' + (erledigte.length === 1 ? '' : 'en') + ' zum Wiederholen'
+          : 'noch leer — hier landet, was du erledigt hast';
+      }
       if (!s.pult) return s.hinweis;
       var st = pultStatus(s.pult);
       var namen = s.pult.sets.map(function (u) { return u.titel; }).join(' · ');
@@ -483,6 +523,7 @@
       if (s.pult) { pultOeffnen(s.pult); return true; }
       if (s.id === 'auftrag') { auftragOeffnen(); return true; }
       if (s.id === 'tafel') { tafelOeffnen(); return true; }
+      if (s.id === 'regal') { regalOeffnen(); return true; }
       return false;
     },
     hudZeichnen: function () {
@@ -507,7 +548,7 @@
   function pultOeffnen(p) {
     $('pult-titel').textContent = info.emoji + ' ' + thema.pult + ' ' + (p.nr + 1);
     $('pult-unter').textContent = p.sets.length === 1
-      ? 'Eine Übung liegt hier bereit.'
+      ? 'Eine neue Übung liegt hier bereit.'
       : p.sets.length + ' Übungen liegen hier bereit.';
     var box = $('pult-liste');
     box.innerHTML = '';
@@ -528,6 +569,28 @@
       box.appendChild(a);
     });
     Raum.fensterOeffnen('t-pult');
+  }
+
+  function regalOeffnen() {
+    $('regal-titel').textContent = '📚 Regal — ' + info.name;
+    $('regal-unter').textContent = erledigte.length
+      ? erledigte.length + ' Übungen hast du hier schon erledigt.'
+      : 'Noch nichts erledigt. Die Pulte warten.';
+    var box = $('regal-liste');
+    box.innerHTML = '';
+    erledigte.forEach(function (u) {
+      var ms = Insel.muenzStatus(fach, u.id, u.schwierigkeit, who);
+      var a = document.createElement('a');
+      a.className = 'fertig';
+      a.href = '#';
+      a.onclick = function (e) { e.preventDefault(); losGehen(u); };
+      a.innerHTML =
+        '<div class="t">' + u.titel + (u.istExtern ? ' ↗' : '') + '</div>' +
+        '<div class="i">' + u.info + '</div>' +
+        '<div class="s fertig">' + ms.kurz + (ms.best ? ' · Bestwert ' + ms.best + ' %' : '') + '</div>';
+      box.appendChild(a);
+    });
+    Raum.fensterOeffnen('t-regal');
   }
 
   function auftragOeffnen() {
@@ -571,18 +634,26 @@
     $('tafel-inhalt').innerHTML = (reihen.length
       ? reihen.map(function (r, n) {
           return '<div class="tafelzeile"><span>' + (n + 1) + '.</span>' +
-                 '<span class="n" style="flex:1">' + (Insel.kinder[r.name].emoji || '') + ' ' + r.name +
+                 '<span class="n" style="flex:1">' + (Insel.kinder[r.name].emoji || '') + ' ' + Insel.name(r.name) +
                  (n === 0 && reihen.length > 1 ? ' 🥇' : '') + '</span>' +
                  '<span>' + r.gemeistert + ' gemeistert · Bestwert ' + r.best + ' %</span></div>';
         }).join('')
       : '<div class="lohn">In diesem Fach hat noch niemand geübt.</div>') +
       '<div class="lohn" style="margin-top:12px">🏁 Wochenduell: ' +
-      woche.map(function (r) { return r.name + ' ' + r.punkte; }).join(' · ') +
+      woche.map(function (r) { return Insel.name(r.name) + ' ' + r.punkte; }).join(' · ') +
       ' — noch ' + Math.max(1, Math.round(Insel.wochenRest() / 3600)) + ' Stunden.</div>';
     Raum.fensterOeffnen('t-tafel');
   }
 
-  Raum.reden(info.ort, thema.willkommen);
+  var begruessung = thema.willkommen.slice();
+  if (!offene.length) {
+    begruessung.push('Alle Übungen hier hast du erledigt — sie stehen im Regal rechts. ' +
+                     'Neue kommen dazu, sobald es welche gibt; bis dahin: wiederholen schadet nie.');
+  } else if (erledigte.length) {
+    begruessung.push(erledigte.length + ' erledigte Übung' + (erledigte.length === 1 ? ' steht' : 'en stehen') +
+                     ' im Regal rechts. Auf den Pulten liegt nur Neues.');
+  }
+  Raum.reden(info.ort, begruessung);
 })();
 </script>
 </body>

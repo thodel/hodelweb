@@ -10,6 +10,7 @@
 }
 #dialog.auf { display: flex; }
 #dialog .kasten {
+  position: relative;
   width: 100%; max-width: 560px; background: rgba(15,23,42,.97);
   border: 3px solid #334155; border-radius: 16px; padding: 16px 18px 14px;
   box-shadow: 0 14px 40px rgba(0,0,0,.6);
@@ -30,3 +31,10 @@
 #dialog .weiter:hover { background: #7dd3fc; }
 #dialog .zaehler { font-size: 11px; color: #64748b; text-align: right; margin-top: 6px; }
 
+#dialog .schluss {
+  position: absolute; top: -14px; right: -10px; width: 44px; height: 44px;
+  border-radius: 50%; border: 3px solid #334155; background: #0f172a; color: #fca5a5;
+  font: 700 18px/1 -apple-system, BlinkMacSystemFont, sans-serif; cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0,0,0,.5);
+}
+#dialog .schluss:hover { border-color: #f87171; color: #fee2e2; }

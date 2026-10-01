@@ -97,6 +97,24 @@
   </div>
 
   <div class="card">
+    <h2>🪜 Leiter</h2>
+    <p>Die Leiter kostet <b id="lt-preis">30</b> Münzen und hält ein Leben lang. Damit kommst du an die
+       <b>Bienenstöcke</b> in den beiden Wäldern und holst Honig herunter — bis zu
+       <b id="honig-max">3</b> Töpfe auf einmal, ein Baum braucht danach eine Weile.</p>
+    <p style="color:#fbbf24">Honig auf einen <b>Honigstein</b> bei einer Bärenhöhle gelegt, und der Bär
+       hat <b id="honig-ruhe">15</b> Minuten nur noch Augen dafür — auch wenn du Süssigkeiten dabeihast.</p>
+    <div class="msg" id="msg-lt"></div>
+    <button class="btn" id="kauf-lt" style="background:#f59e0b;color:#422006">Leiter kaufen</button>
+  </div>
+
+  <div class="card">
+    <h2>📜 Schatzkarte</h2>
+    <p>Die gibt es nicht hier. <b>Karten-Agathe</b> am Dorfplatz verkauft eine — für
+       <b id="karte-preis">500</b> Münzen. Sie führt zu einer Kiste auf der Schatzinsel.
+       Das Ruderboot dorthin musst du selber finden; die Überfahrt ist nicht ungefährlich.</p>
+  </div>
+
+  <div class="card">
     <h2>🎬 Räume</h2>
     <p>Räume kosten je 1 Marke. Der Raum bleibt offen, bis du den Tab schliesst.
        Hinlaufen musst du selber — die Türen stehen auf der Insel.</p>
@@ -148,6 +166,9 @@
     var hat = Insel.hatSchaufel(who);
     $('kauf-sch').disabled = hat || Insel.muenzen(who) < Insel.oekonomie.schaufelPreis;
     $('kauf-sch').textContent = hat ? '✔ Schaufel im Gepäck' : 'Schaufel kaufen';
+    var leiter = Insel.hatLeiter(who);
+    $('kauf-lt').disabled = leiter || Insel.muenzen(who) < Insel.oekonomie.leiterPreis;
+    $('kauf-lt').textContent = leiter ? '✔ Leiter im Gepäck' : 'Leiter kaufen';
     $('hud').innerHTML = '';
     Insel.hudLeiste($('hud'), 'laden');
   }
@@ -187,6 +208,26 @@
       m.className = 'msg ok';
     } else if (r.grund === 'schon') {
       m.textContent = 'Du hast schon eine Schaufel.';
+      m.className = 'msg no';
+    } else {
+      m.textContent = 'Dir fehlen ' + r.fehlt + ' Münzen.';
+      m.className = 'msg no';
+    }
+    zeichne();
+  };
+
+  $('lt-preis').textContent = Insel.oekonomie.leiterPreis;
+  $('honig-max').textContent = Insel.oekonomie.honigMax;
+  $('honig-ruhe').textContent = Math.round(Insel.oekonomie.honigRuhe / 60);
+  $('karte-preis').textContent = Insel.oekonomie.schatzkartePreis;
+  $('kauf-lt').onclick = function () {
+    var r = Insel.leiterKaufen(who);
+    var m = $('msg-lt');
+    if (r.ok) {
+      m.textContent = '✔ Gekauft. Die Bienenbäume stehen im Nordwald und im Südwald.';
+      m.className = 'msg ok';
+    } else if (r.grund === 'schon') {
+      m.textContent = 'Du hast schon eine Leiter.';
       m.className = 'msg no';
     } else {
       m.textContent = 'Dir fehlen ' + r.fehlt + ' Münzen.';

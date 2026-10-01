@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Schatzinsel — Lerninsel</title>
+<link rel="icon" href="/favicon-32x32.png" sizes="32x32">
+<link rel="manifest" href="/lernwelt/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/lernwelt/icon/insel-180.png">
+<meta name="theme-color" content="#0f172a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="stylesheet" href="/lernwelt/raum.css">
+<style>
+  body { background: #0b1a2a; }
+  #raum { border-color: #b45309; box-shadow: 0 0 0 3px #0b1a2a, 0 14px 40px rgba(0,0,0,.6); }
+  #hud, #banner, #dialog .kasten { border-color: #b45309; background: rgba(20,16,10,.94); }
+  #hud b, #banner b, #dialog .wer { color: #fdba74; }
+  .platte { background: #1c160f; border-color: #b45309; }
+  .platte h2 { color: #fdba74; }
+  .zu { border-color: #b45309; background: #0f0c08; color: #fdba74; }
+  .lohn { font-size: 13px; color: #c2a98a; margin-top: 12px; line-height: 1.7; }
+  .lohn b { color: #fbbf24; }
+  .knopf { display: block; width: 100%; text-align: center; padding: 13px; border-radius: 12px;
+           margin-top: 12px; background: #d97706; border: none; color: #1c1004;
+           font: 700 15px -apple-system, BlinkMacSystemFont, sans-serif; cursor: pointer; }
+  .knopf:disabled { background: #2a2016; color: #6b5a44; cursor: not-allowed; }
+  .knopf.blau { background: #38bdf8; color: #082f49; }
+  .karte { background: #f1e2c0; color: #4a2e10; border-radius: 10px; padding: 14px; margin-top: 10px;
+           font: 13px/1.6 ui-monospace, Menlo, monospace; border: 2px dashed #b45309; }
+  .karte b { color: #b91c1c; }
+</style>
+<script src="/lernwelt/offline.js" defer></script>
+</head>
+<body>
+
+<div id="rahmen">
+  <div id="hud"></div>
+  <canvas id="raum"></canvas>
+  <div id="banner"></div>
+</div>
+
+<div id="steuer">
+  <div class="pad">
+    <button class="leer"></button><button data-dir="up">▲</button><button class="leer"></button>
+    <button data-dir="left">◀</button><button class="leer"></button><button data-dir="right">▶</button>
+    <button class="leer"></button><button data-dir="down">▼</button><button class="leer"></button>
+  </div>
+  <button id="knopf-e">E</button>
+</div>
+
+<div id="fenster">
+  <div class="platte">
+    <button class="zu" id="zu">✕</button>
+    <div class="tafel" id="t-kreuz" hidden>
+      <h2>❌ Das rote Kreuz</h2>
+      <div class="unter" id="kreuz-unter"></div>
+      <div class="karte" id="kreuz-karte"></div>
+      <div class="lohn" id="kreuz-text"></div>
+      <button class="knopf" id="kreuz-graben" hidden>Graben</button>
+      <div class="lohn" id="kreuz-msg"></div>
+    </div>
+    <div class="tafel" id="t-boot" hidden>
+      <h2>🚣 Das Ruderboot</h2>
+      <div class="unter">Zurück zur Lerninsel. Dasselbe Meer, dieselben Piraten.</div>
+      <div class="lohn" id="boot-text"></div>
+      <button class="knopf blau" id="boot-los">Ablegen und zurückrudern</button>
+    </div>
+  </div>
+</div>
+
+<script src="/lernwelt/insel.js"></script>
+<script src="/lernwelt/pixel.js"></script>
+<script src="/lernwelt/dialog.js"></script>
+<script src="/lernwelt/raum.js"></script>
+<script src="/lernwelt/musik.js"></script>
+<script>
+(function () {
+  'use strict';
+  var $ = function (i) { return document.getElementById(i); };
+  var px = Pixel.px;
+  var TILE = 16, RAUM_W = 28, RAUM_H = 18;
+  var who = Insel.who();
+  var LEIHGEBUEHR = 10;
+
+  /* Hierher kommt man nur mit dem Ruderboot. */
+  if (!Insel.schatzinselStand(who).dort) {
+    Dialog.zeigen('Schatzinsel', [
+      'Von hier aus siehst du die Schatzinsel nur als Strich am Horizont.',
+      'Das Ruderboot liegt irgendwo an der Küste der Lerninsel — such es.'
+    ], function () { window.location.href = '/lernwelt/'; });
+    return;
+  }
+
+  var F = {
+    sand: ['#efdcae', '#e8d3a0'], nass: '#dcc38f',
+    wasser: '#1c6ea4', wasserL: '#2a85c0', brandung: '#39a0c9',
+    holz: '#7c5341', holzD: '#5b3a2e', holzL: '#9a6a51',
+    fels: '#6b7280', felsD: '#4b5563', felsL: '#9aa3ae',
+    leaf: '#2f7d3a', leafD: '#25642e', leafL: '#3d9c49'
+  };
+
+  function gehoben() { return Insel.schatzinselStand(who).gehoben; }
+  function karte() { return Insel.hatSchatzkarte(who); }
+
+  /* ================= Raum ================= */
+  var moebel = [
+    { art: 'palme', tx: 3,  ty: 6,  tw: 1, th: 1 },
+    { art: 'palme', tx: 24, ty: 7,  tw: 1, th: 1 },
+    { art: 'palme', tx: 9,  ty: 5,  tw: 1, th: 1 },
+    { art: 'huette', tx: 4, ty: 10, tw: 3, th: 2 },
+    { art: 'fels',  tx: 17, ty: 5,  tw: 3, th: 2 },
+    { art: 'fels',  tx: 23, ty: 12, tw: 2, th: 2 },
+    { art: 'fass',  tx: 8,  ty: 13, tw: 1, th: 1 },
+    { art: 'kreuz', tx: 19, ty: 9,  tw: 2, th: 1 },
+    { art: 'boot',  tx: 12, ty: 15, tw: 4, th: 2 }
+  ];
+
+  Raum.starten({
+    canvas: $('raum'), breiteKacheln: RAUM_W, hoeheKacheln: RAUM_H,
+    start: { tx: 16, ty: 13, dir: 'up' },
+    tuerKacheln: [12, 13],       /* kein Ausgang zu Fuss — das Boot ist der Weg */
+    wandOben: 4,
+    who: who,
+    musik: 'englisch',
+    moebel: moebel,
+    lichtInnen: 'rgba(255,230,160,.06)',
+    lichtAussen: 'rgba(10,20,34,.28)',
+
+    stationen: [
+      { id: 'kreuz', name: karte() ? 'Rotes Kreuz' : 'Sandfleck', tafel: null, tx: 20, ty: 11, farbe: '#fca5a5', verb: 'ansehen' },
+      { id: 'boot', name: 'Ruderboot', tafel: 't-boot', tx: 14, ty: 14, farbe: '#7dd3fc',
+        verb: 'ansehen', hinweis: 'zurück zur Lerninsel' }
+    ],
+
+    leute: [
+      { name: 'Einsiedler Egon', tx: 7, ty: 9, jacke: ['#57534e', '#3f3a36'], haar: '#e2e8f0', haut: '#d8a882',
+        sprueche: [
+          ['Besuch! Seit, warte, seit dem letzten Besuch war niemand mehr hier.',
+           'Ich bin Egon. Ich wohne hier. Freiwillig. Meistens.'],
+          ['Die Kiste? Ja, es gibt eine. Irgendwo. Ich habe nie gegraben — wozu, ich habe doch alles.',
+           'Du hast eine Karte? Dann weisst du mehr als ich.'],
+          'Die Piraten kommen alle paar Tage vorbei. Sie fragen immer nach Hausaufgaben. Seltsame Leute.',
+          ['Wenn du keine Schaufel hast: meine alte steht hinter der Hütte. Rostig, aber sie gräbt.',
+           'Zehn Münzen Leihgebühr. Ein Einsiedler muss auch von etwas leben.']
+        ] },
+      { name: 'Krabbe Kuno', tx: 21, ty: 13, jacke: ['#dc2626', '#991b1b'], haar: '#dc2626', haut: '#f87171',
+        krabbe: true, reichweite: 24,
+        sprueche: [
+          'Klick. Klack. Ich bin eine Krabbe. Ich laufe seitwärts, weil ich es kann.',
+          'Da drüben, beim Kreuz? Nichts gesehen. Ehrenwort. Klick.'
+        ] }
+    ],
+
+    boden: function (ctx, t) {
+      for (var ty = 0; ty < RAUM_H; ty++) {
+        for (var tx = 0; tx < RAUM_W; tx++) {
+          var farbe;
+          if (ty < 3) farbe = (Math.sin(t * 1.1 + tx * 0.6 + ty) > 0.6) ? F.wasserL : F.wasser;
+          else if (ty === 3) farbe = F.brandung;
+          else farbe = F.sand[(tx + ty) % 2];
+          px(ctx, tx * TILE, ty * TILE, TILE, TILE, farbe);
+        }
+      }
+      for (var sx = 0; sx < RAUM_W * TILE; sx += 6) {
+        var h = Math.sin(t * 2 + sx * 0.12) > 0 ? 3 : 1;
+        px(ctx, sx, 4 * TILE - h, 4, h, '#cfe8f5');
+      }
+      /* Wasser am unteren Rand, dort liegt das Boot */
+      for (var bx = 0; bx < RAUM_W; bx++) px(ctx, bx * TILE, (RAUM_H - 1) * TILE, TILE, TILE, F.wasser);
+      for (var sx2 = 0; sx2 < RAUM_W * TILE; sx2 += 6) {
+        var h2 = Math.sin(t * 1.7 + sx2 * 0.1) > 0 ? 2 : 1;
+        px(ctx, sx2, (RAUM_H - 1) * TILE, 4, h2, '#cfe8f5');
+      }
+      /* Muscheln und Fussspuren */
+      [[6, 7], [14, 8], [22, 10], [10, 12]].forEach(function (m) {
+        px(ctx, m[0] * TILE + 5, m[1] * TILE + 9, 4, 3, '#f8fafc');
+        px(ctx, m[0] * TILE + 6, m[1] * TILE + 10, 2, 1, '#fda4af');
+      });
+      /* Möwe, die kreist */
+      var mx = 14 * TILE + Math.cos(t * 0.5) * 120, my = 20 + Math.sin(t * 0.9) * 8;
+      var fl = Math.sin(t * 8) > 0 ? 1 : 0;
+      px(ctx, mx - 4, my + fl, 3, 1, '#f8fafc'); px(ctx, mx - 1, my, 3, 1, '#f8fafc'); px(ctx, mx + 2, my + fl, 3, 1, '#f8fafc');
+    },
+
+    moebelZeichnen: function (ctx, m, t) {
+      var x = m.tx * TILE, y = m.ty * TILE, w = m.tw * TILE, h = m.th * TILE;
+      if (m.art === 'palme') {
+        var cx = x + 8, cy = y + 16;
+        var wi = Math.round(Math.sin(t * 1.4 + x) * 2);
+        px(ctx, cx - 2, cy - 30, 4, 30, F.holz);
+        px(ctx, cx - 1, cy - 30, 1, 30, F.holzL);
+        px(ctx, cx - 12 + wi, cy - 34, 10, 3, F.leaf);  px(ctx, cx + 2 + wi, cy - 34, 10, 3, F.leaf);
+        px(ctx, cx - 14 + wi, cy - 31, 8, 3, F.leafD);  px(ctx, cx + 6 + wi, cy - 31, 8, 3, F.leafD);
+        px(ctx, cx - 6 + wi, cy - 37, 12, 4, F.leafL);
+        px(ctx, cx - 3, cy - 32, 3, 3, '#7c5341'); px(ctx, cx + 1, cy - 31, 3, 3, '#7c5341');
+        px(ctx, cx - 6, cy - 1, 12, 2, 'rgba(0,0,0,.18)');
+        return;
+      }
+      if (m.art === 'huette') {
+        px(ctx, x, y - 10, w, h + 8, '#a16207');
+        for (var i = 0; i < 4; i++) px(ctx, x, y - 6 + i * 6, w, 1, '#854d0e');
+        px(ctx, x - 3, y - 22, w + 6, 13, '#4d7c0f');
+        px(ctx, x, y - 26, w, 5, '#3f6212');
+        px(ctx, x + w / 2 - 4, y + 6, 8, 12, '#2b1a0a');
+        px(ctx, x + 4, y - 4, 6, 5, '#7dd3fc');
+        /* Die rostige Schaufel hinter der Hütte */
+        px(ctx, x + w + 2, y - 2, 1, 14, '#78350f');
+        px(ctx, x + w, y + 10, 5, 5, '#9a3412');
+        return;
+      }
+      if (m.art === 'fels') {
+        px(ctx, x, y - 10, w, h + 8, F.fels);
+        px(ctx, x + 3, y - 14, w - 8, 6, F.felsD);
+        px(ctx, x + 2, y - 8, 6, 3, F.felsL);
+        return;
+      }
+      if (m.art === 'fass') {
+        px(ctx, x + 2, y - 10, TILE - 4, 14, F.holzD);
+        px(ctx, x + 1, y - 7, TILE - 2, 3, '#c9a227');
+        return;
+      }
+      if (m.art === 'boot') {
+        var wippe = Math.round(Math.sin(t * 1.4) * 2);
+        px(ctx, x, y - 6 + wippe, w, 11, F.holzL);
+        px(ctx, x, y + 4 + wippe, w, 4, F.holzD);
+        px(ctx, x + 4, y - 4 + wippe, w - 8, 1, F.holz);
+        px(ctx, x - 8, y - 2 + wippe, 14, 1, F.holzD);
+        px(ctx, x + w - 6, y - 2 + wippe, 14, 1, F.holzD);
+        px(ctx, x - 9, y - 3 + wippe, 2, 3, '#e2e8f0');
+        px(ctx, x + w + 7, y - 3 + wippe, 2, 3, '#e2e8f0');
+        return;
+      }
+      if (m.art === 'kreuz') {
+        if (gehoben()) {
+          /* Loch mit offener, leerer Kiste */
+          px(ctx, x + 2, y - 2, w - 4, 14, '#8a6a3a');
+          px(ctx, x + 4, y, w - 8, 10, '#5b4320');
+          px(ctx, x + 8, y - 6, 16, 8, F.holzD);
+          px(ctx, x + 8, y - 10, 16, 4, F.holz);
+          px(ctx, x + 8, y - 6, 16, 1, '#c9a227');
+          return;
+        }
+        if (!karte()) {
+          /* Ohne Karte: einfach ein Fleck Sand, auf dem nichts wächst */
+          px(ctx, x + 4, y + 2, w - 8, 8, F.nass);
+          return;
+        }
+        var pu = 0.5 + 0.5 * Math.abs(Math.sin(t * 2.2));
+        ctx.globalAlpha = pu;
+        px(ctx, x + 6, y + 2, 20, 3, '#dc2626');
+        px(ctx, x + 6, y + 9, 20, 3, '#dc2626');
+        px(ctx, x + 6, y + 2, 3, 10, '#dc2626');
+        px(ctx, x + 23, y + 2, 3, 10, '#dc2626');
+        ctx.globalAlpha = 1;
+        /* schräges X aus Steinen */
+        for (var k = 0; k < 6; k++) {
+          px(ctx, x + 6 + k * 4, y + 1 + k * 2, 3, 2, F.felsD);
+          px(ctx, x + 26 - k * 4, y + 1 + k * 2, 3, 2, F.felsD);
+        }
+        return;
+      }
+    },
+
+    leuteZeichnen: function (ctx, g, t) {
+      if (!g.krabbe) return false;
+      var seit = Math.round(Math.sin(t * 6) * 1);
+      px(ctx, g.x - 6, g.y - 1, 12, 2, 'rgba(0,0,0,.2)');
+      px(ctx, g.x - 5, g.y - 7, 10, 6, '#dc2626');
+      px(ctx, g.x - 4, g.y - 8, 8, 2, '#f87171');
+      px(ctx, g.x - 8, g.y - 9 + seit, 3, 3, '#dc2626'); px(ctx, g.x + 5, g.y - 9 - seit, 3, 3, '#dc2626');
+      px(ctx, g.x - 3, g.y - 10, 1, 2, '#1a1626'); px(ctx, g.x + 2, g.y - 10, 1, 2, '#1a1626');
+      for (var b = 0; b < 3; b++) {
+        px(ctx, g.x - 7 + b * 2, g.y - 2 + (b % 2), 1, 2, '#991b1b');
+        px(ctx, g.x + 5 - b * 2, g.y - 2 + (b % 2), 1, 2, '#991b1b');
+      }
+      return true;
+    },
+
+    stationHinweis: function (s) {
+      if (s.id === 'kreuz') {
+        if (gehoben()) return 'die Kiste ist leer — du warst das';
+        if (!karte()) return 'nur Sand. Ohne Karte sieht man hier nichts';
+        return 'hier ist das Kreuz auf der Karte';
+      }
+      return s.hinweis;
+    },
+    stationTun: function (s) {
+      if (s.id === 'kreuz') { kreuzOeffnen(); return true; }
+      if (s.id === 'boot') { bootOeffnen(); return true; }
+      return false;
+    },
+    hudZeichnen: function () {
+      return '<span>🧭 <b>' + Insel.name(who) + '</b></span>' +
+             '<span class="z">🪙 ' + Insel.muenzen(who) + '</span>' +
+             '<span>' + (karte() ? '📜 Karte' : 'keine Karte') + '</span>' +
+             '<span>' + (Insel.hatSchaufel(who) ? '🪏 Schaufel' : 'keine Schaufel') + '</span>' +
+             '<span>🏝️ Schatzinsel</span>';
+    }
+  });
+
+  /* ================= Fenster ================= */
+  function kreuzOeffnen() {
+    var k = karte(), g = gehoben();
+    $('kreuz-unter').textContent = g ? 'Hier hast du gegraben.' : k ? 'Genau hier.' : 'Ein Fleck Sand.';
+    $('kreuz-karte').innerHTML = k
+      ? 'Drei Palmen, ein Fels im Norden, die Hütte im Westen …<br>'
+        + 'Zwanzig Schritt vom Fels nach Süden: <b>✕</b>'
+      : 'Du hast keine Karte. Irgendwo hier könnte etwas liegen — oder auch nicht.';
+    var knopf = $('kreuz-graben');
+    $('kreuz-msg').textContent = '';
+    if (g) {
+      $('kreuz-text').innerHTML = 'Die Kiste ist leer. ' + Insel.oekonomie.schatzinselSchatz +
+        ' Münzen und ' + Insel.oekonomie.schatzinselMarken + ' Marken hast du damals mitgenommen. ' +
+        'Egon benutzt sie jetzt als Tisch.';
+      knopf.hidden = true;
+    } else if (!k) {
+      $('kreuz-text').innerHTML = 'Ohne Karte kannst du hier bis morgen graben. ' +
+        '<b>Karten-Agathe</b> am Dorfplatz der Lerninsel verkauft eine für ' +
+        Insel.oekonomie.schatzkartePreis + ' Münzen.';
+      knopf.hidden = true;
+    } else {
+      var schaufel = Insel.hatSchaufel(who);
+      $('kreuz-text').innerHTML = schaufel
+        ? 'Du hast die Karte und eine Schaufel. Worauf wartest du?'
+        : 'Du hast die Karte, aber keine Schaufel. Egons rostige Leihschaufel kostet <b>' + LEIHGEBUEHR +
+          ' Münzen</b>. Du hast ' + Insel.muenzen(who) + '.';
+      knopf.hidden = false;
+      knopf.textContent = schaufel ? 'Graben 🪏' : 'Leihschaufel nehmen und graben (' + LEIHGEBUEHR + ' 🪙)';
+      knopf.disabled = !schaufel && Insel.muenzen(who) < LEIHGEBUEHR;
+    }
+    Raum.fensterOeffnen('t-kreuz');
+  }
+  $('kreuz-graben').onclick = function () {
+    var r = Insel.schatzHeben(who, Insel.hatSchaufel(who) ? 0 : LEIHGEBUEHR);
+    if (!r.ok) {
+      $('kreuz-msg').textContent = r.grund === 'geld' ? 'Dir fehlen ' + r.fehlt + ' Münzen für die Leihschaufel.'
+        : r.grund === 'karte' ? 'Ohne Karte weisst du nicht, wo.' : 'Hier ist schon alles ausgegraben.';
+      return;
+    }
+    Raum.fensterSchliessen();
+    Raum.hudAuffrischen();
+    Raum.reden('Schatzinsel', [
+      'Du gräbst. Sand, Sand, mehr Sand — dann ein dumpfes Klonk.',
+      'Eine Kiste! Der Deckel klemmt, dann springt er auf: Münzen bis zum Rand, und obenauf ein Bündel Marken.',
+      'Du nimmst <b>' + r.muenzen + ' Münzen</b> und <b>' + r.marken + ' Marken</b> mit. ' +
+      (r.gebuehr ? 'Egon bekommt seine ' + r.gebuehr + ' Münzen Leihgebühr. ' : '') +
+      'Jetzt hast du ' + r.gesamt + ' Münzen.',
+      'Egon kommt angeschlurft, schaut in die leere Kiste und nickt. «Guter Tisch», sagt er.'
+    ]);
+  };
+
+  function bootOeffnen() {
+    var sis = Insel.schatzinselStand(who);
+    $('boot-text').innerHTML = 'Die Fahrt zurück ist so gefährlich wie die Fahrt her. ' +
+      (sis.gekapert ? 'Bisher wurdest du auf dieser Strecke ' + sis.gekapert + '-mal erwischt.' : 'Bisher ging es gut.') +
+      (gehoben() ? '<br><br>Der Schatz ist sicher verstaut.' : '');
+    Raum.fensterOeffnen('t-boot');
+  }
+  $('boot-los').onclick = function () {
+    Raum.fensterSchliessen();
+    Raum.reden('Auf See', [
+      'Du schiebst das Boot ins Wasser. Egon winkt, die Krabbe klickt.',
+      'Die Schatzinsel wird kleiner, die Lerninsel grösser. Oder auch nicht.'
+    ], function () {
+      var r = Insel.rudern('zurueck', who);
+      if (r.gekapert) {
+        Raum.reden('Auf See', ['Schwarze Flagge voraus. Sie haben dich gesehen.',
+                               'Piraten! Sie nehmen dich mit auf ihre Insel.'],
+                   function () { window.location.href = '/lernwelt/piraten/'; });
+        return;
+      }
+      window.location.href = '/lernwelt/';
+    });
+  };
+
+  /* ================= Ankunft ================= */
+  Raum.reden('Schatzinsel', gehoben()
+    ? ['Wieder auf der Schatzinsel. Die Kiste ist leer, aber die Palmen sind noch da.']
+    : karte()
+      ? ['Sand knirscht unter dem Kiel. Du bist da.',
+         'Drei Palmen, ein Fels, eine Hütte — genau wie auf der Karte. Und ein rotes Kreuz, das nur du siehst.']
+      : ['Sand knirscht unter dem Kiel. Du bist da.',
+         'Eine kleine Insel, ein Einsiedler, eine Krabbe. Irgendwo soll hier eine Kiste liegen — ' +
+         'aber ohne Karte ist Sand einfach Sand.']);
+})();
+</script>
+</body>
+</html>

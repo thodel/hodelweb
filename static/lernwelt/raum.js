@@ -130,7 +130,7 @@
     var wippe = Math.round(Math.sin(wellT * 1.6 + g.x) * 0.6);
     var eigen = cfg.leuteZeichnen ? cfg.leuteZeichnen(ctx, g, wellT) : false;
     if (!eigen) {
-      Pixel.drawHero(ctx, g.x, g.y - wippe, g.blick, 0,
+      Pixel.drawHero(ctx, g.x, g.y - wippe, g.blick, g.frame || 0,
                      g.jacke[0], g.jacke[1], g.haar, { haut: g.haut });
     }
     if (g.sprueche && g.sprueche.length && Math.sin(wellT * 0.7 + g.x * 0.4) > 0.86) {
@@ -146,6 +146,9 @@
       d = Math.hypot(held.x - s.x, held.y - s.y);
       if (d < 34 && d < bestD) { best = { art: 'station', station: s, name: s.name }; bestD = d; }
     }
+    /* Eine Station in Griffweite geht vor — sonst stellt sich jemand vor
+       das Pult, und man kommt nicht mehr an die Übung. */
+    if (best && bestD < 24) return best;
     for (i = 0; i < cfg.leute.length; i++) {
       var g = cfg.leute[i];
       d = Math.hypot(held.x - g.x, held.y - g.y);
@@ -192,7 +195,7 @@
     if (Date.now() - letztesGespraech < 12000) return;
     for (var i = 0; i < cfg.leute.length; i++) {
       var g = cfg.leute[i];
-      if (g.stumm) continue;
+      if (g.stumm || (Dialog.gemieden && Dialog.gemieden(g.name))) continue;
       var d = Math.hypot(held.x - g.x, held.y - g.y);
       if (d > (g.reichweite || 28) + 2) continue;
       if (g.zuletztGeredet && Date.now() - g.zuletztGeredet < 75000) continue;
@@ -251,11 +254,79 @@
       'Du stehst jetzt direkt vor der Tür. Ein Schritt nach unten und du bist wieder draussen.');
   }
 
+  /* ---------------- Leute schlendern ----------------
+     Langsam, aber stetig: kurze Wege rund um den eigenen Platz, kaum Pausen.
+     Sie meiden Möbel, Stationen und den Spieler — wer zu nah kommt, dem
+     weichen sie aus, statt ihn einzuklemmen. */
+  function platzFrei(x, y, g) {
+    if (x < TILE + 6 || x > VIEW_W - TILE - 6 || y < 4 * TILE || y > VIEW_H - TILE - 2) return false;
+    if (blockiert(x, y)) return false;
+    for (var i = 0; i < cfg.stationen.length; i++) {
+      var s = cfg.stationen[i];
+      if (Math.hypot(x - s.x, y - s.y) < 26) return false;
+    }
+    for (var j = 0; j < cfg.leute.length; j++) {
+      var o = cfg.leute[j];
+      if (o !== g && Math.hypot(x - o.x, y - o.y) < 18) return false;
+    }
+    return true;
+  }
+  function neuesZiel(g) {
+    for (var v = 0; v < 12; v++) {
+      var w = Math.random() * Math.PI * 2, r = TILE * (0.8 + Math.random() * 1.8);
+      var x = g.hx + Math.cos(w) * r, y = g.hy + Math.sin(w) * r;
+      if (platzFrei(x, y, g)) return { x: x, y: y };
+    }
+    return null;
+  }
+  function gehen(g, zx, zy, tempo, dt) {
+    var dx = zx - g.x, dy = zy - g.y, len = Math.hypot(dx, dy);
+    if (len < 1) return false;
+    var sx = dx / len * tempo * dt, sy = dy / len * tempo * dt;
+    var bewegt = false;
+    if (!blockiert(g.x + sx, g.y)) { g.x += sx; bewegt = true; }
+    if (!blockiert(g.x, g.y + sy)) { g.y += sy; bewegt = true; }
+    if (Math.abs(dx) > Math.abs(dy)) g.blick = dx < 0 ? 'left' : 'right';
+    else g.blick = dy < 0 ? 'up' : 'down';
+    g.animT += dt;
+    if (g.animT > 0.28) { g.animT = 0; g.frame = g.frame === 1 ? 2 : 1; }
+    return bewegt;
+  }
+  function leuteBewegen(dt) {
+    for (var i = 0; i < cfg.leute.length; i++) {
+      var g = cfg.leute[i];
+      if (g.hinterTresen || g.bleibt) continue;
+      var zumHeld = Math.hypot(held.x - g.x, held.y - g.y);
+      /* Zu nah am Spieler: einen Schritt zur Seite. */
+      if (zumHeld < 13) {
+        var wx = g.x + (g.x - held.x || 1) * 3, wy = g.y + (g.y - held.y) * 3;
+        if (!gehen(g, wx, wy, 34, dt)) { g.ziel = null; }
+        g.pause = 0.3;
+        continue;
+      }
+      if (g.pause > 0) { g.pause -= dt; g.frame = 0; continue; }
+      if (!g.ziel) {
+        g.ziel = neuesZiel(g);
+        if (!g.ziel) { g.pause = 1.5; continue; }
+      }
+      if (Math.hypot(g.ziel.x - g.x, g.ziel.y - g.y) < 2 || !gehen(g, g.ziel.x, g.ziel.y, 15, dt)) {
+        g.ziel = null;
+        g.pause = 0.4 + Math.random() * 1.2;
+        g.frame = 0;
+      }
+    }
+  }
+
   /* ---------------- Schleife ---------------- */
   function schritt(ts) {
     var dt = Math.min(0.05, (ts - letzteZeit) / 1000 || 0);
     letzteZeit = ts;
-
+    logik(dt);
+    zeichnen(dt);
+    requestAnimationFrame(schritt);
+  }
+  /* Ein Zeitschritt ohne Zeichnen — die Schleife ruft ihn, Prüfungen auch. */
+  function logik(dt) {
     /* Auch hier läuft das Netz immer, nicht nur wenn gerade niemand redet. */
     nichtSteckenBleiben();
 
@@ -279,15 +350,13 @@
         if (held.animT > 0.16) { held.animT = 0; held.frame = held.frame === 1 ? 2 : 1; }
       } else { held.frame = 0; held.animT = 0; }
 
+      leuteBewegen(dt);
       var n = naechstes();
       var gewechselt = (n && nah) ? (n.name !== nah.name) : (n !== nah);
       nah = n;
       if (gewechselt || Date.now() > bannerBis) bannerZeigen();
       vonSelbstReden();
     }
-
-    zeichnen(dt);
-    requestAnimationFrame(schritt);
   }
 
   /* ---------------- Aufbau ---------------- */
@@ -319,6 +388,10 @@
     (opts.hindernisse || []).forEach(function (h) { block(h.tx, h.ty, h.tw, h.th); });
 
     cfg.stationen.forEach(function (s) { s.x = s.tx * TILE + 8; s.y = s.ty * TILE + 14; });
+
+    /* Erreichbarkeit vom Startfeld aus — danach landet niemand mehr im Tisch. */
+    erreichbarkeit(opts.start.tx, opts.start.ty);
+
     cfg.leute.forEach(function (g) {
       g.x = g.tx * TILE + 8; g.y = g.ty * TILE + 14;
       g.spruchNr = 0;
@@ -326,11 +399,18 @@
       /* Wer hinter einem Tresen steht, ist weiter weg — dafür reicht die
          Stimme über die Theke. Sonst könnte man ihn nie ansprechen. */
       g.reichweite = g.reichweite || (g.hinterTresen ? 46 : 28);
-      if (!g.hinterTresen) block(g.tx, g.ty - 1, 1, 1);
+      /* Leute sind keine Hindernisse mehr: früher standen sie in Türen und
+         vor Pulten fest wie Schränke. Jetzt weichen sie aus und schlendern
+         langsam um ihren Platz herum (ausser hinter dem Tresen). Wer laut
+         Plan in einem Möbel stünde, wird daneben gestellt. */
+      if (!g.hinterTresen && (blockiert(g.x, g.y) || !istErreichbar(g.x, g.y))) {
+        var frei = sichererPlatz(g.x, g.y);
+        g.x = frei.x; g.y = frei.y;
+      }
+      g.hx = g.x; g.hy = g.y; g.frame = 0; g.animT = 0;
+      g.pause = Math.random() * 2;
+      g.ziel = null;
     });
-
-    /* Erreichbarkeit vom Startfeld aus — danach landet niemand mehr im Tisch. */
-    erreichbarkeit(opts.start.tx, opts.start.ty);
     var los = sichererPlatz(opts.start.tx * TILE + 8, opts.start.ty * TILE + 14);
     held.x = los.x;
     held.y = los.y;
@@ -427,6 +507,15 @@
     TILE: TILE,
     /* Für Räume, die selber etwas blockieren wollen. */
     block: block,
+    /* Spielzeit von Hand vorspulen (für Prüfungen ohne sichtbares Fenster). */
+    tick: function (sek) {
+      var n = Math.round((sek || 1) / 0.05);
+      for (var i = 0; i < n; i++) logik(0.05);
+      if (ctx) zeichnen(0);
+      return nah && nah.name;
+    },
+    handeln: handeln,
+    leute: function () { return cfg ? cfg.leute : []; },
     /* Selbstprüfung: kommt man vom Startfeld zu allem, was man braucht?
        Gibt eine Liste der Stellen zurück, die nicht erreichbar sind. */
     pruefen: function () {

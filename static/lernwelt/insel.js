@@ -109,7 +109,15 @@
     piratenRisiko: 0.28,    /* so oft geht die Fahrt schief */
     piratenAufgaben: 3,     /* so viele Übungen bis zur Freilassung */
     piratenMindest: 50,     /* ab diesem Ergebnis zählt eine Übung */
-    loesegeld: 40           /* wer nicht üben mag, kauft sich frei */
+    loesegeld: 40,          /* wer nicht üben mag, kauft sich frei */
+    leiterPreis: 30,        /* Münzen für die Leiter im Kiosk — einmalig */
+    honigMax: 3,            /* so viele Töpfe passen in den Rucksack */
+    honigNachwuchs: 600,    /* Sekunden, bis ein Bienenbaum wieder voll ist */
+    honigRuhe: 900,         /* 15 Minuten lässt ein Bär dich nach einem Topf in Ruhe */
+    schatzkartePreis: 500,  /* Münzen für die Schatzkarte */
+    schatzinselSchatz: 800, /* Münzen in der Kiste auf der Schatzinsel */
+    schatzinselMarken: 4,   /* Marken, die obendrauf in der Kiste liegen */
+    ruderRisiko: 0.35       /* so oft geht die Fahrt mit dem Ruderboot schief */
   };
 
   /* Zwei Wäldchen — dort wacht man nach einem Blackout auf. */
@@ -121,10 +129,29 @@
   /* Häfen. Von jedem Steg fährt ein Boot zu jedem anderen — schneller als
      zu Fuss, aber draussen auf dem Wasser lauern Piraten. */
   var HAEFEN = [
-    { id: 'nordkai',  name: 'Nordkai',   tx: 20, ty: 4,  nahe: 'bei der Schatzhöhle' },
-    { id: 'westbucht', name: 'Westbucht', tx: 4,  ty: 22, nahe: 'beim Piratenschiff' },
-    { id: 'ostkai',   name: 'Ostkai',    tx: 43, ty: 20, nahe: 'bei der Schreiberhütte' },
-    { id: 'suedsteg', name: 'Südsteg',   tx: 22, ty: 32, nahe: 'unterhalb vom Kiosk' }
+    { id: 'nordkai',  name: 'Nordkai',   an: 'am Nordkai', tx: 20, ty: 4,  nahe: 'bei der Schatzhöhle' },
+    { id: 'westbucht', name: 'Westbucht', an: 'in der Westbucht', tx: 4,  ty: 22, nahe: 'beim Piratenschiff' },
+    { id: 'ostkai',   name: 'Ostkai',    an: 'am Ostkai', tx: 43, ty: 20, nahe: 'bei der Schreiberhütte' },
+    { id: 'suedsteg', name: 'Südsteg',   an: 'am Südsteg', tx: 22, ty: 32, nahe: 'unterhalb vom Kiosk' },
+    /* Kein Steg, kein Bootsmann: das versteckte Ruderboot an der Ostküste.
+       Steht nur hier, damit Piraten einen wieder dort absetzen können. */
+    { id: 'ruderboot', name: 'Felsenbucht', an: 'in der Felsenbucht', tx: 43, ty: 12,
+      nahe: 'beim versteckten Ruderboot', versteckt: true }
+  ];
+
+  /* Bienenbäume in den beiden Wäldchen. Wer eine Leiter hat, holt oben
+     Honig herunter; danach braucht der Baum eine Weile, bis er wieder voll ist. */
+  var BIENENBAEUME = [
+    { id: 'b1', tx: 14, ty: 10, wald: 'nordwald' },
+    { id: 'b2', tx: 20, ty: 6,  wald: 'nordwald' },
+    { id: 'b3', tx: 28, ty: 26, wald: 'suedwald' },
+    { id: 'b4', tx: 32, ty: 22, wald: 'suedwald' }
+  ];
+  /* Honigsteine: flache Steine nahe bei den Bärenhöhlen. Ein Topf darauf,
+     und der Bär hat eine Viertelstunde nur noch Augen für den Honig. */
+  var HONIGPLAETZE = [
+    { id: 'h-brumm', baer: 'brumm', tx: 12, ty: 10, name: 'Honigstein beim Rechenturm' },
+    { id: 'h-tatze', baer: 'tatze', tx: 35, ty: 28, name: 'Honigstein beim Aussichtsberg' }
   ];
 
   /* Freischaltbare Inselteile.
@@ -306,6 +333,8 @@
     schaetze: SCHAETZE,
     inselteile: INSELTEILE,
     haefen: HAEFEN,
+    bienenbaeume: BIENENBAEUME,
+    honigplaetze: HONIGPLAETZE,
     garderobe: GARDEROBE,
     kinder: KINDER,
     faecher: FAECHER,
@@ -333,7 +362,11 @@
       var data = load();
       var k = who || this.who();
       if (!data[k]) data[k] = leererSpielstand();
-      return data[k];
+      /* Ältere oder von Hand eingespielte Stände kennen nicht jedes Feld.
+         Was fehlt, wird ergänzt — sonst stolpert jede Abfrage darüber. */
+      var leer = leererSpielstand(), st = data[k];
+      for (var f in leer) if (st[f] === undefined || st[f] === null) st[f] = leer[f];
+      return st;
     },
     _speichern: function (who, stand) {
       var data = load();
@@ -529,7 +562,13 @@
       if (!katalog || !katalog.length) return null;
 
       var rnd = wuerfel(saat(tag + '|' + who));
-      var pool = katalog.slice();
+      /* Erledigte Übungen kommen nicht mehr auf den Zettel, solange es
+         noch unerledigte gibt — so wird der Auftrag mit der Zeit neu. */
+      var self = this;
+      var pool = katalog.filter(function (k) {
+        return self.muenzStatus(k.fach, k.set, k.schwierigkeit, who).zahlt;
+      });
+      if (pool.length < OEKONOMIE.auftragAnzahl) pool = katalog.slice();
       var gewaehlt = [];
       var wieViele = Math.min(OEKONOMIE.auftragAnzahl, pool.length);
       /* Erst je Fach höchstens eine Übung, damit der Auftrag durchmischt ist. */
@@ -1076,6 +1115,144 @@
     baerSatt: function (id, who) {
       return this.baerStand(id, who).sattBis > Date.now();
     },
+    /* Beruhigt durch einen Honigtopf: dann riecht er nicht einmal Süssigkeiten. */
+    baerRuhig: function (id, who) {
+      return (this.baerStand(id, who).ruhigBis || 0) > Date.now();
+    },
+    baerRuhigRest: function (id, who) {
+      return Math.max(0, Math.round(((this.baerStand(id, who).ruhigBis || 0) - Date.now()) / 1000));
+    },
+
+    /* ---------------- Leiter und Honig ----------------
+       Die Leiter gibt es im Kiosk. Damit kommt man an die Bienenstöcke in den
+       Wäldern. Den Honig legt man auf einen Honigstein — und der Bär daneben
+       ist für eine Viertelstunde beschäftigt, Süssigkeiten hin oder her. */
+    hatLeiter: function (who) { return !!this.stand(who).leiter; },
+    leiterKaufen: function (who) {
+      who = who || this.who();
+      var stand = this.stand(who);
+      if (stand.leiter) return { ok: false, grund: 'schon' };
+      if ((stand.muenzen || 0) < OEKONOMIE.leiterPreis) {
+        return { ok: false, grund: 'geld', fehlt: OEKONOMIE.leiterPreis - (stand.muenzen || 0) };
+      }
+      stand.muenzen -= OEKONOMIE.leiterPreis;
+      stand.leiter = true;
+      this._speichern(who, stand);
+      return { ok: true, muenzen: stand.muenzen };
+    },
+    honig: function (who) { return this.stand(who).honig || 0; },
+    /* Wann war dieser Baum zuletzt leer? Sekunden bis er wieder voll ist, 0 = voll. */
+    bienenbaumRest: function (id, who) {
+      var b = (this.stand(who).bienen || {})[id];
+      if (!b) return 0;
+      return Math.max(0, Math.round((b + OEKONOMIE.honigNachwuchs * 1000 - Date.now()) / 1000));
+    },
+    bienenbaumVoll: function (id, who) { return this.bienenbaumRest(id, who) === 0; },
+    honigErnten: function (id, who) {
+      who = who || this.who();
+      var stand = this.stand(who);
+      if (!stand.leiter) return { ok: false, grund: 'leiter' };
+      if ((stand.honig || 0) >= OEKONOMIE.honigMax) return { ok: false, grund: 'voll', honig: stand.honig };
+      if (!stand.bienen) stand.bienen = {};
+      var rest = this.bienenbaumRest(id, who);
+      if (rest > 0) return { ok: false, grund: 'leer', rest: rest };
+      stand.bienen[id] = Date.now();
+      stand.honig = (stand.honig || 0) + 1;
+      stand.honigGeerntet = (stand.honigGeerntet || 0) + 1;
+      this._speichern(who, stand);
+      return { ok: true, honig: stand.honig };
+    },
+    honigplatz: function (id) {
+      return HONIGPLAETZE.filter(function (p) { return p.id === id; })[0] || null;
+    },
+    /* Liegt dort gerade ein Topf? Sekunden, bis er leer gegessen ist. */
+    honigAufPlatzRest: function (id, who) {
+      var p = (this.stand(who).honigplaetze || {})[id] || 0;
+      return Math.max(0, Math.round((p - Date.now()) / 1000));
+    },
+    honigLegen: function (id, who) {
+      who = who || this.who();
+      var stand = this.stand(who);
+      var platz = this.honigplatz(id);
+      if (!platz) return { ok: false, grund: 'kein Platz' };
+      if ((stand.honig || 0) < 1) return { ok: false, grund: 'keiner' };
+      if (!stand.honigplaetze) stand.honigplaetze = {};
+      if ((stand.honigplaetze[id] || 0) > Date.now()) {
+        return { ok: false, grund: 'liegt', rest: this.honigAufPlatzRest(id, who) };
+      }
+      stand.honig--;
+      var bis = Date.now() + OEKONOMIE.honigRuhe * 1000;
+      stand.honigplaetze[id] = bis;
+      if (!stand.baeren) stand.baeren = {};
+      if (!stand.baeren[platz.baer]) stand.baeren[platz.baer] = { gefressen: 0, geschleppt: 0, sattBis: 0 };
+      stand.baeren[platz.baer].ruhigBis = bis;
+      stand.baeren[platz.baer].honig = (stand.baeren[platz.baer].honig || 0) + 1;
+      this._speichern(who, stand);
+      return { ok: true, honig: stand.honig, bis: bis, baer: platz.baer,
+               name: (BAEREN[platz.baer] || {}).name || platz.baer };
+    },
+
+    /* ---------------- Schatzkarte, Ruderboot, Schatzinsel ----------------
+       Die Karte kostet viel. Das Ruderboot muss man selber finden. Die Fahrt
+       ist riskanter als die Fähre — und wer erwischt wird, landet bei den
+       Piraten. Der Schatz lässt sich genau einmal heben. */
+    hatSchatzkarte: function (who) { return !!this.stand(who).schatzkarte; },
+    schatzkarteKaufen: function (who) {
+      who = who || this.who();
+      var stand = this.stand(who);
+      if (stand.schatzkarte) return { ok: false, grund: 'schon' };
+      if ((stand.muenzen || 0) < OEKONOMIE.schatzkartePreis) {
+        return { ok: false, grund: 'geld', fehlt: OEKONOMIE.schatzkartePreis - (stand.muenzen || 0) };
+      }
+      stand.muenzen -= OEKONOMIE.schatzkartePreis;
+      stand.schatzkarte = Date.now();
+      this._speichern(who, stand);
+      return { ok: true, muenzen: stand.muenzen };
+    },
+    schatzinselStand: function (who) {
+      var s = this.stand(who).schatzinsel || {};
+      return { gehoben: !!s.gehoben, fahrten: s.fahrten || 0, gekapert: s.gekapert || 0,
+               dort: !!s.dort, karte: this.hatSchatzkarte(who) };
+    },
+    /* richtung: 'hin' (von der Insel) oder 'zurueck' (von der Schatzinsel). */
+    rudern: function (richtung, who) {
+      who = who || this.who();
+      var stand = this.stand(who);
+      if (!stand.schatzinsel) stand.schatzinsel = {};
+      var s = stand.schatzinsel;
+      s.fahrten = (s.fahrten || 0) + 1;
+      var gekapert = Math.random() < OEKONOMIE.ruderRisiko;
+      if (gekapert) {
+        s.gekapert = (s.gekapert || 0) + 1;
+        s.dort = false;
+        if (!stand.fahrten) stand.fahrten = { gesamt: 0, gekapert: 0 };
+        stand.fahrten.gesamt++; stand.fahrten.gekapert++;
+        stand.piraten = { aktiv: true, sets: [], ziel: 'ruderboot', seit: Date.now() };
+      } else if (richtung === 'hin') {
+        s.dort = true;
+      } else {
+        s.dort = false;
+        stand.ankunft = 'ruderboot';
+      }
+      this._speichern(who, stand);
+      return { ok: true, gekapert: gekapert, fahrten: s.fahrten };
+    },
+    /* gebuehr: was die Leihschaufel kostet, wenn man keine eigene hat. */
+    schatzHeben: function (who, gebuehr) {
+      who = who || this.who();
+      gebuehr = gebuehr || 0;
+      var stand = this.stand(who);
+      if (!stand.schatzkarte) return { ok: false, grund: 'karte' };
+      if (!stand.schatzinsel) stand.schatzinsel = {};
+      if (stand.schatzinsel.gehoben) return { ok: false, grund: 'leer' };
+      if ((stand.muenzen || 0) < gebuehr) return { ok: false, grund: 'geld', fehlt: gebuehr - (stand.muenzen || 0) };
+      stand.schatzinsel.gehoben = Date.now();
+      stand.muenzen = (stand.muenzen || 0) - gebuehr + OEKONOMIE.schatzinselSchatz;
+      stand.marken = (stand.marken || 0) + OEKONOMIE.schatzinselMarken;
+      this._speichern(who, stand);
+      return { ok: true, muenzen: OEKONOMIE.schatzinselSchatz, marken: OEKONOMIE.schatzinselMarken,
+               gebuehr: gebuehr, gesamt: stand.muenzen };
+    },
     /* Der Bär erwischt den Spieler. Rückgabe sagt, was passiert ist. */
     baerErwischt: function (id, who) {
       who = who || this.who();
@@ -1109,7 +1286,7 @@
     },
     piratenStand: function (who) {
       var p = this.stand(who).piraten;
-      if (!p || !p.aktiv) return { aktiv: false, geschafft: 0, noetig: OEKONOMIE.piratenAufgaben };
+      if (!p || !p.aktiv) return { aktiv: false, geschafft: 0, noetig: OEKONOMIE.piratenAufgaben, sets: [] };
       return {
         aktiv: true,
         geschafft: (p.sets || []).length,
@@ -1369,6 +1546,9 @@
           this.marken(who) + '</span>' +
         '<span style="background:#1e293b;border:2px solid #f9a8d4;border-radius:8px;padding:7px 10px;color:#f9a8d4">🍬 ' +
           this.suessigkeiten(who) + '</span>' +
+        (this.honig(who)
+          ? '<span style="background:#1e293b;border:2px solid #f59e0b;border-radius:8px;padding:7px 10px;color:#fbbf24">🍯 ' +
+            this.honig(who) + '</span>' : '') +
         '<a href="/lernwelt/" style="background:#1e3a5f;border:2px solid #fde68a;border-radius:8px;padding:7px 10px;color:#fde68a;text-decoration:none">🏝️ Insel</a>';
 
       if (stueck && global.Musik && Musik.verfuegbar()) {
