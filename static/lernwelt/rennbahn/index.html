@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Rennbahn-Insel — Lerninsel</title>
+<link rel="icon" href="/favicon-32x32.png" sizes="32x32">
+<link rel="manifest" href="/lernwelt/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/lernwelt/icon/insel-180.png">
+<meta name="theme-color" content="#0f172a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="stylesheet" href="/lernwelt/raum.css">
+<style>
+  body { background: #0b1220; }
+  #raum { border-color: #9a3412; box-shadow: 0 0 0 3px #0b1220, 0 14px 40px rgba(0,0,0,.6); }
+  #hud, #banner, #dialog .kasten { border-color: #9a3412; background: rgba(20,14,10,.94); }
+  #hud b, #banner b, #dialog .wer { color: #fdba74; }
+  #hud .frist { color: #fca5a5; font-weight: 700; }
+  #hud .frist.knapp { color: #f87171; animation: pochen 1s steps(2, start) infinite; }
+  @keyframes pochen { to { opacity: .35; } }
+  .platte { background: #1c1410; border-color: #c2410c; }
+  .platte h2 { color: #fdba74; }
+  .zu { border-color: #c2410c; background: #0f0a08; color: #fdba74; }
+
+  .liste { display: grid; gap: 10px; }
+  .liste a, .liste .kurs { display: block; background: #0f0a08; border: 2px solid #3f2a1f; border-left-width: 6px;
+             border-radius: 12px; padding: 12px 14px; text-decoration: none; color: inherit; }
+  .liste a.frei { border-left-color: #fb923c; cursor: pointer; }
+  .liste a.frei:hover { background: #1a110c; }
+  .liste .kurs.zuu { border-left-color: #4a3a30; opacity: .6; }
+  .liste .t { font-size: 15.5px; font-weight: 700; }
+  .liste .i { font-size: 12.5px; color: #b8a090; margin-top: 3px; line-height: 1.5; }
+  .liste .s { font-size: 12px; font-weight: 700; margin-top: 6px; color: #fbbf24; }
+  .lohn { font-size: 12.5px; color: #b8a090; margin-top: 12px; line-height: 1.7; }
+  .lohn b { color: #fbbf24; }
+  .knopf { display: block; width: 100%; text-align: center; padding: 13px; border-radius: 12px;
+           margin-top: 12px; background: #ea580c; border: none; color: #fff7ed;
+           font: 700 15px -apple-system, BlinkMacSystemFont, sans-serif; cursor: pointer; }
+  .knopf:disabled { background: #2a1f1a; color: #6b5a4a; cursor: not-allowed; }
+  .knopf.gruen { background: #16a34a; color: #052e16; }
+  table.stat { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 8px; }
+  table.stat td { padding: 5px 4px; border-bottom: 1px solid #3f2a1f; }
+  table.stat td:last-child { text-align: right; color: #fdba74; font-weight: 700; }
+</style>
+<link rel="stylesheet" href="/lernwelt/tablet.css">
+<script src="/lernwelt/tablet.js" defer></script>
+<script src="/lernwelt/offline.js" defer></script>
+</head>
+<body>
+
+<div id="rahmen">
+  <div id="hud"></div>
+  <canvas id="raum"></canvas>
+  <div id="banner"></div>
+</div>
+
+<div id="steuer">
+  <div class="pad">
+    <button class="leer"></button><button data-dir="up">▲</button><button class="leer"></button>
+    <button data-dir="left">◀</button><button class="leer"></button><button data-dir="right">▶</button>
+    <button class="leer"></button><button data-dir="down">▼</button><button class="leer"></button>
+  </div>
+  <button id="knopf-e">E</button>
+</div>
+
+<div id="fenster">
+  <div class="platte">
+    <button class="zu" id="zu">✕</button>
+    <div class="tafel" id="t-start" hidden>
+      <h2>🏁 Startlinie</h2>
+      <div class="unter" id="start-unter"></div>
+      <div class="liste" id="start-liste"></div>
+      <div class="lohn" id="start-lohn"></div>
+    </div>
+    <div class="tafel" id="t-tafel" hidden>
+      <h2>🏆 Bestzeiten</h2>
+      <div class="unter">Was auf dieser Insel schon gefahren wurde.</div>
+      <div id="tafel-inhalt"></div>
+    </div>
+    <div class="tafel" id="t-faehre" hidden>
+      <h2>⛴️ Die Fähre</h2>
+      <div class="unter" id="faehre-unter"></div>
+      <div class="lohn" id="faehre-text"></div>
+      <button class="knopf gruen" id="faehre-los">Ablegen und heimfahren</button>
+    </div>
+  </div>
+</div>
+
+<script src="/lernwelt/insel.js"></script>
+<script src="/lernwelt/pixel.js"></script>
+<script src="/lernwelt/dialog.js"></script>
+<script src="/lernwelt/raum.js"></script>
+<script src="/lernwelt/musik.js"></script>
+<script>
+(function () {
+  'use strict';
+  var $ = function (i) { return document.getElementById(i); };
+  var px = Pixel.px;
+  var TILE = 16, RAUM_W = 28, RAUM_H = 18;
+  var who = Insel.who();
+
+  /* ---------------- Wer darf hier sein? ----------------
+     Erst die Kobolde: wer nach dem Rennen zu lange weg war, ist längst bei
+     den Piraten. Dann das Billett: ohne Fähre keine Rennbahn-Insel. */
+  function koboldeHolen(k) {
+    Dialog.zeigen('Kobolde', [
+      'Ein Kichern. Dann noch eins. Aus der Höhle am Felsen quellen kleine grüne Gestalten mit spitzen Ohren.',
+      '«Zu spät, zu spät!», rufen sie, packen dich an Armen und Beinen und tragen dich zum Strand — ' +
+      'ein Kobold wühlt dabei in deiner Tasche. ' + k.beute + ' Münzen sind weg.',
+      'Ein Ruderboot mit schwarzem Segel wartet schon. Die Kobolde liefern dich bei den Piraten ab.'
+    ], function () { window.location.href = '/lernwelt/piraten/'; });
+  }
+  var kobolde = Insel.koboldePruefen(who);
+  if (kobolde.gefangen) { koboldeHolen(kobolde); return; }
+  if (!Insel.rennbahnStand(who).dort) {
+    Dialog.zeigen('Rennbahn-Insel', [
+      'Ohne Fähre kommt hier niemand hin — und ohne Billett lässt dich die Fährfrau nicht an Bord.',
+      'Der Fähranleger liegt im Südosten der Lerninsel.'
+    ], function () { window.location.href = '/lernwelt/'; });
+    return;
+  }
+
+  var F = {
+    sand: ['#e8d3a0', '#e0c891'], gras: ['#5aa54a', '#549c45'],
+    wasser: '#1c6ea4', brandung: '#39a0c9',
+    asphalt: '#3f3f46', asphaltD: '#2f2f36', kerbR: '#dc2626', kerbW: '#f8fafc',
+    holz: '#7c5341', holzD: '#5b3a2e', holzL: '#9a6a51',
+    fels: '#6b7280', felsD: '#4b5563', felsL: '#9ca3af'
+  };
+  var AUTOS = ['#dc2626', '#2563eb', '#16a34a', '#facc15', '#f8fafc', '#a855f7'];
+
+  /* ================= Raum ================= */
+  var moebel = [
+    { art: 'tribuene', tx: 6,  ty: 4,  tw: 9, th: 2 },
+    { art: 'boxen',    tx: 19, ty: 4,  tw: 7, th: 3 },
+    { art: 'tafel',    tx: 2,  ty: 7,  tw: 3, th: 1 },
+    { art: 'reifen',   tx: 16, ty: 9,  tw: 1, th: 1 },
+    { art: 'reifen',   tx: 10, ty: 11, tw: 1, th: 1 },
+    { art: 'palme',    tx: 1,  ty: 11, tw: 1, th: 1 },
+    { art: 'palme',    tx: 26, ty: 9,  tw: 1, th: 1 },
+    { art: 'palme',    tx: 14, ty: 13, tw: 1, th: 1 },
+    { art: 'hoehle',   tx: 22, ty: 12, tw: 4, th: 2 },
+    { art: 'faehre',   tx: 2,  ty: 15, tw: 7, th: 2 }
+  ];
+
+  var rb = Insel.rennbahnStand(who);
+
+  function restText(sek) {
+    return Math.floor(sek / 60) + ':' + (sek % 60 < 10 ? '0' : '') + (sek % 60);
+  }
+
+  Raum.starten({
+    canvas: $('raum'), breiteKacheln: RAUM_W, hoeheKacheln: RAUM_H,
+    start: { tx: 7, ty: 12, dir: 'up' },
+    /* Kein begehbarer Ausgang: die Fähre ist der einzige Weg zurück. */
+    tuerKacheln: [],
+    wandOben: 4,
+    who: who,
+    musik: 'bucht',
+    moebel: moebel,
+    lichtInnen: 'rgba(255,220,150,.04)',
+    lichtAussen: 'rgba(10,16,32,.22)',
+
+    stationen: [
+      { id: 'start',  name: 'Startlinie', tafel: null, tx: 22, ty: 9,  farbe: '#fbbf24', verb: 'Rennen fahren' },
+      { id: 'tafel',  name: 'Bestzeiten', tafel: null, tx: 3,  ty: 9,  farbe: '#fdba74', verb: 'ansehen' },
+      { id: 'faehre', name: 'Fähre',      tafel: null, tx: 6,  ty: 14, farbe: '#7dd3fc', verb: 'einschiffen' }
+    ],
+
+    leute: [
+      { name: 'Rennleiter Rudi', tx: 18, ty: 11, jacke: ['#111827', '#030712'], haar: '#e2e8f0', haut: '#e0ac7e',
+        farbe: '#fbbf24',
+        sprueche: [
+          ['Willkommen auf der Rennbahn-Insel! Ich bin Rudi, ich lasse hier die Flagge fallen.',
+           'Drei Strecken, sechs Autos, du mittendrin. Gas mit der Taste nach oben, lenken mit links und rechts — ' +
+           'und in den Kurven: Fuss vom Gas, sonst stehst du im Sand.'],
+          ['Preisgeld gibt es für die ersten drei: ' + Insel.oekonomie.rennPreisgeld.join(', ') + ' Münzen.',
+           'Pro Überfahrt ein Rennen. Danach zurück zur Fähre — und zwar zügig.'],
+          ['Die Kobolde drüben in der Höhle zählen nach dem Rennen mit. ' +
+           Math.round(Insel.oekonomie.koboldFrist / 60) + ' Minuten, dann kommen sie.',
+           'Ich habe nichts gegen Kobolde. Aber Münzen geben sie nie zurück.']
+        ] },
+      { name: 'Mechanikerin Mona', tx: 13, ty: 8, jacke: ['#ea580c', '#9a3412'], haar: '#3b2a1a', haut: '#b97a4f',
+        farbe: '#fdba74',
+        sprueche: [
+          ['Die Autos sind frisch gewartet. Die Gegner fahren immer gleich schnell — du nicht. Das ist dein Vorteil.',
+           'Auf der Geraden Vollgas, vor der Kurve kurz lupfen, in der Kurve innen bleiben. Mehr ist es nicht.'],
+          'Wenn du neben der Strecke bist, wird es holprig und langsam. Zurück auf den Asphalt, dann geht es wieder.',
+          ['Der Palmenring ist zum Lernen. Der Felsenpass ist gemein.',
+           'Und der Grosse Preis — da haben schon Erwachsene geweint. Also, ich jedenfalls.']
+        ] },
+      { name: 'Kobold Knirps', tx: 23, ty: 15, kobold: true, jacke: ['#166534', '#14532d'], haar: '#166534', haut: '#4ade80',
+        farbe: '#86efac', reichweite: 24,
+        sprueche: [
+          ['Kicher. Hihi. Du fährst ein Rennen? Schön, schön.',
+           'Und danach? Trödeln? Bitte, bitte trödeln. Wir warten in der Höhle. Mit der Uhr.'],
+          ['Der Letzte hatte neunundzwanzig Münzen. Wir haben alle genommen. Dann war er traurig. Dann waren wir fröhlich.',
+           'So geht das mit Kobolden.'],
+          'Die Piraten mögen uns. Wir bringen ihnen Leute zum Rechnen. Hihi.'
+        ] }
+    ],
+
+    boden: function (ctx, t) {
+      for (var ty = 0; ty < RAUM_H; ty++) {
+        for (var tx = 0; tx < RAUM_W; tx++) {
+          var farbe;
+          if (ty < 4) farbe = F.gras[(tx + ty) % 2];
+          else if (ty >= RAUM_H - 2) farbe = (Math.sin(t * 1.1 + tx * 0.6 + ty) > 0.6) ? '#1f76ad' : F.wasser;
+          else if (ty === RAUM_H - 3) farbe = (tx % 3 === 0) ? F.sand[1] : F.sand[0];
+          else farbe = F.sand[(tx + ty) % 2];
+          px(ctx, tx * TILE, ty * TILE, TILE, TILE, farbe);
+        }
+      }
+      /* Die Rennstrecke am oberen Rand: Asphalt mit rot-weissen Randsteinen */
+      px(ctx, 0, 6, RAUM_W * TILE, 30, F.asphalt);
+      for (var kx = 0; kx < RAUM_W * TILE; kx += 8) {
+        px(ctx, kx, 6, 8, 3, (kx / 8) % 2 ? F.kerbR : F.kerbW);
+        px(ctx, kx, 33, 8, 3, (kx / 8) % 2 ? F.kerbR : F.kerbW);
+      }
+      for (var mx = 0; mx < RAUM_W * TILE; mx += 24) px(ctx, mx, 20, 12, 2, '#d4d4d8');
+      /* Autos, die vorbeiziehen */
+      for (var a = 0; a < 3; a++) {
+        var ax = ((t * (70 + a * 25) + a * 160) % (RAUM_W * TILE + 60)) - 30;
+        var ay = 10 + a * 7;
+        px(ctx, ax - 10, ay, 20, 6, AUTOS[a]);
+        px(ctx, ax - 12, ay + 1, 4, 4, '#111827');
+        px(ctx, ax + 8, ay + 1, 4, 4, '#111827');
+        px(ctx, ax - 2, ay - 2, 4, 3, '#f8fafc');
+      }
+      /* Brandung */
+      for (var sx = 0; sx < RAUM_W * TILE; sx += 6) {
+        var h = Math.sin(t * 2 + sx * 0.12) > 0 ? 3 : 1;
+        px(ctx, sx, (RAUM_H - 2) * TILE, 4, h, '#cfe8f5');
+      }
+    },
+
+    moebelZeichnen: function (ctx, m, t) {
+      var x = m.tx * TILE, y = m.ty * TILE, w = m.tw * TILE, h = m.th * TILE;
+      if (m.art === 'tribuene') {
+        px(ctx, x, y + 2, w, h - 4, F.holzD);
+        for (var r = 0; r < 3; r++) {
+          px(ctx, x + 2, y + 4 + r * 8, w - 4, 6, r % 2 ? '#1d4ed8' : '#2563eb');
+          for (var p = 0; p < 9; p++) {
+            var farbe = ['#fde68a', '#f9a8d4', '#86efac', '#fca5a5', '#e2e8f0'][(p + r) % 5];
+            var hop = Math.sin(t * 3 + p + r) > 0.7 ? -1 : 0;
+            px(ctx, x + 6 + p * 15, y + 3 + r * 8 + hop, 4, 4, farbe);
+          }
+        }
+        px(ctx, x - 2, y - 6, w + 4, 8, '#ea580c');
+        ctx.font = '8px ui-monospace, monospace'; ctx.textAlign = 'center'; ctx.fillStyle = '#fff7ed';
+        ctx.fillText('TRIBÜNE', x + w / 2, y + 1);
+        return;
+      }
+      if (m.art === 'boxen') {
+        px(ctx, x, y - 10, w, h + 8, '#52525b');
+        px(ctx, x, y - 14, w, 6, '#27272a');
+        for (var g = 0; g < 3; g++) {
+          px(ctx, x + 6 + g * 36, y + 4, 26, h - 8, '#18181b');
+          px(ctx, x + 10 + g * 36, y + 14, 18, 6, AUTOS[g + 3]);
+          px(ctx, x + 8 + g * 36, y + 16, 4, 4, '#111827');
+          px(ctx, x + 26 + g * 36, y + 16, 4, 4, '#111827');
+        }
+        /* Startbogen mit Flagge */
+        px(ctx, x + w - 6, y + h - 2, 3, 40, '#e2e8f0');
+        var fl = Math.round(Math.sin(t * 4) * 2);
+        for (var fy = 0; fy < 3; fy++) for (var fx = 0; fx < 5; fx++) {
+          px(ctx, x + w - 3 + fx * 3, y + h - 2 + fy * 3 + fl, 3, 3, (fx + fy) % 2 ? '#111827' : '#f8fafc');
+        }
+        ctx.font = '8px ui-monospace, monospace'; ctx.textAlign = 'center'; ctx.fillStyle = '#fde68a';
+        ctx.fillText('BOXEN', x + w / 2, y - 7);
+        return;
+      }
+      if (m.art === 'tafel') {
+        px(ctx, x + 4, y - 20, 3, 30, F.holzD);
+        px(ctx, x + w - 7, y - 20, 3, 30, F.holzD);
+        px(ctx, x, y - 26, w, 20, '#1e293b');
+        px(ctx, x + 2, y - 24, w - 4, 16, '#0f172a');
+        px(ctx, x + 5, y - 20, 14, 2, '#fbbf24');
+        px(ctx, x + 5, y - 16, 22, 2, '#cbd5e1');
+        px(ctx, x + 5, y - 12, 18, 2, '#cbd5e1');
+        return;
+      }
+      if (m.art === 'reifen') {
+        px(ctx, x + 2, y - 8, 12, 14, '#111827');
+        px(ctx, x + 1, y - 10, 14, 4, '#27272a');
+        px(ctx, x + 1, y - 3, 14, 2, '#27272a');
+        px(ctx, x + 5, y - 9, 6, 2, '#52525b');
+        return;
+      }
+      if (m.art === 'palme') {
+        var cx = x + 8, cy = y + 14;
+        px(ctx, cx - 2, cy - 26, 4, 26, F.holzD);
+        var wind = Math.round(Math.sin(t * 1.3 + x) * 2);
+        px(ctx, cx - 14 + wind, cy - 32, 12, 4, '#2f7d3a');
+        px(ctx, cx + 2 + wind, cy - 32, 12, 4, '#2f7d3a');
+        px(ctx, cx - 8 + wind, cy - 36, 16, 4, '#3d9c49');
+        return;
+      }
+      if (m.art === 'hoehle') {
+        px(ctx, x, y - 14, w, h + 12, F.fels);
+        px(ctx, x + 4, y - 20, w - 10, 8, F.felsD);
+        px(ctx, x + 10, y - 24, w - 24, 6, F.felsL);
+        px(ctx, x + 18, y + 2, 24, 22, '#0b0a0f');
+        px(ctx, x + 22, y - 2, 16, 6, '#0b0a0f');
+        /* Zwei Augenpaare funkeln im Dunkeln */
+        if (Math.sin(t * 1.7) > -0.6) {
+          px(ctx, x + 24, y + 10, 2, 2, '#4ade80'); px(ctx, x + 29, y + 10, 2, 2, '#4ade80');
+        }
+        if (Math.sin(t * 2.3 + 1) > -0.4) {
+          px(ctx, x + 33, y + 15, 2, 2, '#4ade80'); px(ctx, x + 37, y + 15, 2, 2, '#4ade80');
+        }
+        return;
+      }
+      if (m.art === 'faehre') {
+        var wippe = Math.round(Math.sin(t * 0.9) * 1.5);
+        var bx = x + 8, by = y + 12 + wippe;
+        px(ctx, bx - 4, by - 12, w - 8, 12, '#1e3a5f');
+        px(ctx, bx - 4, by - 5, w - 8, 5, '#0f2745');
+        px(ctx, bx - 2, by - 11, w - 12, 2, '#f8fafc');
+        px(ctx, bx, by - 22, w - 24, 10, '#e2e8f0');
+        for (var f = 0; f < 4; f++) px(ctx, bx + 3 + f * 12, by - 20, 7, 5, '#38bdf8');
+        px(ctx, bx + 10, by - 30, 20, 8, '#cbd5e1');
+        px(ctx, bx + 13, by - 29, 14, 4, '#0ea5e9');
+        px(ctx, bx + w - 36, by - 34, 6, 12, '#b91c1c');
+        px(ctx, bx + w - 36, by - 35, 6, 1, '#111827');
+        /* Rampe an den Strand */
+        px(ctx, bx + w - 22, by - 14, 14, 4, F.holzL);
+        /* Karierte Flagge */
+        px(ctx, bx + 4, by - 44, 1, 22, F.holzD);
+        var fl2 = Math.round(Math.sin(t * 3) * 1);
+        for (var gy = 0; gy < 3; gy++) for (var gx = 0; gx < 4; gx++) {
+          px(ctx, bx + 5 + gx * 2, by - 44 + gy * 2 + fl2, 2, 2, (gx + gy) % 2 ? '#111827' : '#f8fafc');
+        }
+      }
+    },
+
+    leuteZeichnen: function (ctx, g, t) {
+      if (!g.kobold) return false;
+      /* Ein Kobold: klein, grün, spitze Ohren, grinsend. */
+      var hop = Math.sin(t * 6 + g.x) > 0.6 ? -2 : 0;
+      var x = g.x, y = g.y + hop;
+      px(ctx, x - 5, g.y - 1, 10, 2, 'rgba(0,0,0,.22)');
+      px(ctx, x - 3, y - 4, 2, 4, '#14532d'); px(ctx, x + 1, y - 4, 2, 4, '#14532d');
+      px(ctx, x - 4, y - 10, 8, 6, g.jacke[0]);
+      px(ctx, x - 6, y - 9, 2, 3, '#4ade80'); px(ctx, x + 4, y - 9, 2, 3, '#4ade80');
+      px(ctx, x - 4, y - 17, 8, 7, '#4ade80');
+      px(ctx, x - 7, y - 17, 3, 2, '#4ade80'); px(ctx, x + 4, y - 17, 3, 2, '#4ade80');
+      px(ctx, x - 3, y - 15, 1, 2, '#052e16'); px(ctx, x + 2, y - 15, 1, 2, '#052e16');
+      px(ctx, x - 2, y - 12, 4, 1, '#052e16');
+      px(ctx, x - 2, y - 19, 4, 2, '#7f1d1d');   /* rote Zipfelmütze */
+      px(ctx, x - 1, y - 21, 2, 2, '#7f1d1d');
+      return true;
+    },
+
+    /* Wenn die Frist knapp wird, kommen die Kobolde aus der Höhle und
+       schleichen auf den Spieler zu — rein zur Warnung, bis es ernst wird. */
+    extras: function (t) {
+      var st = Insel.rennbahnStand(who);
+      if (!st.gefahren || st.rest > 45) return [];
+      var anteil = 1 - st.rest / 45;
+      var hx = 24 * TILE, hy = 13 * TILE + 14;
+      var held = Raum.held;
+      var out = [];
+      for (var i = 0; i < 3; i++) {
+        var f = Math.max(0, Math.min(1, anteil * 1.1 - i * 0.12));
+        var kx = hx + (held.x - hx) * f + Math.sin(t * 5 + i * 2) * 3 + (i - 1) * 10;
+        var ky = hy + (held.y - hy) * f + (i % 2) * 6;
+        out.push({ y: ky, zeichnen: (function (x0, y0, n) {
+          return function (ctx, tt) {
+            var hop = Math.sin(tt * 7 + n) > 0.4 ? -2 : 0;
+            px(ctx, x0 - 3, y0 - 4 + hop, 2, 4, '#14532d'); px(ctx, x0 + 1, y0 - 4 + hop, 2, 4, '#14532d');
+            px(ctx, x0 - 4, y0 - 10 + hop, 8, 6, '#166534');
+            px(ctx, x0 - 4, y0 - 17 + hop, 8, 7, '#4ade80');
+            px(ctx, x0 - 7, y0 - 17 + hop, 3, 2, '#4ade80'); px(ctx, x0 + 4, y0 - 17 + hop, 3, 2, '#4ade80');
+            px(ctx, x0 - 3, y0 - 15 + hop, 1, 2, '#052e16'); px(ctx, x0 + 2, y0 - 15 + hop, 1, 2, '#052e16');
+            px(ctx, x0 - 2, y0 - 19 + hop, 4, 2, '#7f1d1d');
+          };
+        })(kx, ky, i) });
+      }
+      return out;
+    },
+
+    stationHinweis: function (s) {
+      var st = Insel.rennbahnStand(who);
+      if (s.id === 'faehre') return st.gefahren ? 'legt gleich ab — schnell!' : 'wartet · Rückfahrt im Billett';
+      if (s.id === 'start') return Insel.rennenErlaubt(who) ? 'ein Rennen frei' : 'gefahren — zurück zur Fähre';
+      return st.rennen ? st.rennen + ' Rennen, ' + st.siege + ' Siege' : 'noch keine Zeiten';
+    },
+    stationTun: function (s) {
+      if (s.id === 'start') { startOeffnen(); return true; }
+      if (s.id === 'faehre') { faehreOeffnen(); return true; }
+      if (s.id === 'tafel') { tafelOeffnen(); return true; }
+      return false;
+    },
+    hudZeichnen: function () {
+      var st = Insel.rennbahnStand(who);
+      var status = st.gefahren
+        ? '<span class="frist' + (st.rest <= 30 ? ' knapp' : '') + '">⏳ Fähre legt ab in ' + restText(st.rest) + '</span>'
+        : '<span>🏁 <b>1 Rennen</b> frei</span>';
+      return '<span>🧭 <b>' + Insel.name(who) + '</b></span>' +
+             '<span class="z">🪙 ' + Insel.muenzen(who) + '</span>' + status;
+    }
+  });
+
+  /* ================= Fenster ================= */
+  function startOeffnen() {
+    var frei = Insel.rennenErlaubt(who);
+    var st = Insel.rennbahnStand(who);
+    $('start-unter').textContent = frei
+      ? 'Sechs Autos, du startest hinten. Welche Strecke?'
+      : 'Dein Rennen ist gefahren. Pro Überfahrt gibt es genau eines.';
+    var box = $('start-liste');
+    box.innerHTML = '';
+    Insel.rennkurse.forEach(function (k) {
+      var best = st.bestzeiten[k.id];
+      var el = document.createElement(frei ? 'a' : 'div');
+      el.className = frei ? 'frei' : 'kurs zuu';
+      if (frei) {
+        el.href = '/lernwelt/rennbahn/rennen/?kurs=' + k.id;
+      }
+      el.innerHTML = '<div class="t">🏎️ ' + k.name + '</div>' +
+        '<div class="i">' + k.kurz + ' · ' + k.runden + ' Runden</div>' +
+        '<div class="s">' + (best ? 'Deine Bestzeit: ' + best.toFixed(1) + ' s' : 'noch nie gefahren') + '</div>';
+      box.appendChild(el);
+    });
+    $('start-lohn').innerHTML = frei
+      ? 'Preisgeld: <b>' + Insel.oekonomie.rennPreisgeld[0] + '</b> · <b>' + Insel.oekonomie.rennPreisgeld[1] +
+        '</b> · <b>' + Insel.oekonomie.rennPreisgeld[2] + '</b> Münzen für die ersten drei. ' +
+        'Nach dem Rennen hast du ' + Math.round(Insel.oekonomie.koboldFrist / 60) + ' Minuten bis zur Fähre.'
+      : 'Zurück zur Fähre — noch <b>' + restText(st.rest) + '</b>. Dann holen die Kobolde dich.';
+    Raum.fensterOeffnen('t-start');
+  }
+
+  function tafelOeffnen() {
+    var st = Insel.rennbahnStand(who);
+    var html = '<table class="stat">' +
+      '<tr><td>Rennen gefahren</td><td>' + st.rennen + '</td></tr>' +
+      '<tr><td>Siege</td><td>' + st.siege + '</td></tr>' +
+      '<tr><td>Podestplätze</td><td>' + st.podeste + '</td></tr>' +
+      '<tr><td>Preisgeld insgesamt</td><td>' + st.preisgeld + ' 🪙</td></tr>' +
+      '<tr><td>Von Kobolden erwischt</td><td>' + st.kobolde + (st.beute ? ' (' + st.beute + ' 🪙 weg)' : '') + '</td></tr>' +
+      '</table><div class="lohn"><b>Bestzeiten</b></div><table class="stat">';
+    Insel.rennkurse.forEach(function (k) {
+      var b = st.bestzeiten[k.id];
+      html += '<tr><td>' + k.name + '</td><td>' + (b ? b.toFixed(1) + ' s' : '—') + '</td></tr>';
+    });
+    html += '</table>';
+    $('tafel-inhalt').innerHTML = html;
+    Raum.fensterOeffnen('t-tafel');
+  }
+
+  function faehreOeffnen() {
+    var st = Insel.rennbahnStand(who);
+    $('faehre-unter').textContent = st.gefahren
+      ? 'Die Fährfrau winkt: «Los, rauf! Die Kobolde werden schon unruhig.»'
+      : 'Die Fährfrau liest Zeitung. «Schon fertig? Oder noch gar nicht gefahren?»';
+    $('faehre-text').innerHTML = st.gefahren
+      ? 'Noch <b>' + restText(st.rest) + '</b>, dann legt sie ohne dich ab — und dann kommen die Kobolde.'
+      : 'Du kannst jederzeit zurück. Die Rückfahrt ist im Billett. ' +
+        (Insel.rennenErlaubt(who) ? 'Aber dein Rennen hast du noch nicht gefahren.' : '');
+    Raum.fensterOeffnen('t-faehre');
+  }
+  $('faehre-los').onclick = function () {
+    var r = Insel.rennbahnZurueck(who);
+    if (!r.ok) { window.location.href = '/lernwelt/'; return; }
+    Raum.fensterSchliessen();
+    Raum.reden('Auf See', [
+      'Die Rampe klappt hoch. Hinter dir winken Rudi und Mona — und aus der Höhle schaut enttäuscht ein grünes Gesicht.',
+      'Die Fähre nimmt Kurs auf die Lerninsel.'
+    ], function () { window.location.href = '/lernwelt/'; });
+  };
+
+  /* ================= Uhr ================= */
+  /* Jede Sekunde: Anzeige frisch, Frist prüfen. */
+  setInterval(function () {
+    var k = Insel.koboldePruefen(who);
+    if (k.gefangen) {
+      Raum.fensterSchliessen();
+      koboldeHolen(k);
+      return;
+    }
+    Raum.hudAuffrischen();
+  }, 1000);
+
+  /* ================= Ankunft ================= */
+  if (rb.gefahren) {
+    Raum.reden('Rennbahn-Insel', [
+      'Du stehst wieder im Sand. Die Fähre wartet unten am Strand — noch ' + restText(rb.rest) + '.',
+      'Aus der Höhle rechts kichert es. Beeil dich.'
+    ]);
+  } else if (!rb.rennen) {
+    Raum.reden('Rennbahn-Insel', [
+      'Motoren heulen, Reifen quietschen, und von der Tribüne jubelt es, obwohl noch gar nichts los ist.',
+      'Oben bei den Boxen steht die Startlinie. Unten wartet die Fähre. Und rechts im Felsen ist eine Höhle, ' +
+      'aus der es kichert.',
+      'Sprich mit Rennleiter Rudi — er erklärt dir alles.'
+    ]);
+  } else {
+    Raum.reden('Rennbahn-Insel', [
+      'Wieder da! Bisher ' + rb.rennen + ' Rennen, ' + rb.siege + ' Siege.',
+      'Startlinie oben bei den Boxen. Ein Rennen, dann zurück zur Fähre.'
+    ]);
+  }
+})();
+</script>
+</body>
+</html>

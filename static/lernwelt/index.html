@@ -231,6 +231,8 @@
         der die Bären beruhigt.</p>
         <p style="margin-top:8px">Irgendwo an der Küste liegt ein <b>Ruderboot</b>. Es führt zu einer
         Insel, auf der ein Schatz wartet — die Karte dazu ist teuer, und die Fahrt ist nicht ungefährlich.</p>
+        <p style="margin-top:8px">Im Südosten wartet die <b>Fähre</b> zur <b>Rennbahn-Insel</b>: Autorennen
+        aus der Fahrersicht. Nach dem Rennen gleich zurück zur Fähre — sonst kommen die <b>Kobolde</b>.</p>
       </div>
       <div class="blink">DRÜCKE ENTER ODER TIPPE</div>
       <div class="keyhint">
@@ -407,13 +409,16 @@
       url: '/lernwelt/spelunke/',            hint: 'Glücksspiel — hier verliert man Münzen', color: '#f472b6' },
     /* Das Ruderboot: ebenfalls ohne Weg, an der Ostküste zwischen den Felsen. */
     { id: 'ruderboot', name: 'Ruderboot', tx: 43, ty: 12, kind: 'ruderboot', versteckt: true, boot: true,
-      url: null, hint: 'zur Schatzinsel — gefährlich', color: '#fdba74' }
+      url: null, hint: 'zur Schatzinsel — gefährlich', color: '#fdba74' },
+    /* Die Fähre zur Rennbahn-Insel: am Südostufer, mit eigenem Weg. */
+    { id: 'faehre', name: 'Fähranleger', tx: 36, ty: 31, kind: 'faehre', faehre: true,
+      url: null, hint: 'Fähre zur Rennbahn-Insel', color: '#fb923c' }
   ];
 
   /* Häfen: von hier fahren Boote zu den anderen Stegen. */
   if (window.Insel && Insel.haefen) {
     Insel.haefen.forEach(function (h) {
-      if (h.versteckt) return;                /* die Felsenbucht hat ihr eigenes Boot */
+      if (h.versteckt || h.eigenesBoot) return;   /* Felsenbucht und Fähre haben ihr eigenes Boot */
       places.push({ id: h.id, name: h.name, tx: h.tx, ty: h.ty, kind: 'steg',
                     url: null, hafen: h, hint: h.nahe, color: '#7dd3fc' });
     });
@@ -849,6 +854,41 @@
     px(c, x + 3, y - 9 + wippe, 10, 1, COL.woodD);
     px(c, x - 13, y - 10 + wippe, 2, 3, '#e2e8f0');
     px(c, x + 12, y - 10 + wippe, 2, 3, '#e2e8f0');
+  }
+  /* Die Fähre: ein kleiner Anleger und ein richtiges Schiff mit Rampe,
+     Steuerhaus und karierter Flagge. Sie schaukelt sanft in der Dünung. */
+  function drawFaehre(c, x, y) {
+    /* Anleger */
+    px(c, x - 14, y - 3, 28, 5, COL.woodD);
+    for (var i = 0; i < 4; i++) px(c, x - 12 + i * 8, y + 2, 3, 5, COL.woodD);
+    px(c, x - 14, y - 5, 28, 3, COL.wood);
+    px(c, x - 15, y - 12, 4, 9, COL.woodD);
+    px(c, x + 11, y - 12, 4, 9, COL.woodD);
+    var wippe = Math.round(Math.sin(waveT * 0.9 + x * 0.05) * 1.5);
+    var bx = x + 4, by = y - 6 + wippe;
+    /* Rumpf */
+    px(c, bx - 4, by - 10, 40, 10, '#1e3a5f');
+    px(c, bx - 4, by - 4, 40, 4, '#0f2745');
+    px(c, bx - 2, by - 9, 36, 2, '#f8fafc');
+    px(c, bx - 6, by - 7, 4, 5, '#1e3a5f');            /* Bug */
+    /* Deck und Aufbau */
+    px(c, bx, by - 18, 30, 8, '#e2e8f0');
+    px(c, bx + 2, by - 16, 6, 4, '#38bdf8');
+    px(c, bx + 10, by - 16, 6, 4, '#38bdf8');
+    px(c, bx + 18, by - 16, 6, 4, '#38bdf8');
+    px(c, bx + 6, by - 24, 14, 6, '#cbd5e1');            /* Steuerhaus */
+    px(c, bx + 8, by - 23, 10, 3, '#0ea5e9');
+    px(c, bx + 24, by - 26, 4, 8, '#b91c1c');            /* Kamin */
+    px(c, bx + 24, by - 27, 4, 1, '#111827');
+    drawRauch(c, bx + 26, by - 27);
+    /* Rampe zum Anleger */
+    px(c, x - 2, by - 2, 10, 3, COL.woodL);
+    /* Karierte Flagge */
+    px(c, bx + 2, by - 34, 1, 16, COL.woodD);
+    var fl = Math.round(Math.sin(waveT * 3 + x) * 1);
+    for (var fy = 0; fy < 3; fy++) for (var fx = 0; fx < 4; fx++) {
+      px(c, bx + 3 + fx * 2, by - 34 + fy * 2 + fl, 2, 2, (fx + fy) % 2 ? '#111827' : '#f8fafc');
+    }
   }
   function drawRock(c, x, y) {
     px(c, x - 6, y - 6, 12, 6, COL.stoneD);
@@ -1473,8 +1513,9 @@
     /* Bewohner blockieren nicht mehr — sie weichen aus (siehe bewohnerBewegen). */
     places.forEach(function (p) {
       var cx = p.tx * TILE + 8, cy = p.ty * TILE + 16;
-      var w = p.kind === 'ship' ? 40 : p.kind === 'cave' ? 40 : p.kind === 'ruderboot' ? 20 : 28;
-      var h = p.kind === 'ruderboot' ? 10 : 18;
+      var w = p.kind === 'ship' ? 40 : p.kind === 'cave' ? 40 : p.kind === 'ruderboot' ? 20
+            : p.kind === 'faehre' ? 44 : 28;
+      var h = p.kind === 'ruderboot' ? 10 : p.kind === 'faehre' ? 14 : 18;
       solids.push({ x: cx - w / 2, y: cy - 20, w: w, h: h });
     });
   }
@@ -1658,6 +1699,9 @@
             muenzHinweis(offeneUebungen(p.fach)) + ' — [E] betreten';
     } else if (p.id === 'spielplatz') {
       txt = '<b>' + p.name + '</b> — ' + p.hint + muenzHinweis(offeneSpiele()) + ' — [E] betreten';
+    } else if (p.faehre) {
+      txt = '<b>' + p.name + '</b> — ' + p.hint + ' · ' + Insel.oekonomie.faehreRennbahn +
+        ' Münzen hin und zurück — [E] einschiffen';
     } else if (p.hafen) {
       txt = '<b>' + p.name + '</b> — Boot ' + p.hint + ' · ' +
         Insel.oekonomie.faehrePreis + ' Münzen — [E] ablegen';
@@ -1715,6 +1759,7 @@
   function interact() {
     if (state !== 'play' || !nearest) return;
     if (nearest.hafen) { hafenOeffnen(nearest.hafen); return; }
+    if (nearest.faehre) { faehreOeffnen(); return; }
     if (nearest.istGrab) { graben(nearest.schatz); return; }
     if (nearest.istBaum) { ernten(nearest.baum); return; }
     if (nearest.istHonigstein) { honigLegen(nearest.platz); return; }
@@ -1773,7 +1818,7 @@
     var box = document.getElementById('hafen-ziele');
     box.innerHTML = '';
     Insel.haefen.forEach(function (ziel) {
-      if (ziel.id === h.id || ziel.versteckt) return;
+      if (ziel.id === h.id || ziel.versteckt || ziel.eigenesBoot) return;
       var b = document.createElement('button');
       b.className = 'choice';
       b.style.minWidth = 'auto';
@@ -1781,6 +1826,7 @@
       b.onclick = function () { ablegen(h, ziel); };
       box.appendChild(b);
     });
+    document.getElementById('hafen-nein').textContent = 'Doch lieber laufen';
     document.getElementById('hafen-hinweis').textContent =
       'Draussen sind Piraten unterwegs. Wer gekapert wird, muss sich freiarbeiten.';
     showScreen('scr-hafen');
@@ -1789,6 +1835,54 @@
     state = 'play';
     showScreen(null);
   };
+
+  /* ---------------- Die Fähre zur Rennbahn-Insel ----------------
+     Gross, sicher, teuer. Ein Billett gilt hin und zurück — aber drüben
+     fährt man genau ein Rennen und muss dann zurück an Bord. */
+  function faehreOeffnen() {
+    state = 'hafen';
+    var rb = Insel.rennbahnStand(who);
+    var preis = Insel.oekonomie.faehreRennbahn;
+    document.getElementById('hafen-name').textContent = '⛴️ Fähre zur Rennbahn-Insel';
+    document.getElementById('hafen-text').innerHTML =
+      'Die Fährfrau lehnt an der Reling. «Zur Rennbahn-Insel? <b>' + preis + ' Münzen</b>, hin und zurück. ' +
+      'Du hast ' + Insel.muenzen(who) + '.»' +
+      '<br><br>«Drüben fährst du <b>ein Rennen</b>. Danach kommst du sofort zurück zur Fähre — ' +
+      'ich warte <b>' + Math.round(Insel.oekonomie.koboldFrist / 60) + ' Minuten</b>. Wer trödelt, ' +
+      'den holen die <b>Kobolde</b>: ' + Insel.oekonomie.koboldBeute + ' Münzen weg, und sie liefern dich bei den Piraten ab.»' +
+      (rb.rennen
+        ? '<br><br>Bisher ' + rb.rennen + ' Rennen, ' + rb.siege + ' Siege, ' + rb.preisgeld + ' Münzen Preisgeld.' +
+          (rb.kobolde ? ' ' + rb.kobolde + '-mal von Kobolden erwischt.' : '')
+        : '<br><br>Preisgeld: ' + Insel.oekonomie.rennPreisgeld.map(function (p, i) { return (i + 1) + '. Platz ' + p; }).join(' · ') + ' Münzen.');
+    var box = document.getElementById('hafen-ziele');
+    box.innerHTML = '';
+    var b = document.createElement('button');
+    b.className = 'choice';
+    b.style.minWidth = 'auto';
+    b.style.borderColor = '#fb923c';
+    b.innerHTML = 'Einschiffen (' + preis + ' 🪙)<br><small style="opacity:.7">zur Rennbahn-Insel</small>';
+    b.onclick = einschiffen;
+    box.appendChild(b);
+    document.getElementById('hafen-nein').textContent = 'Doch nicht';
+    document.getElementById('hafen-hinweis').textContent =
+      'An die Fähre trauen sich keine Piraten heran. Die Kobolde sind das Problem.';
+    showScreen('scr-hafen');
+  }
+  function einschiffen() {
+    var r = Insel.faehreRennbahn(who);
+    if (!r.ok) {
+      document.getElementById('hafen-text').innerHTML = r.grund === 'geld'
+        ? 'Dir fehlen noch <b>' + r.fehlt + ' Münzen</b> für die Fähre.'
+        : 'Die Fähre ist schon unterwegs.';
+      return;
+    }
+    state = 'play';
+    showScreen(null);
+    updateHud();
+    flash(['Die Rampe klappt hoch, der Motor brummt. Die Fähre nimmt Kurs auf die Rennbahn-Insel.',
+           'Von weitem hörst du schon Motoren heulen. Und irgendwo kichert etwas.'], 'Auf See',
+          function () { window.location.href = '/lernwelt/rennbahn/'; });
+  }
 
   function ablegen(von, ziel) {
     var r = Insel.reisen(von.id, ziel.id, who);
@@ -2192,6 +2286,7 @@
         case 'bienenbaum': drawBienenbaum(ctx, X, Y, !window.Insel || Insel.bienenbaumVoll(it.baum.id, who)); break;
         case 'honigstein': drawHonigstein(ctx, X, Y, window.Insel && Insel.honigAufPlatzRest(it.platz.id, who) > 0); break;
         case 'ruderboot': drawRuderboot(ctx, X, Y); break;
+        case 'faehre': drawFaehre(ctx, X, Y); break;
         case 'sign': drawSign(ctx, X, Y); break;
         case 'tower': drawTower(ctx, X, Y); break;
         case 'nebelturm': drawNebelturm(ctx, X, Y, !window.Insel || Insel.fachOffen('franzoesisch', who)); break;
@@ -2823,10 +2918,25 @@
     });
   }
 
+  /* Eine Kachel, deren Mitte ein Stein, ein Stamm oder ein Hausrand belegt,
+     gilt als «unerreichbar», obwohl man am Rand frei daneben stehen kann.
+     Wer dort steht, steckt nicht fest — ein Schritt, und er ist wieder auf
+     der Nachbarkachel. Gestrandet ist nur, wer ringsum keine erreichbare
+     Kachel hat. Ohne diese Nachsicht teleportierte das Netz den Spieler bei
+     27 Bäumen und Steinen der Insel mit der Meldung «festgesteckt». */
+  function erreichbarNahe(x, y) {
+    if (istErreichbar(x, y)) return true;
+    for (var dy = -1; dy <= 1; dy++) {
+      for (var dx = -1; dx <= 1; dx++) {
+        if ((dx || dy) && istErreichbar(x + dx * TILE, y + dy * TILE)) return true;
+      }
+    }
+    return false;
+  }
   var letzteRettung = 0;
   function nichtSteckenBleiben() {
     if (state !== 'play') return;
-    if (!blocked(hero.x, hero.y) && istErreichbar(hero.x, hero.y)) return;
+    if (!blocked(hero.x, hero.y) && erreichbarNahe(hero.x, hero.y)) return;
     var p = sichererPlatz(hero.x, hero.y);
     hero.x = p.x; hero.y = p.y;
     /* Nicht bei jedem Bild eine Meldung — höchstens alle zehn Sekunden. */
@@ -3126,6 +3236,8 @@
 
   /* Kommt der Spieler aus einer Übung, einem Raum oder dem Haus zurück,
      steht er wieder genau dort, wo er hineingegangen ist — ohne Titelbild. */
+  /* Wer nach dem Rennen zu lange getrödelt hat, ist längst bei den Kobolden. */
+  if (window.Insel && Insel.koboldePruefen) Insel.koboldePruefen(Insel.who());
   /* Wer bei den Piraten sitzt, kommt nicht einfach nach Hause. */
   if (window.Insel && Insel.gekapert && Insel.gekapert(Insel.who())) {
     window.location.replace('/lernwelt/piraten/');
@@ -3134,6 +3246,11 @@
   /* Wer gerade auf der Schatzinsel ist, kommt nur mit dem Boot zurück. */
   if (window.Insel && Insel.schatzinselStand && Insel.schatzinselStand(Insel.who()).dort) {
     window.location.replace('/lernwelt/schatzinsel/');
+    return;
+  }
+  /* Und wer auf der Rennbahn-Insel ist, nur mit der Fähre. */
+  if (window.Insel && Insel.rennbahnStand && Insel.rennbahnStand(Insel.who()).dort) {
+    window.location.replace('/lernwelt/rennbahn/');
     return;
   }
   /* Kommt der Spieler per Boot zurück, steht er am Zielsteg. */
@@ -3180,6 +3297,8 @@
                          return nearest && nearest.name;
                        },
                        zustand: function () { return state; },
+                       netz: nichtSteckenBleiben,
+                       sicher: sichererPlatz,
                        tu: function () { nearest = findNearest(); interact(); return nearest && nearest.name; } };
   }
 

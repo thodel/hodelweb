@@ -117,7 +117,11 @@
     schatzkartePreis: 500,  /* Münzen für die Schatzkarte */
     schatzinselSchatz: 800, /* Münzen in der Kiste auf der Schatzinsel */
     schatzinselMarken: 4,   /* Marken, die obendrauf in der Kiste liegen */
-    ruderRisiko: 0.35       /* so oft geht die Fahrt mit dem Ruderboot schief */
+    ruderRisiko: 0.35,      /* so oft geht die Fahrt mit dem Ruderboot schief */
+    faehreRennbahn: 50,     /* Münzen für die Fähre zur Rennbahn-Insel — hin und zurück */
+    rennPreisgeld: [80, 50, 30], /* Preisgeld für die Plätze 1 bis 3 */
+    koboldFrist: 120,       /* Sekunden nach dem Rennen, bis die Kobolde kommen */
+    koboldBeute: 30         /* Münzen, die die Kobolde einem abnehmen */
   };
 
   /* Zwei Wäldchen — dort wacht man nach einem Blackout auf. */
@@ -136,7 +140,23 @@
     /* Kein Steg, kein Bootsmann: das versteckte Ruderboot an der Ostküste.
        Steht nur hier, damit Piraten einen wieder dort absetzen können. */
     { id: 'ruderboot', name: 'Felsenbucht', an: 'in der Felsenbucht', tx: 43, ty: 12,
-      nahe: 'beim versteckten Ruderboot', versteckt: true }
+      nahe: 'beim versteckten Ruderboot', versteckt: true },
+    /* Die Fähre zur Rennbahn-Insel hat ihren eigenen Anleger und fährt
+       nirgendwo sonst hin. Steht hier, damit man nach der Rückfahrt (und
+       nach den Kobolden) wieder an Land gesetzt werden kann. */
+    { id: 'faehre', name: 'Fähranleger', an: 'am Fähranleger', tx: 36, ty: 31,
+      nahe: 'bei der Fähre zur Rennbahn-Insel', eigenesBoot: true }
+  ];
+
+  /* Die Rennstrecken auf der Rennbahn-Insel. Die Streckenführung selbst
+     baut die Rennseite; hier stehen nur Name, Runden und Charakter. */
+  var RENNKURSE = [
+    { id: 'palmenring', name: 'Palmenring', runden: 2,
+      kurz: 'weite Kurven am Strand — gut zum Anfangen' },
+    { id: 'felsenpass', name: 'Felsenpass', runden: 3,
+      kurz: 'enge Kehren zwischen den Felsen' },
+    { id: 'grosser-preis', name: 'Grosser Preis der Lerninsel', runden: 3,
+      kurz: 'lang und schnell — die Königsstrecke' }
   ];
 
   /* Bienenbäume in den beiden Wäldchen. Wer eine Leiter hat, holt oben
@@ -333,6 +353,7 @@
     schaetze: SCHAETZE,
     inselteile: INSELTEILE,
     haefen: HAEFEN,
+    rennkurse: RENNKURSE,
     bienenbaeume: BIENENBAEUME,
     honigplaetze: HONIGPLAETZE,
     garderobe: GARDEROBE,
@@ -1253,6 +1274,106 @@
       return { ok: true, muenzen: OEKONOMIE.schatzinselSchatz, marken: OEKONOMIE.schatzinselMarken,
                gebuehr: gebuehr, gesamt: stand.muenzen };
     },
+    /* ---------------- Fähre, Rennbahn-Insel und Kobolde ----------------
+       Die Fähre ist gross und sicher — an sie trauen sich die Piraten nicht
+       heran. Ein Billett gilt hin und zurück. Auf der Rennbahn-Insel fährt
+       man pro Überfahrt genau ein Rennen; danach muss man zur Fähre zurück.
+       Wer trödelt, bekommt Besuch von den Kobolden: die nehmen Münzen ab
+       und liefern einen bei den Piraten ab. */
+    rennkurs: function (id) {
+      return RENNKURSE.filter(function (k) { return k.id === id; })[0] || null;
+    },
+    rennbahnStand: function (who) {
+      var r = this.stand(who).rennbahn || {};
+      var frist = r.frist || 0;
+      return { dort: !!r.dort, gefahren: !!r.gefahren, frist: frist,
+               rest: frist ? Math.max(0, Math.round((frist - Date.now()) / 1000)) : 0,
+               fahrten: r.fahrten || 0, rennen: r.rennen || 0, siege: r.siege || 0,
+               podeste: r.podeste || 0, preisgeld: r.preisgeld || 0,
+               kobolde: r.kobolde || 0, beute: r.beute || 0,
+               bestzeiten: r.bestzeiten || {} };
+    },
+    faehreRennbahn: function (who) {
+      who = who || this.who();
+      var stand = this.stand(who);
+      if (stand.rennbahn && stand.rennbahn.dort) return { ok: false, grund: 'dort' };
+      var preis = OEKONOMIE.faehreRennbahn;
+      if ((stand.muenzen || 0) < preis) {
+        return { ok: false, grund: 'geld', fehlt: preis - (stand.muenzen || 0) };
+      }
+      stand.muenzen -= preis;
+      if (!stand.rennbahn) stand.rennbahn = {};
+      var r = stand.rennbahn;
+      r.dort = true; r.gefahren = false; r.frist = 0; r.seit = Date.now();
+      r.fahrten = (r.fahrten || 0) + 1;
+      this._speichern(who, stand);
+      return { ok: true, muenzen: stand.muenzen, fahrten: r.fahrten };
+    },
+    /* Ein Rennen pro Überfahrt. */
+    rennenErlaubt: function (who) {
+      var r = this.rennbahnStand(who);
+      return r.dort && !r.gefahren;
+    },
+    /* e = { kurs, platz, zeit (Sekunden), fahrer (Anzahl Autos im Feld) } */
+    rennenMelden: function (e, who) {
+      who = who || this.who();
+      var stand = this.stand(who);
+      if (!stand.rennbahn || !stand.rennbahn.dort) return { ok: false, grund: 'nichtDort' };
+      var r = stand.rennbahn;
+      if (r.gefahren) return { ok: false, grund: 'schonGefahren' };
+      var platz = Math.max(1, Math.round(e.platz || 99));
+      var preis = OEKONOMIE.rennPreisgeld[platz - 1] || 0;
+      r.gefahren = true;
+      r.frist = Date.now() + OEKONOMIE.koboldFrist * 1000;
+      r.rennen = (r.rennen || 0) + 1;
+      if (platz === 1) r.siege = (r.siege || 0) + 1;
+      if (platz <= 3) r.podeste = (r.podeste || 0) + 1;
+      r.preisgeld = (r.preisgeld || 0) + preis;
+      stand.muenzen = (stand.muenzen || 0) + preis;
+      if (!r.bestzeiten) r.bestzeiten = {};
+      var zeit = e.zeit ? Math.round(e.zeit * 10) / 10 : 0;
+      var alt = r.bestzeiten[e.kurs];
+      var neueBestzeit = !!zeit && (!alt || zeit < alt);
+      if (neueBestzeit) r.bestzeiten[e.kurs] = zeit;
+      this._speichern(who, stand);
+      /* Zählt ausserdem wie ein Sportspiel: Wochenpunkte und die Erst-Münzen,
+         genau wie beim Pferderennen. Danach nicht mehr an 'stand' rühren —
+         melden() hat frisch geladen und gespeichert. */
+      var fahrer = Math.max(2, e.fahrer || 6);
+      var pct = Math.round(100 - (platz - 1) * (50 / (fahrer - 1)));
+      var kurs = this.rennkurs(e.kurs);
+      var m = this.melden({ fach: 'sport', set: 'rennen-' + e.kurs, who: who,
+                            titel: 'Autorennen: ' + (kurs ? kurs.name : e.kurs),
+                            schwierigkeit: 'leicht', pct: Math.max(0, pct) });
+      return { ok: true, platz: platz, preisgeld: preis, gesamt: m.gesamtMuenzen, frist: r.frist,
+               neueBestzeit: neueBestzeit, bestzeit: r.bestzeiten[e.kurs] || 0, melden: m };
+    },
+    /* Zurück mit der Fähre — das Billett gilt hin und zurück. */
+    rennbahnZurueck: function (who) {
+      who = who || this.who();
+      var stand = this.stand(who);
+      if (!stand.rennbahn || !stand.rennbahn.dort) return { ok: false, grund: 'nichtDort' };
+      stand.rennbahn.dort = false; stand.rennbahn.gefahren = false; stand.rennbahn.frist = 0;
+      stand.ankunft = 'faehre';
+      this._speichern(who, stand);
+      return { ok: true };
+    },
+    /* Frist abgelaufen? Dann holen die Kobolde einen: Münzen weg, ab zu den Piraten. */
+    koboldePruefen: function (who) {
+      who = who || this.who();
+      var stand = this.stand(who);
+      var r = stand.rennbahn;
+      if (!r || !r.dort || !r.frist || Date.now() <= r.frist) return { gefangen: false };
+      var beute = Math.min(OEKONOMIE.koboldBeute, stand.muenzen || 0);
+      stand.muenzen = (stand.muenzen || 0) - beute;
+      r.dort = false; r.gefahren = false; r.frist = 0;
+      r.kobolde = (r.kobolde || 0) + 1;
+      r.beute = (r.beute || 0) + beute;
+      stand.piraten = { aktiv: true, sets: [], ziel: 'faehre', seit: Date.now(), kobolde: true, beute: beute };
+      this._speichern(who, stand);
+      return { gefangen: true, beute: beute, muenzen: stand.muenzen };
+    },
+
     /* Der Bär erwischt den Spieler. Rückgabe sagt, was passiert ist. */
     baerErwischt: function (id, who) {
       who = who || this.who();
@@ -1293,7 +1414,10 @@
         noetig: OEKONOMIE.piratenAufgaben,
         sets: (p.sets || []).slice(),
         ziel: p.ziel || 'westbucht',
-        seit: p.seit || Date.now()
+        seit: p.seit || Date.now(),
+        /* Von den Kobolden abgeliefert statt auf See gekapert. */
+        kobolde: !!p.kobolde,
+        beute: p.beute || 0
       };
     },
     gekapert: function (who) { return this.piratenStand(who).aktiv; },

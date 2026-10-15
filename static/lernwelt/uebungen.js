@@ -2638,6 +2638,168 @@
   ];
 
   /* ============================================================
+     PROPORTIONALITÄT (6. Klasse)
+     Wertetabellen, Dreisatz mit Geld, Weg und Zeit, Rezepte, Mischungen —
+     und das Erkennen, was überhaupt proportional ist (MA.3.A.3, MA.3.C.2).
+     ============================================================ */
+  function geld(x) { return (Math.round(x * 100) / 100).toFixed(2); }
+  function gross(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+  var PROP_SITUATIONEN = [
+    ['Anzahl Kinokarten und der Gesamtpreis', true],
+    ['Liter Benzin und der Preis an der Tankstelle', true],
+    ['Fahrzeit bei gleichem Tempo und die gefahrenen Kilometer', true],
+    ['Anzahl gleicher Säcke und ihr Gesamtgewicht', true],
+    ['Anzahl Portionen und die Menge Mehl im Rezept', true],
+    ['Anzahl Kopien und die Kopierkosten', true],
+    ['Seitenlänge eines Quadrats und sein Umfang', true],
+    ['Anzahl Stunden Arbeit und der Lohn bei festem Stundenlohn', true],
+    ['Alter eines Kindes und seine Körpergrösse', false],
+    ['Anzahl Maler und die Zeit, bis die Wand fertig ist', false],
+    ['Seitenlänge eines Quadrats und sein Flächeninhalt', false],
+    ['Temperatur draussen und die Anzahl verkaufter Glacés', false],
+    ['Anzahl Geschwister und das Taschengeld', false],
+    ['Alter eines Autos und sein Preis', false],
+    ['Taxifahrt: Grundgebühr plus Preis pro Kilometer', false],
+    ['Handy-Abo: Grundpreis plus Kosten pro Minute', false]
+  ];
+  var MATHE_PROP = [
+    {
+      id: 'prop-tabelle', klassen: [6], schwierigkeit: 'leicht',
+      titel: 'Wertetabelle ergänzen', lp21: 'MA.3.A.3',
+      info: 'Proportionale Wertetabelle: Ein Wert fehlt.',
+      gen: function () {
+        /* [Mehrzahl, Einzahl, Einheit der zweiten Spalte] */
+        var paare = [['Hefte', 'Heft', 'Fr.'], ['kg Äpfel', 'kg Äpfel', 'Fr.'], ['Stunden', 'Stunde', 'km'],
+                     ['Packungen', 'Packung', 'Stück'], ['Minuten', 'Minute', 'Liter'], ['Säcke', 'Sack', 'kg'],
+                     ['Tage', 'Tag', 'Fr.'], ['Dosen', 'Dose', 'dl']];
+        var q = pick(paare), p = [q[0], q[2]], k = rint(2, 15);
+        var xs = shuffle([1, 2, 3, 4, 5, 6, 8, 10, 12]).slice(0, 3);
+        var frag = xs[2];
+        var wort = function (x) { return x === 1 ? q[1] : q[0]; };
+        var zeilen = xs.slice(0, 2).map(function (x) { return x + ' ' + wort(x) + ' → ' + (x * k) + ' ' + p[1]; });
+        if (Math.random() < 0.3) {
+          return { typ: 'zahl', frage: zeilen.join('\n') + '\n? ' + p[0] + ' → ' + (frag * k) + ' ' + p[1],
+                   antwort: String(frag), hinweis: 'Wie viel ' + p[1] + ' sind es für 1 ' + q[1] + '?' };
+        }
+        return { typ: 'zahl', frage: zeilen.join('\n') + '\n' + frag + ' ' + wort(frag) + ' → ? ' + p[1],
+                 antwort: String(frag * k), einheit: p[1], hinweis: 'Zuerst auf 1 ' + q[1] + ' zurückrechnen.' };
+      }
+    },
+    {
+      id: 'prop-dreisatz-geld', klassen: [6], schwierigkeit: 'schwer',
+      titel: 'Dreisatz mit Geld', lp21: 'MA.3.A.3',
+      info: 'Vom Preis mehrerer Stücke auf einen anderen Einkauf schliessen.',
+      gen: function () {
+        var w = pick(['Brötchen', 'Bleistifte', 'Bananen', 'Postkarten', 'Gipfeli', 'Kaugummis', 'Schrauben', 'Murmeln', 'Luftballons']);
+        var rappen = pick([30, 40, 50, 60, 70, 80, 90, 120, 150, 180, 250]);
+        var a = rint(2, 9), b = rint(2, 12);
+        while (b === a) b = rint(2, 12);
+        var preisA = a * rappen / 100, preisB = b * rappen / 100;
+        if (Math.random() < 0.35) {
+          return { typ: 'zahl', frage: a + ' ' + w + ' kosten ' + geld(preisA) + ' Fr.\nWie viele ' + w +
+                   ' bekommst du für ' + geld(preisB) + ' Fr.?', antwort: String(b), hinweis: 'Was kostet 1 Stück?' };
+        }
+        return { typ: 'zahl', frage: a + ' ' + w + ' kosten ' + geld(preisA) + ' Fr.\nWas kosten ' + b + ' ' + w + '?',
+                 antwort: geld(preisB), einheit: 'Fr.', hinweis: 'Zuerst: Was kostet 1 Stück?' };
+      }
+    },
+    {
+      id: 'prop-weg-zeit', klassen: [6], schwierigkeit: 'schwer',
+      titel: 'Weg und Zeit', lp21: 'MA.3.A.3',
+      info: 'Gleichmässiges Tempo: Wie weit in dieser Zeit — wie lange für diese Strecke?',
+      gen: function () {
+        var f = pick([['ein Velo', 2, 6], ['ein Traktor', 3, 8], ['ein Auto', 10, 20], ['ein Zug', 20, 40],
+                      ['eine Wanderin', 1, 2], ['ein Schiff', 4, 8], ['ein Postauto', 6, 12]]);
+        var proZehn = rint(f[1], f[2]);                     /* km je 10 Minuten */
+        var zeiten = [20, 30, 40, 50, 60, 70, 80, 90, 100, 120];
+        var t1 = pick([10, 20, 30, 40, 60]), t2 = pick(zeiten);
+        while (t2 === t1) t2 = pick(zeiten);
+        var s1 = proZehn * t1 / 10, s2 = proZehn * t2 / 10;
+        var satz = 'In ' + t1 + ' Minuten schafft ' + f[0] + ' ' + s1 + ' km.\n';
+        if (Math.random() < 0.5) {
+          return { typ: 'zahl', frage: satz + 'Wie weit sind es in ' + t2 + ' Minuten?',
+                   antwort: String(s2), einheit: 'km', hinweis: 'Wie weit in 10 Minuten?' };
+        }
+        return { typ: 'zahl', frage: satz + 'Wie lange dauert es für ' + s2 + ' km?',
+                 antwort: String(t2), einheit: 'Minuten', hinweis: 'Wie weit in 10 Minuten? Wie oft passt das in ' + s2 + ' km?' };
+      }
+    },
+    {
+      id: 'prop-rezept', klassen: [6], schwierigkeit: 'leicht',
+      titel: 'Rezept umrechnen', lp21: 'MA.3.C.2',
+      info: 'Ein Rezept für 4 Personen — wie viel braucht es für 6?',
+      gen: function () {
+        var z = pick([['Mehl', 'g'], ['Zucker', 'g'], ['Butter', 'g'], ['Milch', 'ml'], ['Reis', 'g'], ['Schokolade', 'g'], ['Rahm', 'ml']]);
+        var gericht = pick(['Pfannkuchen', 'Kuchen', 'Risotto', 'Guetzli', 'Pizza', 'Brownies', 'Griessbrei']);
+        var proPerson = rint(5, 30) * 5;
+        var personen = [2, 3, 4, 5, 6, 8, 9, 10, 12];
+        var a = pick([2, 3, 4, 5, 6]), b = pick(personen);
+        while (b === a) b = pick(personen);
+        return { typ: 'zahl', frage: 'Rezept für ' + gericht + ' (' + a + ' Personen): ' + (proPerson * a) + ' ' + z[1] + ' ' + z[0] +
+                 '.\nWie viel ' + z[0] + ' braucht es für ' + b + ' Personen?',
+                 antwort: String(proPerson * b), einheit: z[1], hinweis: 'Zuerst: Wie viel für 1 Person?' };
+      }
+    },
+    {
+      id: 'prop-erkennen', klassen: [6], schwierigkeit: 'leicht',
+      titel: 'Proportional oder nicht?', lp21: 'MA.3.C.2',
+      info: 'Doppelte Menge, doppelter Preis? Erkennen, wann ein Zusammenhang proportional ist.',
+      gen: function () {
+        var hinweis = 'Proportional heisst: doppelt so viel vom einen → doppelt so viel vom anderen.';
+        if (Math.random() < 0.45) {
+          var sit = pick(PROP_SITUATIONEN);
+          return jaNein('Ist das proportional?\n' + sit[0], sit[1], hinweis);
+        }
+        var k = rint(2, 9), start = rint(1, 3), xs = [start, start * 2, start * 3 + rint(0, 2)];
+        var ja = Math.random() < 0.5, art = pick(['plus', 'quadrat']);
+        var c = rint(1, 5);
+        var ys = xs.map(function (x) {
+          if (ja) return x * k;
+          return art === 'plus' ? x * k + c : x * x * k;
+        });
+        return jaNein('Ist diese Tabelle proportional?\nx: ' + xs.join(' · ') + '\ny: ' + ys.join(' · '), ja, hinweis);
+      }
+    },
+    {
+      id: 'prop-angebote', klassen: [6], schwierigkeit: 'schwer',
+      titel: 'Welches Angebot ist günstiger?', lp21: 'MA.3.C.2',
+      info: 'Zwei Packungen vergleichen: Was kostet 1 Stück?',
+      gen: function () {
+        var w = pick(['Eier', 'Äpfel', 'Joghurts', 'Stifte', 'Batterien', 'Socken', 'Teebeutel', 'Wasserflaschen', 'Mandarinen']);
+        var pA = pick([20, 25, 30, 40, 50, 60, 75, 80, 100, 120, 150]);
+        var diff = pick([5, 10, 15, 20]) * (Math.random() < 0.5 ? 1 : -1);
+        var pB = pA + diff;
+        if (pB < 10) pB = pA + Math.abs(diff);
+        var nA = rint(2, 12), nB = rint(2, 12);
+        while (nB === nA) nB = rint(2, 12);
+        var richtig = pA < pB ? 'Angebot A' : 'Angebot B';
+        return wahl('Angebot A: ' + nA + ' ' + w + ' für ' + geld(nA * pA / 100) + ' Fr.\nAngebot B: ' + nB + ' ' + w +
+                    ' für ' + geld(nB * pB / 100) + ' Fr.\nWo kostet 1 Stück weniger?',
+                    richtig, [richtig === 'Angebot A' ? 'Angebot B' : 'Angebot A'], 'Teile den Preis durch die Anzahl.');
+      }
+    },
+    {
+      id: 'prop-mischung', klassen: [6], schwierigkeit: 'schwer',
+      titel: 'Mischverhältnis', lp21: 'MA.3.A.3',
+      info: 'Sirup 1 : 5, Farbe 2 : 3 — die passende Menge zum Verhältnis finden.',
+      gen: function () {
+        var a = pick([['Sirup', 'Wasser', 'dl'], ['blaue Farbe', 'gelbe Farbe', 'Tropfen'], ['Zement', 'Sand', 'Schaufeln'],
+                      ['Reis', 'Wasser', 'Tassen'], ['Orangensaft', 'Mineralwasser', 'dl'], ['Essig', 'Öl', 'Löffel']]);
+        var v1 = rint(1, 4), v2 = rint(1, 6);
+        while (v2 === v1) v2 = rint(1, 6);
+        var m = rint(2, 9);
+        var kopf = gross(a[0]) + ' und ' + a[1] + ' im Verhältnis ' + v1 + ' : ' + v2 + '.\n';
+        if (Math.random() < 0.5) {
+          return { typ: 'zahl', frage: kopf + 'Du nimmst ' + (v1 * m) + ' ' + a[2] + ' ' + a[0] + '. Wie viel ' + a[1] + '?',
+                   antwort: String(v2 * m), einheit: a[2], hinweis: 'Wie oft steckt ' + v1 + ' in ' + (v1 * m) + '?' };
+        }
+        return { typ: 'zahl', frage: kopf + 'Du nimmst ' + (v2 * m) + ' ' + a[2] + ' ' + a[1] + '. Wie viel ' + a[0] + '?',
+                 antwort: String(v1 * m), einheit: a[2], hinweis: 'Wie oft steckt ' + v2 + ' in ' + (v2 * m) + '?' };
+      }
+    }
+  ];
+
+  /* ============================================================
      Registrierung
      ============================================================ */
   var ALLE = [];
@@ -2654,6 +2816,7 @@
   reg('englisch', ENGLISCH_NEU);
   reg('nmg', NMG_NEU);
   reg('franzoesisch', FRANZOESISCH_NEU);
+  reg('mathe', MATHE_PROP);
 
   /* Eigene Listen aus fotografierten Schulblättern. Die Dokumenten-Pipeline
      schreibt sie nach /lernwelt/eigene/listen.js (nur auf dem Server, nicht

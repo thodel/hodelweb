@@ -458,7 +458,13 @@
 
   /* ================= Ankunft ================= */
   var n = anzahlGeschafft();
-  Raum.reden('Pirateninsel', n === 0
+  Raum.reden('Pirateninsel', n === 0 && stand.kobolde
+    ? ['Die Kobolde setzen dich im Sand ab, kichern und zählen deine Münzen: ' + stand.beute +
+       ' Stück behalten sie. «Trödler!», ruft der kleinste, dann sind sie weg.',
+       '«Von der Rennbahn-Insel?», fragt die Käptin. «Die Kobolde bringen uns immer die, ' +
+       'die nicht rechtzeitig zur Fähre finden. Wir nehmen kein Gold. Wir nehmen Übungen.»',
+       'An drei Pfählen hängen Zettel. Schaff alle drei, dann bringt dich das Boot zurück — zum Fähranleger.']
+    : n === 0
     ? ['Sand, ein Feuer und drei Piraten, die dich freundlich anschauen.',
        '„Willkommen“, sagt die Käptin. „Wir nehmen kein Gold. Wir nehmen Übungen.“',
        'An drei Pfählen hängen Zettel. Schaff alle drei, dann bringt dich das Boot zurück.']

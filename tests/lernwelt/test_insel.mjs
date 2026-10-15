@@ -152,3 +152,81 @@ test('Klasse 4 und 6 haben in jedem Fach Nachschub bekommen', () => {
   assert.ok(Uebungen.fuer('franzoesisch', 6).eigene.length >= 10);
   assert.equal(Uebungen.fuer('franzoesisch', 4).eigene.length, 0);
 });
+
+test('Fähre zur Rennbahn-Insel: 50 Münzen hin und zurück, ein Rennen pro Überfahrt', () => {
+  const { Insel } = frisch();
+  const st = Insel.stand('A'); st.muenzen = 60; Insel._speichern('A', st);
+  assert.equal(Insel.rennenErlaubt('A'), false, 'ohne Überfahrt kein Rennen');
+  assert.equal(Insel.rennenMelden({ kurs: 'palmenring', platz: 1 }, 'A').grund, 'nichtDort');
+  const f = Insel.faehreRennbahn('A');
+  assert.equal(f.ok, true);
+  assert.equal(Insel.muenzen('A'), 10);
+  assert.equal(Insel.rennbahnStand('A').dort, true);
+  assert.equal(Insel.faehreRennbahn('A').grund, 'dort');
+  assert.equal(Insel.rennenErlaubt('A'), true);
+
+  const r = Insel.rennenMelden({ kurs: 'palmenring', platz: 2, zeit: 61.26, fahrer: 6 }, 'A');
+  assert.equal(r.ok, true);
+  assert.equal(r.preisgeld, Insel.oekonomie.rennPreisgeld[1]);
+  assert.equal(r.neueBestzeit, true);
+  assert.equal(r.bestzeit, 61.3);
+  assert.ok(Insel.muenzen('A') >= 10 + r.preisgeld, 'Preisgeld (und Erst-Münzen) gutgeschrieben');
+  assert.equal(Insel.rennbahnStand('A').gefahren, true);
+  assert.ok(Insel.rennbahnStand('A').rest > 100, 'die Frist läuft');
+  assert.equal(Insel.rennenErlaubt('A'), false, 'kein zweites Rennen ohne Rückfahrt');
+  assert.equal(Insel.rennenMelden({ kurs: 'palmenring', platz: 1 }, 'A').grund, 'schonGefahren');
+  assert.equal(Insel.uebung('sport', 'rennen-palmenring', 'A').versuche, 1, 'zählt als Sportspiel');
+
+  assert.equal(Insel.koboldePruefen('A').gefangen, false, 'innerhalb der Frist passiert nichts');
+  const z = Insel.rennbahnZurueck('A');
+  assert.equal(z.ok, true);
+  assert.equal(Insel.rennbahnStand('A').dort, false);
+  assert.equal(Insel.rennbahnStand('A').rest, 0);
+  assert.equal(Insel.ankunftAbholen('A').an, 'am Fähranleger');
+  assert.equal(Insel.rennbahnZurueck('A').grund, 'nichtDort');
+});
+
+test('Kobolde: nach der Frist 30 Münzen weg und ab zu den Piraten', () => {
+  const { Insel } = frisch();
+  const st = Insel.stand('A'); st.muenzen = 100; Insel._speichern('A', st);
+  Insel.faehreRennbahn('A');
+  Insel.rennenMelden({ kurs: 'felsenpass', platz: 6, fahrer: 6 }, 'A');   /* kein Preisgeld */
+  const vorher = Insel.muenzen('A');
+  /* Frist von Hand in die Vergangenheit legen. */
+  const s2 = Insel.stand('A'); s2.rennbahn.frist = Date.now() - 1000; Insel._speichern('A', s2);
+  const k = Insel.koboldePruefen('A');
+  assert.equal(k.gefangen, true);
+  assert.equal(k.beute, Insel.oekonomie.koboldBeute);
+  assert.equal(Insel.muenzen('A'), vorher - Insel.oekonomie.koboldBeute);
+  assert.equal(Insel.gekapert('A'), true);
+  assert.equal(Insel.piratenStand('A').kobolde, true);
+  assert.equal(Insel.piratenStand('A').ziel, 'faehre');
+  assert.equal(Insel.rennbahnStand('A').dort, false);
+  assert.equal(Insel.rennbahnStand('A').kobolde, 1);
+  assert.equal(Insel.koboldePruefen('A').gefangen, false, 'nur einmal');
+  Insel.piratenFreilassen('A');
+  assert.equal(Insel.ankunftAbholen('A').id, 'faehre');
+});
+
+test('Kobolde nehmen nicht mehr, als man hat', () => {
+  const { Insel } = frisch();
+  const st = Insel.stand('A'); st.muenzen = 50; Insel._speichern('A', st);
+  Insel.faehreRennbahn('A');
+  Insel.rennenMelden({ kurs: 'palmenring', platz: 5, fahrer: 6 }, 'A');
+  const s2 = Insel.stand('A'); s2.muenzen = 12; s2.rennbahn.frist = 1; Insel._speichern('A', s2);
+  assert.equal(Insel.koboldePruefen('A').beute, 12);
+  assert.equal(Insel.muenzen('A'), 0);
+});
+
+test('Proportionalität: sieben neue Sets für die 6. Klasse, keines für die 4.', () => {
+  const { Uebungen } = frisch();
+  const prop = Uebungen.fuer('mathe', 6).eigene.filter((s) => s.id.indexOf('prop-') === 0);
+  assert.equal(prop.length, 7);
+  assert.equal(Uebungen.fuer('mathe', 4).eigene.filter((s) => s.id.indexOf('prop-') === 0).length, 0);
+  assert.ok(Uebungen.fuer('mathe', 6).eigene.length >= 30);
+  /* Die Dreisatz-Antwort ist ein Betrag, den man mit dem Zahlenfeld tippen kann. */
+  for (let i = 0; i < 50; i++) {
+    const a = Uebungen.set('mathe', 'prop-dreisatz-geld').gen();
+    assert.ok(/^\d+(\.\d\d)?$/.test(a.antwort), a.antwort);
+  }
+});
