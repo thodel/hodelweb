@@ -17,34 +17,14 @@
   #hud, #banner, #dialog .kasten { border-color: #1c6ea4; background: rgba(9,22,36,.94); }
   #hud b, #banner b, #dialog .wer { color: #7dd3fc; }
   .platte { background: #0d2136; border-color: #1c6ea4; }
-  .fangbox { text-align: center; margin: 10px 0; }
-  .fangbox .gross { font-size: 40px; font-weight: 900; color: #7dd3fc; line-height: 1.2; }
-  .fangbox .k { font-size: 13px; color: #94a3b8; margin-top: 4px; min-height: 18px; }
-  .koeder { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; margin: 6px 0 2px; }
+  .koeder { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; margin: 10px 0 4px; }
   .koeder button { border: 2px solid #1c6ea4; background: #06253c; color: #cbd5e1; border-radius: 10px;
-                   padding: 7px 9px; font: 600 12.5px -apple-system, BlinkMacSystemFont, sans-serif; cursor: pointer; }
+                   padding: 8px 10px; font: 600 13px -apple-system, BlinkMacSystemFont, sans-serif; cursor: pointer; }
   .koeder button.an { background: #38bdf8; color: #082f49; border-color: #7dd3fc; }
-  .koeder button:disabled { opacity: .5; cursor: default; }
-  .zeit { text-align: center; font-size: 12px; color: #94a3b8; margin-bottom: 4px; }
-  .spur { position: relative; height: 26px; background: #06253c; border: 2px solid #1c6ea4;
-          border-radius: 999px; overflow: hidden; margin: 12px 0 6px; }
-  .spur .zone { position: absolute; top: 0; bottom: 0; background: rgba(74,222,128,.34);
-                border-left: 2px solid #4ade80; border-right: 2px solid #4ade80; }
-  .spur .rot { position: absolute; top: 0; bottom: 0; right: 0; background: rgba(248,113,113,.3);
-               border-left: 2px solid #f87171; display: none; }
-  .spur.drill .rot { display: block; }
-  .spur .zeiger { position: absolute; top: -3px; bottom: -3px; width: 5px; background: #fbbf24;
-                  border-radius: 3px; }
-  .drillpunkte { display: flex; gap: 6px; justify-content: center; min-height: 14px; }
-  .drillpunkte span { width: 12px; height: 12px; border-radius: 50%; background: #143b57; border: 2px solid #1c6ea4; }
-  .drillpunkte span.ok { background: #4ade80; border-color: #4ade80; }
+  .zeit { text-align: center; font-size: 12px; color: #94a3b8; margin: 6px 0 2px; }
   .knopf { display: block; width: 100%; text-align: center; padding: 15px; border-radius: 12px;
-           margin-top: 10px; background: #38bdf8; border: none; color: #082f49;
+           margin-top: 12px; background: #38bdf8; border: none; color: #082f49;
            font: 700 17px -apple-system, BlinkMacSystemFont, sans-serif; cursor: pointer; }
-  .knopf:disabled { background: #1e293b; color: #64748b; cursor: not-allowed; }
-  .knopf.drill { background: #fbbf24; }
-  .erg { text-align: center; font-size: 15px; font-weight: 800; min-height: 24px; margin-top: 8px; line-height: 1.4; }
-  .erg.win { color: #4ade80; } .erg.lose { color: #fda4af; } .erg.frei { color: #7dd3fc; }
   .fische { display: grid; gap: 6px; margin-top: 10px; max-height: 46vh; overflow: auto; }
   .fisch { display: grid; grid-template-columns: 30px 1fr auto; gap: 8px; align-items: center; font-size: 13px;
            padding: 6px 0; border-top: 1px solid #143b57; }
@@ -82,22 +62,11 @@
     <button class="zu" id="zu">✕</button>
     <div class="tafel" id="t-angel" hidden>
       <h2>🎣 Angeln</h2>
-      <div class="unter">Köder wählen, auswerfen, warten. Beisst einer, ziehst du, wenn der Schwimmer im grünen
-        Feld ist. Grosse Fische wehren sich danach noch — hol nur ein, wenn die Schnur locker ist.</div>
+      <div class="unter">Köder wählen und auswerfen. Dann heisst es warten: Taucht der Schwimmer unter,
+        schlägst du mit <b>E</b> an. Grosse Fische wehren sich — hol nur ein, wenn die Schnur locker ist.</div>
       <div class="koeder" id="koeder"></div>
       <div class="zeit" id="zeit"></div>
-      <div class="fangbox">
-        <div class="gross" id="fang-fisch">🎣</div>
-        <div class="k" id="fang-name">Bereit?</div>
-      </div>
-      <div class="spur" id="spur">
-        <div class="zone" id="zone"></div>
-        <div class="rot" id="rot"></div>
-        <div class="zeiger" id="zeiger"></div>
-      </div>
-      <div class="drillpunkte" id="drill"></div>
       <button class="knopf" id="fang-knopf">Auswerfen</button>
-      <div class="erg" id="fang-erg"></div>
       <div class="lohn" id="fang-lohn"></div>
     </div>
     <div class="tafel" id="t-eimer" hidden>
@@ -149,64 +118,61 @@
 
   /* min/max in cm · mass = Mindestmass in cm (0 = keines) · schon = Monate der
      Schonzeit (1–12) · zeit = wann er am besten beisst · haeufig = wie oft er
-     an den Haken geht · breite = grünes Feld beim Anbiss · kampf = Zügen beim Drill */
+     an den Haken geht · fenster = Sekunden, die der Biss dauert · kampf = Züge
+     beim Drill · g = Geschlecht · fb/fb2 = Farben, form = Körperbau */
   var FISCHE = [
     { id: 'rotauge', name: 'Rotauge', g: 'n', emoji: '🐟', min: 10, max: 32, mass: 0, schon: [], koeder: ['brot', 'mais', 'made'],
-      zeit: ['tag', 'daemmerung'], haeufig: 8, breite: 36, kampf: 1, muenzen: 1,
+      zeit: ['tag', 'daemmerung'], haeufig: 8, fenster: 1.0, kampf: 1, muenzen: 1, fb: '#cbd5e1', fb2: '#ef4444', form: 'rund',
       info: 'Schwarmfisch mit roten Augen. Frisst fast alles Kleine.' },
     { id: 'egli', name: 'Egli', g: 'n', emoji: '🐟', min: 12, max: 38, mass: 0, schon: [], koeder: ['wurm', 'made', 'blinker'],
-      zeit: ['tag'], haeufig: 7, breite: 34, kampf: 1, muenzen: 2,
+      zeit: ['tag'], haeufig: 7, fenster: 0.95, kampf: 1, muenzen: 2, fb: '#8aa84a', fb2: '#3f5a1f', form: 'rund', streifen: true,
       info: 'Flussbarsch: gestreift, rote Flossen, jagt im Schwarm.' },
     { id: 'forelle', name: 'Bachforelle', g: 'f', emoji: '🐠', min: 18, max: 55, mass: 24, schon: [10, 11, 12, 1], koeder: ['fliege', 'wurm', 'blinker'],
-      zeit: ['daemmerung', 'tag'], haeufig: 5, breite: 26, kampf: 2, muenzen: 3,
+      zeit: ['daemmerung', 'tag'], haeufig: 5, fenster: 0.8, kampf: 2, muenzen: 3, fb: '#a07850', fb2: '#dc2626', form: 'lang', punkte: true,
       info: 'Rote Punkte, kaltes klares Wasser. Laicht im Winter — dann ist Schonzeit.' },
     { id: 'felchen', name: 'Felchen', g: 'n', emoji: '🐟', min: 22, max: 48, mass: 25, schon: [11, 12], koeder: ['made'],
-      zeit: ['tag'], haeufig: 4, breite: 24, kampf: 1, muenzen: 3,
+      zeit: ['tag'], haeufig: 4, fenster: 0.75, kampf: 1, muenzen: 3, fb: '#94a3b8', fb2: '#64748b', form: 'rund',
       info: 'Der Seefisch der Schweiz. Beisst auf winzige Köder an der Hegene.' },
     { id: 'aesche', name: 'Äsche', g: 'f', emoji: '🐠', min: 22, max: 48, mass: 30, schon: [1, 2, 3, 4], koeder: ['fliege'],
-      zeit: ['tag', 'daemmerung'], haeufig: 3, breite: 20, kampf: 2, muenzen: 5,
+      zeit: ['tag', 'daemmerung'], haeufig: 3, fenster: 0.7, kampf: 2, muenzen: 5, fb: '#9ca3af', fb2: '#7c3aed', form: 'lang', fahne: true,
       info: 'Grosse Rückenflosse wie eine Fahne. Nur mit der Fliege.' },
     { id: 'schleie', name: 'Schleie', g: 'f', emoji: '🐟', min: 20, max: 55, mass: 0, schon: [], koeder: ['wurm', 'mais'],
-      zeit: ['daemmerung', 'nacht'], haeufig: 3, breite: 22, kampf: 2, muenzen: 4,
+      zeit: ['daemmerung', 'nacht'], haeufig: 3, fenster: 0.75, kampf: 2, muenzen: 4, fb: '#4d7c0f', fb2: '#365314', form: 'rund',
       info: 'Grünlich, glitschig, liebt schlammigen Grund und den Abend.' },
     { id: 'barbe', name: 'Barbe', g: 'f', emoji: '🐟', min: 25, max: 75, mass: 30, schon: [5, 6], koeder: ['wurm', 'made'],
-      zeit: ['tag', 'daemmerung'], haeufig: 3, breite: 20, kampf: 3, muenzen: 4,
+      zeit: ['tag', 'daemmerung'], haeufig: 3, fenster: 0.7, kampf: 3, muenzen: 4, fb: '#b4a26a', fb2: '#7c6a3a', form: 'lang', barteln: true,
       info: 'Vier Bartfäden, steht in der Strömung. Zieht kräftig.' },
     { id: 'karpfen', name: 'Karpfen', g: 'm', emoji: '🐡', min: 30, max: 95, mass: 0, schon: [], koeder: ['mais', 'brot'],
-      zeit: ['daemmerung', 'tag'], haeufig: 3, breite: 18, kampf: 4, muenzen: 5,
+      zeit: ['daemmerung', 'tag'], haeufig: 3, fenster: 0.65, kampf: 4, muenzen: 5, fb: '#b08d3f', fb2: '#7a5c1f', form: 'rund',
       info: 'Schwer und zäh. Mag Mais und Brot und warme Sommerabende.' },
     { id: 'hecht', name: 'Hecht', g: 'm', emoji: '🐊', min: 35, max: 115, mass: 45, schon: [3, 4], koeder: ['blinker', 'koederfisch'],
-      zeit: ['daemmerung', 'tag'], haeufig: 3, breite: 19, kampf: 4, muenzen: 5,
+      zeit: ['daemmerung', 'tag'], haeufig: 3, fenster: 0.65, kampf: 4, muenzen: 5, fb: '#4b7a3a', fb2: '#a3c47a', form: 'sehrlang', punkte: true,
       info: 'Räuber mit Entenschnabel, lauert im Schilf. Schonzeit im Frühling.' },
     { id: 'zander', name: 'Zander', g: 'm', emoji: '🐟', min: 30, max: 95, mass: 40, schon: [4, 5], koeder: ['koederfisch', 'blinker'],
-      zeit: ['daemmerung', 'nacht'], haeufig: 2, breite: 16, kampf: 3, muenzen: 6,
+      zeit: ['daemmerung', 'nacht'], haeufig: 2, fenster: 0.6, kampf: 3, muenzen: 6, fb: '#6b7280', fb2: '#374151', form: 'lang', streifen: true,
       info: 'Glasaugen für die Dämmerung. Scheu und vorsichtig.' },
     { id: 'aal', name: 'Aal', g: 'm', emoji: '🐍', min: 40, max: 105, mass: 50, schon: [], koeder: ['wurm', 'koederfisch'],
-      zeit: ['nacht'], haeufig: 2, breite: 14, kampf: 3, muenzen: 6,
+      zeit: ['nacht'], haeufig: 2, fenster: 0.6, kampf: 3, muenzen: 6, fb: '#374151', fb2: '#1f2937', form: 'schlange',
       info: 'Wandert bis ins Meer, um zu laichen. Beisst fast nur nachts.' },
     { id: 'seeforelle', name: 'Seeforelle', g: 'f', emoji: '🐠', min: 35, max: 95, mass: 35, schon: [10, 11, 12], koeder: ['blinker', 'koederfisch'],
-      zeit: ['daemmerung'], haeufig: 1, breite: 12, kampf: 4, muenzen: 8,
+      zeit: ['daemmerung'], haeufig: 1, fenster: 0.55, kampf: 4, muenzen: 8, fb: '#94a3b8', fb2: '#111827', form: 'lang', punkte: true,
       info: 'Die grosse Schwester der Bachforelle, silbern und selten.' },
     { id: 'wels', name: 'Wels', g: 'm', emoji: '🐋', min: 50, max: 210, mass: 0, schon: [], koeder: ['koederfisch', 'wurm'],
-      zeit: ['nacht'], haeufig: 1, breite: 10, kampf: 5, muenzen: 10,
+      zeit: ['nacht'], haeufig: 1, fenster: 0.55, kampf: 5, muenzen: 10, fb: '#3f3f46', fb2: '#71717a', form: 'sehrlang', barteln: true,
       info: 'Der grösste Fisch unserer Flüsse. Bartfäden, Maul wie ein Eimer.' },
     { id: 'krebs', name: 'Flusskrebs', g: 'm', emoji: '🦞', min: 8, max: 17, mass: 0, schon: [], koeder: ['wurm', 'koederfisch'],
-      zeit: ['nacht', 'daemmerung'], haeufig: 2, breite: 18, kampf: 1, muenzen: 4,
+      zeit: ['nacht', 'daemmerung'], haeufig: 2, fenster: 0.9, kampf: 1, muenzen: 4, fb: '#9a3412', fb2: '#7c2d12', form: 'krebs',
       info: 'Kneift. Krabbelt rückwärts. Kommt nachts aus dem Versteck.' },
     { id: 'krake', name: 'Kleine Krake', g: 'f', emoji: '🐙', min: 15, max: 60, mass: 0, schon: [], koeder: ['koederfisch'],
-      zeit: ['nacht', 'daemmerung'], haeufig: 1, breite: 10, kampf: 3, muenzen: 8,
+      zeit: ['nacht', 'daemmerung'], haeufig: 1, fenster: 0.55, kampf: 3, muenzen: 8, fb: '#7e22ce', fb2: '#581c87', form: 'krake',
       info: 'Verirrt sich vom Meer in die Bucht. Acht Arme, kein Knochen.' },
-    { id: 'stiefel', name: 'Alter Stiefel', emoji: '🥾', min: 0, max: 0, mass: 0, schon: [], koeder: [], zeit: [],
-      haeufig: 2, breite: 40, kampf: 0, muenzen: 0, abfall: true, info: 'Kein Fisch. Gehört in den Abfall.' },
-    { id: 'dose', name: 'Blechdose', emoji: '🥫', min: 0, max: 0, mass: 0, schon: [], koeder: [], zeit: [],
-      haeufig: 2, breite: 40, kampf: 0, muenzen: 0, abfall: true, info: 'Auch kein Fisch. Fritz sammelt sie.' }
+    { id: 'stiefel', name: 'Alter Stiefel', g: 'm', emoji: '🥾', min: 0, max: 0, mass: 0, schon: [], koeder: [], zeit: [],
+      haeufig: 2, fenster: 1.2, kampf: 0, muenzen: 0, abfall: true, form: 'abfall', info: 'Kein Fisch. Gehört in den Abfall.' },
+    { id: 'dose', name: 'Blechdose', g: 'f', emoji: '🥫', min: 0, max: 0, mass: 0, schon: [], koeder: [], zeit: [],
+      haeufig: 2, fenster: 1.2, kampf: 0, muenzen: 0, abfall: true, form: 'abfall', info: 'Auch kein Fisch. Fritz sammelt sie.' }
   ];
   var ARTEN = FISCHE.filter(function (f) { return !f.abfall; });
 
-  function fisch(id) { return FISCHE.filter(function (f) { return f.id === id; })[0]; }
-  /* «den Hecht», «die Forelle», «das Egli» */
-  function akk(f) { return (f.g === 'm' ? 'den ' : f.g === 'f' ? 'die ' : 'das ') + f.name; }
-  function nom(f) { return (f.g === 'm' ? 'Der ' : f.g === 'f' ? 'Die ' : 'Das ') + f.name; }
   function koederName(id) { var k = KOEDER.filter(function (x) { return x.id === id; })[0]; return k ? k.emoji + ' ' + k.name : id; }
   function tageszeit(d) {
     var h = (d || new Date()).getHours();
@@ -219,9 +185,7 @@
   function schonzeit(f, d) { return f.schon.indexOf(monat(d)) >= 0; }
   function schonText(f) {
     if (!f.schon.length) return '';
-    var m = f.schon.slice();
-    /* Zusammenhängende Monate als «Okt–Jan» schreiben (über den Jahreswechsel hinweg). */
-    var start = 0;
+    var m = f.schon.slice(), start = 0;
     for (var i = 0; i < m.length; i++) {
       var vorher = m[(i - 1 + m.length) % m.length];
       if (m[i] !== (vorher % 12) + 1) start = i;
@@ -229,10 +193,12 @@
     var geordnet = m.slice(start).concat(m.slice(0, start));
     return MONATE[geordnet[0] - 1] + '–' + MONATE[geordnet[geordnet.length - 1] - 1];
   }
-  /* Zufällige Länge: die meisten sind klein, grosse sind selten (Dreiecksverteilung). */
+  /* «den Hecht», «die Forelle», «das Egli» */
+  function akk(f) { return (f.g === 'm' ? 'den ' : f.g === 'f' ? 'die ' : 'das ') + f.name; }
+  function nom(f) { return (f.g === 'm' ? 'Der ' : f.g === 'f' ? 'Die ' : 'Das ') + f.name; }
+  /* Zufällige Länge: die meisten sind klein, grosse sind selten. */
   function laenge(f) {
-    var u = Math.random(), v = Math.random();
-    var t = Math.min(u, v);                     /* schiebt nach unten */
+    var t = Math.min(Math.random(), Math.random());
     return Math.round(f.min + (f.max - f.min) * t);
   }
   /* Gewicht grob aus der Länge: Fische werden mit der dritten Potenz schwerer. */
@@ -245,13 +211,8 @@
   /* ================= Fangbuch im Spielstand =================
      stand.fische[id] = Anzahl (wie bisher) · stand.fischRekorde[id] = cm
      stand.fischZurueck = zurückgesetzte Fische · alles am selben stand-Objekt. */
-  function eimer() {
-    var st = Insel.stand(who);
-    return st.fische || {};
-  }
-  function rekorde() {
-    return Insel.stand(who).fischRekorde || {};
-  }
+  function eimer() { return Insel.stand(who).fische || {}; }
+  function rekorde() { return Insel.stand(who).fischRekorde || {}; }
   function gefangen(id) { return !!eimer()[id]; }
   function eintragen(f, cm) {
     var stand = Insel.stand(who);
@@ -266,7 +227,7 @@
     Insel._speichern(who, stand);
     return { neu: neu, lohn: lohn, anzahl: stand.fische[f.id], rekord: rekord && !neu };
   }
-  function zuruecksetzen(f, cm, grund) {
+  function zuruecksetzen(f, cm) {
     var stand = Insel.stand(who);
     stand.fischZurueck = (stand.fischZurueck || 0) + 1;
     if (!stand.fischGesehen) stand.fischGesehen = {};
@@ -274,14 +235,18 @@
     Insel._speichern(who, stand);
   }
 
-  /* ================= Raum ================= */
+  /* ================= Raum =================
+     Der Steg ragt ins Wasser; am rechten Stegende steht man und wirft nach
+     rechts in die offene Bucht. Dort schwimmen die Fische. */
   var moebel = [
     { art: 'steg',  tx: 8, ty: 9, tw: 10, th: 2 },
-    { art: 'boot',  tx: 19, ty: 8, tw: 4, th: 2 },
+    { art: 'boot',  tx: 1, ty: 10, tw: 4, th: 2 },
     { art: 'huette', tx: 3, ty: 5, tw: 4, th: 3 },
     { art: 'kiste', tx: 21, ty: 13, tw: 1, th: 1 },
     { art: 'kiste', tx: 3, ty: 13, tw: 1, th: 1 }
   ];
+  var PLATZ = { x: 18 * TILE + 8, y: 10 * TILE + 14 };          /* wo der Angler steht */
+  var WASSER = { x0: 19 * TILE + 8, x1: 25 * TILE, y0: 8 * TILE, y1: 13 * TILE + 8 };   /* wohin man wirft */
 
   Raum.starten({
     canvas: $('raum'), breiteKacheln: RAUM_W, hoeheKacheln: RAUM_H,
@@ -295,25 +260,25 @@
     lichtAussen: 'rgba(6,20,34,.34)',
 
     stationen: [
-      { id: 'angel', name: 'Stegende', tafel: 't-angel', tx: 13, ty: 12, farbe: '#7dd3fc',
+      { id: 'angel', name: 'Stegende', tafel: null, tx: 18, ty: 10, farbe: '#7dd3fc',
         hinweis: 'hier beisst etwas', verb: 'angeln' },
-      { id: 'eimer', name: 'Fangbuch', tafel: 't-eimer', tx: 6, ty: 9, farbe: '#fbbf24',
+      { id: 'eimer', name: 'Fangbuch', tafel: null, tx: 6, ty: 12, farbe: '#fbbf24',
         hinweis: 'was schon dran war', verb: 'nachsehen' },
       { id: 'tuer', name: 'Weg zurück', tafel: null, tx: 13, ty: 15, farbe: '#fde68a',
         hinweis: 'zurück auf die Insel' }
     ],
 
     leute: [
-      { name: 'Fischer Fritz', tx: 17, ty: 12, jacke: ['#0f766e', '#0b544e'],
+      { name: 'Fischer Fritz', tx: 15, ty: 12, jacke: ['#0f766e', '#0b544e'],
         haar: '#e2e8f0', haut: '#c98d63',
         sprueche: [
-          ['Setz dich ans Stegende, wähl einen Köder, wirf aus und warte.',
-           'Beisst einer, wandert der Schwimmer. Wenn er im grünen Feld ist, ziehst du. Nicht vorher, nicht nachher.'],
+          ['Stell dich ans Stegende, wähl einen Köder und wirf aus. Dann warten.',
+           'Taucht der Schwimmer unter, schlägst du an. Nicht vorher — sonst erschrickt der Fisch.'],
           ['Der Köder entscheidet, wer kommt. Rotaugen wollen Brot, Forellen die Fliege, der Hecht einen Blinker.',
            'Und der Aal? Wurm — aber nur nachts. Tagsüber schläft er im Schlamm.'],
           ['Zu klein? Zurück ins Wasser. Schonzeit? Zurück ins Wasser. So macht das ein Fischer.',
            'Forellen schont man im Winter, den Hecht im Frühling. Steht alles im Fangbuch.'],
-          ['Die grossen wehren sich. Hol nur ein, wenn die Schnur locker ist — zieht er, wartest du.',
+          ['Die grossen wehren sich. Hol nur ein, wenn die Rute gerade ist — biegt sie sich, wartest du.',
            'Wer am Zug reisst, verliert Fisch und Haken. Habe ich auch gelernt. Mehrmals.'],
           ['Fischen ist wie Üben.', 'Man wird nicht besser, weil man mehr will. Man wird besser, weil man ' +
            'öfter hinschaut.']
@@ -328,14 +293,12 @@
     ],
 
     boden: function (ctx, t) {
-      /* Wasser mit Wellen */
       for (var ty = 3; ty < RAUM_H; ty++) {
         for (var tx = 0; tx < RAUM_W; tx++) {
           var welle = Math.sin(t * 1.2 + tx * 0.5 + ty * 0.3) > 0.6;
           px(ctx, tx * TILE, ty * TILE, TILE, TILE, welle ? '#1f76ad' : '#1c6ea4');
         }
       }
-      /* Strand oben und unten */
       for (var bx = 0; bx < RAUM_W; bx++) {
         px(ctx, bx * TILE, 3 * TILE, TILE, TILE * 2, '#39a0c9');
         px(ctx, bx * TILE, 0, TILE, 48, '#e8d3a0');
@@ -345,26 +308,15 @@
       /* Der Bach, der in die Bucht mündet (rechts oben) */
       px(ctx, 22 * TILE, 0, 2 * TILE + 4, 48, '#39a0c9');
       for (var by = 0; by < 48; by += 8) px(ctx, 22 * TILE + 6 + Math.round(Math.sin(t * 3 + by) * 4), by, 3, 2, '#cfe8f5');
-      /* Schaumkanten */
       for (var sx = 0; sx < RAUM_W * TILE; sx += 6) {
         var h = Math.sin(t * 2 + sx * 0.1) > 0 ? 2 : 1;
         px(ctx, sx, 48, 4, h, '#cfe8f5');
         px(ctx, sx, (RAUM_H - 3) * TILE - h, 4, h, '#cfe8f5');
       }
-      /* Weg zurück */
       var ty2 = (RAUM_H - 1) * TILE;
       px(ctx, 12 * TILE, ty2 - TILE, 2 * TILE, TILE * 2, '#c3a878');
-      /* Fische, die vorbeiziehen — nachts weniger zu sehen */
-      var sicht = tageszeit() === 'nacht' ? 0.25 : 0.5;
-      for (var f = 0; f < 6; f++) {
-        var fx = ((t * (14 + f * 5) + f * 90) % (RAUM_W * TILE + 40)) - 20;
-        var fy = 5 * TILE + f * 20 + Math.sin(t * 1.6 + f) * 3;
-        ctx.globalAlpha = sicht;
-        px(ctx, fx, fy, f === 3 ? 12 : 6, 3, f === 3 ? '#a7f3d0' : '#7dd3fc');
-        px(ctx, fx - 3, fy, 3, 3, '#7dd3fc');
-        ctx.globalAlpha = 1;
-      }
-      /* Nachts wird es dunkel, in der Dämmerung golden */
+      /* Schatten von Fischen, die durch die Bucht ziehen */
+      schattenZeichnen(ctx, t);
       var tz = tageszeit();
       if (tz !== 'tag') {
         ctx.fillStyle = tz === 'nacht' ? 'rgba(4,10,30,.45)' : 'rgba(251,146,60,.10)';
@@ -380,6 +332,9 @@
         for (var i = 0; i < m.tw; i++) px(ctx, x + i * TILE, y - 2, 1, h, '#5b3a2e');
         px(ctx, x - 3, y - 12, 6, 12, '#5b3a2e');
         px(ctx, x + w - 3, y - 12, 6, 12, '#5b3a2e');
+        /* Eimer am Stegende */
+        px(ctx, x + w - 16, y + 2, 9, 9, '#64748b');
+        px(ctx, x + w - 17, y + 1, 11, 2, '#94a3b8');
         return;
       }
       if (m.art === 'boot') {
@@ -402,8 +357,33 @@
       px(ctx, x + 1, y - 6, TILE - 2, 2, '#c9a227');
     },
 
+    /* Die Angelszene liegt über allem: Rute, Schnur, Schwimmer, Fisch. */
+    darueber: function (ctx, t) { angelZeichnen(ctx, t); },
+    /* Solange geangelt wird, bleibt die Figur am Stegende stehen. */
+    beimZeichnen: function () {
+      if (!angel.phase) return;
+      var h = Raum.held;
+      h.x = PLATZ.x; h.y = PLATZ.y; h.dir = 'right'; h.frame = 0;
+    },
+
+    stationHinweis: function (s) {
+      if (s.id === 'angel') {
+        var p = angel.phase;
+        s.verb = p === 'biss' ? 'ANSCHLAGEN!' : p === 'drill' ? 'einholen' : p ? '…' : 'angeln';
+        if (p === 'wurf') return 'die Schnur fliegt';
+        if (p === 'warten') return 'warten — Augen auf den Schwimmer';
+        if (p === 'biss') return 'BISS! Der Schwimmer taucht';
+        if (p === 'drill') return angel.spannung >= 72 ? 'er zieht — warten!' : angel.spannung <= 42 ? 'Schnur locker — jetzt!' : 'Vorsicht';
+        if (p) return 'gleich …';
+        return 'hier beisst etwas';
+      }
+      return s.hinweis;
+    },
     stationTun: function (s) {
-      if (s.id === 'angel') { angelOeffnen(); return true; }
+      if (s.id === 'angel') {
+        if (angel.phase) angelAktion(); else angelOeffnen();
+        return true;
+      }
       if (s.id === 'eimer') { eimerOeffnen(); return true; }
       return false;
     },
@@ -417,55 +397,246 @@
     }
   });
 
-  /* ================= Angeln =================
-     Phasen: 'bereit' → 'warten' (Schwimmer treibt) → 'biss' (Zeiger wandert,
-     grünes Feld treffen) → 'drill' (Schnur locker halten, einholen) → fertig. */
-  var phase = 'bereit', koeder = 'wurm';
-  var pos = 0, richtung = 1, tempo = 0.9, zonenStart = 0, zonenBreite = 0;
-  var zielFisch = null, zielCm = 0, timer = null, warteTimer = null;
-  var drillZuege = 0, drillNoetig = 0, spannung = 0, spannT = 0, zugBis = 0;
+  /* ================= Fische zeichnen ================= */
+  /* Ein Fisch, waagrecht, Mitte bei (x, y). dir = 1 schaut nach rechts. */
+  function fischMalen(ctx, f, cm, x, y, dir, t) {
+    if (f.form === 'abfall') {
+      ctx.font = '16px system-ui, sans-serif'; ctx.textAlign = 'center';
+      ctx.fillText(f.emoji, x, y + 6);
+      return;
+    }
+    var L = Math.max(14, Math.min(70, 12 + cm * 0.5));
+    var H = f.form === 'rund' ? L * 0.42 : f.form === 'lang' ? L * 0.3 : f.form === 'sehrlang' ? L * 0.22 : L * 0.16;
+    var kopf = x + dir * L / 2, schwanz = x - dir * L / 2;
+    var wedel = Math.round(Math.sin((t || 0) * 9 + x) * 2);
+    if (f.form === 'krebs') {
+      px(ctx, x - L * 0.3, y - H, L * 0.6, H * 2, f.fb);
+      for (var b = 0; b < 3; b++) { px(ctx, x - L * 0.3 + b * L * 0.2, y + H, 2, 5, f.fb2); px(ctx, x - L * 0.3 + b * L * 0.2, y - H - 5, 2, 5, f.fb2); }
+      px(ctx, kopf - dir * 2, y - H - 2, dir * L * 0.3, 4, f.fb); px(ctx, kopf - dir * 2, y + H - 2, dir * L * 0.3, 4, f.fb);
+      px(ctx, schwanz, y - H * 0.6, dir * L * 0.2, H * 1.2, f.fb2);
+      return;
+    }
+    if (f.form === 'krake') {
+      px(ctx, x - L * 0.25, y - H * 1.5, L * 0.5, H * 2, f.fb);
+      for (var a = 0; a < 6; a++) px(ctx, x - L * 0.3 + a * L * 0.11, y + H * 0.5 + Math.round(Math.sin((t || 0) * 6 + a) * 2), 2, H * 1.2, f.fb2);
+      px(ctx, x - 3, y - H * 0.8, 2, 2, '#f8fafc'); px(ctx, x + 1, y - H * 0.8, 2, 2, '#f8fafc');
+      return;
+    }
+    /* Körper in Stufen, damit es nach Fisch aussieht */
+    ctx.fillStyle = f.fb;
+    ctx.beginPath(); ctx.ellipse(x, y, L / 2, H, 0, 0, Math.PI * 2); ctx.fill();
+    /* Bauch heller */
+    ctx.fillStyle = 'rgba(255,255,255,.18)';
+    ctx.beginPath(); ctx.ellipse(x, y + H * 0.3, L / 2.4, H * 0.45, 0, 0, Math.PI * 2); ctx.fill();
+    /* Schwanz */
+    ctx.fillStyle = f.fb2;
+    ctx.beginPath(); ctx.moveTo(schwanz + dir * 2, y); ctx.lineTo(schwanz - dir * H * 0.9, y - H + wedel); ctx.lineTo(schwanz - dir * H * 0.9, y + H + wedel); ctx.closePath(); ctx.fill();
+    /* Rückenflosse */
+    ctx.beginPath(); ctx.moveTo(x - dir * L * 0.15, y - H + 1); ctx.lineTo(x, y - H * (f.fahne ? 2.4 : 1.6)); ctx.lineTo(x + dir * L * 0.12, y - H + 1); ctx.closePath(); ctx.fill();
+    /* Flossen unten */
+    px(ctx, x - dir * L * 0.05 - 2, y + H - 1, 5, 3, f.fb2);
+    if (f.streifen) for (var s = -2; s <= 2; s++) px(ctx, x + s * L * 0.14, y - H * 0.8, 2, H * 1.3, f.fb2);
+    if (f.punkte) for (var p = -2; p <= 2; p++) px(ctx, x + p * L * 0.14 + 1, y - H * 0.4 + (p % 2) * 3, 2, 2, f.fb2);
+    if (f.barteln) { px(ctx, kopf - dir * 1, y + 1, dir * 6, 1, f.fb2); px(ctx, kopf - dir * 2, y + 3, dir * 5, 1, f.fb2); }
+    /* Auge */
+    px(ctx, kopf - dir * (H * 0.9) - 1, y - H * 0.35, 2, 2, '#f8fafc');
+    px(ctx, kopf - dir * (H * 0.9), y - H * 0.35, 1, 1, '#111827');
+  }
 
+  /* Schatten im Wasser: drei ziehen immer vorbei, einer schleicht zum Schwimmer. */
+  var schatten = [0, 1, 2].map(function (i) { return { x: WASSER.x0 + i * 30, y: WASSER.y0 + 20 + i * 24, v: 9 + i * 4, dir: 1, l: 14 + i * 5 }; });
+  function schattenZeichnen(ctx, t) {
+    var tz = tageszeit();
+    schatten.forEach(function (s) {
+      s.x += s.v * s.dir * 0.016;
+      if (s.x > WASSER.x1 - 10) s.dir = -1;
+      if (s.x < WASSER.x0) s.dir = 1;
+      var y = s.y + Math.sin(t * 1.3 + s.l) * 3;
+      ctx.fillStyle = tz === 'nacht' ? 'rgba(3,12,28,.35)' : 'rgba(5,30,55,.42)';
+      ctx.beginPath(); ctx.ellipse(s.x, y, s.l / 2, s.l / 5, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(s.x - s.dir * s.l / 2, y); ctx.lineTo(s.x - s.dir * s.l * 0.8, y - 3); ctx.lineTo(s.x - s.dir * s.l * 0.8, y + 3); ctx.closePath(); ctx.fill();
+    });
+    /* Der Fisch, der gleich beisst, schleicht sich an. */
+    if (angel.phase === 'warten' && angel.fisch && !angel.fisch.abfall) {
+      var rest = (angel.bissAb - Date.now()) / 1000;
+      if (rest < 1.6) {
+        var f = Math.max(0, 1 - rest / 1.6);
+        var L = Math.max(14, Math.min(60, 12 + angel.cm * 0.5));
+        var sx = angel.floatX + 50 - 46 * f, sy = angel.floatY + 10 + Math.sin(t * 5) * 2;
+        ctx.fillStyle = 'rgba(5,30,55,.5)';
+        ctx.beginPath(); ctx.ellipse(sx, sy, L / 2, L / 5, 0, 0, Math.PI * 2); ctx.fill();
+      }
+    }
+  }
+
+  /* ================= Die Angelszene =================
+     Phasen: wurf → warten → biss → (drill) → landen → zeigen → Ergebnis.
+     Alles hängt an echten Millisekunden, nicht an Bildern. */
+  var angel = { phase: null, koeder: 'wurm', spannung: 0 };
+  var sprengsel = [];   /* Spritzer beim Aufklatschen */
+
+  function rutenSpitze() {
+    /* Die Rute geht von der Hand nach rechts oben; im Drill biegt sie sich zum Fisch. */
+    var hx = PLATZ.x + 5, hy = PLATZ.y - 11;
+    var tx = hx + 24, ty = hy - 20;
+    if (angel.phase === 'wurf') {
+      var p = Math.min(1, (Date.now() - angel.seit) / 400);
+      var schwung = Math.sin(p * Math.PI);
+      tx = hx + 24 - schwung * 20; ty = hy - 20 - schwung * 8;
+    }
+    if (angel.phase === 'drill' || angel.phase === 'landen') {
+      var k = (angel.phase === 'drill' ? angel.spannung : 60) / 100;
+      tx = hx + 24 + (angel.floatX - hx - 24) * 0.25 * k;
+      ty = hy - 20 + (angel.floatY - hy + 20) * 0.35 * k;
+    }
+    return { hx: hx, hy: hy, tx: tx, ty: ty };
+  }
+
+  function angelZeichnen(ctx, t) {
+    if (!angel.phase) return;
+    var r = rutenSpitze(), jetzt = Date.now();
+    var fx = angel.floatX, fy = angel.floatY;
+    /* Schwimmer im Flug */
+    if (angel.phase === 'wurf') {
+      var p = Math.min(1, (jetzt - angel.seit) / 900);
+      fx = r.tx + (angel.floatX - r.tx) * p;
+      fy = r.ty + (angel.floatY - r.ty) * p - Math.sin(p * Math.PI) * 34;
+      if (p >= 1 && !sprengsel.length) spritzen(angel.floatX, angel.floatY);
+    }
+    var taucht = angel.phase === 'biss' ? 6 : angel.phase === 'drill' ? 4 : 0;
+    var bob = Math.round(Math.sin(t * 3) * 1.5);
+    /* Rute */
+    ctx.strokeStyle = '#5b3a2e'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(r.hx, r.hy); ctx.quadraticCurveTo((r.hx + r.tx) / 2, r.hy - 14, r.tx, r.ty); ctx.stroke();
+    px(ctx, r.hx - 2, r.hy - 1, 4, 5, '#1f2937');
+    /* Schnur: locker durchhängend, im Drill gespannt und farbig */
+    var farbe = angel.phase === 'drill' ? (angel.spannung >= 72 ? '#f87171' : angel.spannung <= 42 ? '#4ade80' : '#fde68a') : 'rgba(241,245,249,.8)';
+    ctx.strokeStyle = farbe; ctx.lineWidth = 1;
+    var durchhang = angel.phase === 'drill' ? 0 : angel.phase === 'wurf' ? 6 : 10;
+    ctx.beginPath(); ctx.moveTo(r.tx, r.ty);
+    ctx.quadraticCurveTo((r.tx + fx) / 2, Math.max(r.ty, fy) + durchhang - (angel.phase === 'landen' || angel.phase === 'zeigen' ? 30 : 0), fx, fy - 4 + (angel.phase === 'wurf' ? 0 : taucht));
+    ctx.stroke();
+    /* Spritzer */
+    sprengsel = sprengsel.filter(function (s) { return jetzt < s.bis; });
+    sprengsel.forEach(function (s) {
+      var q = 1 - (s.bis - jetzt) / 500;
+      px(ctx, s.x + s.vx * q, s.y - s.vy * q + 14 * q * q, 2, 2, '#e0f2fe');
+    });
+    /* Ringe im Wasser beim Warten */
+    if (angel.phase === 'warten' || angel.phase === 'biss') {
+      var ring = ((t * 0.7) % 1);
+      ctx.strokeStyle = 'rgba(224,242,254,' + (0.5 - ring * 0.5).toFixed(2) + ')';
+      ctx.beginPath(); ctx.ellipse(fx, fy + 2, 4 + ring * 14, 2 + ring * 5, 0, 0, Math.PI * 2); ctx.stroke();
+    }
+    /* Schwimmer */
+    if (angel.phase === 'wurf' || angel.phase === 'warten' || angel.phase === 'biss' || angel.phase === 'drill') {
+      var fy2 = fy + bob + taucht;
+      px(ctx, fx - 2, fy2 - 6, 4, 4, '#dc2626');
+      px(ctx, fx - 2, fy2 - 2, 4, 3, '#f8fafc');
+      px(ctx, fx - 1, fy2 - 9, 2, 3, '#fbbf24');
+      if (angel.phase === 'biss') {
+        ctx.fillStyle = '#fbbf24'; ctx.font = 'bold 12px ui-monospace, monospace'; ctx.textAlign = 'center';
+        ctx.fillText('!', fx, fy - 14 + Math.round(Math.sin(t * 20) * 2));
+      }
+    }
+    /* Drill: der Fisch zerrt unter Wasser, oben eine Spannungsanzeige */
+    if (angel.phase === 'drill') {
+      var L = Math.max(14, Math.min(60, 12 + angel.cm * 0.5));
+      var zerr = angel.zieht ? Math.sin(t * 14) * 6 : Math.sin(t * 3) * 2;
+      ctx.globalAlpha = 0.55;
+      fischMalen(ctx, angel.fisch, angel.cm, fx + 8 + zerr, fy + 12, angel.zieht ? 1 : -1, t);
+      ctx.globalAlpha = 1;
+      var bx = PLATZ.x - 30, by = PLATZ.y - 46;
+      px(ctx, bx - 1, by - 1, 62, 8, '#0b1220');
+      px(ctx, bx, by, 60, 6, '#06253c');
+      px(ctx, bx, by, 25, 6, 'rgba(74,222,128,.35)');
+      px(ctx, bx + 43, by, 17, 6, 'rgba(248,113,113,.4)');
+      px(ctx, bx + Math.round(angel.spannung * 0.6) - 1, by - 2, 3, 10, '#fbbf24');
+      for (var z = 0; z < angel.noetig; z++) px(ctx, bx + z * 8, by + 10, 6, 3, z < angel.zuege ? '#4ade80' : '#334155');
+    }
+    /* Landen: der Fisch kommt aus dem Wasser und hängt an der Schnur */
+    if (angel.phase === 'landen' || angel.phase === 'zeigen') {
+      var q2 = angel.phase === 'landen' ? Math.min(1, (jetzt - angel.seit) / 1100) : 1;
+      var zx = r.tx + 6, zy = r.ty + 18;
+      var x = angel.floatX + (zx - angel.floatX) * q2, y = angel.floatY + (zy - angel.floatY) * q2 - Math.sin(q2 * Math.PI) * 20;
+      if (q2 < 0.15) spritzen(angel.floatX, angel.floatY);
+      ctx.strokeStyle = 'rgba(241,245,249,.85)'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(r.tx, r.ty); ctx.lineTo(x, y - 8); ctx.stroke();
+      var zappel = angel.phase === 'zeigen' && !angel.fisch.abfall ? Math.round(Math.sin(t * 12) * 3) : 0;
+      fischMalen(ctx, angel.fisch, angel.cm, x, y + zappel, -1, t);
+      if (angel.phase === 'zeigen') {
+        var text = angel.fisch.abfall ? angel.fisch.name : angel.fisch.name + ' · ' + angel.cm + ' cm';
+        ctx.font = '8px ui-monospace, monospace'; ctx.textAlign = 'center';
+        var w = ctx.measureText(text).width + 8;
+        var lx = Math.max(w / 2 + 2, Math.min(RAUM_W * TILE - w / 2 - 2, x));
+        px(ctx, lx - w / 2, y - 34, w, 11, 'rgba(9,22,36,.85)');
+        ctx.fillStyle = '#fde68a'; ctx.fillText(text, lx, y - 26);
+      }
+    }
+    /* Weg oder Schnur gerissen: kurz eine Meldung über dem Wasser */
+    if (angel.phase === 'weg') {
+      ctx.font = 'bold 9px ui-monospace, monospace'; ctx.textAlign = 'center';
+      var w2 = ctx.measureText(angel.wegText).width + 8;
+      px(ctx, fx - w2 / 2, fy - 24, w2, 12, 'rgba(9,22,36,.85)');
+      ctx.fillStyle = '#fda4af'; ctx.fillText(angel.wegText, fx, fy - 15);
+    }
+    ablauf(jetzt);
+  }
+  function spritzen(x, y) {
+    for (var i = 0; i < 7; i++) sprengsel.push({ x: x, y: y, vx: (Math.random() - 0.5) * 20, vy: 6 + Math.random() * 12, bis: Date.now() + 500 });
+  }
+
+  /* Zeitgesteuerte Übergänge */
+  function ablauf(jetzt) {
+    var p = angel.phase;
+    if (p === 'wurf' && jetzt - angel.seit > 900) { angel.phase = 'warten'; }
+    else if (p === 'warten' && jetzt >= angel.bissAb) {
+      if (!angel.fisch) { weg(Math.random() < 0.5 ? 'Nichts beisst.' : 'Nur gezupft. Fehlbiss.'); return; }
+      angel.phase = 'biss'; angel.bissBis = jetzt + angel.fisch.fenster * 1000;
+    }
+    else if (p === 'biss' && jetzt > angel.bissBis) { weg('Zu spät — weg ist er.'); }
+    else if (p === 'drill') { drillSchritt(jetzt); }
+    else if (p === 'landen' && jetzt - angel.seit > 1100) { angel.phase = 'zeigen'; angel.seit = jetzt; }
+    else if (p === 'zeigen' && jetzt - angel.seit > 1300) { ergebnis(); }
+    else if (p === 'weg' && jetzt - angel.seit > 1400) { schluss(); }
+  }
+  function weg(text) {
+    angel.phase = 'weg'; angel.seit = Date.now(); angel.wegText = text;
+  }
+  function schluss() {
+    angel.phase = null; sprengsel = [];
+    Raum.hudAuffrischen();
+  }
+
+  /* ---- Bedienung ---- */
   function koederMalen() {
     var box = $('koeder');
     box.innerHTML = '';
     KOEDER.forEach(function (k) {
       var b = document.createElement('button');
       b.textContent = k.emoji + ' ' + k.name;
-      b.className = k.id === koeder ? 'an' : '';
-      b.disabled = phase !== 'bereit';
-      b.onclick = function () { if (phase !== 'bereit') return; koeder = k.id; koederMalen(); lohnZeigen(); };
+      b.className = k.id === angel.koeder ? 'an' : '';
+      b.onclick = function () { angel.koeder = k.id; koederMalen(); lohnZeigen(); };
       box.appendChild(b);
     });
     $('zeit').textContent = ZEIT_NAME[tageszeit()] + ' · ' + MONATE[monat() - 1] +
       (tageszeit() === 'nacht' ? ' — jetzt sind die Nachtfische wach' :
        tageszeit() === 'daemmerung' ? ' — die beste Zeit für Räuber' : ' — Egli, Felchen und Rotaugen beissen jetzt');
   }
-
+  function lohnZeigen() {
+    var moegen = ARTEN.filter(function (f) { return f.koeder.indexOf(angel.koeder) >= 0; });
+    var offen = moegen.filter(function (f) { return !gefangen(f.id); });
+    $('fang-lohn').innerHTML =
+      'Auf ' + koederName(angel.koeder) + ' beissen: <b>' + moegen.map(function (f) { return f.name; }).join(', ') + '</b>.' +
+      (offen.length ? ' Davon noch nie gefangen: ' + offen.map(function (f) { return f.name; }).join(', ') + '.' : '') +
+      ' Ohne passenden Köder beisst selten etwas.';
+  }
   function angelOeffnen() {
-    if (phase === 'warten' || phase === 'biss' || phase === 'drill') { Raum.fensterOeffnen('t-angel'); return; }
-    phase = 'bereit';
-    $('fang-erg').textContent = '';
-    $('fang-fisch').textContent = '🎣';
-    $('fang-name').textContent = 'Wähl einen Köder und wirf aus.';
-    $('fang-knopf').textContent = 'Auswerfen';
-    $('fang-knopf').className = 'knopf';
-    $('fang-knopf').disabled = false;
-    $('spur').classList.remove('drill');
-    $('zone').style.left = '0%'; $('zone').style.width = '0%';
-    $('zeiger').style.left = '0%';
-    $('drill').innerHTML = '';
     koederMalen();
     lohnZeigen();
     Raum.fensterOeffnen('t-angel');
   }
-  function lohnZeigen() {
-    var moegen = ARTEN.filter(function (f) { return f.koeder.indexOf(koeder) >= 0; });
-    var offen = moegen.filter(function (f) { return !gefangen(f.id); });
-    $('fang-lohn').innerHTML =
-      'Auf ' + koederName(koeder) + ' beissen: <b>' + moegen.map(function (f) { return f.name; }).join(', ') + '</b>.' +
-      (offen.length ? ' Davon noch nie gefangen: ' + offen.map(function (f) { return f.name; }).join(', ') + '.' : '') +
-      ' Ohne passenden Köder beisst selten etwas.';
-  }
+  $('fang-knopf').onclick = function () { Raum.fensterSchliessen(); werfen(); };
 
   /* Wer beisst? Köder, Tageszeit und Seltenheit entscheiden. */
   function fischWaehlen() {
@@ -473,209 +644,96 @@
     FISCHE.forEach(function (f) {
       var wie = f.haeufig;
       if (!f.abfall) {
-        wie *= f.koeder.indexOf(koeder) >= 0 ? 2.5 : 0.25;
-        wie *= f.zeit.indexOf(tz) >= 0 ? 2 : (f.zeit.indexOf('nacht') >= 0 && f.zeit.length === 1 ? 0.15 : 0.5);
+        wie *= f.koeder.indexOf(angel.koeder) >= 0 ? 2.5 : 0.25;
+        wie *= f.zeit.indexOf(tz) >= 0 ? 2 : (f.zeit.length === 1 && f.zeit[0] === 'nacht' ? 0.15 : 0.5);
       }
       for (var n = 0; n < Math.round(wie * 4); n++) topf.push(f);
     });
-    /* Manchmal beisst gar nichts — vor allem mit dem falschen Köder. */
-    var passend = ARTEN.some(function (f) { return f.koeder.indexOf(koeder) >= 0 && f.zeit.indexOf(tz) >= 0; });
+    var passend = ARTEN.some(function (f) { return f.koeder.indexOf(angel.koeder) >= 0 && f.zeit.indexOf(tz) >= 0; });
     for (var k = 0; k < (passend ? 6 : 18); k++) topf.push(null);
     return topf[Math.floor(Math.random() * topf.length)];
   }
 
-  function auswerfen() {
-    if (phase === 'biss') { zuschlagen(); return; }
-    if (phase === 'drill') { einholen(); return; }
-    if (phase === 'warten') return;
-    phase = 'warten';
-    koederMalen();
-    zielFisch = fischWaehlen();
-    $('fang-fisch').textContent = '🪝';
-    $('fang-name').textContent = 'Der Schwimmer treibt. Warten …';
-    $('fang-erg').textContent = '';
-    $('fang-erg').className = 'erg';
-    $('fang-knopf').textContent = 'Warten …';
-    $('fang-knopf').disabled = true;
-    $('spur').classList.remove('drill');
-    $('zone').style.width = '0%';
-    $('zeiger').style.left = '48%';
+  function werfen() {
+    var f = fischWaehlen();
     var kalt = monat() === 12 || monat() === 1 || monat() === 2;
-    var dauer = 1200 + Math.random() * 2600 + (kalt ? 1200 : 0);
-    if (warteTimer) clearTimeout(warteTimer);
-    warteTimer = setTimeout(function () {
-      if (!zielFisch) {
-        /* Nichts — oder ein Fehlbiss */
-        phase = 'bereit';
-        $('fang-fisch').textContent = Math.random() < 0.5 ? '💤' : '〰️';
-        $('fang-name').textContent = Math.random() < 0.5 ? 'Nichts. Der Schwimmer liegt still.' : 'Kurz gezupft — und wieder weg. Fehlbiss.';
-        $('fang-erg').textContent = 'Anderer Köder? Andere Tageszeit? Oder einfach nochmal.';
-        $('fang-erg').className = 'erg';
-        $('fang-knopf').textContent = 'Nochmal auswerfen';
-        $('fang-knopf').disabled = false;
-        koederMalen();
+    angel.phase = 'wurf'; angel.seit = Date.now();
+    angel.fisch = f; angel.cm = f && !f.abfall ? laenge(f) : 0;
+    angel.floatX = WASSER.x0 + 24 + Math.random() * (WASSER.x1 - WASSER.x0 - 50);
+    angel.floatY = WASSER.y0 + 24 + Math.random() * (WASSER.y1 - WASSER.y0 - 40);
+    angel.bissAb = angel.seit + 900 + 1500 + Math.random() * 3200 + (kalt ? 1500 : 0);
+    sprengsel = [];
+  }
+
+  function angelAktion() {
+    var p = angel.phase, jetzt = Date.now();
+    if (p === 'warten') {
+      /* Zu früh angeschlagen: der Fisch erschrickt. */
+      if (angel.fisch && jetzt > angel.bissAb - 1600) weg('Zu früh — der Schatten verschwindet.');
+      else weg('Nichts dran. Geduld.');
+      return;
+    }
+    if (p === 'biss') {
+      var f = angel.fisch;
+      var noetig = f.kampf + (angel.cm > (f.min + f.max) * 0.6 ? 1 : 0);
+      if (noetig <= 0) { angel.phase = 'landen'; angel.seit = jetzt; return; }
+      angel.phase = 'drill'; angel.noetig = noetig; angel.zuege = 0;
+      angel.spannung = 20; angel.zugBis = 0; angel.zieht = false; angel.letzterSchritt = jetzt;
+      return;
+    }
+    if (p === 'drill') {
+      if (angel.spannung <= 42) {
+        angel.zuege++;
+        if (angel.zuege >= angel.noetig) { angel.phase = 'landen'; angel.seit = jetzt; }
+        else { angel.floatX += (PLATZ.x - angel.floatX) * 0.15; }   /* kommt näher */
         return;
       }
-      bissStarten();
-    }, dauer);
-  }
-
-  function bissStarten() {
-    phase = 'biss';
-    zonenBreite = zielFisch.breite;
-    zonenStart = 6 + Math.random() * (100 - zonenBreite - 12);
-    tempo = 0.75 + Math.random() * 0.75;
-    pos = 0; richtung = 1;
-    $('zone').style.left = zonenStart + '%';
-    $('zone').style.width = zonenBreite + '%';
-    $('fang-fisch').textContent = '❗';
-    $('fang-name').textContent = 'Biss! Der Schwimmer taucht — jetzt aufpassen.';
-    $('fang-knopf').textContent = 'Anschlagen!';
-    $('fang-knopf').disabled = false;
-    if (timer) clearInterval(timer);
-    timer = setInterval(bissSchritt, 16);
-  }
-  function bissSchritt() {
-    pos += richtung * tempo;
-    if (pos >= 100) { pos = 100; richtung = -1; }
-    if (pos <= 0) { pos = 0; richtung = 1; }
-    $('zeiger').style.left = 'calc(' + pos + '% - 2px)';
-  }
-
-  function zuschlagen() {
-    if (phase !== 'biss') return;
-    clearInterval(timer);
-    var treffer = pos >= zonenStart && pos <= zonenStart + zonenBreite;
-    if (!treffer) {
-      phase = 'bereit';
-      $('fang-fisch').textContent = '💦';
-      $('fang-name').textContent = 'Weg ist er.';
-      $('fang-erg').textContent = pos < zonenStart ? '💨 Zu früh angeschlagen.' : '💨 Zu spät angeschlagen.';
-      $('fang-erg').className = 'erg lose';
-      $('fang-knopf').textContent = 'Nochmal auswerfen';
-      koederMalen();
-      return;
+      if (angel.spannung >= 72) { weg('Die Schnur reisst!'); angel.gerissen = angel.fisch; return; }
+      /* dazwischen: nichts passiert, nur Geduld */
     }
-    zielCm = zielFisch.abfall ? 0 : laenge(zielFisch);
-    /* Grosse Fische: je länger, desto mehr Züge im Drill. */
-    drillNoetig = zielFisch.kampf + (zielCm > (zielFisch.min + zielFisch.max) * 0.6 ? 1 : 0);
-    if (drillNoetig <= 0) { landen(); return; }
-    drillStarten();
+  }
+  function drillSchritt(jetzt) {
+    var dt = Math.min(0.1, (jetzt - angel.letzterSchritt) / 1000); angel.letzterSchritt = jetzt;
+    var kraft = 0.6 + angel.fisch.kampf * 0.18;
+    var s = jetzt / 1000;
+    if (s > angel.zugBis && Math.random() < 0.75 * kraft * dt) angel.zugBis = s + 0.5 + Math.random() * 0.9;
+    angel.zieht = s < angel.zugBis;
+    var ziel = angel.zieht ? 85 + Math.sin(s * 9) * 10 : 25 + Math.sin(s * 2.3) * 18 + Math.sin(s * 5.1) * 8;
+    angel.spannung += (ziel - angel.spannung) * Math.min(1, (angel.zieht ? 15 : 5) * dt);
+    angel.spannung = Math.max(0, Math.min(100, angel.spannung));
   }
 
-  /* ---- Drill: die Spannung der Schnur schwankt; einholen, wenn sie locker ist ---- */
-  function drillStarten() {
-    phase = 'drill';
-    drillZuege = 0; spannT = 0; zugBis = 0; spannung = 20;
-    $('spur').classList.add('drill');
-    $('zone').style.left = '0%'; $('zone').style.width = '42%';
-    $('rot').style.width = '28%';
-    $('fang-fisch').textContent = '🎣';
-    $('fang-name').textContent = 'Er hängt! Er zieht — hol ein, wenn die Schnur locker ist (grün).';
-    $('fang-knopf').textContent = 'Einholen';
-    $('fang-knopf').className = 'knopf drill';
-    drillPunkte();
-    if (timer) clearInterval(timer);
-    timer = setInterval(drillSchritt, 16);
-  }
-  function drillPunkte() {
-    var html = '';
-    for (var i = 0; i < drillNoetig; i++) html += '<span class="' + (i < drillZuege ? 'ok' : '') + '"></span>';
-    $('drill').innerHTML = html;
-  }
-  function drillSchritt() {
-    spannT += 0.016;
-    /* Grundwelle plus Fluchten: ab und zu zieht er richtig. */
-    var kraft = 0.6 + zielFisch.kampf * 0.18;
-    if (spannT > zugBis && Math.random() < 0.012 * kraft) zugBis = spannT + 0.5 + Math.random() * 0.9;
-    var zieht = spannT < zugBis;
-    var ziel = zieht ? 85 + Math.sin(spannT * 9) * 10 : 25 + Math.sin(spannT * 2.3) * 18 + Math.sin(spannT * 5.1) * 8;
-    spannung += (ziel - spannung) * (zieht ? 0.25 : 0.08);
-    spannung = Math.max(0, Math.min(100, spannung));
-    $('zeiger').style.left = 'calc(' + spannung + '% - 2px)';
-    $('fang-fisch').textContent = zieht ? '💥' : '🎣';
-  }
-  function einholen() {
-    if (phase !== 'drill') return;
-    if (spannung <= 42) {
-      drillZuege++;
-      drillPunkte();
-      $('fang-name').textContent = 'Gut! Noch ' + (drillNoetig - drillZuege) + ' Züge.';
-      if (drillZuege >= drillNoetig) { clearInterval(timer); landen(); }
-      return;
-    }
-    if (spannung >= 72) {
-      clearInterval(timer);
-      phase = 'bereit';
-      $('fang-fisch').textContent = '✂️';
-      $('fang-name').textContent = 'Die Schnur reisst!';
-      $('fang-erg').textContent = 'Am Zug eingeholt — das hält keine Schnur. ' + nom(zielFisch) + ' schwimmt mit deinem Haken davon.';
-      $('fang-erg').className = 'erg lose';
-      $('fang-knopf').textContent = 'Nochmal auswerfen';
-      $('fang-knopf').className = 'knopf';
-      $('spur').classList.remove('drill');
-      koederMalen();
-      return;
-    }
-    $('fang-name').textContent = 'Vorsicht — er zieht noch. Warte, bis es grün ist.';
-  }
-
-  /* ---- Gelandet: messen, Regeln prüfen, eintragen ---- */
-  function landen() {
-    phase = 'bereit';
-    $('spur').classList.remove('drill');
-    $('fang-knopf').textContent = 'Nochmal auswerfen';
-    $('fang-knopf').className = 'knopf';
-    $('drill').innerHTML = '';
-    var f = zielFisch;
-    $('fang-fisch').textContent = f.emoji;
+  /* ---- Gelandet: messen, Regeln prüfen, eintragen, erzählen ---- */
+  function ergebnis() {
+    var f = angel.fisch, cm = angel.cm;
+    schluss();
     if (f.abfall) {
       eintragen(f, 0);
-      $('fang-name').textContent = f.name + '. Kein Fisch, aber immerhin raus aus dem Wasser.';
-      $('fang-erg').textContent = f.id === 'stiefel' ? '🥾 Fritz nickt. «Den kenne ich. Kommt immer wieder.»'
-                                                      : '🥫 Ab in den Abfalleimer. Die Bucht dankt.';
-      $('fang-erg').className = 'erg';
-      koederMalen();
+      Raum.reden('Fischer Fritz', [f.name + '. Kein Fisch — aber raus aus dem Wasser.',
+        f.id === 'stiefel' ? '«Den kenne ich. Kommt immer wieder.»' : '«Ab in den Abfalleimer. Die Bucht dankt.»']);
       return;
     }
-    var mass = gewicht(f, zielCm);
-    var grund = schonzeit(f) ? 'schonzeit' : (f.mass && zielCm < f.mass ? 'mass' : null);
+    var mass = gewicht(f, cm);
+    var grund = schonzeit(f) ? 'schonzeit' : (f.mass && cm < f.mass ? 'mass' : null);
     if (grund) {
-      zuruecksetzen(f, zielCm, grund);
-      $('fang-name').textContent = f.name + ' · ' + zielCm + ' cm · ' + mass;
-      $('fang-erg').innerHTML = grund === 'schonzeit'
-        ? '🫧 Schonzeit (' + schonText(f) + ')! Du löst den Haken vorsichtig und setzt ' + akk(f) + ' zurück. Keine Münzen — aber richtig so.'
-        : '🫧 Zu klein: Mindestmass ' + f.mass + ' cm. Zurück ins Wasser, damit er noch wachsen kann.';
-      $('fang-erg').className = 'erg frei';
+      zuruecksetzen(f, cm);
+      Raum.reden('Fischer Fritz', [
+        nom(f) + ': ' + cm + ' cm, ' + mass + '.',
+        grund === 'schonzeit'
+          ? '«Schonzeit, ' + schonText(f) + '. Haken raus, vorsichtig, und ' + akk(f) + ' zurück ins Wasser. Keine Münzen — aber richtig so.»'
+          : '«Zu klein — Mindestmass ' + f.mass + ' cm. Zurück ins Wasser, damit ' + (f.g === 'f' ? 'sie' : f.g === 'm' ? 'er' : 'es') + ' noch wachsen kann.»'
+      ]);
       Raum.hudAuffrischen();
-      koederMalen();
       return;
     }
-    var r = eintragen(f, zielCm);
-    $('fang-name').textContent = f.name + ' · ' + zielCm + ' cm · ' + mass +
-      (r.anzahl > 1 ? ' · schon ' + r.anzahl + '-mal gefangen' : ' · zum ersten Mal!');
-    if (r.neu) {
-      $('fang-erg').textContent = '🎉 Neue Art: ' + f.name + '! + ' + r.lohn + ' 🪙';
-      $('fang-erg').className = 'erg win';
-    } else if (r.rekord) {
-      $('fang-erg').textContent = '📏 Rekord! So gross war ' + nom(f).toLowerCase().replace(/^./, function (c) { return c.toUpperCase(); }) + ' bei dir noch nie. + ' + r.lohn + ' 🪙';
-      $('fang-erg').className = 'erg win';
-    } else {
-      $('fang-erg').textContent = 'Schöner Fang — aber nicht dein grösster. Keine Münzen.';
-      $('fang-erg').className = 'erg';
-    }
+    var r = eintragen(f, cm);
+    var zeilen = [nom(f) + ': ' + cm + ' cm, ' + mass + (r.anzahl > 1 ? ' — schon ' + r.anzahl + '-mal gefangen.' : ' — zum ersten Mal!')];
+    if (r.neu) zeilen.push('🎉 Neue Art im Fangbuch! + ' + r.lohn + ' 🪙');
+    else if (r.rekord) zeilen.push('📏 Rekord! So gross war ' + nom(f).toLowerCase().replace(/^./, function (c) { return c.toUpperCase(); }) + ' bei dir noch nie. + ' + r.lohn + ' 🪙');
+    else zeilen.push('Schöner Fang — aber nicht dein grösster. Keine Münzen.');
+    Raum.reden('Fischer Fritz', zeilen);
     Raum.hudAuffrischen();
-    lohnZeigen();
-    koederMalen();
   }
-
-  $('fang-knopf').onclick = auswerfen;
-  /* Beim Schliessen des Fensters mitten im Biss: der Fisch ist weg. */
-  $('zu').addEventListener('click', function () {
-    if (phase === 'biss' || phase === 'drill' || phase === 'warten') {
-      clearInterval(timer); clearTimeout(warteTimer); phase = 'bereit';
-    }
-  });
 
   /* ================= Fangbuch ================= */
   function eimerOeffnen() {
@@ -705,13 +763,18 @@
     Raum.fensterOeffnen('t-eimer');
   }
 
+  /* Zum Prüfen ohne sichtbares Fenster */
+  if (new URLSearchParams(location.search).get('debug') === '1') {
+    window.__bucht = { angel: angel, werfen: werfen, aktion: angelAktion, ablauf: function () { ablauf(Date.now()); }, fische: FISCHE };
+  }
+
   var tz = tageszeit();
   Raum.reden('Fischerbucht', [
     'Möwen, Salz und ein Steg, der bei jedem Schritt knarrt. Rechts oben mündet der Bach in die Bucht.',
     tz === 'nacht' ? 'Es ist Nacht. Jetzt sind Aal, Wels und Zander unterwegs — und die Krebse.'
       : tz === 'daemmerung' ? 'Dämmerung — die beste Zeit. Jetzt jagen Hecht und Zander.'
       : 'Heller Tag. Egli, Felchen und Rotaugen beissen, die Räuber dösen im Schilf.',
-    'Vorne am Stegende beisst etwas. Das Fangbuch liegt bei der Hütte.'
+    'Vom rechten Stegende aus wirft man in die Bucht. Das Fangbuch liegt bei der Hütte.'
   ]);
 })();
 </script>

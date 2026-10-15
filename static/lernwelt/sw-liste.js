@@ -1,6 +1,6 @@
 /* Erzeugt von scripts/lernwelt/build_sw.py — nicht von Hand ändern.
    40 Dateien. Neue Version = neuer Cache. */
-self.LERNWELT_VERSION = '929336235058';
+self.LERNWELT_VERSION = '4373982e94e5';
 self.LERNWELT_DATEIEN = [
   '/favicon-32x32.png',
   '/lernwelt/',

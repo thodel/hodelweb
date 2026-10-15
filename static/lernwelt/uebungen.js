@@ -2800,6 +2800,229 @@
   ];
 
   /* ============================================================
+     PROPORTIONALITÄT II (6. Klasse) — nach dem Übungsdossier
+     «Proportionalität / umgekehrte Proportionalität, Wertepaare»:
+     Geschwindigkeit, Durchschnittstempo, umgekehrte Proportionalität,
+     «das Doppelte / die Hälfte», «doppelt / halb / weder noch», Begegnung.
+     ============================================================ */
+  function minuten(m) {
+    if (m < 60) return fmt(m) + ' min';
+    var h = Math.floor(m / 60), r = m - h * 60;
+    return h + ' h' + (r ? ' ' + fmt(r) + ' min' : '');
+  }
+  function uhr(h, m) { return h + '.' + (m < 10 ? '0' : '') + m; }
+  var MATHE_PROP2 = [
+    {
+      id: 'prop-geschwindigkeit', klassen: [6], schwierigkeit: 'schwer',
+      titel: 'Geschwindigkeit: Zeit und Strecke', lp21: 'MA.3.A.3',
+      info: 'Ein Fahrzeug fährt 80 km/h — wie lange für 20 km, wie weit in 45 min?',
+      gen: function () {
+        var f = pick([['Ein Auto', 80], ['Ein Auto', 120], ['Ein Zug', 90], ['Ein Zug', 150], ['Ein Velo', 20], ['Ein Velo', 30],
+                      ['Ein Motorrad', 60], ['Ein Traktor', 40], ['Ein Schiff', 24], ['Ein Postauto', 36], ['Ein Bus', 48]]);
+        var v = f[1];
+        if (Math.random() < 0.5) {
+          /* Strecke gegeben → Zeit in Minuten; Zahlen so, dass es ganze Minuten gibt. */
+          var anteil = pick([1 / 8, 1 / 6, 1 / 4, 1 / 3, 1 / 2, 2 / 3, 3 / 4, 1.5, 2, 2.5, 3]);
+          var km = v * anteil, min = Math.round(anteil * 60);
+          if (km !== Math.round(km * 2) / 2) { anteil = 0.5; km = v / 2; min = 30; }
+          return { typ: 'zahl', frage: f[0] + ' fährt ' + v + ' km/h.\nWie lange ist es für ' + fmt(km) + ' km unterwegs?',
+                   antwort: String(min), einheit: 'Minuten', hinweis: 'In 60 Minuten sind es ' + v + ' km.', paar: 'gz:' + v + ':' + km };
+        }
+        var t = pick([5, 6, 10, 12, 15, 20, 30, 40, 45, 90, 120, 150, 180]);
+        var strecke = v * t / 60;
+        if (strecke !== Math.round(strecke * 2) / 2) { t = 30; strecke = v / 2; }
+        return { typ: 'zahl', frage: f[0] + ' fährt ' + v + ' km/h.\nWie weit kommt es in ' + minuten(t) + '?',
+                 antwort: fmt(strecke), einheit: 'km', hinweis: 'In 60 Minuten sind es ' + v + ' km.', paar: 'gs:' + v + ':' + t };
+      }
+    },
+    {
+      id: 'prop-tempo', klassen: [6], schwierigkeit: 'schwer',
+      titel: 'Durchschnittsgeschwindigkeit in km/h', lp21: 'MA.3.A.3',
+      info: '600 m in 1 min — wie viele km/h sind das? Mit proportionalen Wertepaaren.',
+      gen: function () {
+        var wer = pick(['Ein Löwe', 'Ein Krokodil', 'Ein Elefant', 'Ein Gepard', 'Eine Schildkröte', 'Ein Hase', 'Ein Pferd',
+                        'Ein Schwimmer', 'Eine Läuferin', 'Ein Velofahrer', 'Ein Postauto', 'Eine Ente']);
+        var min = pick([1, 2, 3, 4, 5, 6, 10, 12, 15, 20, 30]);
+        var kmh = pick([3, 4, 5, 6, 8, 9, 10, 12, 15, 18, 20, 24, 25, 27.5, 30, 36, 40, 45, 50, 60, 72, 80, 90, 100]);
+        var km = kmh * min / 60;
+        km = Math.round(km * 100) / 100;
+        if (km * 100 % 10 !== 0 && km * 10 % 1 !== 0) { min = 30; km = kmh / 2; }
+        var strecke = km < 1 ? Math.round(km * 1000) + ' m' : fmt(km) + ' km';
+        return { typ: 'zahl', frage: wer + ' schafft ' + strecke + ' in ' + min + ' min.\nWie schnell ist das in km/h?',
+                 antwort: fmt(kmh), einheit: 'km/h', hinweis: 'Zeit auf 60 min hochrechnen — die Strecke wächst gleich mit.',
+                 paar: 'tp:' + min + ':' + kmh };
+      }
+    },
+    {
+      id: 'umgekehrt-proportional', klassen: [6], schwierigkeit: 'schwer',
+      titel: 'Umgekehrt proportional', lp21: 'MA.3.A.3',
+      info: 'Mehr Kinder, weniger Gummibärchen pro Kind. Mehr Zufluss, schneller voll.',
+      gen: function () {
+        var art = pick(['gummi', 'maler', 'zufluss', 'schnur', 'maschine']);
+        if (art === 'gummi') {
+          var kinder = pick([3, 4, 6]), je = pick([12, 15, 18, 20, 24, 30]), total = kinder * je;
+          var neu = pick([2, 3, 4, 5, 6, 8, 9, 10, 12].filter(function (n) { return n !== kinder && total % n === 0; }));
+          return { typ: 'zahl', frage: kinder + ' Kinder bringen je ' + je + ' Gummibärchen mit und legen sie zusammen.\n' +
+                   'Sie verteilen alle auf ' + neu + ' Kinder. Wie viele bekommt jedes?', antwort: String(total / neu),
+                   hinweis: 'Zuerst: Wie viele sind es zusammen?', paar: 'ug:' + total + ':' + neu };
+        }
+        if (art === 'maler') {
+          var m1 = pick([2, 3, 4]), tage = pick([6, 8, 9, 10, 12]), arbeit = m1 * tage;
+          var m2 = pick([1, 2, 3, 4, 6, 8, 12].filter(function (n) { return n !== m1 && arbeit % n === 0; }));
+          return { typ: 'zahl', frage: m1 + ' Maler streichen die Schule in ' + tage + ' Tagen.\nWie lange brauchen ' + m2 +
+                   ' Maler, wenn alle gleich schnell arbeiten?', antwort: String(arbeit / m2), einheit: 'Tage',
+                   hinweis: 'Doppelt so viele Maler → halb so lange.', paar: 'um:' + arbeit + ':' + m2 };
+        }
+        if (art === 'zufluss') {
+          var z1 = pick([20, 25, 30, 40, 50]), h1 = pick([2, 3, 4, 6]), menge = z1 * h1 * 60;
+          var z2 = pick([10, 15, 20, 24, 25, 30, 40, 50, 60].filter(function (n) { return n !== z1 && (menge / n) % 10 === 0; }));
+          var min2 = menge / z2;
+          return { typ: 'zahl', frage: 'Bei einem Zufluss von ' + z1 + ' l/min ist das Schwimmbecken in ' + h1 + ' h voll.\n' +
+                   'Wie viele Minuten dauert es bei ' + z2 + ' l/min?', antwort: String(min2), einheit: 'Minuten',
+                   hinweis: 'Wie viele Liter passen ins Becken? ' + h1 + ' h sind ' + (h1 * 60) + ' min.', paar: 'uz:' + menge + ':' + z2 };
+        }
+        if (art === 'schnur') {
+          var teile = pick([4, 6, 8, 10, 12]), cm = pick([8, 12, 15, 16, 20, 25]), laengeS = teile * cm;
+          var teile2 = pick([2, 3, 4, 5, 6, 8, 10, 12, 16, 20].filter(function (n) { return n !== teile && laengeS % n === 0; }));
+          return { typ: 'zahl', frage: 'Teilt man eine Schnur in ' + teile + ' gleich lange Teile, misst jeder ' + cm + ' cm.\n' +
+                   'Wie lang ist jeder Teil, wenn man dieselbe Schnur in ' + teile2 + ' Teile teilt?', antwort: String(laengeS / teile2),
+                   einheit: 'cm', hinweis: 'Wie lang ist die ganze Schnur?', paar: 'us:' + laengeS + ':' + teile2 };
+        }
+        var kg = pick([2000, 3000, 4000, 6000]), menge2 = pick([500, 1000, 1500, 2500, 5000, 6500, 7500, 9000]);
+        var min3 = menge2 / kg * 60;
+        if (min3 !== Math.round(min3 * 2) / 2) { menge2 = kg * 1.5; min3 = 90; }
+        return { typ: 'zahl', frage: 'Eine Abpackmaschine verarbeitet ' + zahlText(kg) + ' kg Karotten in einer Stunde.\n' +
+                 'Wie viele Minuten braucht sie für ' + zahlText(menge2) + ' kg?', antwort: fmt(min3), einheit: 'Minuten',
+                 hinweis: 'Wie viele kg schafft sie in 1 Minute — oder in 15 Minuten?', paar: 'ua:' + kg + ':' + menge2 };
+      }
+    },
+    {
+      id: 'prop-vielfache', klassen: [6], schwierigkeit: 'leicht',
+      titel: 'Das Doppelte, dreimal, die Hälfte', lp21: 'MA.3.C.2',
+      info: 'Welche Angabe passt in die Lücke? Proportional oder umgekehrt proportional?',
+      gen: function () {
+        var BEGRIFF = { 2: 'das Doppelte', 3: 'dreimal', 5: 'das Fünffache', '1/2': 'die Hälfte', '1/3': 'ein Drittel', '1/5': 'ein Fünftel' };
+        var alle = Object.keys(BEGRIFF).map(function (k) { return BEGRIFF[k]; });
+        var k = pick([2, 3, 5]), mehr = Math.random() < 0.5;
+        var vorlage = pick(['tempo-zeit', 'flaschen', 'strecke-zeit', 'preis', 'maler', 'schnur']);
+        var frage, korrekt;
+        if (vorlage === 'tempo-zeit') {
+          var v2 = pick([15, 20, 30]), v1 = v2 * k, h = pick([2, 3, 4]);
+          frage = mehr
+            ? 'Mit ' + v1 + ' km/h erreicht ein Radfahrer sein Ziel in ' + h + ' h. Ein Läufer mit ' + v2 + ' km/h braucht für dieselbe Strecke ___ so lange.'
+            : 'Ein Läufer mit ' + v2 + ' km/h braucht ' + h + ' h. Ein Radfahrer mit ' + v1 + ' km/h braucht für dieselbe Strecke ___ der Zeit.';
+          korrekt = mehr ? BEGRIFF[k] : BEGRIFF['1/' + k];
+        } else if (vorlage === 'flaschen') {
+          var gross = pick([1, 1.5, 3]), klein = gross / k;
+          frage = mehr
+            ? 'Frau Meier füllt den Sirup in Flaschen von ' + fmt(klein) + ' l statt wie geplant in Flaschen von ' + fmt(gross) + ' l. Sie braucht ___ der Flaschen.'
+            : 'Frau Meier füllt den Sirup in Flaschen von ' + fmt(gross) + ' l statt wie geplant in Flaschen von ' + fmt(klein) + ' l. Sie braucht ___ der Flaschen.';
+          korrekt = mehr ? BEGRIFF[k] : BEGRIFF['1/' + k];
+        } else if (vorlage === 'strecke-tempo' || vorlage === 'strecke-zeit') {
+          var km = pick([5, 6, 9, 10, 12]), min = pick([15, 20, 30, 45]);
+          frage = mehr
+            ? 'Ein Läufer braucht für ' + km + ' km genau ' + min + ' min. Für ' + (k === 2 ? 'die doppelte' : k === 3 ? 'die dreifache' : 'die fünffache') + ' Strecke braucht er ___ der Zeit.'
+            : 'Ein Läufer braucht für ' + km + ' km genau ' + min + ' min. ' + (k === 2 ? 'Die Hälfte' : k === 3 ? 'Ein Drittel' : 'Ein Fünftel') + ' der Strecke läuft er in ___ der Zeit.';
+          korrekt = mehr ? BEGRIFF[k] : BEGRIFF['1/' + k];
+        } else if (vorlage === 'preis') {
+          var n = pick([4, 6, 8]), fr = pick(['3.60', '4.80', '6.00']);
+          frage = mehr
+            ? n + ' Äpfel kosten ' + fr + ' Fr. ' + (k === 2 ? 'Doppelt' : k === 3 ? 'Dreimal' : 'Fünfmal') + ' so viele Äpfel kosten ___ so viel.'
+            : n * k + ' Äpfel kosten ' + fr + ' Fr. ' + n + ' Äpfel kosten ___ davon.';
+          korrekt = mehr ? BEGRIFF[k] : BEGRIFF['1/' + k];
+        } else if (vorlage === 'maler') {
+          var m = pick([2, 3]), d = pick([6, 8, 12]);
+          frage = mehr
+            ? m * k + ' Maler brauchen für die Turnhalle ' + d + ' Tage. ' + m + ' Maler brauchen ___ so lange.'
+            : m + ' Maler brauchen für die Turnhalle ' + d + ' Tage. ' + m * k + ' Maler brauchen ___ der Zeit.';
+          korrekt = mehr ? BEGRIFF[k] : BEGRIFF['1/' + k];
+        } else {
+          var t1 = pick([2, 4, 6]), cmS = pick([10, 16, 20]);
+          frage = mehr
+            ? 'Teilt man eine Schnur in ' + t1 * k + ' gleich lange Teile, misst jeder ' + cmS + ' cm. Teilt man dieselbe Schnur in ' + t1 + ' Teile, ist jeder Teil ___ so lang.'
+            : 'Teilt man eine Schnur in ' + t1 + ' gleich lange Teile, misst jeder ' + cmS + ' cm. Teilt man dieselbe Schnur in ' + t1 * k + ' Teile, ist jeder Teil ___ so lang.';
+          korrekt = mehr ? BEGRIFF[k] : BEGRIFF['1/' + k];
+        }
+        return wahl(frage, korrekt, distinct(korrekt, alle, 3),
+                    'Proportional: mehr → mehr. Umgekehrt proportional: mehr → weniger.', 'pv:' + vorlage + ':' + k + ':' + mehr);
+      }
+    },
+    {
+      id: 'prop-doppelt-halb', klassen: [6], schwierigkeit: 'leicht',
+      titel: 'Doppelt, halb oder weder noch?', lp21: 'MA.3.C.2',
+      info: 'Kreuze an: Wird es doppelt so viel, halb so viel — oder weder noch?',
+      gen: function () {
+        var art = pick(['preis', 'portionen', 'vorrat', 'schnur', 'maler', 'taxi', 'alter', 'flaeche', 'tempo']);
+        var frage, korrekt;
+        if (art === 'preis') {
+          var n = pick([4, 5, 6, 8]), fr = geld(n * pick([0.4, 0.6, 0.9, 1.2]));
+          frage = n + ' Äpfel kosten ' + fr + ' Fr. Doppelt so viele Äpfel kosten ___ so viel.'; korrekt = 'doppelt';
+        } else if (art === 'portionen') {
+          var isst = pick([1, 2, 3]), pfanne = pick([6, 7, 8, 10]) + isst;
+          frage = 'Wenn ich ' + isst + ' Portionen Spaghetti esse, hat es noch ' + (pfanne - isst) + ' Portionen in der Pfanne. ' +
+                  'Esse ich doppelt so viele, bleiben ___ so viele übrig.'; korrekt = 'weder doppelt noch halb';
+          if ((pfanne - 2 * isst) * 2 === pfanne - isst) { pfanne++; }
+        } else if (art === 'vorrat') {
+          var tage = pick([6, 8, 10, 12]);
+          frage = 'Wenn ich 1 Dose pro Tag trinke, reicht mein Vorrat ' + tage + ' Tage. Trinke ich doppelt so viel, reicht er ___ so lange.'; korrekt = 'halb';
+        } else if (art === 'schnur') {
+          var teile = pick([4, 6, 8]), cm = pick([12, 16, 20]);
+          frage = 'Teilt man eine Schnur in ' + teile * 2 + ' gleich lange Teile, misst jeder ' + cm + ' cm. Teilt man sie in ' + teile + ' Teile, ist jeder Teil ___ so lang.'; korrekt = 'doppelt';
+        } else if (art === 'maler') {
+          var m = pick([2, 3, 4]), d = pick([5, 6, 8]);
+          frage = m + ' Maler brauchen ' + d + ' Tage. Doppelt so viele Maler brauchen ___ so lange.'; korrekt = 'halb';
+        } else if (art === 'taxi') {
+          var grund = pick([5, 6, 8]), proKm = pick([2, 3, 4]), km = pick([3, 4, 5]);
+          frage = 'Ein Taxi kostet ' + grund + ' Fr. Grundgebühr und ' + proKm + ' Fr. pro Kilometer. Eine doppelt so weite Fahrt (' + km * 2 + ' statt ' + km + ' km) kostet ___ so viel.';
+          korrekt = 'weder doppelt noch halb';
+        } else if (art === 'alter') {
+          var ich = pick([10, 11, 12]), papa = pick([38, 40, 44]);
+          frage = 'Ich bin ' + ich + ', mein Vater ist ' + papa + '. Wenn ich doppelt so alt bin wie heute, ist mein Vater ___ so alt wie heute.';
+          korrekt = 'weder doppelt noch halb';
+        } else if (art === 'flaeche') {
+          var b = pick([3, 4, 5]), l = pick([6, 8, 10]);
+          frage = 'Ein Rechteck ist ' + b + ' cm breit und ' + l + ' cm lang. Macht man es doppelt so breit (gleich lang), wird die Fläche ___ so gross.'; korrekt = 'doppelt';
+        } else {
+          var h = pick([2, 3, 4]);
+          frage = 'Herr Weber fährt in ' + h + ' h von Zürich nach Luzern. Wer doppelt so schnell fährt, braucht ___ so lange.'; korrekt = 'halb';
+        }
+        return wahl(frage, korrekt, ['doppelt', 'halb', 'weder doppelt noch halb'].filter(function (o) { return o !== korrekt; }),
+                    'Überlege: Was passiert mit dem einen, wenn sich das andere verdoppelt?', 'dh:' + frage);
+      }
+    },
+    {
+      id: 'prop-begegnung', klassen: [6], schwierigkeit: 'schwer',
+      titel: 'Begegnung unterwegs', lp21: 'MA.3.C.2',
+      info: 'Zwei starten gleichzeitig aufeinander zu: Wann und wo treffen sie sich? (erweiterte Anforderung)',
+      gen: function () {
+        /* [v1, v2, Minuten bis zum Treffen] — alles geht ohne Rest auf */
+        var k = pick([[25, 10, 12], [30, 10, 15], [15, 5, 30], [20, 20, 15], [24, 12, 10], [30, 30, 10], [18, 12, 20],
+                      [40, 20, 30], [15, 10, 24], [36, 24, 10], [20, 10, 30], [12, 6, 20]]);
+        var v1 = k[0], v2 = k[1], t = k[2], d = (v1 + v2) * t / 60, s1 = v1 * t / 60, s2 = v2 * t / 60;
+        var namen = pick([['Alina', 'Barbara'], ['Noah', 'Leon'], ['Mia', 'Elias'], ['Lara', 'Finn']]);
+        var start = pick([[18, 0], [19, 0], [14, 30], [16, 15], [9, 0]]);
+        var treff = [start[0] + Math.floor((start[1] + t) / 60), (start[1] + t) % 60];
+        var text = namen[0] + ' und ' + namen[1] + ' wohnen ' + fmt(d) + ' km auseinander. Beide starten um ' + uhr(start[0], start[1]) +
+                   ' Uhr aufeinander zu: ' + namen[0] + ' mit dem Velo mit ' + v1 + ' km/h, ' + namen[1] +
+                   (v2 <= 6 ? ' zu Fuss mit ' : v2 <= 12 ? ' joggend mit ' : ' mit dem Trottinett mit ') + v2 + ' km/h.\n';
+        var art = pick(['zeit', 'zeit', 's1', 's2', 'minuten']);
+        if (art === 'zeit') {
+          return { typ: 'text', frage: text + 'Um wie viel Uhr treffen sie sich?', antwort: uhr(treff[0], treff[1]),
+                   alternativen: [treff[0] + ':' + (treff[1] < 10 ? '0' : '') + treff[1], uhr(treff[0], treff[1]) + ' Uhr'],
+                   hinweis: 'Zusammen schaffen sie ' + (v1 + v2) + ' km in einer Stunde.', paar: 'bg:' + v1 + ':' + v2 + ':' + t };
+        }
+        if (art === 'minuten') {
+          return { typ: 'zahl', frage: text + 'Nach wie vielen Minuten treffen sie sich?', antwort: String(t), einheit: 'Minuten',
+                   hinweis: 'Zusammen schaffen sie ' + (v1 + v2) + ' km in einer Stunde.', paar: 'bm:' + v1 + ':' + v2 + ':' + t };
+        }
+        var wer = art === 's1' ? namen[0] : namen[1], s = art === 's1' ? s1 : s2;
+        return { typ: 'zahl', frage: text + 'Wie weit ist ' + wer + ' bis zum Treffpunkt unterwegs?', antwort: fmt(s), einheit: 'km',
+                 hinweis: 'Zuerst: Nach wie vielen Minuten treffen sie sich?', paar: 'bs:' + v1 + ':' + v2 + ':' + t + art };
+      }
+    }
+  ];
+
+  /* ============================================================
      ZAHLENSTRAHL (4. Klasse) — mit gezeichnetem Strahl
      Die Übungsseite zeichnet 'strahl' als Bild: Striche, Zahlen, roter
      Pfeil, Buchstaben-Pfeile und Sprünge. MA.1.A.2: Zahlen ordnen, in
@@ -2988,6 +3211,7 @@
   reg('franzoesisch', FRANZOESISCH_NEU);
   reg('mathe', MATHE_PROP);
   reg('mathe', MATHE_STRAHL);
+  reg('mathe', MATHE_PROP2);
   reg('deutsch', DEUTSCH_TZCK);
 
   /* Eigene Listen aus fotografierten Schulblättern. Die Dokumenten-Pipeline

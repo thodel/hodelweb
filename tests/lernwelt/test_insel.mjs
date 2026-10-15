@@ -218,12 +218,20 @@ test('Kobolde nehmen nicht mehr, als man hat', () => {
   assert.equal(Insel.muenzen('A'), 0);
 });
 
-test('Proportionalität: sieben neue Sets für die 6. Klasse, keines für die 4.', () => {
+test('Proportionalität: 13 Sets für die 6. Klasse, keines für die 4.', () => {
   const { Uebungen } = frisch();
-  const prop = Uebungen.fuer('mathe', 6).eigene.filter((s) => s.id.indexOf('prop-') === 0);
-  assert.equal(prop.length, 7);
+  const prop = Uebungen.fuer('mathe', 6).eigene.filter((s) => s.id.indexOf('prop-') === 0 || s.id === 'umgekehrt-proportional');
+  assert.equal(prop.length, 13);
   assert.equal(Uebungen.fuer('mathe', 4).eigene.filter((s) => s.id.indexOf('prop-') === 0).length, 0);
-  assert.ok(Uebungen.fuer('mathe', 6).eigene.length >= 30);
+  assert.ok(Uebungen.fuer('mathe', 6).eigene.length >= 36);
+  /* Dossier-Typen: Geschwindigkeit, Tempo, umgekehrt proportional, Vielfache, doppelt/halb, Begegnung */
+  for (const id of ['prop-geschwindigkeit', 'prop-tempo', 'umgekehrt-proportional', 'prop-vielfache', 'prop-doppelt-halb', 'prop-begegnung']) {
+    assert.ok(Uebungen.set('mathe', id), id + ' fehlt');
+  }
+  for (let i = 0; i < 100; i++) {
+    const a = Uebungen.set('mathe', 'prop-begegnung').gen();
+    if (a.typ === 'text') assert.ok(/^\d{1,2}\.\d\d$/.test(a.antwort), 'Uhrzeit ' + a.antwort);
+  }
   /* Die Dreisatz-Antwort ist ein Betrag, den man mit dem Zahlenfeld tippen kann. */
   for (let i = 0; i < 50; i++) {
     const a = Uebungen.set('mathe', 'prop-dreisatz-geld').gen();
