@@ -230,3 +230,32 @@ test('Proportionalität: sieben neue Sets für die 6. Klasse, keines für die 4.
     assert.ok(/^\d+(\.\d\d)?$/.test(a.antwort), a.antwort);
   }
 });
+
+test('Zahlenstrahl-Sets liefern einen zeichenbaren Strahl, tz/ck-Set stimmt mit der Wortliste', () => {
+  const { Uebungen } = frisch();
+  for (const id of ['zahlenstrahl-ablesen', 'zahlenstrahl-schritte']) {
+    const s = Uebungen.set('mathe', id);
+    assert.ok(s && s.klassen.indexOf(4) >= 0, id + ' für die 4. Klasse');
+    for (let i = 0; i < 300; i++) {
+      const a = s.gen(), st = a.strahl;
+      assert.ok(st && st.von < st.bis && st.schritt > 0, id + ': Strahl fehlt');
+      assert.ok(Math.round((st.bis - st.von) / st.schritt) <= 60, id + ': zu viele Striche');
+      if (st.marke !== undefined) assert.ok(st.marke >= st.von && st.marke <= st.bis, id + ': Pfeil ausserhalb');
+      for (const p of st.pfeile || []) assert.ok(p.von >= st.von && p.bis >= st.von && p.von <= st.bis && p.bis <= st.bis, id + ': Sprung ausserhalb');
+      for (const m of st.marken || []) assert.ok(m.wert > st.von && m.wert < st.bis, id + ': Buchstabe ausserhalb');
+      if (a.typ === 'zahl') assert.ok(Number(a.antwort) >= 0, id + ': negative Antwort ' + a.antwort);
+    }
+  }
+  const tz = Uebungen.set('deutsch', 'tz-ck');
+  assert.ok(tz.klassen.indexOf(4) >= 0);
+  const arten = new Set();
+  for (let i = 0; i < 300; i++) {
+    const a = tz.gen();
+    arten.add(a.typ);
+    if (a.typ === 'wahl') assert.equal(a.optionen.length, 2);
+    assert.ok(/^(tz|z|ck|k)$/.test(a.antwort) || /^[A-Za-zäöüÄÖÜ]+$/.test(a.antwort), a.antwort);
+  }
+  assert.ok(arten.has('wahl') && arten.has('text'));
+  assert.ok(Uebungen.fuer('mathe', 4).eigene.length >= 19);
+  assert.ok(Uebungen.fuer('deutsch', 4).eigene.length >= 17);
+});

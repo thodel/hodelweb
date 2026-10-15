@@ -92,6 +92,10 @@
   .streak { color: #fbbf24; font-weight: 700; }
   .frage { font-size: 23px; font-weight: 700; text-align: center; margin: 10px 0 6px; white-space: pre-line; line-height: 1.45; }
   .frage.klein { font-size: 18px; }
+  /* Gezeichneter Zahlenstrahl zu einer Aufgabe */
+  .strahl { margin: 4px 0 10px; }
+  .strahl[hidden] { display: none; }
+  .strahl svg { width: 100%; height: auto; display: block; }
   .hinweis { text-align: center; font-size: 13px; color: #7dd3fc; min-height: 20px; margin-bottom: 18px; }
   .opts { display: grid; gap: 10px; }
   .opt {
@@ -169,6 +173,7 @@
       <span class="streak" id="serie"></span>
     </div>
     <div class="frage" id="frage">—</div>
+    <div class="strahl" id="strahl" hidden></div>
     <div class="hinweis" id="hinweis"></div>
     <div class="opts" id="opts"></div>
     <div class="eingabe" id="eingabe" style="display:none">
@@ -472,8 +477,64 @@
     f.textContent = aktuell.frage;
     f.className = 'frage' + (aktuell.frage.length > 60 ? ' klein' : '');
     $('hinweis').textContent = aktuell.hinweis || '';
+    strahlZeichnen(aktuell.strahl);
 
     if (aktuell.typ === 'wahl') zeigeWahl(); else zeigeEingabe();
+  }
+
+  /* ---------------- Zahlenstrahl ----------------
+     s = { von, bis, schritt, beschriftet: [Zahlen], marke: Zahl,
+           marken: [{wert, text}], pfeile: [{von, bis}], ende: Zahl }
+     'marke' ist der rote Pfeil mit Fragezeichen, 'marken' sind beschriftete
+     Pfeile (Buchstaben), 'pfeile' sind Sprünge über dem Strahl. */
+  function strahlZeichnen(s) {
+    var box = $('strahl');
+    box.hidden = !s;
+    box.innerHTML = '';
+    if (!s) return;
+    var W = 600, H = 96, L = 28, R = W - 34, y = 58;
+    var spanne = s.bis - s.von || 1;
+    var sx = function (v) { return L + (v - s.von) / spanne * (R - L); };
+    var fmtZ = function (v) { return v >= 10000 ? String(v).replace(/\B(?=(\d{3})+(?!\d))/g, "'") : String(v); };
+    var t = function (x) { return String(x).replace(/&/g, '&amp;').replace(/</g, '&lt;'); };
+    var out = '<svg viewBox="0 0 ' + W + ' ' + H + '" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">';
+    out += '<line x1="' + (L - 10) + '" y1="' + y + '" x2="' + (R + 14) + '" y2="' + y + '" stroke="#cbd5e1" stroke-width="3"/>';
+    out += '<polygon points="' + (R + 24) + ',' + y + ' ' + (R + 12) + ',' + (y - 6) + ' ' + (R + 12) + ',' + (y + 6) + '" fill="#cbd5e1"/>';
+    var beschriftet = s.beschriftet || [s.von, s.bis];
+    var ticks = Math.round(spanne / s.schritt);
+    var zeigeAlle = ticks <= 12;
+    for (var i = 0; i <= ticks; i++) {
+      var v = s.von + i * s.schritt;
+      var x = sx(v), gross = beschriftet.indexOf(v) >= 0;
+      out += '<line x1="' + x + '" y1="' + (y - (gross ? 11 : 6)) + '" x2="' + x + '" y2="' + (y + (gross ? 11 : 6)) +
+             '" stroke="#e2e8f0" stroke-width="' + (gross ? 3 : 2) + '"/>';
+      if (gross || (zeigeAlle && s.alleZahlen)) {
+        out += '<text x="' + x + '" y="' + (y + 28) + '" text-anchor="middle" font-size="15" font-weight="700" fill="#e2e8f0" ' +
+               'font-family="ui-monospace, Menlo, monospace">' + t(fmtZ(v)) + '</text>';
+      }
+    }
+    (s.pfeile || []).forEach(function (p) {
+      var a = sx(p.von), b = sx(p.bis), m = (a + b) / 2, hoch = y - 30;
+      out += '<path d="M' + a + ' ' + (y - 13) + ' Q' + m + ' ' + hoch + ' ' + b + ' ' + (y - 13) +
+             '" fill="none" stroke="#38bdf8" stroke-width="2.5"/>';
+      /* Pfeilspitze: landet auf dem Strahl */
+      out += '<polygon points="' + b + ',' + (y - 11) + ' ' + (b - 6) + ',' + (y - 22) + ' ' + (b + 6) + ',' + (y - 22) +
+             '" fill="#38bdf8"/>';
+    });
+    (s.marken || []).forEach(function (m) {
+      var x = sx(m.wert);
+      out += '<polygon points="' + x + ',' + (y - 14) + ' ' + (x - 7) + ',' + (y - 28) + ' ' + (x + 7) + ',' + (y - 28) + '" fill="#fbbf24"/>';
+      out += '<text x="' + x + '" y="' + (y - 33) + '" text-anchor="middle" font-size="17" font-weight="800" fill="#fbbf24" ' +
+             'font-family="ui-monospace, Menlo, monospace">' + t(m.text) + '</text>';
+    });
+    if (s.marke !== undefined && s.marke !== null) {
+      var mx = sx(s.marke);
+      out += '<polygon points="' + mx + ',' + (y - 14) + ' ' + (mx - 8) + ',' + (y - 30) + ' ' + (mx + 8) + ',' + (y - 30) + '" fill="#f87171"/>';
+      out += '<text x="' + mx + '" y="' + (y - 35) + '" text-anchor="middle" font-size="18" font-weight="800" fill="#f87171" ' +
+             'font-family="ui-monospace, Menlo, monospace">' + t(s.markeText || '?') + '</text>';
+    }
+    out += '</svg>';
+    box.innerHTML = out;
   }
 
   function zeigeWahl() {

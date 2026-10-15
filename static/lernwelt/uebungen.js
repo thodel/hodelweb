@@ -2800,6 +2800,176 @@
   ];
 
   /* ============================================================
+     ZAHLENSTRAHL (4. Klasse) — mit gezeichnetem Strahl
+     Die Übungsseite zeichnet 'strahl' als Bild: Striche, Zahlen, roter
+     Pfeil, Buchstaben-Pfeile und Sprünge. MA.1.A.2: Zahlen ordnen, in
+     Schritten zählen, Position auf dem Zahlenstrahl.
+     ============================================================ */
+  var STRAHL_ARTEN = [
+    function () { return { von: 0, bis: 100, schritt: 5, label: 10 }; },
+    function () { return { von: 0, bis: 100, schritt: 10, label: 20 }; },
+    function () { return { von: 0, bis: 1000, schritt: 50, label: 100 }; },
+    function () { return { von: 0, bis: 1000, schritt: 100, label: 200 }; },
+    function () { var a = rint(1, 9) * 100; return { von: a, bis: a + 100, schritt: 10, label: 50 }; },
+    function () { var a = rint(1, 9) * 100; return { von: a, bis: a + 200, schritt: 20, label: 100 }; },
+    function () { var a = rint(1, 9) * 1000; return { von: a, bis: a + 1000, schritt: 100, label: 500 }; },
+    function () { return { von: 0, bis: 10000, schritt: 500, label: 2000 }; },
+    function () { return { von: 0, bis: 10000, schritt: 1000, label: 2000 }; },
+    function () { var a = rint(1, 9) * 10000; return { von: a, bis: a + 10000, schritt: 1000, label: 5000 }; }
+  ];
+  function strahlBauen(art) {
+    var beschriftet = [];
+    for (var v = art.von; v <= art.bis; v += art.label) beschriftet.push(v);
+    if (beschriftet.indexOf(art.bis) < 0) beschriftet.push(art.bis);
+    return { von: art.von, bis: art.bis, schritt: art.schritt, beschriftet: beschriftet };
+  }
+  /* Ein Strich, der nicht beschriftet ist. */
+  function freierStrich(art, strahl) {
+    var ticks = Math.round((art.bis - art.von) / art.schritt), k, wert;
+    for (var i = 0; i < 20; i++) {
+      k = rint(1, ticks - 1); wert = art.von + k * art.schritt;
+      if (strahl.beschriftet.indexOf(wert) < 0) return wert;
+    }
+    return wert;
+  }
+  /* Ein Strahl, der zu einer Sprungaufgabe passt: etwas Luft an beiden Enden. */
+  function sprungStrahl(start, ende, schritt) {
+    var lo = Math.min(start, ende), hi = Math.max(start, ende);
+    var von = Math.max(0, lo - schritt), bis = hi + schritt;
+    var beschriftet = [start];
+    return { von: von, bis: bis, schritt: schritt, beschriftet: beschriftet };
+  }
+  var MATHE_STRAHL = [
+    {
+      id: 'zahlenstrahl-ablesen', klassen: [4], schwierigkeit: 'leicht',
+      titel: 'Zahlen auf dem Zahlenstrahl', lp21: 'MA.1.A.2',
+      info: 'Welche Zahl zeigt der Pfeil? Wo liegt eine Zahl? Mit gezeichnetem Zahlenstrahl.',
+      gen: function () {
+        var art = pick(STRAHL_ARTEN)(), strahl = strahlBauen(art);
+        var ticks = Math.round((art.bis - art.von) / art.schritt);
+        if (Math.random() < 0.55) {
+          var wert = freierStrich(art, strahl);
+          strahl.marke = wert;
+          return { typ: 'zahl', frage: 'Welche Zahl zeigt der rote Pfeil?', antwort: String(wert), strahl: strahl,
+                   hinweis: 'Ein kleiner Strich ist ' + zahlText(art.schritt) + '.', paar: 'za:' + art.von + ':' + wert };
+        }
+        /* Vier Buchstaben, einer davon ist gesucht. */
+        var plaetze = [];
+        for (var i = 1; i < ticks; i++) plaetze.push(art.von + i * art.schritt);
+        plaetze = shuffle(plaetze).slice(0, 4).sort(function (a, b) { return a - b; });
+        var buchstaben = ['A', 'B', 'C', 'D'];
+        strahl.marken = plaetze.map(function (w, n) { return { wert: w, text: buchstaben[n] }; });
+        var nr = rint(0, plaetze.length - 1);
+        var a = wahl('Bei welchem Buchstaben liegt die Zahl ' + zahlText(plaetze[nr]) + '?', buchstaben[nr],
+                     buchstaben.slice(0, plaetze.length).filter(function (b) { return b !== buchstaben[nr]; }),
+                     'Ein kleiner Strich ist ' + zahlText(art.schritt) + '.', 'zb:' + art.von + ':' + plaetze[nr]);
+        a.strahl = strahl;
+        return a;
+      }
+    },
+    {
+      id: 'zahlenstrahl-schritte', klassen: [4], schwierigkeit: 'schwer',
+      titel: 'Schritte auf dem Zahlenstrahl', lp21: 'MA.1.A.2',
+      info: 'Vorwärts und rückwärts springen, Schritte zählen, Schrittweite finden.',
+      gen: function () {
+        var art = pick(['vor', 'vor', 'zurueck', 'anzahl', 'weite']);
+        var schritt = pick([2, 5, 10, 20, 25, 50, 100, 200, 250, 500, 1000, 2000]);
+        var n = rint(2, 6);
+        var start, ende, strahl, pfeile = [], i;
+        if (art === 'vor' || art === 'zurueck') {
+          start = rint(1, 40) * (schritt >= 100 ? schritt / 2 : schritt < 10 ? 1 : 10);
+          if (art === 'zurueck') start += n * schritt;
+          ende = art === 'vor' ? start + n * schritt : start - n * schritt;
+          strahl = sprungStrahl(start, ende, schritt);
+          for (i = 0; i < n; i++) {
+            var a = start + i * schritt * (art === 'vor' ? 1 : -1);
+            pfeile.push({ von: a, bis: a + schritt * (art === 'vor' ? 1 : -1) });
+          }
+          strahl.pfeile = pfeile; strahl.marke = ende;
+          return { typ: 'zahl', frage: 'Starte bei ' + zahlText(start) + ' und mache ' + n + ' Schritte à ' + zahlText(schritt) +
+                   (art === 'vor' ? ' vorwärts' : ' rückwärts') + '.\nWo landest du?', antwort: String(ende), strahl: strahl,
+                   hinweis: n + ' · ' + zahlText(schritt) + ' = ' + zahlText(n * schritt), paar: 'zs:' + start + ':' + ende };
+        }
+        if (art === 'anzahl') {
+          start = rint(1, 30) * (schritt >= 100 ? schritt / 2 : schritt < 10 ? 1 : 10);
+          ende = start + n * schritt;
+          strahl = sprungStrahl(start, ende, schritt);
+          strahl.beschriftet = [start, ende];
+          strahl.pfeile = [{ von: start, bis: ende }];
+          return { typ: 'zahl', frage: 'Von ' + zahlText(start) + ' bis ' + zahlText(ende) + ' in ' + zahlText(schritt) +
+                   'er-Schritten.\nWie viele Schritte sind das?', antwort: String(n), strahl: strahl,
+                   hinweis: 'Wie weit ist es insgesamt? Wie oft passt ' + zahlText(schritt) + ' hinein?', paar: 'zn:' + start + ':' + ende };
+        }
+        /* Schrittweite: Anfang, Ende und n gleich grosse Sprünge */
+        start = rint(0, 20) * (schritt >= 100 ? schritt : 10);
+        ende = start + n * schritt;
+        strahl = sprungStrahl(start, ende, schritt);
+        strahl.beschriftet = [start, ende];
+        for (i = 0; i < n; i++) pfeile.push({ von: start + i * schritt, bis: start + (i + 1) * schritt });
+        strahl.pfeile = pfeile;
+        return { typ: 'zahl', frage: 'Von ' + zahlText(start) + ' bis ' + zahlText(ende) + ' in ' + n + ' gleich grossen Schritten.\n' +
+                 'Wie gross ist ein Schritt?', antwort: String(schritt), strahl: strahl,
+                 hinweis: 'Gesamtweg geteilt durch ' + n + '.', paar: 'zw:' + start + ':' + ende };
+      }
+    }
+  ];
+
+  /* ============================================================
+     DEUTSCH: tz und ck (4. Klasse)
+     Nach kurzem Vokal tz/ck — nach langem Vokal, Zwielaut oder Mitlaut z/k.
+     ============================================================ */
+  var TZCK = [
+    /* [Wort, Schreibung] — die erste Fundstelle der Schreibung ist die Lücke */
+    ['Katze', 'tz'], ['Mütze', 'tz'], ['Spitze', 'tz'], ['Witz', 'tz'], ['Platz', 'tz'], ['Blitz', 'tz'], ['Schatz', 'tz'],
+    ['Hitze', 'tz'], ['Netz', 'tz'], ['Pfütze', 'tz'], ['Satz', 'tz'], ['Matratze', 'tz'], ['Glatze', 'tz'], ['sitzen', 'tz'],
+    ['putzen', 'tz'], ['schwitzen', 'tz'], ['kratzen', 'tz'], ['flitzen', 'tz'], ['Spatz', 'tz'], ['Schnitzel', 'tz'],
+    ['Tatze', 'tz'], ['Klotz', 'tz'], ['Schutz', 'tz'], ['Fetzen', 'tz'],
+    ['Kreuz', 'z'], ['Herz', 'z'], ['Holz', 'z'], ['Pilz', 'z'], ['Salz', 'z'], ['Tanz', 'z'], ['Schmerz', 'z'], ['Kauz', 'z'],
+    ['heizen', 'z'], ['Weizen', 'z'], ['Kerze', 'z'], ['Arzt', 'z'], ['Kranz', 'z'], ['Pelz', 'z'], ['Walze', 'z'],
+    ['Schnauze', 'z'], ['Wurzel', 'z'], ['Grenze', 'z'], ['Münze', 'z'], ['Pflanze', 'z'], ['Gewürz', 'z'], ['stolz', 'z'],
+    ['schmelzen', 'z'], ['Geiz', 'z'],
+    ['Zucker', 'ck'], ['Decke', 'ck'], ['Glocke', 'ck'], ['Rucksack', 'ck'], ['Socke', 'ck'], ['Jacke', 'ck'], ['backen', 'ck'],
+    ['lecker', 'ck'], ['Schnecke', 'ck'], ['Brücke', 'ck'], ['Mücke', 'ck'], ['Ecke', 'ck'], ['Zecke', 'ck'], ['Wecker', 'ck'],
+    ['Pickel', 'ck'], ['Stück', 'ck'], ['Rock', 'ck'], ['Sack', 'ck'], ['dick', 'ck'], ['Blick', 'ck'], ['Lücke', 'ck'],
+    ['Hecke', 'ck'], ['Bäcker', 'ck'], ['Schmuck', 'ck'], ['Druck', 'ck'], ['Glück', 'ck'], ['Nacken', 'ck'],
+    ['Marke', 'k'], ['Bank', 'k'], ['Wolke', 'k'], ['Balken', 'k'], ['Onkel', 'k'], ['Enkel', 'k'], ['Winkel', 'k'],
+    ['Funke', 'k'], ['Pauke', 'k'], ['Haken', 'k'], ['Laken', 'k'], ['Rakete', 'k'], ['Paket', 'k'], ['Musik', 'k'],
+    ['Fabrik', 'k'], ['Harke', 'k'], ['Birke', 'k'], ['Gurke', 'k'], ['Schinken', 'k'], ['Dank', 'k'], ['Falke', 'k'],
+    ['Zirkus', 'k'], ['Werk', 'k'], ['stark', 'k'], ['Park', 'k'], ['Spuk', 'k']
+  ];
+  var TZCK_REGEL = 'Nach kurzem Vokal: tz und ck. Nach langem Vokal, Zwielaut (ei, au, eu) oder Mitlaut: z und k.';
+  function tzckLuecke(wort, schreibung) {
+    var i = wort.indexOf(schreibung);
+    return wort.slice(0, i) + '__' + wort.slice(i + schreibung.length);
+  }
+  function tzckFalsch(wort, schreibung) {
+    var andere = { tz: 'z', z: 'tz', ck: 'k', k: 'ck' }[schreibung];
+    var i = wort.indexOf(schreibung);
+    return wort.slice(0, i) + andere + wort.slice(i + schreibung.length);
+  }
+  var DEUTSCH_TZCK = [
+    {
+      id: 'tz-ck', klassen: [4, 5], schwierigkeit: 'schwer',
+      titel: 'tz oder z, ck oder k', lp21: 'D.5.A.1',
+      info: 'Katze oder Kaze? Zucker oder Zuker? Die Regel mit dem kurzen Vokal.',
+      gen: function () {
+        var e = pick(TZCK), wort = e[0], schr = e[1];
+        var paarVon = { tz: ['tz', 'z'], z: ['tz', 'z'], ck: ['ck', 'k'], k: ['ck', 'k'] }[schr];
+        var r = Math.random();
+        if (r < 0.5) {
+          return wahl(tzckLuecke(wort, schr) + '  —  was fehlt?', schr, [paarVon[0] === schr ? paarVon[1] : paarVon[0]],
+                      TZCK_REGEL, 'tzck:' + wort);
+        }
+        if (r < 0.8) {
+          return wahl('Wie schreibt man das Wort richtig?', wort, [tzckFalsch(wort, schr)], TZCK_REGEL, 'tzck:' + wort);
+        }
+        return { typ: 'text', frage: 'Setze ein und schreibe das ganze Wort:\n' + tzckLuecke(wort, schr), antwort: wort,
+                 hinweis: TZCK_REGEL, paar: 'tzck:' + wort };
+      }
+    }
+  ];
+
+  /* ============================================================
      Registrierung
      ============================================================ */
   var ALLE = [];
@@ -2817,6 +2987,8 @@
   reg('nmg', NMG_NEU);
   reg('franzoesisch', FRANZOESISCH_NEU);
   reg('mathe', MATHE_PROP);
+  reg('mathe', MATHE_STRAHL);
+  reg('deutsch', DEUTSCH_TZCK);
 
   /* Eigene Listen aus fotografierten Schulblättern. Die Dokumenten-Pipeline
      schreibt sie nach /lernwelt/eigene/listen.js (nur auf dem Server, nicht
