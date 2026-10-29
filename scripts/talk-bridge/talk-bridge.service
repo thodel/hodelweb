@@ -1,0 +1,14 @@
+[Unit]
+Description=talk-bridge — Nextcloud Talk ↔ Hermes Agent
+After=network-online.target hermes-gateway.service
+Wants=network-online.target
+
+[Service]
+WorkingDirectory=%h/talk-bridge
+EnvironmentFile=%h/.talk-bridge.env
+ExecStart=/usr/bin/python3 %h/talk-bridge/talk_bridge.py serve
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target

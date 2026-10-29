@@ -59,18 +59,26 @@ def log(*teile):
         pass
 
 
-def lade_konfig():
-    with KONFIG_PFAD.open(encoding="utf-8") as f:
-        k = json.load(f)
-    # Zugangsdaten stehen in einer eigenen Datei mit Rechten 600.
-    env_pfad = Path(os.path.expanduser(k.get("envDatei", "~/.scanpipe.env")))
+def lies_env(pfad):
+    """NAME=wert-Zeilen einer env-Datei als dict; fehlt sie, ein leeres."""
+    werte = {}
+    env_pfad = Path(os.path.expanduser(pfad))
     if env_pfad.exists():
         for zeile in env_pfad.read_text(encoding="utf-8").splitlines():
             zeile = zeile.strip()
             if not zeile or zeile.startswith("#") or "=" not in zeile:
                 continue
             name, wert = zeile.split("=", 1)
-            os.environ.setdefault(name.strip(), wert.strip().strip('"').strip("'"))
+            werte[name.strip()] = wert.strip().strip('"').strip("'")
+    return werte
+
+
+def lade_konfig():
+    with KONFIG_PFAD.open(encoding="utf-8") as f:
+        k = json.load(f)
+    # Zugangsdaten stehen in einer eigenen Datei mit Rechten 600.
+    for name, wert in lies_env(k.get("envDatei", "~/.scanpipe.env")).items():
+        os.environ.setdefault(name, wert)
     fehlend = [n for n in ("NEXTCLOUD_URL", "NEXTCLOUD_USER", "NEXTCLOUD_PASS")
                if not os.environ.get(n)]
     if fehlend:
@@ -124,8 +132,25 @@ class Cloud:
         """Antworten kommen vom Bot, nicht vom Benutzer — darum über openclaw.
         openclaw meldet die Nachrichten-ID nicht zurück, also lesen wir sie
         anschliessend aus dem Raum nach. Klappt das nicht, geht es direkt
-        über die OCS-Schnittstelle."""
-        if self.konfig.get("sendeUeberOpenclaw", True):
+        über die OCS-Schnittstelle. Mit `talkBridge` (Pfad zu talk_bridge.py)
+        postet stattdessen die Brücke als derselbe Bot — openclaw entfällt."""
+        bruecke = self.konfig.get("talkBridge")
+        if bruecke:
+            befehl = ["/usr/bin/python3", os.path.expanduser(bruecke), "send",
+                      "--room", raum, "--message", text]
+            if antwortAuf:
+                befehl += ["--reply-to", str(antwortAuf)]
+            umgebung = dict(os.environ)
+            umgebung.update(lies_env(self.konfig.get("talkBridgeEnv", "~/.talk-bridge.env")))
+            try:
+                p = subprocess.run(befehl, capture_output=True, text=True,
+                                   timeout=90, env=umgebung)
+                if p.returncode == 0:
+                    return self._letzte_bot_nachricht(raum)
+                log("talk-bridge send:", p.returncode, (p.stderr or "")[:200])
+            except (subprocess.SubprocessError, OSError) as e:
+                log("talk-bridge send nicht möglich:", e)
+        elif self.konfig.get("sendeUeberOpenclaw", True):
             befehl = [self.konfig.get("openclaw", "openclaw"), "message", "send",
                       "--channel", "nextcloud-talk", "--target", raum,
                       "--message", text]
