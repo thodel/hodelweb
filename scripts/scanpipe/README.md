@@ -15,7 +15,7 @@ erkannt, benannt und in den passenden Ordner einsortiert.
    1600 Pixel verkleinert und normalisiert, damit das Modell weniger Rauschen
    sieht. Aus PDFs werden die ersten Seiten als Bilder gerendert
    (`pdfSeiten`, Vorgabe 3) und gemeinsam ausgewertet.
-4. **Erkennen** — `openclaw agent` mit einem bildfähigen Modell liefert ein
+4. **Erkennen** — `qwen3-vl-plus` (direkt über DashScope) liefert ein
    JSON: Domäne, Dokumenttyp, Absender, Betreff, Datum, Fälligkeit, Betrag,
    Währung, Referenz, Empfänger, Sicherheit, Handlungsbedarf, Volltext.
 5. **Einsortieren** — Die Originaldatei wandert nach
@@ -91,7 +91,7 @@ Der Raum *Dokumente* (`4cavkg2r`) ist die Ablage: nur Fotos hinein, nur Berichte
 heraus. Der Raum *Lernwelt A.* (`gr5bir5r`, Mitglieder th und AH) hat
 `"modus": "lernwelt"`: jedes Foto wird zur Übung für dieses Kind, und es darf
 auch selbst auslösen (`"absender": ["th", "AH"]`). Sonst zählen nur
-Nachrichten des Besitzers. Der openclaw-Agent ist dort **nicht** eingebunden, er kommentiert also
+Nachrichten des Besitzers. Ein Chat-Bot ist dort **nicht** eingebunden, er kommentiert also
 nichts und verbraucht keine Modellaufrufe.
 
 Damit der Bot dort schreiben darf, musste er einmalig für das Gespräch
@@ -124,7 +124,7 @@ Dokument in `sonstiges`. Ist das Bild gar kein Dokument, bleibt es liegen.
 | `~/scanpipe/config.json` | Raum, Zielordner, Modell, Domänen |
 | `~/scanpipe/state.json` | zuletzt verarbeitete Nachricht, Berichtszuordnung |
 | `~/scanpipe/scanpipe.log` | Lauf-Protokoll |
-| `~/.scanpipe.env` | Nextcloud-Zugang, Rechte 600 |
+| `~/.scanpipe.env` | Nextcloud-Zugang und `DASHSCOPE_API_KEY`, Rechte 600 |
 | `~/.config/systemd/user/scanpipe.{service,timer}` | Zeitsteuerung |
 
 ## Betrieb
@@ -154,7 +154,7 @@ sich `state.json`.
 |---|---|
 | `convert` (ImageMagick) | Fotos verkleinern und normalisieren |
 | `pdftoppm` (poppler-utils) | PDF-Seiten in Bilder rendern |
-| `openclaw` | Modellzugriff und Senden im Chat |
+| talk-bridge (`scripts/talk-bridge/`) | Antworten im Chat als Bot |
 | Python 3 mit `requests` | die Pipeline selbst |
 
 Alle vier sind vorhanden. ImageMagick darf auf diesem Server keine PDFs
@@ -163,9 +163,16 @@ schreiben (Sicherheitsrichtlinie), lesen muss es sie auch nicht — dafür ist
 
 ## Modell
 
-`custom-api-qwen/qwen3-vl-plus` über DashScope, angebunden in openclaw. Der
-Aufruf läuft über `openclaw agent`, damit die Zugangsdaten im openclaw-Speicher
-bleiben und die Pipeline keinen eigenen Modellschlüssel braucht.
+`qwen3-vl-plus` über DashScope (`modellDirekt` in der config.json: Endpunkt,
+Modell, Name der Schlüsselvariable). Die Seiten gehen als data-URLs an
+`/chat/completions`, die Antwort muss ein JSON-Objekt enthalten. Der Schlüssel
+steht als `DASHSCOPE_API_KEY` in `~/.scanpipe.env`.
+
+Bis zum 29.10.2026 lief der Aufruf über `openclaw agent` (cl-bot). Dieser Weg
+ist noch im Code und greift, wenn `modellDirekt` fehlt; mit dem Abbau von
+openclaw entfällt er. Ebenso postet scanpipe seine Antworten über die
+talk-bridge (`talkBridge`), sonst über `openclaw message send` bzw. direkt
+als Benutzer.
 
 Gemini war zuerst vorgesehen, ist aber nicht nutzbar: die Modelle sind in der
 openclaw-Konfiguration an die Gemini-CLI-Anmeldung gebunden (OAuth abgelaufen),

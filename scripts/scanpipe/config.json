@@ -4,7 +4,13 @@
   "agent": "main",
   "openclaw": "openclaw",
   "modellTimeout": 240,
-  "agentWorkspace": "~/.openclaw/workspace",
+  "modellDirekt": {
+    "baseUrl": "https://dashscope-intl.aliyuncs.com/compatible-mode/v1",
+    "modell": "qwen3-vl-plus",
+    "keyEnv": "DASHSCOPE_API_KEY"
+  },
+  "talkBridge": "~/talk-bridge/talk_bridge.py",
+  "agentWorkspace": "~/scanpipe/arbeit",
   "envDatei": "~/.scanpipe.env",
   "holeAnzahl": 50,
   "domaenen": [

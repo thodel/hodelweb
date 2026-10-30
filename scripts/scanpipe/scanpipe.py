@@ -17,6 +17,7 @@ Läuft als systemd-User-Timer. Zustand steht in state.json, damit nichts
 doppelt verarbeitet wird.
 """
 
+import base64
 import fcntl
 import json
 import mimetypes
@@ -332,6 +333,10 @@ def erkenne(konfig, bilder, arbeitsverzeichnis: Path, sitzung: str, prompt=None)
         prompt = prompt.format(datei=namen)
     else:
         prompt = PROMPT.format(datei=namen, domaenen=", ".join(konfig["domaenen"]))
+    if konfig.get("modellDirekt"):
+        for k in kopien:
+            k.unlink(missing_ok=True)
+        return erkenne_direkt(konfig, bilder, prompt)
     befehl = [
         konfig.get("openclaw", "openclaw"), "agent",
         "--agent", konfig.get("agent", "main"),
@@ -355,6 +360,40 @@ def erkenne(konfig, bilder, arbeitsverzeichnis: Path, sitzung: str, prompt=None)
                 pass
 
     roh = (p.stdout or "") + ("\n" + p.stderr if p.returncode else "")
+    daten = json_aus_text(roh)
+    if daten is None:
+        return None, "Antwort war kein JSON: " + roh.strip()[:300]
+    return daten, None
+
+
+def erkenne_direkt(konfig, bilder, prompt):
+    """Wie erkenne(), aber ohne openclaw: die Seiten gehen als data-URLs an
+    einen OpenAI-kompatiblen Endpunkt (`modellDirekt`: baseUrl, modell,
+    keyEnv). Gibt (dict, None) oder (None, Fehler) zurück."""
+    d = konfig["modellDirekt"]
+    schluessel = os.environ.get(d.get("keyEnv", "DASHSCOPE_API_KEY"))
+    if not schluessel:
+        return None, f"{d.get('keyEnv', 'DASHSCOPE_API_KEY')} fehlt in der env-Datei"
+    inhalt = [{"type": "text", "text": prompt}]
+    for b in bilder:
+        art = mimetypes.guess_type(b.name)[0] or "image/jpeg"
+        daten = base64.b64encode(b.read_bytes()).decode()
+        inhalt.append({"type": "image_url",
+                       "image_url": {"url": f"data:{art};base64,{daten}"}})
+    try:
+        r = requests.post(
+            d["baseUrl"].rstrip("/") + "/chat/completions",
+            headers={"Authorization": f"Bearer {schluessel}"},
+            json={"model": d["modell"], "temperature": 0,
+                  "messages": [{"role": "user", "content": inhalt}]},
+            timeout=konfig.get("modellTimeout", 240))
+    except requests.Timeout:
+        return None, "Zeitüberschreitung beim Modell"
+    except requests.RequestException as e:
+        return None, f"Modell nicht erreichbar: {e}"
+    if r.status_code >= 300:
+        return None, f"Modell antwortete {r.status_code}: {r.text[:200]}"
+    roh = r.json()["choices"][0]["message"].get("content") or ""
     daten = json_aus_text(roh)
     if daten is None:
         return None, "Antwort war kein JSON: " + roh.strip()[:300]
