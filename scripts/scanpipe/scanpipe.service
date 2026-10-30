@@ -1,6 +1,6 @@
 [Unit]
 Description=scanpipe — Dokumente aus dem Nextcloud-Talk-Chat einsortieren
-After=network-online.target openclaw-gateway.service
+After=network-online.target
 Wants=network-online.target
 
 [Service]
